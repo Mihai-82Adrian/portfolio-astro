@@ -16,14 +16,14 @@ npm install
 
 ## Available Scripts
 
-- `npm run dev` - Start development server (http://localhost:4321)
+- `npm run dev` - Start development server (<http://localhost:4321>)
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build locally
 - `npm run check` - Run TypeScript type checking
 
 ## Directory Structure
 
-```
+```structure
 portfolio-astro/
 ├── public/                  # Static assets (no processing)
 │   └── images/             # Image assets
@@ -48,9 +48,11 @@ portfolio-astro/
 ## Installed Dependencies
 
 ### Production
+
 - `astro@5.15.4` - Core framework
 
 ### Development
+
 - `@astrojs/check@0.9.5` - TypeScript type checking
 - `typescript@5.9.3` - TypeScript compiler
 - `@types/node@24.10.0` - Node.js type definitions
@@ -58,7 +60,8 @@ portfolio-astro/
 ## Configuration
 
 ### Astro Configuration (`astro.config.mjs`)
-- **Site URL**: https://me-mateescu.de
+
+- **Site URL**: <https://me-mateescu.de>
 - **Output**: static (for Cloudflare Pages)
 - **Build Directory**: ./dist
 - **Features**:
@@ -67,6 +70,7 @@ portfolio-astro/
   - Directory-based URL structure
 
 ### TypeScript Configuration (`tsconfig.json`)
+
 - **Mode**: Strict mode enabled
 - **Path Aliases**:
   - `@components/*` → `src/components/*`
@@ -76,6 +80,7 @@ portfolio-astro/
   - `@content/*` → `src/content/*`
 
 ### Content Collections
+
 - **Blog Collection**: Configured with Zod schema
 - **Schema Fields**: title, description, pubDate, updatedDate, tags, draft, featured, image
 
@@ -88,18 +93,21 @@ portfolio-astro/
 ## Next Steps
 
 ### Immediate (Phase 1, Week 1)
+
 1. Add Tailwind CSS 4.x integration
 2. Configure design system (colors, typography, spacing)
 3. Create base layout components
 4. Set up dark mode support
 
 ### Phase 1, Week 2
+
 1. Create UI component library
 2. Build blog components
 3. Set up MDX processing
 4. Add responsive navigation
 
 ### Phase 1, Week 3-4
+
 1. Migrate blog content from legacy HTML
 2. Create multilingual pages (DE/EN/RO)
 3. Optimize images with Astro's built-in service
