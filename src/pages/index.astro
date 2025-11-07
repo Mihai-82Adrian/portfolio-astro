@@ -1,16 +1,110 @@
 ---
+/**
+ * Homepage - Mihai Adrian Mateescu Portfolio
+ *
+ * Temporary homepage showcasing the design system
+ * Full homepage will be built in Phase 1, Week 2
+ */
 
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ThemeToggle from '@/components/ui/ThemeToggle.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout>
+  <div class="min-h-screen bg-light-bg dark:bg-dark-bg transition-colors duration-200">
+    <!-- Header -->
+    <header class="border-b border-light-border dark:border-dark-border">
+      <div class="container-custom py-4 flex justify-between items-center">
+        <div class="text-xl font-bold text-eucalyptus-700 dark:text-eucalyptus-300">
+          Mihai Adrian Mateescu
+        </div>
+        <ThemeToggle />
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="container-custom">
+      <section class="section text-center">
+        <h1 class="text-5xl md:text-6xl font-bold mb-6">
+          Finance Meets <span class="text-gradient">Innovation</span>
+        </h1>
+        <p class="text-xl md:text-2xl text-text-secondary-light dark:text-text-secondary-dark max-w-3xl mx-auto mb-8">
+          Bilanzbuchhalter in training with expertise in finance, accounting, and AI/ML development.
+          Bridging traditional finance with cutting-edge technology.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a href="/design-system-test" class="btn-primary">
+            View Design System
+          </a>
+          <a href="#about" class="btn-secondary">
+            Learn More
+          </a>
+        </div>
+      </section>
+
+      <!-- Quick Intro -->
+      <section id="about" class="section max-w-4xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="card">
+            <h2 class="text-2xl font-semibold mb-4 text-eucalyptus-700 dark:text-eucalyptus-300">
+              Finance & Accounting
+            </h2>
+            <p class="text-text-secondary-light dark:text-text-secondary-dark">
+              Currently pursuing Bilanzbuchhalter certification with 20+ years of experience in
+              finance, controlling, and business analysis. Expert in IFRS, HGB, and financial
+              reporting.
+            </p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <span class="badge">Finance</span>
+              <span class="badge">Accounting</span>
+              <span class="badge">Controlling</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 class="text-2xl font-semibold mb-4 text-eucalyptus-700 dark:text-eucalyptus-300">
+              AI/ML Development
+            </h2>
+            <p class="text-text-secondary-light dark:text-text-secondary-dark">
+              Self-taught AI/ML developer with expertise in Python, TensorFlow, and modern web
+              technologies. Building intelligent solutions that bridge finance and technology.
+            </p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <span class="badge">Python</span>
+              <span class="badge">TensorFlow</span>
+              <span class="badge">TypeScript</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Design System Link -->
+      <section class="section text-center">
+        <div class="card inline-block">
+          <h3 class="text-xl font-semibold mb-2">Design System</h3>
+          <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+            View the complete design system with color palette, typography, and components.
+          </p>
+          <a href="/design-system-test" class="btn-ghost">
+            Explore Design System →
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-light-border dark:border-dark-border mt-16">
+      <div class="container-custom py-8 text-center text-sm text-text-secondary-light dark:text-text-secondary-dark">
+        <p>© 2025 Mihai Adrian Mateescu. All rights reserved.</p>
+        <p class="mt-2">Built with Astro, TypeScript, and Tailwind CSS 4.x</p>
+      </div>
+    </footer>
+  </div>
+</BaseLayout>
+
+<script>
+  import { initTheme } from '@/utils/theme';
+
+  // Initialize theme on page load
+  initTheme();
+</script>

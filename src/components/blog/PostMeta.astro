@@ -1,0 +1,256 @@
+---
+/**
+ * PostMeta Component
+ *
+ * Display post metadata including author, date, reading time, and tags.
+ * Used in blog post pages to show article information.
+ *
+ * @component
+ */
+
+import Badge from '@components/ui/Badge.astro';
+
+interface Props {
+  /** Author name */
+  author?: string;
+  /** Publication date */
+  pubDate: Date;
+  /** Last updated date */
+  updatedDate?: Date;
+  /** Reading time in minutes */
+  readingTime?: number;
+  /** Post tags */
+  tags?: string[];
+  /** Show share buttons */
+  showShare?: boolean;
+}
+
+const {
+  author = 'Mihai Adrian Mateescu',
+  pubDate,
+  updatedDate,
+  readingTime,
+  tags = [],
+  showShare = false,
+} = Astro.props;
+
+const formattedPubDate = pubDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const formattedUpdatedDate = updatedDate?.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<div class="post-meta">
+  <!-- Author & Date -->
+  <div class="post-meta-row">
+    <div class="post-meta-author">
+      <svg
+        class="post-meta-icon"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+        />
+      </svg>
+      <span>{author}</span>
+    </div>
+
+    <div class="post-meta-date">
+      <svg
+        class="post-meta-icon"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+        />
+      </svg>
+      <time datetime={pubDate.toISOString()}>
+        {formattedPubDate}
+      </time>
+    </div>
+
+    {readingTime && (
+      <div class="post-meta-reading-time">
+        <svg
+          class="post-meta-icon"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <span>{readingTime} min read</span>
+      </div>
+    )}
+  </div>
+
+  <!-- Updated Date -->
+  {updatedDate && (
+    <div class="post-meta-updated">
+      <svg
+        class="post-meta-icon"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+        />
+      </svg>
+      <time datetime={updatedDate.toISOString()}>
+        Updated on {formattedUpdatedDate}
+      </time>
+    </div>
+  )}
+
+  <!-- Tags -->
+  {tags.length > 0 && (
+    <div class="post-meta-tags">
+      <span class="post-meta-tags-label">Tags:</span>
+      <div class="post-meta-tags-list">
+        {tags.map((tag) => (
+          <a href={`/blog/tags/${tag.toLowerCase()}`} class="post-meta-tag-link">
+            <Badge size="sm">{tag}</Badge>
+          </a>
+        ))}
+      </div>
+    </div>
+  )}
+
+  <!-- Share Buttons (Placeholder) -->
+  {showShare && (
+    <div class="post-meta-share">
+      <span class="post-meta-share-label">Share:</span>
+      <div class="post-meta-share-buttons">
+        <button
+          type="button"
+          class="post-meta-share-button"
+          aria-label="Share on Twitter"
+          title="Share on Twitter"
+        >
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          class="post-meta-share-button"
+          aria-label="Share on LinkedIn"
+          title="Share on LinkedIn"
+        >
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          class="post-meta-share-button"
+          aria-label="Copy link"
+          title="Copy link"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  )}
+</div>
+
+<style>
+  .post-meta {
+    @apply space-y-4 pb-6 mb-6;
+    @apply border-b border-light-border dark:border-dark-border;
+  }
+
+  .post-meta-row {
+    @apply flex flex-wrap items-center gap-4 md:gap-6;
+    @apply text-sm text-text-secondary-light dark:text-text-secondary-dark;
+  }
+
+  .post-meta-author,
+  .post-meta-date,
+  .post-meta-reading-time,
+  .post-meta-updated {
+    @apply flex items-center gap-2;
+  }
+
+  .post-meta-icon {
+    @apply w-5 h-5 flex-shrink-0;
+  }
+
+  .post-meta-updated {
+    @apply text-sm italic;
+    @apply text-text-tertiary-light dark:text-text-tertiary-dark;
+  }
+
+  /* Tags */
+  .post-meta-tags {
+    @apply flex flex-wrap items-center gap-2;
+  }
+
+  .post-meta-tags-label {
+    @apply text-sm font-medium;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+  }
+
+  .post-meta-tags-list {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .post-meta-tag-link {
+    @apply  rounded-full;
+    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+  }
+
+  /* Share buttons */
+  .post-meta-share {
+    @apply flex flex-wrap items-center gap-3;
+  }
+
+  .post-meta-share-label {
+    @apply text-sm font-medium;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+  }
+
+  .post-meta-share-buttons {
+    @apply flex gap-2;
+  }
+
+  .post-meta-share-button {
+    @apply p-2 rounded-lg;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+    @apply hover:text-eucalyptus-700 dark:hover:text-eucalyptus-300;
+    @apply hover:bg-eucalyptus-50 dark:hover:bg-dark-elevated;
+    @apply transition-all duration-150;
+  }
+</style>

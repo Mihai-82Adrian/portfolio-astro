@@ -1,0 +1,140 @@
+---
+/**
+ * Card Component
+ *
+ * Flexible card container with variants, hover effects, and optional sections.
+ * Uses the design system's card utilities with additional customization options.
+ *
+ * @component
+ * @example
+ * <Card variant="default">
+ *   <h3>Card Title</h3>
+ *   <p>Card content goes here.</p>
+ * </Card>
+ */
+
+interface Props {
+  /** Card variant style */
+  variant?: 'default' | 'accented' | 'colored';
+  /** Enable hover effect */
+  hover?: boolean;
+  /** Additional CSS classes */
+  class?: string;
+  /** Padding size */
+  padding?: 'sm' | 'md' | 'lg';
+  /** Link href (makes entire card clickable) */
+  href?: string;
+  /** Target attribute for card link */
+  target?: '_blank' | '_self';
+}
+
+const {
+  variant = 'default',
+  hover = false,
+  class: className = '',
+  padding = 'md',
+  href,
+  target,
+} = Astro.props;
+
+const Tag = href ? 'a' : 'div';
+
+const paddingClasses = {
+  sm: 'p-4 md:p-5',
+  md: 'p-6 md:p-8',
+  lg: 'p-8 md:p-10',
+};
+
+const variantClasses = {
+  default: 'card-default',
+  accented: 'card-accented',
+  colored: 'card-colored',
+};
+---
+
+<Tag
+  href={href}
+  target={target}
+  rel={target === '_blank' ? 'noopener noreferrer' : undefined}
+  class:list={[
+    'card',
+    variantClasses[variant],
+    paddingClasses[padding],
+    hover && 'card-hover',
+    href && 'card-link',
+    className,
+  ]}
+>
+  {Astro.slots.has('header') && (
+    <div class="card-header">
+      <slot name="header" />
+    </div>
+  )}
+
+  <div class="card-content">
+    <slot />
+  </div>
+
+  {Astro.slots.has('footer') && (
+    <div class="card-footer">
+      <slot name="footer" />
+    </div>
+  )}
+</Tag>
+
+<style>
+  /* Base card styles are in global.css */
+
+  /* Card variants */
+  .card-default {
+    /* Uses default card styles from global.css */
+  }
+
+  .card-accented {
+    @apply border-l-4 border-eucalyptus-600 dark:border-eucalyptus-400;
+  }
+
+  .card-colored {
+    @apply bg-gradient-to-br from-eucalyptus-50 to-light-surface;
+    @apply dark:from-dark-surface dark:to-eucalyptus-950;
+  }
+
+  /* Hover effect */
+  .card-hover {
+    @apply transition-all duration-200;
+  }
+
+  .card-hover:hover {
+    @apply shadow-elevated;
+    transform: translateY(-2px);
+  }
+
+  /* Clickable card link styles */
+  .card-link {
+    @apply cursor-pointer ;
+    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+    text-decoration: none;
+  }
+
+  .card-link:hover {
+    @apply no-underline;
+  }
+
+  /* Card sections */
+  .card-header {
+    @apply mb-4 pb-4 border-b border-light-border dark:border-dark-border;
+  }
+
+  .card-content {
+    /* Main content area */
+  }
+
+  .card-footer {
+    @apply mt-4 pt-4 border-t border-light-border dark:border-dark-border;
+  }
+
+  /* Smooth transitions */
+  .card {
+    transition: all var(--transition-base) ease-in-out;
+  }
+</style>

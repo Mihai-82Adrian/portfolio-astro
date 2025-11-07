@@ -1,0 +1,284 @@
+---
+/**
+ * Callout Component
+ *
+ * Highlighted callout box for important information, warnings, tips, etc.
+ * Used in blog posts and documentation to draw attention to specific content.
+ *
+ * @component
+ * @example
+ * <Callout variant="info" title="Did you know?">
+ *   Rust's ownership system prevents data races at compile time!
+ * </Callout>
+ */
+
+interface Props {
+  /** Callout variant/type */
+  variant?: 'info' | 'success' | 'warning' | 'error' | 'note';
+  /** Optional title */
+  title?: string;
+  /** Collapsible callout */
+  collapsible?: boolean;
+  /** Default collapsed state (only works with collapsible) */
+  defaultCollapsed?: boolean;
+  /** Additional CSS classes */
+  class?: string;
+}
+
+const {
+  variant = 'info',
+  title,
+  collapsible = false,
+  defaultCollapsed = false,
+  class: className = '',
+} = Astro.props;
+
+const variantConfig = {
+  info: {
+    icon: 'info',
+    defaultTitle: 'Information',
+    color: 'info',
+  },
+  success: {
+    icon: 'check',
+    defaultTitle: 'Success',
+    color: 'success',
+  },
+  warning: {
+    icon: 'warning',
+    defaultTitle: 'Warning',
+    color: 'warning',
+  },
+  error: {
+    icon: 'error',
+    defaultTitle: 'Error',
+    color: 'error',
+  },
+  note: {
+    icon: 'note',
+    defaultTitle: 'Note',
+    color: 'default',
+  },
+};
+
+const config = variantConfig[variant];
+const displayTitle = title || config.defaultTitle;
+---
+
+<div
+  class:list={[
+    'callout',
+    `callout-${variant}`,
+    collapsible && 'callout-collapsible',
+    className,
+  ]}
+  role={variant === 'error' ? 'alert' : 'note'}
+  aria-live={variant === 'error' ? 'assertive' : 'polite'}
+>
+  <!-- Header -->
+  {collapsible ? (
+    <button
+      type="button"
+      class="callout-header callout-toggle"
+      aria-expanded={!defaultCollapsed}
+      data-callout-toggle
+    >
+      <div class="callout-title-wrapper">
+        <span class="callout-icon" aria-hidden="true">
+          {config.icon === 'info' && (
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+          )}
+          {config.icon === 'check' && (
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+          )}
+          {config.icon === 'warning' && (
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+          )}
+          {config.icon === 'error' && (
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+          )}
+          {config.icon === 'note' && (
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+            </svg>
+          )}
+        </span>
+        <span class="callout-title">{displayTitle}</span>
+      </div>
+      <svg
+        class="callout-chevron"
+        data-callout-chevron
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+  ) : (
+    <div class="callout-header">
+      <span class="callout-icon" aria-hidden="true">
+        {config.icon === 'info' && (
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+          </svg>
+        )}
+        {config.icon === 'check' && (
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+        )}
+        {config.icon === 'warning' && (
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+        )}
+        {config.icon === 'error' && (
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+        )}
+        {config.icon === 'note' && (
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+          </svg>
+        )}
+      </span>
+      <span class="callout-title">{displayTitle}</span>
+    </div>
+  )}
+
+  <!-- Content -->
+  <div
+    class:list={[
+      'callout-content',
+      defaultCollapsed && 'hidden',
+    ]}
+    data-callout-content
+  >
+    <slot />
+  </div>
+</div>
+
+<script>
+  // Collapsible functionality
+  document.querySelectorAll('[data-callout-toggle]').forEach((toggle) => {
+    toggle.addEventListener('click', () => {
+      const callout = toggle.closest('.callout');
+      const content = callout?.querySelector('[data-callout-content]');
+      const chevron = toggle.querySelector('[data-callout-chevron]');
+
+      if (content) {
+        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!isExpanded));
+        content.classList.toggle('hidden');
+        chevron?.classList.toggle('rotate-180');
+      }
+    });
+  });
+</script>
+
+<style>
+  .callout {
+    @apply rounded-lg my-6 overflow-hidden;
+    @apply border-l-4;
+    @apply transition-all duration-200;
+  }
+
+  /* Variant styles */
+  .callout-info {
+    @apply border-info bg-info-light dark:bg-info-dark/20;
+  }
+
+  .callout-success {
+    @apply border-success bg-success-light dark:bg-success-dark/20;
+  }
+
+  .callout-warning {
+    @apply border-warning bg-warning-light dark:bg-warning-dark/20;
+  }
+
+  .callout-error {
+    @apply border-error bg-error-light dark:bg-error-dark/20;
+  }
+
+  .callout-note {
+    @apply border-eucalyptus-600 bg-eucalyptus-50 dark:bg-eucalyptus-900/20;
+  }
+
+  /* Header */
+  .callout-header {
+    @apply flex items-center gap-3 px-4 py-3;
+  }
+
+  .callout-toggle {
+    @apply w-full flex items-center justify-between;
+    @apply  rounded-t-lg;
+    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+  }
+
+  .callout-title-wrapper {
+    @apply flex items-center gap-3;
+  }
+
+  .callout-icon {
+    @apply flex-shrink-0;
+  }
+
+  .callout-info .callout-icon {
+    @apply text-info;
+  }
+
+  .callout-success .callout-icon {
+    @apply text-success;
+  }
+
+  .callout-warning .callout-icon {
+    @apply text-warning-dark;
+  }
+
+  .callout-error .callout-icon {
+    @apply text-error;
+  }
+
+  .callout-note .callout-icon {
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+  }
+
+  .callout-title {
+    @apply font-semibold text-text-primary-light dark:text-text-primary-dark;
+  }
+
+  .callout-chevron {
+    @apply w-5 h-5 flex-shrink-0;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+    @apply transition-transform duration-200;
+  }
+
+  /* Content */
+  .callout-content {
+    @apply px-4 pb-4;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+  }
+
+  .callout-content > :first-child {
+    @apply mt-0;
+  }
+
+  .callout-content > :last-child {
+    @apply mb-0;
+  }
+
+  /* Collapsible animation */
+  .callout-content.hidden {
+    display: none;
+  }
+</style>

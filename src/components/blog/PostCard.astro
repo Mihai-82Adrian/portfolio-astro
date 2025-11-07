@@ -1,0 +1,253 @@
+---
+/**
+ * PostCard Component
+ *
+ * Blog post preview card with image, title, excerpt, metadata, and tags.
+ * Designed for use in blog listings and featured post sections.
+ *
+ * @component
+ */
+
+import Badge from '@components/ui/Badge.astro';
+
+interface Props {
+  /** Post title */
+  title: string;
+  /** Post URL slug */
+  slug: string;
+  /** Post description/excerpt */
+  description?: string;
+  /** Publication date */
+  pubDate: Date;
+  /** Reading time in minutes */
+  readingTime?: number;
+  /** Post tags */
+  tags?: string[];
+  /** Featured image */
+  image?: {
+    src: string;
+    alt: string;
+  };
+  /** Featured post flag */
+  featured?: boolean;
+}
+
+const {
+  title,
+  slug,
+  description,
+  pubDate,
+  readingTime,
+  tags = [],
+  image,
+  featured = false,
+} = Astro.props;
+
+const formattedDate = pubDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<article class="post-card group">
+  <a href={`/blog/${slug}`} class="post-card-link">
+    <!-- Featured Image -->
+    {image && (
+      <div class="post-card-image-wrapper">
+        <img
+          src={image.src}
+          alt={image.alt}
+          class="post-card-image"
+          loading="lazy"
+          decoding="async"
+        />
+        {featured && (
+          <div class="post-card-badge">
+            <Badge variant="warning" size="sm">Featured</Badge>
+          </div>
+        )}
+      </div>
+    )}
+
+    <!-- Content -->
+    <div class="post-card-content">
+      <!-- Metadata -->
+      <div class="post-card-meta">
+        <time datetime={pubDate.toISOString()} class="post-card-date">
+          {formattedDate}
+        </time>
+        {readingTime && (
+          <>
+            <span class="post-card-separator" aria-hidden="true">·</span>
+            <span class="post-card-reading-time">
+              {readingTime} min read
+            </span>
+          </>
+        )}
+      </div>
+
+      <!-- Title -->
+      <h3 class="post-card-title">
+        {title}
+      </h3>
+
+      <!-- Description -->
+      {description && (
+        <p class="post-card-description">
+          {description}
+        </p>
+      )}
+
+      <!-- Tags -->
+      {tags.length > 0 && (
+        <div class="post-card-tags">
+          {tags.slice(0, 3).map((tag) => (
+            <Badge size="sm">{tag}</Badge>
+          ))}
+          {tags.length > 3 && (
+            <span class="post-card-tags-more">
+              +{tags.length - 3} more
+            </span>
+          )}
+        </div>
+      )}
+
+      <!-- Read More Link -->
+      <div class="post-card-cta">
+        <span class="post-card-cta-text">
+          Read more
+          <svg
+            class="post-card-cta-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 8l4 4m0 0l-4 4m4-4H3"
+            />
+          </svg>
+        </span>
+      </div>
+    </div>
+  </a>
+</article>
+
+<style>
+  .post-card {
+    @apply rounded-lg overflow-hidden;
+    @apply bg-light-surface dark:bg-dark-surface;
+    @apply border border-light-border dark:border-dark-border;
+    @apply transition-all duration-300;
+    box-shadow: var(--shadow-card);
+  }
+
+  .post-card:hover {
+    box-shadow: var(--shadow-elevated);
+    transform: translateY(-4px);
+  }
+
+  .post-card-link {
+    @apply block  rounded-lg;
+    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+    text-decoration: none;
+  }
+
+  /* Image */
+  .post-card-image-wrapper {
+    @apply relative aspect-video w-full overflow-hidden;
+    background: linear-gradient(135deg, var(--bg-surface) 0%, var(--accent-primary) 100%);
+  }
+
+  .post-card-image {
+    @apply w-full h-full object-cover;
+    @apply transition-transform duration-300;
+  }
+
+  .post-card:hover .post-card-image {
+    transform: scale(1.05);
+  }
+
+  .post-card-badge {
+    @apply absolute top-4 right-4;
+  }
+
+  /* Content */
+  .post-card-content {
+    @apply p-6;
+  }
+
+  /* Metadata */
+  .post-card-meta {
+    @apply flex items-center space-x-2 mb-3;
+    @apply text-sm text-text-secondary-light dark:text-text-secondary-dark;
+  }
+
+  .post-card-date,
+  .post-card-reading-time {
+    @apply font-medium;
+  }
+
+  .post-card-separator {
+    @apply text-text-tertiary-light dark:text-text-tertiary-dark;
+  }
+
+  /* Title */
+  .post-card-title {
+    @apply text-xl md:text-2xl font-semibold mb-3;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+    @apply transition-colors duration-150;
+    line-height: 1.3;
+  }
+
+  .post-card:hover .post-card-title {
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+  }
+
+  /* Description */
+  .post-card-description {
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+    @apply mb-4;
+    @apply line-clamp-2;
+    line-height: 1.6;
+  }
+
+  /* Tags */
+  .post-card-tags {
+    @apply flex flex-wrap gap-2 mb-4;
+  }
+
+  .post-card-tags-more {
+    @apply text-sm text-text-tertiary-light dark:text-text-tertiary-dark;
+    @apply px-2 py-1;
+  }
+
+  /* CTA */
+  .post-card-cta {
+    @apply pt-4 border-t border-light-border dark:border-dark-border;
+  }
+
+  .post-card-cta-text {
+    @apply inline-flex items-center gap-2;
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+    @apply font-medium;
+    @apply transition-all duration-150;
+  }
+
+  .post-card:hover .post-card-cta-text {
+    @apply text-eucalyptus-600 dark:text-eucalyptus-200;
+  }
+
+  .post-card-cta-icon {
+    @apply w-4 h-4;
+    @apply transition-transform duration-150;
+  }
+
+  .post-card:hover .post-card-cta-icon {
+    transform: translateX(4px);
+  }
+</style>

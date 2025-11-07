@@ -1,0 +1,271 @@
+---
+/**
+ * TableOfContents Component
+ *
+ * Auto-generated table of contents from headings with scroll-spy.
+ * Sticky positioned on desktop, collapsible on mobile.
+ *
+ * @component
+ */
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  /** Array of headings */
+  headings: Heading[];
+  /** Show on mobile (default: collapsible) */
+  showOnMobile?: boolean;
+}
+
+const { headings = [], showOnMobile = false } = Astro.props;
+
+// Filter to only show h2 and h3 headings
+const filteredHeadings = headings.filter((h) => h.depth <= 3);
+---
+
+{filteredHeadings.length > 0 && (
+  <aside class="toc-wrapper" aria-label="Table of contents">
+    <div class="toc-container">
+      <!-- Mobile Toggle Button -->
+      <button
+        type="button"
+        id="toc-toggle"
+        class="toc-toggle"
+        aria-expanded="false"
+        aria-controls="toc-content"
+      >
+        <span class="toc-title">Table of Contents</span>
+        <svg
+          class="toc-toggle-icon"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </button>
+
+      <!-- TOC Content -->
+      <nav
+        id="toc-content"
+        class:list={[
+          'toc-content',
+          !showOnMobile && 'hidden md:block',
+        ]}
+      >
+        <h2 class="toc-heading">On this page</h2>
+        <ul class="toc-list">
+          {filteredHeadings.map((heading) => (
+            <li
+              class:list={[
+                'toc-item',
+                `toc-item-${heading.depth}`,
+              ]}
+            >
+              <a
+                href={`#${heading.slug}`}
+                class="toc-link"
+                data-toc-link={heading.slug}
+              >
+                {heading.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+  </aside>
+)}
+
+<script>
+  // Mobile toggle functionality
+  const tocToggle = document.getElementById('toc-toggle');
+  const tocContent = document.getElementById('toc-content');
+
+  if (tocToggle && tocContent) {
+    tocToggle.addEventListener('click', () => {
+      const isExpanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', String(!isExpanded));
+      tocContent.classList.toggle('hidden');
+
+      // Rotate icon
+      const icon = tocToggle.querySelector('.toc-toggle-icon');
+      if (icon) {
+        icon.classList.toggle('rotate-180');
+      }
+    });
+  }
+
+  // Scroll-spy functionality
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const id = entry.target.getAttribute('id');
+        const link = document.querySelector(`[data-toc-link="${id}"]`);
+
+        if (link) {
+          if (entry.isIntersecting) {
+            // Remove active class from all links
+            document.querySelectorAll('[data-toc-link]').forEach((l) => {
+              l.classList.remove('toc-link-active');
+            });
+            // Add active class to current link
+            link.classList.add('toc-link-active');
+          }
+        }
+      });
+    },
+    {
+      rootMargin: '-100px 0px -66%',
+      threshold: 0,
+    }
+  );
+
+  // Observe all headings
+  document.querySelectorAll('h2[id], h3[id]').forEach((heading) => {
+    observer.observe(heading);
+  });
+
+  // Smooth scroll to heading on click
+  document.querySelectorAll('[data-toc-link]').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const id = link.getAttribute('data-toc-link');
+      const target = document.getElementById(id || '');
+
+      if (target) {
+        const yOffset = -100; // Offset for fixed header
+        const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
+
+        window.scrollTo({ top: y, behavior: 'smooth' });
+
+        // Update URL hash
+        history.pushState(null, '', `#${id}`);
+      }
+    });
+  });
+</script>
+
+<style>
+  .toc-wrapper {
+    @apply mb-8 md:mb-0;
+  }
+
+  .toc-container {
+    @apply rounded-lg;
+    @apply border border-light-border dark:border-dark-border;
+    @apply bg-light-surface dark:bg-dark-surface;
+  }
+
+  /* Mobile Toggle */
+  .toc-toggle {
+    @apply w-full flex items-center justify-between;
+    @apply p-4 md:hidden;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+    @apply  rounded-lg;
+    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+  }
+
+  .toc-title {
+    @apply font-semibold;
+  }
+
+  .toc-toggle-icon {
+    @apply w-5 h-5;
+    @apply transition-transform duration-200;
+  }
+
+  /* TOC Content */
+  .toc-content {
+    @apply p-4 md:p-6;
+  }
+
+  /* Desktop: Make sticky */
+  @media (min-width: 768px) {
+    .toc-wrapper {
+      @apply sticky top-24;
+      max-height: calc(100vh - 8rem);
+      overflow-y: auto;
+    }
+  }
+
+  .toc-heading {
+    @apply text-sm font-semibold uppercase tracking-wide mb-4;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+  }
+
+  .toc-list {
+    @apply space-y-2;
+  }
+
+  .toc-item {
+    @apply relative;
+  }
+
+  /* Indentation for different heading levels */
+  .toc-item-2 {
+    @apply pl-0;
+  }
+
+  .toc-item-3 {
+    @apply pl-4;
+  }
+
+  .toc-link {
+    @apply block py-1 text-sm;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+    @apply hover:text-eucalyptus-700 dark:hover:text-eucalyptus-300;
+    @apply transition-colors duration-150;
+    @apply  rounded;
+    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+    text-decoration: none;
+  }
+
+  /* Active link indicator */
+  .toc-link-active {
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+    @apply font-medium;
+    position: relative;
+  }
+
+  .toc-link-active::before {
+    content: '';
+    position: absolute;
+    left: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 20px;
+    @apply bg-eucalyptus-600 dark:bg-eucalyptus-400;
+    border-radius: 2px;
+  }
+
+  /* Scrollbar styling for desktop */
+  .toc-wrapper::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .toc-wrapper::-webkit-scrollbar-track {
+    @apply bg-light-surface dark:bg-dark-surface;
+    border-radius: 3px;
+  }
+
+  .toc-wrapper::-webkit-scrollbar-thumb {
+    @apply bg-eucalyptus-300 dark:bg-eucalyptus-700;
+    border-radius: 3px;
+  }
+
+  .toc-wrapper::-webkit-scrollbar-thumb:hover {
+    @apply bg-eucalyptus-400 dark:bg-eucalyptus-600;
+  }
+</style>

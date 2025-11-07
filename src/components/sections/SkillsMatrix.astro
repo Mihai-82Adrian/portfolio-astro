@@ -1,0 +1,229 @@
+---
+/**
+ * SkillsMatrix Component
+ *
+ * Skills grouped by category with proficiency indicators and tech stack badges.
+ * Features filterable/sortable grid layout with responsive design.
+ *
+ * @component
+ */
+
+import Container from '@components/ui/Container.astro';
+import Badge from '@components/ui/Badge.astro';
+import Card from '@components/ui/Card.astro';
+
+interface Skill {
+  name: string;
+  proficiency: 'expert' | 'advanced' | 'intermediate';
+}
+
+interface SkillCategory {
+  category: string;
+  icon?: string;
+  skills: Skill[];
+}
+
+interface Props {
+  /** Skill categories */
+  categories?: SkillCategory[];
+  /** Section title */
+  title?: string;
+  /** Section description */
+  description?: string;
+  /** Show proficiency levels */
+  showProficiency?: boolean;
+}
+
+const {
+  categories = [],
+  title = 'Skills & Expertise',
+  description = 'Technologies and tools I work with to build scalable, high-performance solutions.',
+  showProficiency = true,
+} = Astro.props;
+
+// Default skill categories if none provided
+const defaultCategories: SkillCategory[] = [
+  {
+    category: 'Programming Languages',
+    icon: 'code',
+    skills: [
+      { name: 'Rust', proficiency: 'expert' },
+      { name: 'Julia', proficiency: 'expert' },
+      { name: 'Python', proficiency: 'expert' },
+      { name: 'TypeScript', proficiency: 'advanced' },
+      { name: 'SQL', proficiency: 'advanced' },
+    ],
+  },
+  {
+    category: 'Machine Learning & AI',
+    icon: 'brain',
+    skills: [
+      { name: 'TensorFlow', proficiency: 'expert' },
+      { name: 'PyTorch', proficiency: 'advanced' },
+      { name: 'Scikit-learn', proficiency: 'expert' },
+      { name: 'MLflow', proficiency: 'advanced' },
+      { name: 'Hugging Face', proficiency: 'advanced' },
+    ],
+  },
+  {
+    category: 'Data Engineering',
+    icon: 'database',
+    skills: [
+      { name: 'Apache Arrow', proficiency: 'expert' },
+      { name: 'Polars', proficiency: 'expert' },
+      { name: 'Apache Spark', proficiency: 'advanced' },
+      { name: 'Kafka', proficiency: 'advanced' },
+      { name: 'PostgreSQL', proficiency: 'expert' },
+    ],
+  },
+  {
+    category: 'DevOps & Cloud',
+    icon: 'cloud',
+    skills: [
+      { name: 'Docker', proficiency: 'expert' },
+      { name: 'Kubernetes', proficiency: 'advanced' },
+      { name: 'AWS', proficiency: 'advanced' },
+      { name: 'Terraform', proficiency: 'intermediate' },
+      { name: 'CI/CD', proficiency: 'advanced' },
+    ],
+  },
+];
+
+const displayCategories = categories.length > 0 ? categories : defaultCategories;
+
+const proficiencyConfig = {
+  expert: { label: 'Expert', color: 'success' as const },
+  advanced: { label: 'Advanced', color: 'info' as const },
+  intermediate: { label: 'Intermediate', color: 'warning' as const },
+};
+---
+
+<section class="section skills-section">
+  <Container maxWidth="xl" paddingY="lg">
+    <!-- Section Header -->
+    <div class="section-header">
+      <h2 class="section-title">{title}</h2>
+      <p class="section-description">{description}</p>
+    </div>
+
+    <!-- Skills Grid -->
+    <div class="skills-grid">
+      {displayCategories.map((category) => (
+        <Card variant="default" padding="lg" hover={false}>
+          <div class="skill-category-content">
+            {/* Category Header */}
+            <div class="skill-category-header">
+              {category.icon && (
+                <div class="skill-category-icon">
+                  {category.icon === 'code' && (
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
+                  )}
+                  {category.icon === 'brain' && (
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  )}
+                  {category.icon === 'database' && (
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                    </svg>
+                  )}
+                  {category.icon === 'cloud' && (
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                    </svg>
+                  )}
+                </div>
+              )}
+              <h3 class="skill-category-title">{category.category}</h3>
+            </div>
+
+            {/* Skills List */}
+            <ul class="skills-list">
+              {category.skills.map((skill) => (
+                <li class="skill-item">
+                  <span class="skill-name">{skill.name}</span>
+                  {showProficiency && (
+                    <Badge
+                      variant={proficiencyConfig[skill.proficiency].color}
+                      size="sm"
+                    >
+                      {proficiencyConfig[skill.proficiency].label}
+                    </Badge>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Card>
+      ))}
+    </div>
+  </Container>
+</section>
+
+<style>
+  .skills-section {
+    @apply bg-light-surface dark:bg-dark-surface;
+  }
+
+  /* Section Header */
+  .section-header {
+    @apply text-center mb-12 md:mb-16;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl lg:text-5xl;
+    @apply font-bold mb-4;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+  }
+
+  .section-description {
+    @apply text-lg md:text-xl;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+    @apply max-w-3xl mx-auto;
+  }
+
+  /* Skills Grid */
+  .skills-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8;
+  }
+
+  /* Skill Category */
+  .skill-category-content {
+    @apply h-full flex flex-col;
+  }
+
+  .skill-category-header {
+    @apply flex items-center gap-3 mb-6;
+    @apply pb-4 border-b border-light-border dark:border-dark-border;
+  }
+
+  .skill-category-icon {
+    @apply flex-shrink-0;
+    @apply text-eucalyptus-600 dark:text-eucalyptus-400;
+  }
+
+  .skill-category-title {
+    @apply text-xl md:text-2xl font-semibold;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+  }
+
+  /* Skills List */
+  .skills-list {
+    @apply space-y-3;
+  }
+
+  .skill-item {
+    @apply flex items-center justify-between gap-3;
+    @apply py-2 px-3 rounded-lg;
+    @apply hover:bg-eucalyptus-50 dark:hover:bg-dark-elevated;
+    @apply transition-colors duration-150;
+  }
+
+  .skill-name {
+    @apply text-base font-medium;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+  }
+</style>

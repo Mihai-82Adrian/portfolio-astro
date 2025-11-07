@@ -1,0 +1,408 @@
+---
+/**
+ * ContactForm Component
+ *
+ * Contact form with validation, honeypot anti-spam, and accessible design.
+ * Features success/error states and proper ARIA labels.
+ *
+ * @component
+ */
+
+import Container from '@components/ui/Container.astro';
+import Button from '@components/ui/Button.astro';
+
+interface Props {
+  /** Section title */
+  title?: string;
+  /** Section description */
+  description?: string;
+  /** Form action URL */
+  action?: string;
+  /** Form method */
+  method?: 'GET' | 'POST';
+}
+
+const {
+  title = 'Get In Touch',
+  description = 'Interested in collaborating or have a question? Send me a message and I\'ll get back to you as soon as possible.',
+  action = '/api/contact',
+  method = 'POST',
+} = Astro.props;
+---
+
+<section class="section contact-section">
+  <Container maxWidth="md" paddingY="lg">
+    <!-- Section Header -->
+    <div class="section-header">
+      <h2 class="section-title">{title}</h2>
+      <p class="section-description">{description}</p>
+    </div>
+
+    <!-- Contact Form -->
+    <form
+      id="contact-form"
+      action={action}
+      method={method}
+      class="contact-form"
+      novalidate
+    >
+      <!-- Honeypot Field (hidden from users, catches bots) -->
+      <input
+        type="text"
+        name="website"
+        id="website"
+        class="honeypot"
+        tabindex="-1"
+        autocomplete="off"
+        aria-hidden="true"
+      />
+
+      <!-- Name Field -->
+      <div class="form-field">
+        <label for="name" class="form-label">
+          Name <span class="form-required" aria-label="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          class="form-input"
+          required
+          aria-required="true"
+          aria-describedby="name-error"
+          placeholder="Your full name"
+        />
+        <span id="name-error" class="form-error" role="alert"></span>
+      </div>
+
+      <!-- Email Field -->
+      <div class="form-field">
+        <label for="email" class="form-label">
+          Email <span class="form-required" aria-label="required">*</span>
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="form-input"
+          required
+          aria-required="true"
+          aria-describedby="email-error"
+          placeholder="your.email@example.com"
+        />
+        <span id="email-error" class="form-error" role="alert"></span>
+      </div>
+
+      <!-- Subject Field -->
+      <div class="form-field">
+        <label for="subject" class="form-label">
+          Subject <span class="form-required" aria-label="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="subject"
+          name="subject"
+          class="form-input"
+          required
+          aria-required="true"
+          aria-describedby="subject-error"
+          placeholder="What's this about?"
+        />
+        <span id="subject-error" class="form-error" role="alert"></span>
+      </div>
+
+      <!-- Message Field -->
+      <div class="form-field">
+        <label for="message" class="form-label">
+          Message <span class="form-required" aria-label="required">*</span>
+        </label>
+        <textarea
+          id="message"
+          name="message"
+          rows="6"
+          class="form-input form-textarea"
+          required
+          aria-required="true"
+          aria-describedby="message-error"
+          placeholder="Your message..."
+        ></textarea>
+        <span id="message-error" class="form-error" role="alert"></span>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="form-actions">
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          class="form-submit"
+        >
+          <span class="submit-text">Send Message</span>
+          <svg
+            class="submit-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+            />
+          </svg>
+        </Button>
+      </div>
+
+      <!-- Form Messages -->
+      <div id="form-messages" class="form-messages" role="status" aria-live="polite"></div>
+    </form>
+  </Container>
+</section>
+
+<script>
+  // Form validation and submission
+  const form = document.getElementById('contact-form') as HTMLFormElement;
+  const messagesContainer = document.getElementById('form-messages');
+
+  if (form && messagesContainer) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Clear previous messages
+      messagesContainer.innerHTML = '';
+      clearErrors();
+
+      // Honeypot check
+      const honeypot = (document.getElementById('website') as HTMLInputElement).value;
+      if (honeypot) {
+        // Bot detected, fail silently
+        return;
+      }
+
+      // Get form data
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      // Client-side validation
+      const errors = validateForm(data);
+      if (Object.keys(errors).length > 0) {
+        displayErrors(errors);
+        return;
+      }
+
+      // Show loading state
+      const submitButton = form.querySelector('.form-submit') as HTMLButtonElement;
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+
+      try {
+        // Submit form (placeholder - replace with actual endpoint)
+        // const response = await fetch(form.action, {
+        //   method: form.method,
+        //   headers: { 'Content-Type': 'application/json' },
+        //   body: JSON.stringify(data),
+        // });
+
+        // Simulate API call for demo
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        // Show success message
+        showMessage('success', 'Thank you! Your message has been sent successfully. I\'ll get back to you soon.');
+        form.reset();
+      } catch (error) {
+        // Show error message
+        showMessage('error', 'Oops! Something went wrong. Please try again later or email me directly.');
+      } finally {
+        // Reset button state
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+      }
+    });
+  }
+
+  // Validation function
+  function validateForm(data: Record<string, any>): Record<string, string> {
+    const errors: Record<string, string> = {};
+
+    if (!data.name || data.name.trim().length < 2) {
+      errors.name = 'Please enter your full name';
+    }
+
+    if (!data.email || !isValidEmail(data.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+
+    if (!data.subject || data.subject.trim().length < 3) {
+      errors.subject = 'Please enter a subject';
+    }
+
+    if (!data.message || data.message.trim().length < 10) {
+      errors.message = 'Please enter a message (at least 10 characters)';
+    }
+
+    return errors;
+  }
+
+  // Email validation
+  function isValidEmail(email: string): boolean {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  }
+
+  // Display field errors
+  function displayErrors(errors: Record<string, string>) {
+    Object.entries(errors).forEach(([field, message]) => {
+      const errorElement = document.getElementById(`${field}-error`);
+      const inputElement = document.getElementById(field);
+
+      if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.classList.add('visible');
+      }
+
+      if (inputElement) {
+        inputElement.classList.add('error');
+        inputElement.setAttribute('aria-invalid', 'true');
+      }
+    });
+  }
+
+  // Clear all errors
+  function clearErrors() {
+    const errorElements = document.querySelectorAll('.form-error');
+    const inputElements = document.querySelectorAll('.form-input');
+
+    errorElements.forEach((el) => {
+      el.textContent = '';
+      el.classList.remove('visible');
+    });
+
+    inputElements.forEach((el) => {
+      el.classList.remove('error');
+      el.removeAttribute('aria-invalid');
+    });
+  }
+
+  // Show message
+  function showMessage(type: 'success' | 'error', message: string) {
+    if (!messagesContainer) return;
+
+    const div = document.createElement('div');
+    div.className = `form-message form-message-${type}`;
+    div.textContent = message;
+    messagesContainer.appendChild(div);
+  }
+</script>
+
+<style>
+  .contact-section {
+    @apply bg-light-bg dark:bg-dark-bg;
+  }
+
+  /* Section Header */
+  .section-header {
+    @apply text-center mb-12;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl lg:text-5xl;
+    @apply font-bold mb-4;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+  }
+
+  .section-description {
+    @apply text-lg md:text-xl;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+  }
+
+  /* Form */
+  .contact-form {
+    @apply space-y-6;
+  }
+
+  /* Honeypot */
+  .honeypot {
+    @apply absolute;
+    left: -9999px;
+  }
+
+  /* Form Field */
+  .form-field {
+    @apply space-y-2;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+  }
+
+  .form-required {
+    @apply text-error;
+  }
+
+  .form-input {
+    @apply w-full px-4 py-3 rounded-lg;
+    @apply bg-light-surface dark:bg-dark-surface;
+    @apply border border-light-border dark:border-dark-border;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+    @apply placeholder-text-tertiary-light dark:placeholder-text-tertiary-dark;
+    @apply transition-all duration-150;
+    @apply focus:outline-none focus:ring-2 focus:ring-eucalyptus-500 focus:border-transparent;
+  }
+
+  .form-input.error {
+    @apply border-error focus:ring-error;
+  }
+
+  .form-textarea {
+    @apply resize-y;
+    min-height: 150px;
+  }
+
+  .form-error {
+    @apply text-sm text-error;
+    @apply opacity-0;
+    @apply transition-all duration-150;
+    visibility: hidden;
+  }
+
+  .form-error.visible {
+    @apply opacity-100;
+    visibility: visible;
+  }
+
+  /* Form Actions */
+  .form-actions {
+    @apply flex justify-center pt-4;
+  }
+
+  .submit-icon {
+    @apply ml-2 -mr-1 w-5 h-5;
+  }
+
+  /* Form Messages */
+  .form-messages {
+    @apply mt-6;
+  }
+
+  .form-message {
+    @apply px-4 py-3 rounded-lg;
+    @apply text-sm font-medium;
+  }
+
+  .form-message-success {
+    @apply bg-success-light text-success-dark;
+    @apply dark:bg-success-dark/20 dark:text-success-light;
+  }
+
+  .form-message-error {
+    @apply bg-error-light text-error-dark;
+    @apply dark:bg-error-dark/20 dark:text-error-light;
+  }
+</style>

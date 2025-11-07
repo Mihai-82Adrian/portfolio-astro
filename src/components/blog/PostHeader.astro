@@ -1,0 +1,160 @@
+---
+/**
+ * PostHeader Component
+ *
+ * Blog post header with title, hero image, breadcrumbs, and metadata.
+ * Designed for use at the top of blog post pages.
+ *
+ * @component
+ */
+
+import Container from '@components/ui/Container.astro';
+import PostMeta from './PostMeta.astro';
+
+interface Props {
+  /** Post title */
+  title: string;
+  /** Post description */
+  description?: string;
+  /** Hero image */
+  image?: {
+    src: string;
+    alt: string;
+  };
+  /** Publication date */
+  pubDate: Date;
+  /** Last updated date */
+  updatedDate?: Date;
+  /** Reading time in minutes */
+  readingTime?: number;
+  /** Post tags */
+  tags?: string[];
+  /** Show breadcrumb navigation */
+  showBreadcrumb?: boolean;
+}
+
+const {
+  title,
+  description,
+  image,
+  pubDate,
+  updatedDate,
+  readingTime,
+  tags,
+  showBreadcrumb = true,
+} = Astro.props;
+---
+
+<header class="post-header">
+  <Container maxWidth="lg">
+    <!-- Breadcrumb Navigation -->
+    {showBreadcrumb && (
+      <nav class="post-breadcrumb" aria-label="Breadcrumb">
+        <ol class="breadcrumb-list">
+          <li>
+            <a href="/" class="breadcrumb-link">Home</a>
+          </li>
+          <li class="breadcrumb-separator" aria-hidden="true">/</li>
+          <li>
+            <a href="/blog" class="breadcrumb-link">Blog</a>
+          </li>
+          <li class="breadcrumb-separator" aria-hidden="true">/</li>
+          <li class="breadcrumb-current" aria-current="page">
+            {title}
+          </li>
+        </ol>
+      </nav>
+    )}
+
+    <!-- Hero Image -->
+    {image && (
+      <div class="post-hero-image-wrapper">
+        <img
+          src={image.src}
+          alt={image.alt}
+          class="post-hero-image"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
+    )}
+
+    <!-- Title & Description -->
+    <div class="post-header-content">
+      <h1 class="post-title">{title}</h1>
+      {description && (
+        <p class="post-description">{description}</p>
+      )}
+    </div>
+
+    <!-- Post Metadata -->
+    <PostMeta
+      pubDate={pubDate}
+      updatedDate={updatedDate}
+      readingTime={readingTime}
+      tags={tags}
+      showShare={true}
+    />
+  </Container>
+</header>
+
+<style>
+  .post-header {
+    @apply py-8 md:py-12;
+  }
+
+  /* Breadcrumb */
+  .post-breadcrumb {
+    @apply mb-6;
+  }
+
+  .breadcrumb-list {
+    @apply flex flex-wrap items-center gap-2;
+    @apply text-sm;
+  }
+
+  .breadcrumb-link {
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+    @apply hover:text-eucalyptus-600 dark:hover:text-eucalyptus-200;
+    @apply transition-colors duration-150;
+    @apply  rounded;
+    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+  }
+
+  .breadcrumb-separator {
+    @apply text-text-tertiary-light dark:text-text-tertiary-dark;
+  }
+
+  .breadcrumb-current {
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+    @apply truncate max-w-xs;
+  }
+
+  /* Hero Image */
+  .post-hero-image-wrapper {
+    @apply w-full aspect-video rounded-xl overflow-hidden mb-8;
+    @apply shadow-elevated;
+  }
+
+  .post-hero-image {
+    @apply w-full h-full object-cover;
+  }
+
+  /* Header Content */
+  .post-header-content {
+    @apply mb-6;
+  }
+
+  .post-title {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+    @apply font-bold mb-4;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+    line-height: 1.2;
+  }
+
+  .post-description {
+    @apply text-lg md:text-xl;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+    line-height: 1.6;
+  }
+</style>

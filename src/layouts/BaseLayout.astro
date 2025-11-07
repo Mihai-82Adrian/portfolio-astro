@@ -1,0 +1,82 @@
+---
+/**
+ * Base Layout Component
+ *
+ * Provides the foundation for all pages:
+ * - HTML structure with proper meta tags
+ * - Global CSS imports
+ * - Theme initialization (prevents flash)
+ * - Responsive viewport settings
+ * - SEO-friendly defaults
+ */
+
+import { themeScript } from '@/utils/theme';
+import '@/styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  canonicalURL?: string;
+}
+
+const {
+  title = 'Mihai Adrian Mateescu - Finance & AI/ML Portfolio',
+  description = 'Bilanzbuchhalter in training with expertise in finance, accounting, and AI/ML development. Bridging traditional finance with cutting-edge technology.',
+  ogImage = '/og-image.jpg',
+  canonicalURL = Astro.url.href,
+} = Astro.props;
+
+const siteTitle = 'Mihai Adrian Mateescu';
+const fullTitle = title === siteTitle ? title : `${title} | ${siteTitle}`;
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Primary Meta Tags -->
+    <title>{fullTitle}</title>
+    <meta name="title" content={fullTitle} />
+    <meta name="description" content={description} />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL(ogImage, Astro.site).href} />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={fullTitle} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={new URL(ogImage, Astro.site).href} />
+
+    <!-- Theme Color (matches eucalyptus green) -->
+    <meta name="theme-color" content="#6B8E6F" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#8BC299" media="(prefers-color-scheme: dark)" />
+
+    <!-- Fonts: Inter for modern, professional typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Theme initialization (inline to prevent flash) -->
+    <script is:inline set:html={themeScript} />
+  </head>
+  <body class="antialiased">
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,122 @@
+---
+/**
+ * Link Component
+ *
+ * Styled link component with external link indicator and smooth animations.
+ * Automatically detects external URLs and adds appropriate attributes.
+ *
+ * @component
+ * @example
+ * <Link href="/about">About Me</Link>
+ * <Link href="https://github.com">GitHub</Link>
+ */
+
+interface Props {
+  /** Link destination */
+  href: string;
+  /** Additional CSS classes */
+  class?: string;
+  /** Target attribute */
+  target?: '_blank' | '_self' | '_parent' | '_top';
+  /** Rel attribute */
+  rel?: string;
+  /** ARIA label */
+  ariaLabel?: string;
+  /** Show external link icon */
+  showExternalIcon?: boolean;
+}
+
+const {
+  href,
+  class: className = '',
+  target,
+  rel,
+  ariaLabel,
+  showExternalIcon = true,
+} = Astro.props;
+
+// Auto-detect external links
+const isExternal = href.startsWith('http://') || href.startsWith('https://');
+const finalTarget = target || (isExternal ? '_blank' : '_self');
+const finalRel = rel || (isExternal ? 'noopener noreferrer' : undefined);
+const shouldShowIcon = showExternalIcon && isExternal;
+---
+
+<a
+  href={href}
+  target={finalTarget}
+  rel={finalRel}
+  aria-label={ariaLabel}
+  class:list={['link', className]}
+>
+  <slot />
+  {shouldShowIcon && (
+    <svg
+      class="link-icon"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+      />
+    </svg>
+  )}
+</a>
+
+<style>
+  .link {
+    @apply inline-flex items-center gap-1;
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+    @apply font-medium;
+    @apply transition-all duration-150;
+    @apply  rounded;
+    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+    position: relative;
+    text-decoration: none;
+  }
+
+  /* Animated underline effect */
+  .link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    @apply bg-eucalyptus-600 dark:bg-eucalyptus-400;
+    transition: width var(--transition-fast) ease-in-out;
+  }
+
+  .link:hover::after {
+    width: 100%;
+  }
+
+  .link:hover {
+    @apply text-eucalyptus-600 dark:text-eucalyptus-200;
+  }
+
+  /* External link icon */
+  .link-icon {
+    @apply w-4 h-4 flex-shrink-0;
+    opacity: 0.7;
+    transition: opacity var(--transition-fast) ease-in-out;
+  }
+
+  .link:hover .link-icon {
+    opacity: 1;
+  }
+
+  /* Visited state */
+  .link:visited {
+    @apply text-taupe-700 dark:text-taupe-400;
+  }
+
+  .link:visited:hover {
+    @apply text-eucalyptus-600 dark:text-eucalyptus-300;
+  }
+</style>

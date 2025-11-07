@@ -1,0 +1,289 @@
+---
+/**
+ * Timeline Component
+ *
+ * Career timeline visualization with company, role, dates, and descriptions.
+ * Features eucalyptus green accent colors and responsive vertical layout.
+ *
+ * @component
+ */
+
+import Container from '@components/ui/Container.astro';
+import Badge from '@components/ui/Badge.astro';
+
+interface TimelineItem {
+  company: string;
+  role: string;
+  startDate: string;
+  endDate?: string; // Optional for current positions
+  location?: string;
+  description: string;
+  achievements?: string[];
+  technologies?: string[];
+  current?: boolean;
+}
+
+interface Props {
+  /** Timeline items */
+  items?: TimelineItem[];
+  /** Section title */
+  title?: string;
+  /** Section description */
+  description?: string;
+}
+
+const {
+  items = [],
+  title = 'Career Journey',
+  description = 'My professional experience in data science, machine learning, and software engineering.',
+} = Astro.props;
+
+// Default timeline items if none provided
+const defaultItems: TimelineItem[] = [
+  {
+    company: 'Tech Company',
+    role: 'Senior Data Scientist',
+    startDate: '2022',
+    endDate: 'Present',
+    location: 'Remote',
+    description: 'Leading ML initiatives and building scalable data pipelines.',
+    achievements: [
+      'Reduced model training time by 70% using Rust-based pipeline',
+      'Deployed 15+ ML models to production serving 1M+ users',
+      'Mentored 5 junior data scientists',
+    ],
+    technologies: ['Rust', 'Python', 'TensorFlow', 'AWS'],
+    current: true,
+  },
+  {
+    company: 'Previous Company',
+    role: 'Data Scientist',
+    startDate: '2019',
+    endDate: '2022',
+    location: 'Berlin, Germany',
+    description: 'Developed predictive models and analytics solutions.',
+    achievements: [
+      'Built recommendation system with 25% engagement increase',
+      'Implemented A/B testing framework used across org',
+    ],
+    technologies: ['Python', 'Scikit-learn', 'PostgreSQL'],
+  },
+];
+
+const displayItems = items.length > 0 ? items : defaultItems;
+---
+
+<section class="section timeline-section">
+  <Container maxWidth="lg" paddingY="lg">
+    <!-- Section Header -->
+    <div class="section-header">
+      <h2 class="section-title">{title}</h2>
+      <p class="section-description">{description}</p>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline">
+      {displayItems.map((item, index) => (
+        <div class="timeline-item">
+          {/* Timeline Dot */}
+          <div class="timeline-marker">
+            <div class:list={['timeline-dot', item.current && 'timeline-dot-current']}>
+              {item.current && (
+                <span class="timeline-dot-pulse"></span>
+              )}
+            </div>
+            {index < displayItems.length - 1 && (
+              <div class="timeline-line"></div>
+            )}
+          </div>
+
+          {/* Timeline Content */}
+          <div class="timeline-content">
+            <div class="timeline-header">
+              <div>
+                <h3 class="timeline-role">{item.role}</h3>
+                <p class="timeline-company">{item.company}</p>
+              </div>
+              <div class="timeline-meta">
+                <time class="timeline-date">
+                  {item.startDate} - {item.endDate || 'Present'}
+                </time>
+                {item.location && (
+                  <p class="timeline-location">
+                    <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    {item.location}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <p class="timeline-description">{item.description}</p>
+
+            {/* Achievements */}
+            {item.achievements && item.achievements.length > 0 && (
+              <ul class="timeline-achievements">
+                {item.achievements.map((achievement) => (
+                  <li>{achievement}</li>
+                ))}
+              </ul>
+            )}
+
+            {/* Technologies */}
+            {item.technologies && item.technologies.length > 0 && (
+              <div class="timeline-technologies">
+                {item.technologies.map((tech) => (
+                  <Badge size="sm">{tech}</Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  </Container>
+</section>
+
+<style>
+  .timeline-section {
+    @apply bg-light-bg dark:bg-dark-bg;
+  }
+
+  /* Section Header */
+  .section-header {
+    @apply text-center mb-12 md:mb-16;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl lg:text-5xl;
+    @apply font-bold mb-4;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+  }
+
+  .section-description {
+    @apply text-lg md:text-xl;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+    @apply max-w-3xl mx-auto;
+  }
+
+  /* Timeline */
+  .timeline {
+    @apply relative;
+  }
+
+  .timeline-item {
+    @apply relative flex gap-6 pb-12 last:pb-0;
+  }
+
+  /* Timeline Marker */
+  .timeline-marker {
+    @apply relative flex flex-col items-center flex-shrink-0;
+  }
+
+  .timeline-dot {
+    @apply w-4 h-4 rounded-full z-10;
+    @apply bg-eucalyptus-600 dark:bg-eucalyptus-400;
+    @apply border-4 border-light-bg dark:border-dark-bg;
+    @apply transition-all duration-200;
+  }
+
+  .timeline-dot-current {
+    @apply w-6 h-6;
+    @apply relative;
+  }
+
+  .timeline-dot-pulse {
+    @apply absolute inset-0 rounded-full;
+    @apply bg-eucalyptus-600 dark:bg-eucalyptus-400;
+    animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(2);
+      opacity: 0;
+    }
+  }
+
+  .timeline-line {
+    @apply w-0.5 h-full flex-grow;
+    @apply bg-light-border dark:bg-dark-border;
+    @apply mt-2;
+  }
+
+  /* Timeline Content */
+  .timeline-content {
+    @apply flex-grow;
+    @apply bg-light-surface dark:bg-dark-surface;
+    @apply rounded-lg p-6 md:p-8;
+    @apply border border-light-border dark:border-dark-border;
+    @apply transition-all duration-200;
+    box-shadow: var(--shadow-card);
+  }
+
+  .timeline-content:hover {
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .timeline-header {
+    @apply flex flex-col md:flex-row md:items-start md:justify-between;
+    @apply mb-4;
+    @apply gap-2;
+  }
+
+  .timeline-role {
+    @apply text-xl md:text-2xl font-semibold;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+  }
+
+  .timeline-company {
+    @apply text-lg font-medium;
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+  }
+
+  .timeline-meta {
+    @apply flex flex-col items-start md:items-end gap-1;
+    @apply text-sm;
+  }
+
+  .timeline-date {
+    @apply font-medium;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+  }
+
+  .timeline-location {
+    @apply text-text-tertiary-light dark:text-text-tertiary-dark;
+  }
+
+  .timeline-description {
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+    @apply mb-4;
+    line-height: 1.6;
+  }
+
+  /* Achievements */
+  .timeline-achievements {
+    @apply list-disc list-inside space-y-2 mb-4;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+  }
+
+  .timeline-achievements li {
+    @apply pl-2;
+  }
+
+  .timeline-achievements li::marker {
+    @apply text-eucalyptus-600 dark:text-eucalyptus-400;
+  }
+
+  /* Technologies */
+  .timeline-technologies {
+    @apply flex flex-wrap gap-2 pt-4;
+    @apply border-t border-light-border dark:border-dark-border;
+  }
+</style>

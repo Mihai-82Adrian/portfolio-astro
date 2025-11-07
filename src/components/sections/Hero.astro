@@ -1,0 +1,264 @@
+---
+/**
+ * Hero Component
+ *
+ * Homepage hero section with gradient text, animated intro, and CTA buttons.
+ * Features responsive design and eucalyptus green branding.
+ *
+ * @component
+ */
+
+import Button from '@components/ui/Button.astro';
+import Container from '@components/ui/Container.astro';
+
+interface Props {
+  /** Hero title */
+  title?: string;
+  /** Hero subtitle/tagline */
+  subtitle?: string;
+  /** Description text */
+  description?: string;
+  /** Primary CTA text */
+  primaryCta?: string;
+  /** Primary CTA href */
+  primaryHref?: string;
+  /** Secondary CTA text */
+  secondaryCta?: string;
+  /** Secondary CTA href */
+  secondaryHref?: string;
+}
+
+const {
+  title = 'Mihai Adrian Mateescu',
+  subtitle = 'Senior Data Scientist & AI Engineer',
+  description = 'Building scalable ML systems with Rust, Julia, and cutting-edge AI technologies. Passionate about high-performance computing and data-driven solutions.',
+  primaryCta = 'View Projects',
+  primaryHref = '/projects',
+  secondaryCta = 'Read Blog',
+  secondaryHref = '/blog',
+} = Astro.props;
+---
+
+<section class="hero-section">
+  <Container maxWidth="lg" paddingY="xl">
+    <div class="hero-content">
+      <!-- Animated Badge -->
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        <span class="hero-badge-text">Available for consulting</span>
+      </div>
+
+      <!-- Main Title -->
+      <h1 class="hero-title">
+        {title}
+      </h1>
+
+      <!-- Subtitle with Gradient -->
+      <p class="hero-subtitle">
+        <span class="text-gradient">{subtitle}</span>
+      </p>
+
+      <!-- Description -->
+      <p class="hero-description">
+        {description}
+      </p>
+
+      <!-- CTA Buttons -->
+      <div class="hero-cta-group">
+        <Button
+          variant="primary"
+          size="lg"
+          href={primaryHref}
+        >
+          {primaryCta}
+          <svg
+            class="ml-2 -mr-1 w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 8l4 4m0 0l-4 4m4-4H3"
+            />
+          </svg>
+        </Button>
+
+        <Button
+          variant="secondary"
+          size="lg"
+          href={secondaryHref}
+        >
+          {secondaryCta}
+        </Button>
+      </div>
+
+      <!-- Tech Stack Icons (Optional) -->
+      <div class="hero-tech-stack">
+        <p class="hero-tech-label">Specialized in:</p>
+        <div class="hero-tech-icons">
+          <span class="hero-tech-item">Rust</span>
+          <span class="hero-tech-separator">·</span>
+          <span class="hero-tech-item">Julia</span>
+          <span class="hero-tech-separator">·</span>
+          <span class="hero-tech-item">Python</span>
+          <span class="hero-tech-separator">·</span>
+          <span class="hero-tech-item">ML/AI</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Optional: Decorative Elements -->
+    <div class="hero-decoration" aria-hidden="true">
+      <div class="hero-blob hero-blob-1"></div>
+      <div class="hero-blob hero-blob-2"></div>
+    </div>
+  </Container>
+</section>
+
+<style>
+  .hero-section {
+    @apply relative overflow-hidden;
+    @apply bg-light-bg dark:bg-dark-bg;
+  }
+
+  .hero-content {
+    @apply relative z-10;
+    @apply text-center;
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  /* Badge */
+  .hero-badge {
+    @apply inline-flex items-center gap-2 mb-6;
+    @apply px-4 py-2 rounded-full;
+    @apply bg-eucalyptus-100 dark:bg-eucalyptus-900;
+    @apply text-eucalyptus-800 dark:text-eucalyptus-200;
+    @apply text-sm font-medium;
+  }
+
+  .hero-badge-dot {
+    @apply w-2 h-2 rounded-full;
+    @apply bg-eucalyptus-600 dark:bg-eucalyptus-400;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  /* Title */
+  .hero-title {
+    @apply text-4xl sm:text-5xl md:text-6xl lg:text-7xl;
+    @apply font-bold mb-4;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+    line-height: 1.1;
+  }
+
+  /* Subtitle */
+  .hero-subtitle {
+    @apply text-2xl sm:text-3xl md:text-4xl;
+    @apply font-semibold mb-6;
+  }
+
+  /* Description */
+  .hero-description {
+    @apply text-lg md:text-xl;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+    @apply max-w-3xl mx-auto mb-8;
+    line-height: 1.6;
+  }
+
+  /* CTA Group */
+  .hero-cta-group {
+    @apply flex flex-col sm:flex-row items-center justify-center gap-4;
+    @apply mb-12;
+  }
+
+  /* Tech Stack */
+  .hero-tech-stack {
+    @apply flex flex-col items-center gap-2;
+    @apply text-sm;
+  }
+
+  .hero-tech-label {
+    @apply text-text-tertiary-light dark:text-text-tertiary-dark;
+    @apply font-medium uppercase tracking-wide;
+  }
+
+  .hero-tech-icons {
+    @apply flex items-center gap-3;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+  }
+
+  .hero-tech-item {
+    @apply font-medium;
+  }
+
+  .hero-tech-separator {
+    @apply text-text-tertiary-light dark:text-text-tertiary-dark;
+  }
+
+  /* Decorative Blobs */
+  .hero-decoration {
+    @apply absolute inset-0 z-0 pointer-events-none;
+    @apply opacity-20;
+  }
+
+  .hero-blob {
+    @apply absolute rounded-full;
+    @apply bg-gradient-to-br from-eucalyptus-400 to-eucalyptus-600;
+    filter: blur(80px);
+    animation: float 20s ease-in-out infinite;
+  }
+
+  .hero-blob-1 {
+    @apply w-96 h-96;
+    top: -10%;
+    right: -5%;
+    animation-delay: 0s;
+  }
+
+  .hero-blob-2 {
+    @apply w-80 h-80;
+    bottom: -10%;
+    left: -5%;
+    animation-delay: 10s;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(30px, -30px) scale(1.1);
+    }
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+  }
+
+  /* Dark mode adjustments */
+  .dark .hero-blob {
+    @apply opacity-10;
+  }
+</style>

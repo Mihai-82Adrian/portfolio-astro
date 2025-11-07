@@ -1,0 +1,110 @@
+---
+/**
+ * Badge Component
+ *
+ * Small label component for tags, categories, and status indicators.
+ * Supports multiple variants, sizes, and shapes.
+ *
+ * @component
+ * @example
+ * <Badge variant="success">Published</Badge>
+ * <Badge variant="info" size="sm">New</Badge>
+ */
+
+interface Props {
+  /** Badge variant/color */
+  variant?: 'default' | 'success' | 'warning' | 'error' | 'info';
+  /** Badge size */
+  size?: 'sm' | 'md' | 'lg';
+  /** Shape style */
+  shape?: 'pill' | 'square';
+  /** Additional CSS classes */
+  class?: string;
+}
+
+const {
+  variant = 'default',
+  size = 'md',
+  shape = 'pill',
+  class: className = '',
+} = Astro.props;
+
+const variantClasses = {
+  default: 'badge-default',
+  success: 'badge-success',
+  warning: 'badge-warning',
+  error: 'badge-error',
+  info: 'badge-info',
+};
+
+const sizeClasses = {
+  sm: 'px-2 py-0.5 text-xs',
+  md: 'px-3 py-1 text-sm',
+  lg: 'px-4 py-1.5 text-base',
+};
+
+const shapeClasses = {
+  pill: 'rounded-full',
+  square: 'rounded',
+};
+---
+
+<span
+  class:list={[
+    'badge',
+    variantClasses[variant],
+    sizeClasses[size],
+    shapeClasses[shape],
+    className,
+  ]}
+>
+  <slot />
+</span>
+
+<style>
+  /* Base badge styles */
+  .badge {
+    @apply inline-flex items-center justify-center;
+    @apply font-medium whitespace-nowrap;
+    @apply transition-colors duration-150;
+  }
+
+  /* Default variant (eucalyptus green) */
+  .badge-default {
+    /* Uses default badge styles from global.css */
+    @apply bg-eucalyptus-100 text-eucalyptus-800;
+    @apply dark:bg-eucalyptus-900 dark:text-eucalyptus-200;
+  }
+
+  /* Success variant */
+  .badge-success {
+    @apply bg-success-light text-success-dark;
+    @apply dark:bg-success-dark/30 dark:text-success-light;
+  }
+
+  /* Warning variant */
+  .badge-warning {
+    @apply bg-warning-light text-warning-dark;
+    @apply dark:bg-warning-dark/30 dark:text-warning-light;
+  }
+
+  /* Error variant */
+  .badge-error {
+    @apply bg-error-light text-error-dark;
+    @apply dark:bg-error-dark/30 dark:text-error-light;
+  }
+
+  /* Info variant */
+  .badge-info {
+    @apply bg-info-light text-info-dark;
+    @apply dark:bg-info-dark/30 dark:text-info-light;
+  }
+
+  /* Ensure proper contrast ratios (WCAG AAA) */
+  .badge-success,
+  .badge-warning,
+  .badge-error,
+  .badge-info {
+    font-weight: 600;
+  }
+</style>

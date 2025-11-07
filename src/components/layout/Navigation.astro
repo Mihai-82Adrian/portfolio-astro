@@ -1,0 +1,134 @@
+---
+/**
+ * Navigation Component
+ *
+ * Main navigation menu with active page highlighting.
+ * Supports both desktop (horizontal) and mobile (vertical) layouts.
+ *
+ * @component
+ */
+
+interface Props {
+  currentPath?: string;
+  mobile?: boolean;
+}
+
+const { currentPath = '', mobile = false } = Astro.props;
+
+const navigationLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/about', label: 'About' },
+  { href: '/experience', label: 'Experience' },
+  { href: '/projects', label: 'Projects' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/contact', label: 'Contact' },
+];
+
+/**
+ * Check if a link is active based on current path
+ */
+const isActive = (href: string): boolean => {
+  if (href === '/') {
+    return currentPath === '/' || currentPath === '';
+  }
+  return currentPath.startsWith(href);
+};
+---
+
+<nav class:list={[mobile ? 'mobile-nav' : 'desktop-nav']} aria-label="Main navigation">
+  <ul
+    class:list={[
+      mobile
+        ? 'flex flex-col space-y-2'
+        : 'flex items-center space-x-1 lg:space-x-2',
+    ]}
+  >
+    {
+      navigationLinks.map((link) => {
+        const active = isActive(link.href);
+        return (
+          <li>
+            <a
+              href={link.href}
+              class:list={[
+                'nav-link',
+                mobile ? 'nav-link-mobile' : 'nav-link-desktop',
+                active && 'nav-link-active',
+              ]}
+              aria-current={active ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</nav>
+
+<style>
+  /* Base navigation link styles */
+  .nav-link {
+    position: relative;
+    font-weight: 500;
+    transition: color var(--transition-fast) ease-in-out;
+    @apply  rounded-lg;
+    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+  }
+
+  /* Desktop navigation links */
+  .nav-link-desktop {
+    @apply px-3 py-2 text-base;
+    @apply text-text-secondary-light hover:text-text-primary-light;
+    @apply dark:text-text-secondary-dark dark:hover:text-text-primary-dark;
+  }
+
+  /* Mobile navigation links */
+  .nav-link-mobile {
+    @apply block px-4 py-3 text-lg;
+    @apply text-text-primary-light hover:bg-eucalyptus-50;
+    @apply dark:text-text-primary-dark dark:hover:bg-dark-elevated;
+  }
+
+  /* Active link styles */
+  .nav-link-active {
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+  }
+
+  /* Desktop active indicator underline */
+  .desktop-nav .nav-link-active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    @apply bg-eucalyptus-600 dark:bg-eucalyptus-400;
+    border-radius: 2px;
+  }
+
+  /* Mobile active indicator */
+  .mobile-nav .nav-link-active {
+    @apply bg-eucalyptus-50 dark:bg-eucalyptus-900;
+    @apply border-l-4 border-eucalyptus-600 dark:border-eucalyptus-400;
+  }
+
+  /* Hover effect for desktop links */
+  .desktop-nav .nav-link:hover::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    @apply bg-eucalyptus-400 dark:bg-eucalyptus-600;
+    border-radius: 2px;
+    opacity: 0.5;
+  }
+
+  /* Prevent underline duplication on active links */
+  .desktop-nav .nav-link-active:hover::after {
+    @apply bg-eucalyptus-600 dark:bg-eucalyptus-400;
+    opacity: 1;
+  }
+</style>

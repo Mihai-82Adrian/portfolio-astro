@@ -1,0 +1,113 @@
+---
+/**
+ * PostList Component
+ *
+ * Responsive grid layout for blog post cards.
+ * Supports different layout variants and empty states.
+ *
+ * @component
+ */
+
+import PostCard from './PostCard.astro';
+
+interface Post {
+  title: string;
+  slug: string;
+  description?: string;
+  pubDate: Date;
+  readingTime?: number;
+  tags?: string[];
+  image?: {
+    src: string;
+    alt: string;
+  };
+  featured?: boolean;
+}
+
+interface Props {
+  /** Array of posts to display */
+  posts: Post[];
+  /** Grid layout columns */
+  columns?: '1' | '2' | '3';
+  /** Show empty state if no posts */
+  showEmptyState?: boolean;
+  /** Empty state message */
+  emptyMessage?: string;
+}
+
+const {
+  posts = [],
+  columns = '3',
+  showEmptyState = true,
+  emptyMessage = 'No posts found.',
+} = Astro.props;
+
+const columnClasses = {
+  '1': 'grid-cols-1',
+  '2': 'grid-cols-1 md:grid-cols-2',
+  '3': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
+};
+---
+
+{posts.length > 0 ? (
+  <div
+    class:list={[
+      'post-list',
+      columnClasses[columns],
+    ]}
+  >
+    {posts.map((post) => (
+      <PostCard
+        title={post.title}
+        slug={post.slug}
+        description={post.description}
+        pubDate={post.pubDate}
+        readingTime={post.readingTime}
+        tags={post.tags}
+        image={post.image}
+        featured={post.featured}
+      />
+    ))}
+  </div>
+) : showEmptyState ? (
+  <div class="post-list-empty">
+    <svg
+      class="post-list-empty-icon"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+      />
+    </svg>
+    <p class="post-list-empty-message">{emptyMessage}</p>
+  </div>
+) : null}
+
+<style>
+  .post-list {
+    @apply grid gap-6 md:gap-8;
+  }
+
+  /* Empty state */
+  .post-list-empty {
+    @apply flex flex-col items-center justify-center;
+    @apply py-16 md:py-24;
+    @apply text-center;
+  }
+
+  .post-list-empty-icon {
+    @apply w-16 h-16 mb-4;
+    @apply text-text-tertiary-light dark:text-text-tertiary-dark;
+  }
+
+  .post-list-empty-message {
+    @apply text-lg;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+  }
+</style>

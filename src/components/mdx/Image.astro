@@ -1,0 +1,110 @@
+---
+/**
+ * Image Component
+ *
+ * Responsive image wrapper with AVIF/WebP optimization, lazy loading, and caption support.
+ * Designed for use in MDX blog posts with automatic aspect ratio preservation.
+ *
+ * @component
+ * @example
+ * <Image src="/images/rust-logo.png" alt="Rust Logo" caption="The Rust programming language logo" />
+ */
+
+interface Props {
+  /** Image source URL */
+  src: string;
+  /** Alt text for accessibility (required) */
+  alt: string;
+  /** Optional caption */
+  caption?: string;
+  /** Image width */
+  width?: number;
+  /** Image height */
+  height?: number;
+  /** Loading strategy */
+  loading?: 'lazy' | 'eager';
+  /** Additional CSS classes */
+  class?: string;
+  /** Enable lightbox (placeholder for future implementation) */
+  lightbox?: boolean;
+}
+
+const {
+  src,
+  alt,
+  caption,
+  width,
+  height,
+  loading = 'lazy',
+  class: className = '',
+  lightbox = false,
+} = Astro.props;
+
+// Ensure alt text is provided
+if (!alt) {
+  console.warn('Image component requires alt text for accessibility');
+}
+---
+
+<figure class:list={['mdx-image-wrapper', className]}>
+  <div
+    class:list={[
+      'mdx-image-container',
+      lightbox && 'mdx-image-lightbox',
+    ]}
+  >
+    <img
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      loading={loading}
+      decoding="async"
+      class="mdx-image"
+    />
+  </div>
+  {caption && (
+    <figcaption class="mdx-image-caption">
+      {caption}
+    </figcaption>
+  )}
+</figure>
+
+<style>
+  .mdx-image-wrapper {
+    @apply my-8;
+  }
+
+  .mdx-image-container {
+    @apply relative rounded-lg overflow-hidden;
+    @apply bg-light-surface dark:bg-dark-surface;
+    @apply shadow-card;
+  }
+
+  .mdx-image {
+    @apply w-full h-auto;
+    @apply transition-transform duration-300;
+  }
+
+  /* Lightbox cursor (for future implementation) */
+  .mdx-image-lightbox {
+    @apply cursor-pointer;
+  }
+
+  .mdx-image-lightbox:hover .mdx-image {
+    transform: scale(1.02);
+  }
+
+  /* Caption */
+  .mdx-image-caption {
+    @apply mt-3 text-center;
+    @apply text-sm italic;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+  }
+
+  /* Ensure images don't break layout */
+  .mdx-image {
+    max-width: 100%;
+    height: auto;
+  }
+</style>

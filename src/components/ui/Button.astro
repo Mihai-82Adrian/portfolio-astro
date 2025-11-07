@@ -1,0 +1,170 @@
+---
+/**
+ * Button Component
+ *
+ * Flexible button component with multiple variants, sizes, and states.
+ * Supports both button and link (anchor) elements.
+ *
+ * @component
+ * @example
+ * <Button variant="primary" size="md">Click Me</Button>
+ * <Button variant="secondary" href="/contact">Contact</Button>
+ */
+
+interface Props {
+  /** Button variant style */
+  variant?: 'primary' | 'secondary' | 'ghost' | 'link';
+  /** Button size */
+  size?: 'sm' | 'md' | 'lg';
+  /** Link href (renders as <a> instead of <button>) */
+  href?: string;
+  /** Button type attribute */
+  type?: 'button' | 'submit' | 'reset';
+  /** Disabled state */
+  disabled?: boolean;
+  /** Loading state (shows spinner) */
+  loading?: boolean;
+  /** Additional CSS classes */
+  class?: string;
+  /** ARIA label for accessibility */
+  ariaLabel?: string;
+  /** Target attribute for links */
+  target?: '_blank' | '_self' | '_parent' | '_top';
+  /** Rel attribute for external links */
+  rel?: string;
+}
+
+const {
+  variant = 'primary',
+  size = 'md',
+  href,
+  type = 'button',
+  disabled = false,
+  loading = false,
+  class: className = '',
+  ariaLabel,
+  target,
+  rel,
+} = Astro.props;
+
+const Tag = href ? 'a' : 'button';
+
+// Variant classes
+const variantClasses = {
+  primary: 'btn-primary',
+  secondary: 'btn-secondary',
+  ghost: 'btn-ghost',
+  link: 'btn-link',
+};
+
+// Size classes
+const sizeClasses = {
+  sm: 'px-4 py-2 text-sm',
+  md: 'px-6 py-3 text-base',
+  lg: 'px-8 py-4 text-lg',
+};
+
+// Automatically add rel="noopener noreferrer" for external links
+const linkRel = target === '_blank' ? (rel || 'noopener noreferrer') : rel;
+---
+
+<Tag
+  href={href}
+  type={!href ? type : undefined}
+  disabled={!href && (disabled || loading)}
+  aria-label={ariaLabel}
+  aria-disabled={disabled || loading}
+  target={target}
+  rel={linkRel}
+  class:list={[
+    'btn',
+    variantClasses[variant],
+    sizeClasses[size],
+    (disabled || loading) && 'opacity-50 cursor-not-allowed',
+    loading && 'pointer-events-none',
+    className,
+  ]}
+>
+  {loading && (
+    <svg
+      class="animate-spin -ml-1 mr-3 h-5 w-5"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <circle
+        class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4"
+      />
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      />
+    </svg>
+  )}
+  <slot />
+  {target === '_blank' && (
+    <svg
+      class="ml-2 -mr-1 h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+      />
+    </svg>
+  )}
+</Tag>
+
+<style>
+  /* Link variant - text button */
+  .btn-link {
+    @apply inline-flex items-center;
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+    @apply hover:text-eucalyptus-600 dark:hover:text-eucalyptus-200;
+    @apply hover:underline;
+    padding: 0;
+  }
+
+  /* Ensure proper focus states */
+  .btn:focus-visible {
+    @apply outline-none ring-2 ring-offset-2;
+  }
+
+  .btn-primary:focus-visible {
+    @apply ring-eucalyptus-500 dark:ring-eucalyptus-400;
+  }
+
+  .btn-secondary:focus-visible {
+    @apply ring-eucalyptus-500 dark:ring-eucalyptus-400;
+  }
+
+  .btn-ghost:focus-visible {
+    @apply ring-eucalyptus-500 dark:ring-eucalyptus-400;
+  }
+
+  /* Smooth transitions */
+  .btn {
+    transition: all var(--transition-fast) ease-in-out;
+  }
+
+  /* Hover animations */
+  .btn:not(:disabled):not(.pointer-events-none):hover {
+    transform: translateY(-1px);
+  }
+
+  .btn:not(:disabled):not(.pointer-events-none):active {
+    transform: translateY(0);
+  }
+</style>
