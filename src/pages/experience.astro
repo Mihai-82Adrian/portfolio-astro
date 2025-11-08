@@ -18,7 +18,7 @@ const lang = 'de';
 const t = translations[lang];
 
 const title = `${t.experience.title} | Mihai Adrian Mateescu`;
-const description = `${t.experience.subtitle} - 22 Jahre Berufserfahrung in Finanzbuchhaltung, Vertrieb und Management`;
+const description = `${t.experience.subtitle} - t.home.quickLinks.experience`;
 
 // Convert career positions to timeline items with proper formatting
 const timelineItems = careerPositions.map((position) => {
@@ -42,14 +42,7 @@ const timelineItems = careerPositions.map((position) => {
 });
 
 // Skills gained from experience
-const practicalSkills = [
-  'DATEV',
-  'Umsatzsteuer',
-  'Jahresabschlüsse',
-  'Finanzbuchhaltung',
-  'Lohnbuchhaltung',
-  'MS Office'
-];
+const practicalSkills = t.experience.practicalSkills;
 ---
 
 <BaseLayout title={title} description={description} lang={lang}>

@@ -28,6 +28,12 @@ export interface Translations {
       readBlog: string;
       contact: string;
     };
+    quickLinks: {
+      education: string;
+      experience: string;
+      certifications: string;
+      hobbiesText: string;
+    };
     skills: {
       title: string;
       items: string[];
@@ -56,6 +62,7 @@ export interface Translations {
     positions: string;
     present: string;
     skillsTitle: string;
+    practicalSkills: string[];
   };
   // Education Page
   education: {
@@ -119,6 +126,12 @@ export const translations: Record<Language, Translations> = {
         readBlog: 'Blog lesen',
         contact: 'Kontakt aufnehmen'
       },
+      quickLinks: {
+        education: 'Weiterbildung zum Bilanzbuchhalter (IHK) und IHK-Zertifizierungen',
+        experience: '21 Jahre Berufserfahrung in Buchhaltung, Vertrieb und Management',
+        certifications: 'IHK-Zertifikate, Arbeitszeugnisse und Sprachzertifikate',
+        hobbiesText: 'Fotografie, Technologie und mein E-Commerce-Projekt Profit Minds'
+      },
       skills: {
         title: 'Fähigkeiten und Kenntnisse',
         items: [
@@ -155,7 +168,15 @@ export const translations: Record<Language, Translations> = {
       subtitle: 'Mein beruflicher Werdegang',
       positions: 'Positionen',
       present: 'zurzeit',
-      skillsTitle: 'Praxiserfahrung mit'
+      skillsTitle: 'Praxiserfahrung mit',
+      practicalSkills: [
+        'DATEV',
+        'Umsatzsteuer',
+        'Jahresabschlüsse',
+        'Finanzbuchhaltung',
+        'Lohnbuchhaltung',
+        'MS Office'
+      ]
     },
     education: {
       title: 'Ausbildung',
@@ -212,6 +233,12 @@ export const translations: Record<Language, Translations> = {
         readBlog: 'Read Blog',
         contact: 'Get in Touch'
       },
+      quickLinks: {
+        education: 'Training to become a certified accountant (IHK) and IHK certifications',
+        experience: '21 years of professional experience in accounting, sales and management',
+        certifications: 'IHK certificates, employment references and language certificates',
+        hobbiesText: 'Photography, technology and my e-commerce project Profit Minds'
+      },
       skills: {
         title: 'Skills and Expertise',
         items: [
@@ -248,7 +275,15 @@ export const translations: Record<Language, Translations> = {
       subtitle: 'My Career Journey',
       positions: 'Positions',
       present: 'present',
-      skillsTitle: 'Practical Experience with'
+      skillsTitle: 'Practical Experience with',
+      practicalSkills: [
+        'DATEV',
+        'Sales Tax',
+        'Annual Financial Statements',
+        'Financial Accounting',
+        'Payroll Accounting',
+        'MS Office'
+      ]
     },
     education: {
       title: 'Education',
@@ -305,6 +340,12 @@ export const translations: Record<Language, Translations> = {
         readBlog: 'Citește Blog',
         contact: 'Contactează-mă'
       },
+      quickLinks: {
+        education: 'Formare pentru a deveni contabil certificat (IHK) și certificări IHK',
+        experience: '21 de ani de experiență profesională în contabilitate, vânzări și management',
+        certifications: 'Certificate IHK, referințe de la angajatori și certificate de limbă',
+        hobbiesText: 'Fotografie, tehnologie și proiectul meu de e-commerce Profit Minds'
+      },
       skills: {
         title: 'Competențe și Cunoștințe',
         items: [
@@ -341,7 +382,15 @@ export const translations: Record<Language, Translations> = {
       subtitle: 'Parcursul Meu Profesional',
       positions: 'Poziții',
       present: 'prezent',
-      skillsTitle: 'Experiență Practică cu'
+      skillsTitle: 'Experiență Practică cu',
+      practicalSkills: [
+        'DATEV',
+        'TVA',
+        'Situații Financiare Anuale',
+        'Contabilitate Financiară',
+        'Contabilitate Salarizare',
+        'MS Office'
+      ]
     },
     education: {
       title: 'Educație',
