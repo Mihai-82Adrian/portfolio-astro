@@ -18,26 +18,22 @@ const lang = 'en';
 const t = translations[lang];
 
 const title = `${t.about.title} | Mihai Adrian Mateescu`;
-const description = `${t.about.intro} - Finanzbuchhalter mit Interesse für Technologie, Fotografie und E-Commerce`;
+const description = `${t.about.intro} - ${t.about.description}`;
 
 const hobbies = [
   {
-    title: 'Fotografie',
-    description: 'Ich fotografiere leidenschaftlich gerne Landschaften, Porträts und städtische Szenen. Mit Adobe Photoshop bearbeite ich meine Aufnahmen, um einzigartige visuelle Darstellungen zu schaffen.',
+    title: t.about.hobbies.photography.title,
+    description: t.about.hobbies.photography.description,
     image: '/images/out1.webp'
   },
   {
-    title: 'Technologie-Enthusiast',
-    description: 'Als leidenschaftlicher Autodidakt erforsche ich neue Technologien durch persönliche Projekte und Online-Kurse. Ich lerne aktiv Programmiersprachen und experimentiere mit digitalen Tools, um meine Fähigkeiten kontinuierlich zu erweitern.',
-    highlights: [
-      'Self-Learning: Rust, Julia, Python durch Online-Kurse und Hobby-Projekte',
-      'Testen neuer digitaler Tools für persönliche Finanzverwaltung',
-      'Exploration von KI-Konzepten als Independent Researcher (Anfängerniveau)'
-    ]
+    title: t.about.hobbies.technology.title,
+    description: t.about.hobbies.technology.description,
+    highlights: t.about.hobbies.technology.highlights
   },
   {
-    title: 'E-Commerce: Profit Minds',
-    description: 'Profit Minds ist meine eigene Marke für nachhaltige, personalisierte Kleidung und Accessoires. Dieses Projekt vereint meine Interessen an Design, E-Commerce und Marketing und ermöglicht mir, meine kreativen Ideen umzusetzen.',
+    title: t.about.hobbies.ecommerce.title,
+    description: t.about.hobbies.ecommerce.description,
     logo: '/images/profit-minds-logo.webp',
     link: 'https://profitminds.myspreadshop.de'
   }

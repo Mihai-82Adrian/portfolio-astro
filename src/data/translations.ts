@@ -52,8 +52,24 @@ export interface Translations {
     title: string;
     subtitle: string;
     intro: string;
+    description: string;
     currentFocus: string;
     skills: string;
+    hobbies: {
+      photography: {
+        title: string;
+        description: string;
+      };
+      technology: {
+        title: string;
+        description: string;
+        highlights: string[];
+      };
+      ecommerce: {
+        title: string;
+        description: string;
+      };
+    };
   };
   // Experience Page
   experience: {
@@ -68,6 +84,7 @@ export interface Translations {
   education: {
     title: string;
     subtitle: string;
+    description: string;
     ongoing: string;
     completed: string;
     incomplete: string;
@@ -76,10 +93,18 @@ export interface Translations {
   certifications: {
     title: string;
     subtitle: string;
+    description: string;
     download: string;
     verify: string;
     aboutTitle: string;
     aboutText: string;
+    categories: {
+      professional: string;
+      language: string;
+      reference: string;
+      other: string;
+    };
+    count: string;
   };
   // Common UI
   common: {
@@ -160,8 +185,28 @@ export const translations: Record<Language, Translations> = {
       title: 'Über mich',
       subtitle: 'Finanzbuchhalter & Finanzexperte',
       intro: 'Willkommen auf meiner Portfolio-Seite',
+      description: 'Finanzbuchhalter mit Interesse für Technologie, Fotografie und E-Commerce',
       currentFocus: 'Aktuell: Weiterbildung zum Bilanzbuchhalter (IHK)',
-      skills: 'Kompetenzen'
+      skills: 'Kompetenzen',
+      hobbies: {
+        photography: {
+          title: 'Fotografie',
+          description: 'Ich fotografiere leidenschaftlich gerne Landschaften, Porträts und städtische Szenen. Mit Adobe Photoshop bearbeite ich meine Aufnahmen, um einzigartige visuelle Darstellungen zu schaffen.'
+        },
+        technology: {
+          title: 'Technologie-Enthusiast',
+          description: 'Als leidenschaftlicher Autodidakt erforsche ich neue Technologien durch persönliche Projekte und Online-Kurse. Ich lerne aktiv Programmiersprachen und experimentiere mit digitalen Tools, um meine Fähigkeiten kontinuierlich zu erweitern.',
+          highlights: [
+            'Self-Learning: Rust, Julia, Python durch Online-Kurse und Hobby-Projekte',
+            'Testen neuer digitaler Tools für persönliche Finanzverwaltung',
+            'Exploration von KI-Konzepten als Independent Researcher (Anfängerniveau)'
+          ]
+        },
+        ecommerce: {
+          title: 'E-Commerce: Profit Minds',
+          description: 'Profit Minds ist meine eigene Marke für nachhaltige, personalisierte Kleidung und Accessoires. Dieses Projekt vereint meine Interessen an Design, E-Commerce und Marketing und ermöglicht mir, meine kreativen Ideen umzusetzen.'
+        }
+      }
     },
     experience: {
       title: 'Berufserfahrung',
@@ -181,6 +226,7 @@ export const translations: Record<Language, Translations> = {
     education: {
       title: 'Ausbildung',
       subtitle: 'Akademischer und beruflicher Werdegang',
+      description: 'Weiterbildung zum Bilanzbuchhalter (IHK) und berufliche Qualifikationen',
       ongoing: 'laufend',
       completed: 'abgeschlossen',
       incomplete: 'ohne Abschlusszeugnis'
@@ -188,10 +234,18 @@ export const translations: Record<Language, Translations> = {
     certifications: {
       title: 'Zertifizierungen',
       subtitle: 'Berufliche Qualifikationen und Nachweise',
+      description: 'IHK-Zertifikate, Arbeitszeugnisse und Sprachzertifikate',
       download: 'Zertifikat herunterladen',
       verify: 'Verifizieren',
       aboutTitle: 'Über meine Zertifizierungen',
-      aboutText: 'Die IHK-Zertifizierung als Fachkraft für Buchführung bestätigt meine fachlichen Kenntnisse und Kompetenzen im Bereich der Buchhaltung. Aktuell setze ich meine Weiterbildung zum Bilanzbuchhalter (IHK) fort, um meine Fähigkeiten zu erweitern und meine berufliche Qualifikation zu steigern.'
+      aboutText: 'Die IHK-Zertifizierung als Fachkraft für Buchführung bestätigt meine fachlichen Kenntnisse und Kompetenzen im Bereich der Buchhaltung. Aktuell setze ich meine Weiterbildung zum Bilanzbuchhalter (IHK) fort, um meine Fähigkeiten zu erweitern und meine berufliche Qualifikation zu steigern.',
+      categories: {
+        professional: 'Berufliche Zertifikate',
+        language: 'Sprachzertifikate',
+        reference: 'Arbeitszeugnisse',
+        other: 'Weitere Dokumente'
+      },
+      count: 'Zertifikate'
     },
     common: {
       backToHome: 'Zurück zur Startseite',
@@ -267,8 +321,28 @@ export const translations: Record<Language, Translations> = {
       title: 'About Me',
       subtitle: 'Financial Accountant & Finance Expert',
       intro: 'Welcome to my portfolio',
+      description: 'Financial Accountant with interests in technology, photography and e-commerce',
       currentFocus: 'Currently: Continuing education as Certified Accountant (IHK)',
-      skills: 'Competencies'
+      skills: 'Competencies',
+      hobbies: {
+        photography: {
+          title: 'Photography',
+          description: 'I passionately photograph landscapes, portraits and urban scenes. Using Adobe Photoshop, I edit my shots to create unique visual representations.'
+        },
+        technology: {
+          title: 'Technology Enthusiast',
+          description: 'As a passionate autodidact, I explore new technologies through personal projects and online courses. I actively learn programming languages and experiment with digital tools to continuously expand my skills.',
+          highlights: [
+            'Self-Learning: Rust, Julia, Python through online courses and hobby projects',
+            'Testing new digital tools for personal finance management',
+            'Exploring AI concepts as Independent Researcher (beginner level)'
+          ]
+        },
+        ecommerce: {
+          title: 'E-Commerce: Profit Minds',
+          description: 'Profit Minds is my own brand for sustainable, personalized clothing and accessories. This project combines my interests in design, e-commerce and marketing, allowing me to implement my creative ideas.'
+        }
+      }
     },
     experience: {
       title: 'Professional Experience',
@@ -288,6 +362,7 @@ export const translations: Record<Language, Translations> = {
     education: {
       title: 'Education',
       subtitle: 'Academic and Professional Background',
+      description: 'Continuing education as Certified Accountant (IHK) and professional qualifications',
       ongoing: 'ongoing',
       completed: 'completed',
       incomplete: 'without graduation certificate'
@@ -295,10 +370,18 @@ export const translations: Record<Language, Translations> = {
     certifications: {
       title: 'Certifications',
       subtitle: 'Professional Qualifications and Credentials',
+      description: 'IHK certificates, employment references and language certificates',
       download: 'Download Certificate',
       verify: 'Verify',
       aboutTitle: 'About My Certifications',
-      aboutText: 'The IHK certification as Specialist for Bookkeeping confirms my professional knowledge and competencies in accounting. Currently, I am continuing my education as Certified Accountant (IHK) to expand my skills and enhance my professional qualifications.'
+      aboutText: 'The IHK certification as Specialist for Bookkeeping confirms my professional knowledge and competencies in accounting. Currently, I am continuing my education as Certified Accountant (IHK) to expand my skills and enhance my professional qualifications.',
+      categories: {
+        professional: 'Professional Certificates',
+        language: 'Language Certificates',
+        reference: 'Employment References',
+        other: 'Other Documents'
+      },
+      count: 'Certificates'
     },
     common: {
       backToHome: 'Back to Home',
@@ -374,8 +457,28 @@ export const translations: Record<Language, Translations> = {
       title: 'Despre Mine',
       subtitle: 'Contabil Financiar & Expert Financiar',
       intro: 'Bun venit pe pagina mea de portofoliu',
+      description: 'Contabil Financiar cu interese în tehnologie, fotografie și e-commerce',
       currentFocus: 'Actual: Educație continuă ca Contabil Certificat (IHK)',
-      skills: 'Competențe'
+      skills: 'Competențe',
+      hobbies: {
+        photography: {
+          title: 'Fotografie',
+          description: 'Fotografiez cu pasiune peisaje, portrete și scene urbane. Folosind Adobe Photoshop, editez fotografiile mele pentru a crea reprezentări vizuale unice.'
+        },
+        technology: {
+          title: 'Entuziast Tehnologie',
+          description: 'Ca autodidact pasionat, explorez tehnologii noi prin proiecte personale și cursuri online. Învăț activ limbaje de programare și experimentez cu instrumente digitale pentru a-mi extinde continuu abilitățile.',
+          highlights: [
+            'Self-Learning: Rust, Julia, Python prin cursuri online și proiecte hobby',
+            'Testarea de noi instrumente digitale pentru gestiunea finanțelor personale',
+            'Explorarea conceptelor de AI ca Cercetător Independent (nivel începător)'
+          ]
+        },
+        ecommerce: {
+          title: 'E-Commerce: Profit Minds',
+          description: 'Profit Minds este propria mea marcă de îmbrăcăminte și accesorii personalizate și durabile. Acest proiect combină interesele mele în design, e-commerce și marketing, permițându-mi să-mi implementez ideile creative.'
+        }
+      }
     },
     experience: {
       title: 'Experiență Profesională',
@@ -395,6 +498,7 @@ export const translations: Record<Language, Translations> = {
     education: {
       title: 'Educație',
       subtitle: 'Parcurs Academic și Profesional',
+      description: 'Formare continuă ca Contabil Certificat (IHK) și calificări profesionale',
       ongoing: 'în curs',
       completed: 'finalizat',
       incomplete: 'fără diplomă de absolvire'
@@ -402,10 +506,18 @@ export const translations: Record<Language, Translations> = {
     certifications: {
       title: 'Certificări',
       subtitle: 'Calificări și Credențiale Profesionale',
+      description: 'Certificate IHK, referințe de la angajatori și certificate de limbă',
       download: 'Descarcă Certificat',
       verify: 'Verifică',
       aboutTitle: 'Despre Certificările Mele',
-      aboutText: 'Certificarea IHK ca Specialist Contabilitate confirmă cunoștințele și competențele mele profesionale în contabilitate. În prezent, îmi continui educația ca Contabil Certificat (IHK) pentru a-mi extinde abilitățile și a-mi îmbunătăți calificările profesionale.'
+      aboutText: 'Certificarea IHK ca Specialist Contabilitate confirmă cunoștințele și competențele mele profesionale în contabilitate. În prezent, îmi continui educația ca Contabil Certificat (IHK) pentru a-mi extinde abilitățile și a-mi îmbunătăți calificările profesionale.',
+      categories: {
+        professional: 'Certificate Profesionale',
+        language: 'Certificate de Limbă',
+        reference: 'Referințe de Angajare',
+        other: 'Alte Documente'
+      },
+      count: 'Certificate'
     },
     common: {
       backToHome: 'Înapoi la Pagina Principală',

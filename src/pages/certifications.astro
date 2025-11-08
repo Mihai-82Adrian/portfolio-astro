@@ -18,7 +18,7 @@ const lang = 'de';
 const t = translations[lang];
 
 const title = `${t.certifications.title} | Mihai Adrian Mateescu`;
-const description = `${t.certifications.subtitle} - IHK-Zertifikate, Arbeitszeugnisse und Sprachzertifikate`;
+const description = t.certifications.description;
 
 // Group certifications by category
 const professionalCerts = getCertificationsByCategory('professional');
@@ -26,12 +26,7 @@ const languageCerts = getCertificationsByCategory('language');
 const referenceCerts = getCertificationsByCategory('reference');
 const otherCerts = getCertificationsByCategory('other');
 
-const categoryLabels = {
-  professional: 'Berufliche Zertifikate',
-  language: 'Sprachzertifikate',
-  reference: 'Arbeitszeugnisse',
-  other: 'Weitere Dokumente'
-};
+const categoryLabels = t.certifications.categories;
 ---
 
 <BaseLayout title={title} description={description} lang={lang}>
@@ -47,7 +42,7 @@ const categoryLabels = {
         </p>
         <div class="mt-6">
           <Badge variant="primary" size="lg">
-            {certifications.length} Zertifikate
+            {certifications.length} {t.certifications.count}
           </Badge>
         </div>
       </div>
