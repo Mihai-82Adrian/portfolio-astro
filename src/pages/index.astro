@@ -2,109 +2,184 @@
 /**
  * Homepage - Mihai Adrian Mateescu Portfolio
  *
- * Temporary homepage showcasing the design system
- * Full homepage will be built in Phase 1, Week 2
+ * Main landing page with professional overview,
+ * skills summary, and links to main sections
  */
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import ThemeToggle from '@/components/ui/ThemeToggle.astro';
+import Hero from '@components/sections/Hero.astro';
+import Container from '@components/ui/Container.astro';
+import Card from '@components/ui/Card.astro';
+import Button from '@components/ui/Button.astro';
+import { translations } from '@data/translations';
+
+const lang = 'de';
+const t = translations[lang];
+
+const title = 'Mihai Adrian Mateescu - Finanzbuchhalter Portfolio';
+const description = t.home.description;
 ---
 
-<BaseLayout>
-  <div class="min-h-screen bg-light-bg dark:bg-dark-bg transition-colors duration-200">
-    <!-- Header -->
-    <header class="border-b border-light-border dark:border-dark-border">
-      <div class="container-custom py-4 flex justify-between items-center">
-        <div class="text-xl font-bold text-eucalyptus-700 dark:text-eucalyptus-300">
-          Mihai Adrian Mateescu
-        </div>
-        <ThemeToggle />
-      </div>
-    </header>
+<BaseLayout title={title} description={description} lang={lang}>
+  <!-- Hero Section -->
+  <Hero
+    title={t.home.title}
+    subtitle={t.home.subtitle}
+    description={t.home.description}
+    imageSrc="/images/me.webp"
+    imageAlt="Mihai Adrian Mateescu - Portrait"
+  >
+    <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+      <Button href="/experience" variant="primary" size="lg">
+        {t.nav.experience}
+      </Button>
+      <Button href="/blog" variant="secondary" size="lg">
+        {t.nav.blog}
+      </Button>
+      <Button href="#contact" variant="outline" size="lg">
+        {t.nav.contact}
+      </Button>
+    </div>
+  </Hero>
 
-    <!-- Hero Section -->
-    <main class="container-custom">
-      <section class="section text-center">
-        <h1 class="text-5xl md:text-6xl font-bold mb-6">
-          Finance Meets <span class="text-gradient">Innovation</span>
-        </h1>
-        <p class="text-xl md:text-2xl text-text-secondary-light dark:text-text-secondary-dark max-w-3xl mx-auto mb-8">
-          Bilanzbuchhalter in training with expertise in finance, accounting, and AI/ML development.
-          Bridging traditional finance with cutting-edge technology.
-        </p>
-        <div class="flex flex-wrap justify-center gap-4">
-          <a href="/design-system-test" class="btn-primary">
-            View Design System
-          </a>
-          <a href="#about" class="btn-secondary">
-            Learn More
-          </a>
-        </div>
-      </section>
-
-      <!-- Quick Intro -->
-      <section id="about" class="section max-w-4xl mx-auto">
+  <!-- Contact Information -->
+  <Container>
+    <section id="contact" class="py-12">
+      <Card>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div class="card">
-            <h2 class="text-2xl font-semibold mb-4 text-eucalyptus-700 dark:text-eucalyptus-300">
-              Finance & Accounting
+          <div>
+            <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6">
+              {t.contact.address}
             </h2>
             <p class="text-text-secondary-light dark:text-text-secondary-dark">
-              Currently pursuing Bilanzbuchhalter certification with 20+ years of experience in
-              finance, controlling, and business analysis. Expert in IFRS, HGB, and financial
-              reporting.
+              Bahnhofstraße 65b<br />
+              21218 Seevetal<br />
+              Germany
             </p>
-            <div class="mt-4 flex flex-wrap gap-2">
-              <span class="badge">Finance</span>
-              <span class="badge">Accounting</span>
-              <span class="badge">Controlling</span>
-            </div>
           </div>
 
-          <div class="card">
-            <h2 class="text-2xl font-semibold mb-4 text-eucalyptus-700 dark:text-eucalyptus-300">
-              AI/ML Development
+          <div>
+            <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6">
+              Kontakt
             </h2>
-            <p class="text-text-secondary-light dark:text-text-secondary-dark">
-              Self-taught AI/ML developer with expertise in Python, TensorFlow, and modern web
-              technologies. Building intelligent solutions that bridge finance and technology.
-            </p>
-            <div class="mt-4 flex flex-wrap gap-2">
-              <span class="badge">Python</span>
-              <span class="badge">TensorFlow</span>
-              <span class="badge">TypeScript</span>
+            <div class="space-y-3 text-text-secondary-light dark:text-text-secondary-dark">
+              <p>
+                <strong>{t.contact.phone}:</strong>{' '}
+                <a href="tel:+491704740121" class="text-eucalyptus-600 dark:text-eucalyptus-400 hover:underline">
+                  +49 170 474 0121
+                </a>
+              </p>
+              <p>
+                <strong>{t.contact.email}:</strong>{' '}
+                <a href="mailto:mihai.mateescu@web.de" class="text-eucalyptus-600 dark:text-eucalyptus-400 hover:underline">
+                  mihai.mateescu@web.de
+                </a>
+              </p>
+              <p>
+                <strong>{t.contact.linkedin}:</strong>{' '}
+                <a
+                  href="https://www.linkedin.com/in/mateescu-mihai-922b3169"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-eucalyptus-600 dark:text-eucalyptus-400 hover:underline"
+                >
+                  Mateescu Mihai
+                </a>
+              </p>
             </div>
           </div>
         </div>
-      </section>
+      </Card>
+    </section>
 
-      <!-- Design System Link -->
-      <section class="section text-center">
-        <div class="card inline-block">
-          <h3 class="text-xl font-semibold mb-2">Design System</h3>
+    <!-- Quick Links to Main Sections -->
+    <section class="py-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <h3 class="text-xl font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-3">
+            {t.nav.education}
+          </h3>
           <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
-            View the complete design system with color palette, typography, and components.
+            Weiterbildung zum Bilanzbuchhalter (IHK) und IHK-Zertifizierungen
           </p>
-          <a href="/design-system-test" class="btn-ghost">
-            Explore Design System →
-          </a>
-        </div>
-      </section>
-    </main>
+          <Button href="/education" variant="ghost" size="sm">
+            {t.common.learnMore} →
+          </Button>
+        </Card>
 
-    <!-- Footer -->
-    <footer class="border-t border-light-border dark:border-dark-border mt-16">
-      <div class="container-custom py-8 text-center text-sm text-text-secondary-light dark:text-text-secondary-dark">
-        <p>© 2025 Mihai Adrian Mateescu. All rights reserved.</p>
-        <p class="mt-2">Built with Astro, TypeScript, and Tailwind CSS 4.x</p>
+        <Card>
+          <h3 class="text-xl font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-3">
+            {t.nav.experience}
+          </h3>
+          <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+            21 Jahre Berufserfahrung in Buchhaltung, Vertrieb und Management
+          </p>
+          <Button href="/experience" variant="ghost" size="sm">
+            {t.common.learnMore} →
+          </Button>
+        </Card>
+
+        <Card>
+          <h3 class="text-xl font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-3">
+            {t.nav.certifications}
+          </h3>
+          <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+            IHK-Zertifikate, Arbeitszeugnisse und Sprachzertifikate
+          </p>
+          <Button href="/certifications" variant="ghost" size="sm">
+            {t.common.learnMore} →
+          </Button>
+        </Card>
       </div>
-    </footer>
-  </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section class="py-12">
+      <Card>
+        <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6">
+          {t.home.skills.title}
+        </h2>
+        <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-text-secondary-light dark:text-text-secondary-dark">
+          {t.home.skills.items.map((skill) => (
+            <li class="flex items-start">
+              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2">✓</span>
+              <span>{skill}</span>
+            </li>
+          ))}
+        </ul>
+      </Card>
+    </section>
+
+    <!-- Leadership Section -->
+    <section class="py-12">
+      <Card>
+        <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6">
+          {t.home.leadership.title}
+        </h2>
+        <ul class="space-y-3 text-text-secondary-light dark:text-text-secondary-dark">
+          {t.home.leadership.items.map((item) => (
+            <li class="flex items-start">
+              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2">•</span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </Card>
+    </section>
+
+    <!-- Hobbies Teaser -->
+    <section class="py-12 text-center">
+      <Card>
+        <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+          {t.home.hobbies.title}
+        </h2>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-6 max-w-2xl mx-auto">
+          Fotografie, Technologie und mein E-Commerce-Projekt Profit Minds
+        </p>
+        <Button href="/about" variant="primary">
+          {t.home.hobbies.learnMore}
+        </Button>
+      </Card>
+    </section>
+  </Container>
 </BaseLayout>
-
-<script>
-  import { initTheme } from '@/utils/theme';
-
-  // Initialize theme on page load
-  initTheme();
-</script>
