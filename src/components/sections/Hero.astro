@@ -26,6 +26,10 @@ interface Props {
   secondaryCta?: string;
   /** Secondary CTA href */
   secondaryHref?: string;
+  /** Hero image source */
+  imageSrc?: string;
+  /** Hero image alt text */
+  imageAlt?: string;
 }
 
 const {
@@ -36,6 +40,8 @@ const {
   primaryHref = '/projects',
   secondaryCta = 'Read Blog',
   secondaryHref = '/blog',
+  imageSrc,
+  imageAlt = '',
 } = Astro.props;
 ---
 
