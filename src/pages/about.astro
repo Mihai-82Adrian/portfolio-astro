@@ -18,26 +18,22 @@ const lang = 'de';
 const t = translations[lang];
 
 const title = `${t.about.title} | Mihai Adrian Mateescu`;
-const description = `${t.about.intro} - Finanzbuchhalter mit Interesse für Technologie, Fotografie und E-Commerce`;
+const description = `${t.about.intro} - ${t.about.description}`;
 
 const hobbies = [
   {
-    title: 'Fotografie',
-    description: 'Ich fotografiere leidenschaftlich gerne Landschaften, Porträts und städtische Szenen. Mit Adobe Photoshop bearbeite ich meine Aufnahmen, um einzigartige visuelle Darstellungen zu schaffen.',
+    title: t.about.hobbies.photography.title,
+    description: t.about.hobbies.photography.description,
     image: '/images/out1.webp'
   },
   {
-    title: 'Technologie-Enthusiast',
-    description: 'Als leidenschaftlicher Autodidakt erforsche ich neue Technologien durch persönliche Projekte und Online-Kurse. Ich lerne aktiv Programmiersprachen und experimentiere mit digitalen Tools, um meine Fähigkeiten kontinuierlich zu erweitern.',
-    highlights: [
-      'Self-Learning: Rust, Julia, Python durch Online-Kurse und Hobby-Projekte',
-      'Testen neuer digitaler Tools für persönliche Finanzverwaltung',
-      'Exploration von KI-Konzepten als Independent Researcher (Anfängerniveau)'
-    ]
+    title: t.about.hobbies.technology.title,
+    description: t.about.hobbies.technology.description,
+    highlights: t.about.hobbies.technology.highlights
   },
   {
-    title: 'E-Commerce: Profit Minds',
-    description: 'Profit Minds ist meine eigene Marke für nachhaltige, personalisierte Kleidung und Accessoires. Dieses Projekt vereint meine Interessen an Design, E-Commerce und Marketing und ermöglicht mir, meine kreativen Ideen umzusetzen.',
+    title: t.about.hobbies.ecommerce.title,
+    description: t.about.hobbies.ecommerce.description,
     logo: '/images/profit-minds-logo.webp',
     link: 'https://profitminds.myspreadshop.de'
   }
@@ -46,75 +42,56 @@ const hobbies = [
 // Real skills based on CV, experience, and honest self-assessment
 const skillCategories = [
   {
-    category: 'Finanz- und Lohnbuchhaltung (DE)',
+    category: t.about.skillCategories.finance.category,
     icon: 'finance',
-    status: 'Advanced — 2+ Jahre Berufserfahrung',
-    skills: [
-      { name: 'Finanzbuchhaltung: Debitoren, Kreditoren, Sachkonten', proficiency: 'advanced' as const },
-      { name: 'Lohnbuchhaltung & Gehaltsabrechnung', proficiency: 'advanced' as const },
-      { name: 'Umsatzsteuervoranmeldungen (monatlich/vierteljährlich)', proficiency: 'advanced' as const },
-      { name: 'Monats- und Jahresabschlüsse (BWA, GuV, Bilanz)', proficiency: 'advanced' as const },
-      { name: 'DATEV, Agenda, Simba (Steuerkanzlei-Software)', proficiency: 'advanced' as const },
-      { name: 'SelectLine, Modality, ELO DMS (aktuell)', proficiency: 'advanced' as const }
-    ],
-    note: 'Finanzbuchhalter seit 08/2023 (modal3, Kesen, Herrmann, Quadriga) • Bilanzbuchhalter (IHK) in Ausbildung, Prüfung 03/2026'
+    status: t.about.skillCategories.finance.status,
+    skills: t.about.skillCategories.finance.skills.map(skill => ({ name: skill, proficiency: 'advanced' as const })),
+    note: t.about.skillCategories.finance.note
   },
   {
-    category: 'E-Commerce Ops & Compliance (EU/DE)',
+    category: t.about.skillCategories.ecommerce.category,
     icon: 'commerce',
-    status: 'Advanced practitioner',
+    status: t.about.skillCategories.ecommerce.status,
     skills: [
-      { name: 'Shopify & Amazon Seller (EU)', proficiency: 'advanced' as const },
-      { name: 'LUCID/VerpackG, DSGVO & Google Consent Mode v2', proficiency: 'advanced' as const },
-      { name: 'WEEE/ElektroG, GTIN & GTIN-exemption', proficiency: 'intermediate' as const },
-      { name: 'Printful/Spreadshirt/SPOD Logistik', proficiency: 'advanced' as const },
-      { name: 'Google Merchant, Ads, Analytics', proficiency: 'advanced' as const }
+      { name: t.about.skillCategories.ecommerce.skills[0], proficiency: 'advanced' as const },
+      { name: t.about.skillCategories.ecommerce.skills[1], proficiency: 'advanced' as const },
+      { name: t.about.skillCategories.ecommerce.skills[2], proficiency: 'intermediate' as const },
+      { name: t.about.skillCategories.ecommerce.skills[3], proficiency: 'advanced' as const },
+      { name: t.about.skillCategories.ecommerce.skills[4], proficiency: 'advanced' as const }
     ]
   },
   {
-    category: 'AI/ML Systems — Learning & Research',
+    category: t.about.skillCategories.aiml.category,
     icon: 'brain',
-    status: 'Learning / Research (non-expert)',
-    skills: [
-      { name: 'LLM/RAG Prototypen (Ollama, llama.cpp, Qdrant)', proficiency: 'intermediate' as const },
-      { name: 'PyTorch / TensorFlow & scikit-learn', proficiency: 'intermediate' as const },
-      { name: 'MLflow & Experiment Tracking', proficiency: 'intermediate' as const },
-      { name: 'CPU-first Performance Tuning (BLAS/AOCL)', proficiency: 'intermediate' as const },
-      { name: 'Semantisch gesteuerter Tokenizer (Projekt)', proficiency: 'intermediate' as const },
-      { name: 'LLM from Scratch: Gemma 3 270M Rekonstruktion (Rust/Julia)', proficiency: 'intermediate' as const }
-    ],
-    note: 'Pair-programming: GPT-5 Thinking, Claude Code, Gemini Code Assist'
+    status: t.about.skillCategories.aiml.status,
+    skills: t.about.skillCategories.aiml.skills.map(skill => ({ name: skill, proficiency: 'intermediate' as const })),
+    note: t.about.skillCategories.aiml.note
   },
   {
-    category: 'Software & Web Development — Learning',
+    category: t.about.skillCategories.development.category,
     icon: 'code',
-    status: 'Learning (AI-assisted co-creation)',
-    skills: [
-      { name: 'React / Next.js 15, Tailwind, i18n', proficiency: 'intermediate' as const },
-      { name: 'Flask / FastAPI; Rust (Axum) Basics', proficiency: 'intermediate' as const },
-      { name: 'Apache Arrow/Parquet, Polars', proficiency: 'intermediate' as const },
-      { name: 'Docker, GitHub Actions, Linux Basics', proficiency: 'intermediate' as const }
-    ],
-    note: 'Code generiert/debugged zusammen mit AI; Design + Architektur + Research von mir'
+    status: t.about.skillCategories.development.status,
+    skills: t.about.skillCategories.development.skills.map(skill => ({ name: skill, proficiency: 'intermediate' as const })),
+    note: t.about.skillCategories.development.note
   },
   {
-    category: 'Sprachen',
+    category: t.about.skillCategories.languages.category,
     icon: 'language',
     skills: [
-      { name: 'Rumänisch (Muttersprache)', proficiency: 'expert' as const },
-      { name: 'Deutsch (telc B2 Zertifikat)', proficiency: 'expert' as const },
-      { name: 'Englisch (Sehr gut)', proficiency: 'advanced' as const }
+      { name: t.about.skillCategories.languages.skills[0], proficiency: 'expert' as const },
+      { name: t.about.skillCategories.languages.skills[1], proficiency: 'expert' as const },
+      { name: t.about.skillCategories.languages.skills[2], proficiency: 'advanced' as const }
     ]
   },
   {
-    category: 'Soft Skills & Leadership',
+    category: t.about.skillCategories.softSkills.category,
     icon: 'team',
     skills: [
-      { name: 'Kommunikation & Kundenbetreuung', proficiency: 'expert' as const },
-      { name: 'Teamführung (bis zu 9 Mitarbeiter)', proficiency: 'advanced' as const },
-      { name: 'Detailgenauigkeit & Qualitätskontrolle', proficiency: 'expert' as const },
-      { name: 'Zeitmanagement & Priorisierung', proficiency: 'expert' as const },
-      { name: 'Kaufmännische Leitung & BWL-Steuerung', proficiency: 'advanced' as const }
+      { name: t.about.skillCategories.softSkills.skills[0], proficiency: 'expert' as const },
+      { name: t.about.skillCategories.softSkills.skills[1], proficiency: 'advanced' as const },
+      { name: t.about.skillCategories.softSkills.skills[2], proficiency: 'expert' as const },
+      { name: t.about.skillCategories.softSkills.skills[3], proficiency: 'expert' as const },
+      { name: t.about.skillCategories.softSkills.skills[4], proficiency: 'advanced' as const }
     ]
   }
 ];
@@ -152,10 +129,7 @@ const skillCategories = [
               {t.about.intro}
             </h2>
             <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4 leading-relaxed">
-              Engagierter Finanzbuchhalter mit Erfahrung in der Buchhaltung und Finanzverwaltung,
-              spezialisiert auf die detaillierte Analyse von Geschäftsvorfällen und die steuerliche
-              Berichterstattung. Mit einer ausgeprägten Leidenschaft für Zahlen und einem scharfen Auge
-              für Details suche ich stets nach Möglichkeiten, meine beruflichen Fähigkeiten weiterzuentwickeln.
+              {t.about.professionalIdentityText}
             </p>
             <div class="bg-eucalyptus-100 dark:bg-eucalyptus-900 p-4 rounded-lg">
               <p class="text-eucalyptus-900 dark:text-eucalyptus-100 font-medium">
@@ -170,10 +144,10 @@ const skillCategories = [
     <!-- Skills Matrix -->
     <section class="py-12">
       <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-8 text-center">
-        Kompetenzen & Fähigkeiten
+        {t.about.skills}
       </h2>
       <p class="text-center text-text-secondary-light dark:text-text-secondary-dark mb-8 max-w-3xl mx-auto">
-        Ehrliche Selbsteinschätzung meiner beruflichen und technischen Fähigkeiten
+        {t.about.skillsSubtitle}
       </p>
       <SkillsMatrix 
         categories={skillCategories}

@@ -55,6 +55,8 @@ export interface Translations {
     description: string;
     currentFocus: string;
     skills: string;
+    skillsSubtitle: string;
+    professionalIdentityText: string;
     hobbies: {
       photography: {
         title: string;
@@ -69,6 +71,45 @@ export interface Translations {
         title: string;
         description: string;
       };
+    };
+    skillCategories: {
+      finance: {
+        category: string;
+        status: string;
+        skills: string[];
+        note: string;
+      };
+      ecommerce: {
+        category: string;
+        status: string;
+        skills: string[];
+      };
+      aiml: {
+        category: string;
+        status: string;
+        skills: string[];
+        note: string;
+      };
+      development: {
+        category: string;
+        status: string;
+        skills: string[];
+        note: string;
+      };
+      languages: {
+        category: string;
+        skills: string[];
+      };
+      softSkills: {
+        category: string;
+        skills: string[];
+      };
+    };
+    proficiencyLegend: {
+      title: string;
+      expert: string;
+      advanced: string;
+      intermediate: string;
     };
   };
   // Experience Page
@@ -188,6 +229,8 @@ export const translations: Record<Language, Translations> = {
       description: 'Finanzbuchhalter mit Interesse für Technologie, Fotografie und E-Commerce',
       currentFocus: 'Aktuell: Weiterbildung zum Bilanzbuchhalter (IHK)',
       skills: 'Kompetenzen',
+      skillsSubtitle: 'Ehrliche Selbsteinschätzung meiner beruflichen und technischen Fähigkeiten',
+      professionalIdentityText: 'Engagierter Finanzbuchhalter mit Erfahrung in der Buchhaltung und Finanzverwaltung, spezialisiert auf die detaillierte Analyse von Geschäftsvorfällen und die steuerliche Berichterstattung. Mit einer ausgeprägten Leidenschaft für Zahlen und einem scharfen Auge für Details suche ich stets nach Möglichkeiten, meine beruflichen Fähigkeiten weiterzuentwickeln.',
       hobbies: {
         photography: {
           title: 'Fotografie',
@@ -206,6 +249,80 @@ export const translations: Record<Language, Translations> = {
           title: 'E-Commerce: Profit Minds',
           description: 'Profit Minds ist meine eigene Marke für nachhaltige, personalisierte Kleidung und Accessoires. Dieses Projekt vereint meine Interessen an Design, E-Commerce und Marketing und ermöglicht mir, meine kreativen Ideen umzusetzen.'
         }
+      },
+      skillCategories: {
+        finance: {
+          category: 'Finanz- und Lohnbuchhaltung (DE)',
+          status: 'Advanced — 2+ Jahre Berufserfahrung',
+          skills: [
+            'Finanzbuchhaltung: Debitoren, Kreditoren, Sachkonten',
+            'Lohnbuchhaltung & Gehaltsabrechnung',
+            'Umsatzsteuervoranmeldungen (monatlich/vierteljährlich)',
+            'Monats- und Jahresabschlüsse (BWA, GuV, Bilanz)',
+            'DATEV, Agenda, Simba (Steuerkanzlei-Software)',
+            'SelectLine, Modality, ELO DMS (aktuell)'
+          ],
+          note: 'Finanzbuchhalter seit 08/2023 (modal3, Kesen, Herrmann, Quadriga) • Bilanzbuchhalter (IHK) in Ausbildung, Prüfung 03/2026'
+        },
+        ecommerce: {
+          category: 'E-Commerce Ops & Compliance (EU/DE)',
+          status: 'Advanced practitioner',
+          skills: [
+            'Shopify & Amazon Seller (EU)',
+            'LUCID/VerpackG, DSGVO & Google Consent Mode v2',
+            'WEEE/ElektroG, GTIN & GTIN-exemption',
+            'Printful/Spreadshirt/SPOD Logistik',
+            'Google Merchant, Ads, Analytics'
+          ]
+        },
+        aiml: {
+          category: 'AI/ML Systems — Learning & Research',
+          status: 'Learning / Research (non-expert)',
+          skills: [
+            'LLM/RAG Prototypen (Ollama, llama.cpp, Qdrant)',
+            'PyTorch / TensorFlow & scikit-learn',
+            'MLflow & Experiment Tracking',
+            'CPU-first Performance Tuning (BLAS/AOCL)',
+            'Semantisch gesteuerter Tokenizer (Projekt)',
+            'LLM from Scratch: Gemma 3 270M Rekonstruktion (Rust/Julia)'
+          ],
+          note: 'Pair-programming: GPT-5 Thinking, Claude Code, Gemini Code Assist'
+        },
+        development: {
+          category: 'Software & Web Development — Learning',
+          status: 'Learning (AI-assisted co-creation)',
+          skills: [
+            'React / Next.js 15, Tailwind, i18n',
+            'Flask / FastAPI; Rust (Axum) Basics',
+            'Apache Arrow/Parquet, Polars',
+            'Docker, GitHub Actions, Linux Basics'
+          ],
+          note: 'Code generiert/debugged zusammen mit AI; Design + Architektur + Research von mir'
+        },
+        languages: {
+          category: 'Sprachen',
+          skills: [
+            'Rumänisch (Muttersprache)',
+            'Deutsch (telc B2 Zertifikat)',
+            'Englisch (Sehr gut)'
+          ]
+        },
+        softSkills: {
+          category: 'Soft Skills & Leadership',
+          skills: [
+            'Kommunikation & Kundenbetreuung',
+            'Teamführung (bis zu 9 Mitarbeiter)',
+            'Detailgenauigkeit & Qualitätskontrolle',
+            'Zeitmanagement & Priorisierung',
+            'Kaufmännische Leitung & BWL-Steuerung'
+          ]
+        }
+      },
+      proficiencyLegend: {
+        title: 'Legende — Proficiency Levels',
+        expert: 'Produktive Nutzung, wiederholter Nachweis in mehreren Projekten',
+        advanced: 'Konstante Praxis, Autonomie bei typischen Aufgaben',
+        intermediate: '50–200h geführte Praxis, Grundkenntnisse gefestigt'
       }
     },
     experience: {
@@ -324,6 +441,8 @@ export const translations: Record<Language, Translations> = {
       description: 'Financial Accountant with interests in technology, photography and e-commerce',
       currentFocus: 'Currently: Continuing education as Certified Accountant (IHK)',
       skills: 'Competencies',
+      skillsSubtitle: 'Honest self-assessment of my professional and technical skills',
+      professionalIdentityText: 'Dedicated Financial Accountant with experience in accounting and financial management, specialized in detailed analysis of business transactions and tax reporting. With a strong passion for numbers and a keen eye for detail, I constantly seek opportunities to further develop my professional skills.',
       hobbies: {
         photography: {
           title: 'Photography',
@@ -342,6 +461,80 @@ export const translations: Record<Language, Translations> = {
           title: 'E-Commerce: Profit Minds',
           description: 'Profit Minds is my own brand for sustainable, personalized clothing and accessories. This project combines my interests in design, e-commerce and marketing, allowing me to implement my creative ideas.'
         }
+      },
+      skillCategories: {
+        finance: {
+          category: 'Financial & Payroll Accounting (DE)',
+          status: 'Advanced — 2+ years professional experience',
+          skills: [
+            'Financial Accounting: Accounts Receivable, Payable, General Ledger',
+            'Payroll Accounting & Salary Processing',
+            'Sales Tax Advance Returns (monthly/quarterly)',
+            'Monthly and Annual Financial Statements (BWA, P&L, Balance Sheet)',
+            'DATEV, Agenda, Simba (tax office software)',
+            'SelectLine, Modality, ELO DMS (current)'
+          ],
+          note: 'Financial Accountant since 08/2023 (modal3, Kesen, Herrmann, Quadriga) • Certified Accountant (IHK) in training, exam 03/2026'
+        },
+        ecommerce: {
+          category: 'E-Commerce Ops & Compliance (EU/DE)',
+          status: 'Advanced practitioner',
+          skills: [
+            'Shopify & Amazon Seller (EU)',
+            'LUCID/VerpackG, GDPR & Google Consent Mode v2',
+            'WEEE/ElektroG, GTIN & GTIN-exemption',
+            'Printful/Spreadshirt/SPOD Logistics',
+            'Google Merchant, Ads, Analytics'
+          ]
+        },
+        aiml: {
+          category: 'AI/ML Systems — Learning & Research',
+          status: 'Learning / Research (non-expert)',
+          skills: [
+            'LLM/RAG Prototypes (Ollama, llama.cpp, Qdrant)',
+            'PyTorch / TensorFlow & scikit-learn',
+            'MLflow & Experiment Tracking',
+            'CPU-first Performance Tuning (BLAS/AOCL)',
+            'Semantically Driven Tokenizer (Project)',
+            'LLM from Scratch: Gemma 3 270M Reconstruction (Rust/Julia)'
+          ],
+          note: 'Pair-programming: GPT-5 Thinking, Claude Code, Gemini Code Assist'
+        },
+        development: {
+          category: 'Software & Web Development — Learning',
+          status: 'Learning (AI-assisted co-creation)',
+          skills: [
+            'React / Next.js 15, Tailwind, i18n',
+            'Flask / FastAPI; Rust (Axum) Basics',
+            'Apache Arrow/Parquet, Polars',
+            'Docker, GitHub Actions, Linux Basics'
+          ],
+          note: 'Code generated/debugged with AI; Design + Architecture + Research by me'
+        },
+        languages: {
+          category: 'Languages',
+          skills: [
+            'Romanian (Native)',
+            'German (telc B2 Certificate)',
+            'English (Very good)'
+          ]
+        },
+        softSkills: {
+          category: 'Soft Skills & Leadership',
+          skills: [
+            'Communication & Customer Service',
+            'Team Leadership (up to 9 employees)',
+            'Attention to Detail & Quality Control',
+            'Time Management & Prioritization',
+            'Commercial Management & Business Administration'
+          ]
+        }
+      },
+      proficiencyLegend: {
+        title: 'Legend — Proficiency Levels',
+        expert: 'Productive use, repeated proof in multiple projects',
+        advanced: 'Constant practice, autonomy in typical tasks',
+        intermediate: '50–200h guided practice, basic knowledge consolidated'
       }
     },
     experience: {
@@ -460,6 +653,8 @@ export const translations: Record<Language, Translations> = {
       description: 'Contabil Financiar cu interese în tehnologie, fotografie și e-commerce',
       currentFocus: 'Actual: Educație continuă ca Contabil Certificat (IHK)',
       skills: 'Competențe',
+      skillsSubtitle: 'Autoevaluare onestă a abilităților mele profesionale și tehnice',
+      professionalIdentityText: 'Contabil Financiar dedicat cu experiență în contabilitate și management financiar, specializat în analiza detaliată a tranzacțiilor comerciale și raportarea fiscală. Cu o pasiune puternică pentru cifre și un ochi atent la detalii, caut constant oportunități de a-mi dezvolta abilitățile profesionale.',
       hobbies: {
         photography: {
           title: 'Fotografie',
@@ -478,6 +673,80 @@ export const translations: Record<Language, Translations> = {
           title: 'E-Commerce: Profit Minds',
           description: 'Profit Minds este propria mea marcă de îmbrăcăminte și accesorii personalizate și durabile. Acest proiect combină interesele mele în design, e-commerce și marketing, permițându-mi să-mi implementez ideile creative.'
         }
+      },
+      skillCategories: {
+        finance: {
+          category: 'Contabilitate Financiară & Salarizare (DE)',
+          status: 'Avansat — 2+ ani experiență profesională',
+          skills: [
+            'Contabilitate Financiară: Creanțe, Datorii, Conturi Generale',
+            'Contabilitate Salarizare & Procesare Salarii',
+            'Declarații TVA Anticipate (lunar/trimestrial)',
+            'Situații Financiare Lunare și Anuale (BWA, P&L, Bilanț)',
+            'DATEV, Agenda, Simba (software birou fiscal)',
+            'SelectLine, Modality, ELO DMS (actual)'
+          ],
+          note: 'Contabil Financiar din 08/2023 (modal3, Kesen, Herrmann, Quadriga) • Contabil Certificat (IHK) în formare, examen 03/2026'
+        },
+        ecommerce: {
+          category: 'E-Commerce Ops & Conformitate (EU/DE)',
+          status: 'Practician avansat',
+          skills: [
+            'Shopify & Amazon Seller (EU)',
+            'LUCID/VerpackG, GDPR & Google Consent Mode v2',
+            'WEEE/ElektroG, GTIN & GTIN-exemption',
+            'Printful/Spreadshirt/SPOD Logistică',
+            'Google Merchant, Ads, Analytics'
+          ]
+        },
+        aiml: {
+          category: 'Sisteme AI/ML — Învățare & Cercetare',
+          status: 'Învățare / Cercetare (non-expert)',
+          skills: [
+            'Prototipuri LLM/RAG (Ollama, llama.cpp, Qdrant)',
+            'PyTorch / TensorFlow & scikit-learn',
+            'MLflow & Urmărire Experimente',
+            'Optimizare Performanță CPU-first (BLAS/AOCL)',
+            'Tokenizer Controlat Semantic (Proiect)',
+            'LLM from Scratch: Reconstrucție Gemma 3 270M (Rust/Julia)'
+          ],
+          note: 'Pair-programming: GPT-5 Thinking, Claude Code, Gemini Code Assist'
+        },
+        development: {
+          category: 'Software & Web Development — Învățare',
+          status: 'Învățare (co-creare asistată AI)',
+          skills: [
+            'React / Next.js 15, Tailwind, i18n',
+            'Flask / FastAPI; Rust (Axum) Basics',
+            'Apache Arrow/Parquet, Polars',
+            'Docker, GitHub Actions, Linux Basics'
+          ],
+          note: 'Cod generat/debugat cu AI; Design + Arhitectură + Cercetare de mine'
+        },
+        languages: {
+          category: 'Limbi',
+          skills: [
+            'Română (Nativ)',
+            'Germană (Certificat telc B2)',
+            'Engleză (Foarte bine)'
+          ]
+        },
+        softSkills: {
+          category: 'Soft Skills & Leadership',
+          skills: [
+            'Comunicare & Servicii Clienți',
+            'Leadership Echipă (până la 9 angajați)',
+            'Atenție la Detalii & Control Calitate',
+            'Management Timp & Prioritizare',
+            'Management Comercial & Administrare Afaceri'
+          ]
+        }
+      },
+      proficiencyLegend: {
+        title: 'Legendă — Nivele de Competență',
+        expert: 'Utilizare productivă, dovadă repetată în multiple proiecte',
+        advanced: 'Practică constantă, autonomie în sarcini tipice',
+        intermediate: '50–200h practică ghidată, cunoștințe de bază consolidate'
       }
     },
     experience: {
