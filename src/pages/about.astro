@@ -1,0 +1,200 @@
+---
+/**
+ * About Page
+ *
+ * Personal background, current focus, hobbies, and professional interests
+ * Includes information about photography, technology interests, and Profit Minds project
+ */
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@components/ui/Container.astro';
+import Card from '@components/ui/Card.astro';
+import Button from '@components/ui/Button.astro';
+import SkillsMatrix from '@components/sections/SkillsMatrix.astro';
+import { translations } from '@data/translations';
+
+const lang = 'de';
+const t = translations[lang];
+
+const title = `${t.about.title} | Mihai Adrian Mateescu`;
+const description = `${t.about.intro} - Finanzbuchhalter mit Interesse für Technologie, Fotografie und E-Commerce`;
+
+const hobbies = [
+  {
+    title: 'Fotografie',
+    description: 'Ich fotografiere leidenschaftlich gerne Landschaften, Porträts und städtische Szenen. Mit Adobe Photoshop bearbeite ich meine Aufnahmen, um einzigartige visuelle Darstellungen zu schaffen.',
+    image: '/images/portrait.webp'
+  },
+  {
+    title: 'Technik & Innovation',
+    description: 'Ich begeistere mich für neue Technologien, besonders im Bereich Finanztechnologie. Das Ausprobieren neuer Gadgets und die Verfolgung der neuesten Trends in der Tech-Welt sind für mich sowohl Hobby als auch Inspiration für berufliche Innovationen.',
+    highlights: [
+      'Verfolgen der neuesten Entwicklungen im Bereich FinTech',
+      'Testen neuer digitaler Tools für Buchhaltung und Finanzmanagement',
+      'Interesse an KI-gestützten Lösungen für Finanzprozesse'
+    ]
+  },
+  {
+    title: 'E-Commerce: Profit Minds',
+    description: 'Profit Minds ist meine eigene Marke für nachhaltige, personalisierte Kleidung und Accessoires. Dieses Projekt vereint meine Interessen an Design, E-Commerce und Marketing und ermöglicht mir, meine kreativen Ideen umzusetzen.',
+    logo: '/images/profit-minds-logo.webp',
+    link: 'https://profit-minds.de'
+  }
+];
+
+// Skills configuration for SkillsMatrix
+const skillsData = {
+  technical: [
+    { name: 'DATEV', level: 4 },
+    { name: 'MS Office', level: 5 },
+    { name: 'Finanzbuchhaltung', level: 5 },
+    { name: 'Lohnbuchhaltung', level: 4 },
+    { name: 'Umsatzsteuer', level: 4 },
+    { name: 'Jahresabschlüsse', level: 4 }
+  ],
+  languages: [
+    { name: 'Deutsch', level: 5 },
+    { name: 'Rumänisch', level: 5 },
+    { name: 'Englisch', level: 4 }
+  ],
+  soft: [
+    { name: 'Kommunikation', level: 5 },
+    { name: 'Teamführung', level: 4 },
+    { name: 'Problemlösung', level: 5 },
+    { name: 'Detailgenauigkeit', level: 5 }
+  ]
+};
+---
+
+<BaseLayout title={title} description={description} lang={lang}>
+  <Container>
+    <!-- Page Header -->
+    <section class="py-12 md:py-16">
+      <div class="text-center max-w-3xl mx-auto">
+        <h1 class="text-4xl md:text-5xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+          {t.about.title}
+        </h1>
+        <p class="text-xl text-text-secondary-light dark:text-text-secondary-dark">
+          {t.about.subtitle}
+        </p>
+      </div>
+    </section>
+
+    <!-- Professional Identity -->
+    <section class="py-12">
+      <Card>
+        <div class="flex flex-col md:flex-row gap-8 items-center">
+          <div class="flex-shrink-0">
+            <img
+              src="/images/portrait.webp"
+              alt="Mihai Adrian Mateescu"
+              class="w-48 h-48 rounded-full object-cover shadow-lg"
+              loading="eager"
+            />
+          </div>
+          <div class="flex-1">
+            <h2 class="text-2xl md:text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+              {t.about.intro}
+            </h2>
+            <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4 leading-relaxed">
+              Engagierter Finanzbuchhalter mit Erfahrung in der Buchhaltung und Finanzverwaltung,
+              spezialisiert auf die detaillierte Analyse von Geschäftsvorfällen und die steuerliche
+              Berichterstattung. Mit einer ausgeprägten Leidenschaft für Zahlen und einem scharfen Auge
+              für Details suche ich stets nach Möglichkeiten, meine beruflichen Fähigkeiten weiterzuentwickeln.
+            </p>
+            <div class="bg-eucalyptus-100 dark:bg-eucalyptus-900 p-4 rounded-lg">
+              <p class="text-eucalyptus-900 dark:text-eucalyptus-100 font-medium">
+                {t.about.currentFocus}
+              </p>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </section>
+
+    <!-- Skills Matrix -->
+    <section class="py-12">
+      <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-8 text-center">
+        {t.about.skills}
+      </h2>
+      <SkillsMatrix skills={skillsData} />
+    </section>
+
+    <!-- Hobbies & Interests -->
+    <section class="py-12">
+      <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-8">
+        Hobbies & Interessen
+      </h2>
+
+      <div class="space-y-6">
+        {hobbies.map((hobby) => (
+          <Card>
+            <div class="flex flex-col md:flex-row gap-6">
+              {/* Image or Logo */}
+              {(hobby.image || hobby.logo) && (
+                <div class="flex-shrink-0">
+                  {hobby.image && (
+                    <img
+                      src={hobby.image}
+                      alt={hobby.title}
+                      class="w-full md:w-64 h-48 object-cover rounded-lg"
+                      loading="lazy"
+                    />
+                  )}
+                  {hobby.logo && !hobby.image && (
+                    <img
+                      src={hobby.logo}
+                      alt={hobby.title}
+                      class="w-48 h-auto rounded-lg"
+                      loading="lazy"
+                    />
+                  )}
+                </div>
+              )}
+
+              {/* Content */}
+              <div class="flex-1">
+                <h3 class="text-2xl font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-3">
+                  {hobby.title}
+                </h3>
+                <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+                  {hobby.description}
+                </p>
+
+                {hobby.highlights && (
+                  <ul class="space-y-2 text-text-secondary-light dark:text-text-secondary-dark">
+                    {hobby.highlights.map((highlight) => (
+                      <li class="flex items-start">
+                        <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2">•</span>
+                        <span>{highlight}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {hobby.link && (
+                  <div class="mt-4">
+                    <Button href={hobby.link} variant="primary" target="_blank" rel="noopener noreferrer">
+                      Besuche {hobby.title.includes('Profit Minds') ? 'Profit Minds' : hobby.title}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </section>
+
+    <!-- Back to Home Link -->
+    <div class="py-8 text-center">
+      <a
+        href="/"
+        class="text-eucalyptus-600 dark:text-eucalyptus-400 hover:underline inline-flex items-center gap-2"
+      >
+        <span>←</span>
+        <span>{t.common.backToHome}</span>
+      </a>
+    </div>
+  </Container>
+</BaseLayout>

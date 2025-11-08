@@ -1,0 +1,100 @@
+---
+/**
+ * Experience Page
+ *
+ * Professional career timeline with 13 positions (2003-present)
+ * Uses Timeline component to display chronological work history
+ */
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Timeline from '@components/sections/Timeline.astro';
+import Container from '@components/ui/Container.astro';
+import Card from '@components/ui/Card.astro';
+import Badge from '@components/ui/Badge.astro';
+import { careerPositions } from '@data/experience';
+import { translations } from '@data/translations';
+
+const lang = 'de';
+const t = translations[lang];
+
+const title = `${t.experience.title} | Mihai Adrian Mateescu`;
+const description = `${t.experience.subtitle} - 21 Jahre Berufserfahrung in Finanzbuchhaltung, Vertrieb und Management`;
+
+// Convert career positions to timeline items
+const timelineItems = careerPositions.map((position) => {
+  const dateStr = position.endDate === 'present'
+    ? `${position.startDate.split('-')[1]}/${position.startDate.split('-')[0]} - ${t.experience.present}`
+    : `${position.startDate.split('-')[1]}/${position.startDate.split('-')[0]} - ${position.endDate.split('-')[1]}/${position.endDate.split('-')[0]}`;
+
+  return {
+    id: position.id,
+    title: position.role[lang],
+    subtitle: `${position.company} | ${position.location}`,
+    date: dateStr,
+    description: position.description[lang],
+    icon: position.logo,
+    tags: position.technologies || []
+  };
+});
+
+// Skills gained from experience
+const practicalSkills = [
+  'DATEV',
+  'Umsatzsteuer',
+  'Jahresabschlüsse',
+  'Finanzbuchhaltung',
+  'Lohnbuchhaltung',
+  'MS Office'
+];
+---
+
+<BaseLayout title={title} description={description} lang={lang}>
+  <Container>
+    <!-- Page Header -->
+    <section class="py-12 md:py-16">
+      <div class="text-center max-w-3xl mx-auto">
+        <h1 class="text-4xl md:text-5xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+          {t.experience.title}
+        </h1>
+        <p class="text-xl text-text-secondary-light dark:text-text-secondary-dark">
+          {t.experience.subtitle}
+        </p>
+        <div class="mt-6">
+          <Badge variant="primary" size="lg">
+            {careerPositions.length} {t.experience.positions}
+          </Badge>
+        </div>
+      </div>
+    </section>
+
+    <!-- Career Timeline -->
+    <section class="py-12">
+      <Timeline items={timelineItems} />
+    </section>
+
+    <!-- Practical Skills Section -->
+    <section class="py-12">
+      <Card>
+        <h2 class="text-2xl md:text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6">
+          {t.experience.skillsTitle}
+        </h2>
+        <div class="flex flex-wrap gap-3">
+          {practicalSkills.map((skill) => (
+            <Badge variant="secondary">{skill}</Badge>
+          ))}
+        </div>
+      </Card>
+    </section>
+
+    <!-- Back to Home Link -->
+    <div class="py-8 text-center">
+      <a
+        href="/"
+        class="text-eucalyptus-600 dark:text-eucalyptus-400 hover:underline inline-flex items-center gap-2"
+      >
+        <span>←</span>
+        <span>{t.common.backToHome}</span>
+      </a>
+    </div>
+  </Container>
+</BaseLayout>
