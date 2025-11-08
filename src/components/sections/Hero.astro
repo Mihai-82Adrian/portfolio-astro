@@ -10,6 +10,8 @@
 
 import Button from '@components/ui/Button.astro';
 import Container from '@components/ui/Container.astro';
+import { Image } from 'astro:assets';
+import heroImage from '@/../public/images/2025-2_50PM.webp';
 
 interface Props {
   /** Hero title */
@@ -50,9 +52,13 @@ const {
     <!-- Hero Banner Image (Wide) -->
     {imageSrc && (
       <div class="hero-banner-wrapper">
-        <img 
-          src={imageSrc} 
+        <Image 
+          src={heroImage} 
           alt={imageAlt} 
+          width={1200}
+          height={400}
+          format="avif"
+          quality={80}
           class="hero-banner"
           loading="eager"
         />

@@ -12,15 +12,21 @@ import Container from '@components/ui/Container.astro';
 import Card from '@components/ui/Card.astro';
 import Button from '@components/ui/Button.astro';
 import { translations } from '@data/translations';
+import { generatePersonSchema, generateWebSiteSchema, generateMultipleSchemas } from '@utils/structuredData';
 
 const lang = 'de';
 const t = translations[lang];
 
 const title = 'Mihai Adrian Mateescu - Finanzbuchhalter Portfolio';
 const description = t.home.description;
+
+// Generate structured data for homepage
+const personSchema = generatePersonSchema(lang);
+const websiteSchema = generateWebSiteSchema(lang);
+const structuredData = [personSchema, websiteSchema];
 ---
 
-<BaseLayout title={title} description={description} lang={lang}>
+<BaseLayout title={title} description={description} lang={lang} structuredData={structuredData}>
   <!-- Hero Section -->
   <Hero
     title={t.home.title}

@@ -13,12 +13,22 @@ import Badge from '@components/ui/Badge.astro';
 import Button from '@components/ui/Button.astro';
 import { certifications, getCertificationsByCategory } from '@data/certifications';
 import { translations } from '@data/translations';
+import { generatePersonSchema, generateBreadcrumbSchema } from '@utils/structuredData';
 
 const lang = 'de';
 const t = translations[lang];
 
 const title = `${t.certifications.title} | Mihai Adrian Mateescu`;
 const description = t.certifications.description;
+
+// Generate structured data
+const personSchema = generatePersonSchema(lang);
+const breadcrumbSchema = generateBreadcrumbSchema([
+  { name: t.nav.home, url: '/' },
+  { name: t.certifications.title, url: '/certifications' }
+]);
+
+const structuredData = [personSchema, breadcrumbSchema];
 
 // Group certifications by category
 const professionalCerts = getCertificationsByCategory('professional');
@@ -29,7 +39,7 @@ const otherCerts = getCertificationsByCategory('other');
 const categoryLabels = t.certifications.categories;
 ---
 
-<BaseLayout title={title} description={description} lang={lang}>
+<BaseLayout title={title} description={description} lang={lang} structuredData={structuredData}>
   <Container>
     <!-- Page Header -->
     <section class="py-12 md:py-16">

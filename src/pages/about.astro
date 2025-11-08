@@ -13,12 +13,23 @@ import Badge from '@components/ui/Badge.astro';
 import Button from '@components/ui/Button.astro';
 import SkillsMatrix from '@components/sections/SkillsMatrix.astro';
 import { translations } from '@data/translations';
+import { generatePersonSchema, generateBreadcrumbSchema } from '@utils/structuredData';
+import { Image } from 'astro:assets';
+import profileImage from '@/../public/images/me.webp';
 
 const lang = 'de';
 const t = translations[lang];
 
 const title = `${t.about.title} | Mihai Adrian Mateescu`;
 const description = `${t.about.intro} - ${t.about.description}`;
+
+// Generate structured data
+const personSchema = generatePersonSchema(lang);
+const breadcrumbSchema = generateBreadcrumbSchema([
+  { name: 'Home', url: '/' },
+  { name: t.about.title, url: '/about' }
+]);
+const structuredData = [personSchema, breadcrumbSchema];
 
 const hobbies = [
   {
@@ -97,7 +108,7 @@ const skillCategories = [
 ];
 ---
 
-<BaseLayout title={title} description={description} lang={lang}>
+<BaseLayout title={title} description={description} lang={lang} structuredData={structuredData}>
   <Container>
     <!-- Page Header -->
     <section class="py-12 md:py-16">
@@ -116,9 +127,13 @@ const skillCategories = [
       <Card>
         <div class="flex flex-col md:flex-row gap-8 items-center">
           <div class="flex-shrink-0">
-            <img
-              src="/images/me.webp"
+            <Image
+              src={profileImage}
               alt="Mihai Adrian Mateescu"
+              width={192}
+              height={192}
+              format="avif"
+              quality={80}
               class="w-48 h-48 rounded-full object-contain shadow-lg bg-gray-100 dark:bg-gray-800"
               loading="eager"
               style="object-position: center;"
@@ -157,20 +172,20 @@ const skillCategories = [
       {/* Proficiency Legend */}
       <div class="mt-8 p-6 bg-eucalyptus-50 dark:bg-eucalyptus-900/20 rounded-lg max-w-4xl mx-auto">
         <h3 class="font-semibold text-text-primary-light dark:text-text-primary-dark mb-3">
-          Legende — Proficiency Levels
+          {t.about.proficiencyLegend.title}
         </h3>
         <ul class="space-y-2 text-sm text-text-secondary-light dark:text-text-secondary-dark">
           <li class="flex items-center gap-3">
             <Badge variant="success" size="sm">Expert</Badge>
-            <span>Produktive Nutzung, wiederholter Nachweis in mehreren Projekten</span>
+            <span>{t.about.proficiencyLegend.expert}</span>
           </li>
           <li class="flex items-center gap-3">
             <Badge variant="info" size="sm">Advanced</Badge>
-            <span>Konstante Praxis, Autonomie bei typischen Aufgaben</span>
+            <span>{t.about.proficiencyLegend.advanced}</span>
           </li>
           <li class="flex items-center gap-3">
             <Badge variant="warning" size="sm">Intermediate</Badge>
-            <span>50–200h geführte Praxis, Grundkenntnisse gefestigt</span>
+            <span>{t.about.proficiencyLegend.intermediate}</span>
           </li>
           <li class="flex items-center gap-3">
             <span class="text-gray-600 dark:text-gray-400 italic">Learning / Research</span>

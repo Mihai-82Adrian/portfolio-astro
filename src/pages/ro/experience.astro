@@ -13,12 +13,27 @@ import Card from '@components/ui/Card.astro';
 import Badge from '@components/ui/Badge.astro';
 import { careerPositions } from '@data/experience';
 import { translations } from '@data/translations';
+import { generatePersonSchema, generateBreadcrumbSchema, generateWorkExperienceSchema } from '@utils/structuredData';
 
 const lang = 'ro';
 const t = translations[lang];
 
 const title = `${t.experience.title} | Mihai Adrian Mateescu`;
 const description = `${t.experience.subtitle} - t.home.quickLinks.experience`;
+
+// Generate structured data
+const personSchema = generatePersonSchema(lang);
+const breadcrumbSchema = generateBreadcrumbSchema([
+  { name: t.nav.home, url: '/ro/' },
+  { name: t.experience.title, url: '/ro/experience' }
+]);
+
+// Generate WorkExperience schema for each position
+const experienceSchemas = careerPositions.map(position => 
+  generateWorkExperienceSchema(position)
+);
+
+const structuredData = [personSchema, breadcrumbSchema, ...experienceSchemas];
 
 // Convert career positions to timeline items with proper formatting
 const timelineItems = careerPositions.map((position) => {
@@ -45,7 +60,7 @@ const timelineItems = careerPositions.map((position) => {
 const practicalSkills = t.experience.practicalSkills;
 ---
 
-<BaseLayout title={title} description={description} lang={lang}>
+<BaseLayout title={title} description={description} lang={lang} structuredData={structuredData}>
   <Container>
     <!-- Page Header -->
     <section class="py-12 md:py-16">
