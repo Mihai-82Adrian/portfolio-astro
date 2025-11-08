@@ -249,10 +249,20 @@
     */
   }
 
-  /* Secondary button (outline) */
+  /* Secondary button (solid taupe) */
   .btn-secondary {
     @apply btn;
-    @apply border-2 border-eucalyptus-600 text-eucalyptus-700;
+    @apply bg-taupe-200 text-taupe-900;
+    @apply hover:bg-taupe-300;
+    @apply focus-visible:ring-taupe-500;
+    @apply dark:bg-taupe-700 dark:text-taupe-100;
+    @apply dark:hover:bg-taupe-600;
+  }
+
+  /* Outline button (eucalyptus border) */
+  .btn-outline {
+    @apply btn;
+    @apply border-2 border-eucalyptus-600 text-eucalyptus-700 bg-transparent;
     @apply hover:bg-eucalyptus-50;
     @apply focus-visible:ring-eucalyptus-500;
     @apply dark:border-eucalyptus-400 dark:text-eucalyptus-300;

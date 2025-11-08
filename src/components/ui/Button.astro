@@ -13,7 +13,7 @@
 
 interface Props {
   /** Button variant style */
-  variant?: 'primary' | 'secondary' | 'ghost' | 'link';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'link';
   /** Button size */
   size?: 'sm' | 'md' | 'lg';
   /** Link href (renders as <a> instead of <button>) */
@@ -53,6 +53,7 @@ const Tag = href ? 'a' : 'button';
 const variantClasses = {
   primary: 'btn-primary',
   secondary: 'btn-secondary',
+  outline: 'btn-outline',
   ghost: 'btn-ghost',
   link: 'btn-link',
 };

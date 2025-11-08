@@ -13,7 +13,7 @@
 
 interface Props {
   /** Badge variant/color */
-  variant?: 'default' | 'success' | 'warning' | 'error' | 'info';
+  variant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info';
   /** Badge size */
   size?: 'sm' | 'md' | 'lg';
   /** Shape style */
@@ -31,6 +31,8 @@ const {
 
 const variantClasses = {
   default: 'badge-default',
+  primary: 'badge-primary',
+  secondary: 'badge-secondary',
   success: 'badge-success',
   warning: 'badge-warning',
   error: 'badge-error',
@@ -74,6 +76,18 @@ const shapeClasses = {
     /* Uses default badge styles from global.css */
     @apply bg-eucalyptus-100 text-eucalyptus-800;
     @apply dark:bg-eucalyptus-900 dark:text-eucalyptus-200;
+  }
+
+  /* Primary variant (eucalyptus green) */
+  .badge-primary {
+    @apply bg-eucalyptus-600 text-white;
+    @apply dark:bg-eucalyptus-500 dark:text-white;
+  }
+
+  /* Secondary variant (taupe) */
+  .badge-secondary {
+    @apply bg-taupe-200 text-taupe-900;
+    @apply dark:bg-taupe-700 dark:text-taupe-100;
   }
 
   /* Success variant */
