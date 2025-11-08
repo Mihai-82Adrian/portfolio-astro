@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://me-mateescu.de/sitemap.xml
+Sitemap: https://me-mateescu.de/sitemap-index.xml
