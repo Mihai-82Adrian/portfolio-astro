@@ -31,23 +31,31 @@ const socialLinks = [
   },
 ];
 
+// Detect current language from URL path
+const currentPath = Astro.url.pathname;
+const currentLang = currentPath.startsWith('/en/') || currentPath === '/en' ? 'en' : 
+                   currentPath.startsWith('/ro/') || currentPath === '/ro' ? 'ro' : 'de';
+
+// Generate the base path for the current language
+const basePath = currentLang === 'de' ? '' : `/${currentLang}`;
+
 const footerLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/about', label: 'About' },
-  { href: '/projects', label: 'Projects' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/contact', label: 'Contact' },
+  { href: `${basePath}/`, label: 'Home' },
+  { href: `${basePath}/about`, label: 'About' },
+  { href: `${basePath}/projects`, label: 'Projects' },
+  { href: `${basePath}/blog`, label: 'Blog' },
+  { href: `${basePath}/contact`, label: 'Contact' },
 ];
 
 const legalLinks = [
-  { href: '/impressum', label: 'Impressum' },
-  { href: '/datenschutz', label: 'Datenschutz' },
+  { href: `${basePath}/impressum`, label: 'Impressum' },
+  { href: `${basePath}/datenschutz`, label: 'Datenschutz' },
 ];
 
 const languages = [
-  { code: 'en', label: 'English', active: true },
-  { code: 'de', label: 'Deutsch', active: false },
-  { code: 'ro', label: 'Română', active: false },
+  { code: 'de', label: 'Deutsch', active: currentLang === 'de' },
+  { code: 'en', label: 'English', active: currentLang === 'en' },
+  { code: 'ro', label: 'Română', active: currentLang === 'ro' },
 ];
 ---
 
@@ -156,7 +164,7 @@ const languages = [
             languages.map((lang) => (
               <li>
                 <a
-                  href={lang.code === 'en' ? '/' : `/${lang.code}`}
+                  href={lang.code === 'de' ? '/' : `/${lang.code}/`}
                   class:list={[
                     'footer-link',
                     lang.active && 'font-medium text-eucalyptus-700 dark:text-eucalyptus-300',

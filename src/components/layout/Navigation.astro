@@ -11,17 +11,18 @@
 interface Props {
   currentPath?: string;
   mobile?: boolean;
+  basePath?: string;
 }
 
-const { currentPath = '', mobile = false } = Astro.props;
+const { currentPath = '', mobile = false, basePath = '' } = Astro.props;
 
 const navigationLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/about', label: 'About' },
-  { href: '/experience', label: 'Experience' },
-  { href: '/projects', label: 'Projects' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/contact', label: 'Contact' },
+  { href: `${basePath}/`, label: 'Home' },
+  { href: `${basePath}/about`, label: 'About' },
+  { href: `${basePath}/experience`, label: 'Experience' },
+  { href: `${basePath}/projects`, label: 'Projects' },
+  { href: `${basePath}/blog`, label: 'Blog' },
+  { href: `${basePath}/contact`, label: 'Contact' },
 ];
 
 /**

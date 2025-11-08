@@ -4,7 +4,7 @@ description: "How my background as an accountant drives my curiosity about AI/ML
 pubDate: 2025-11-07
 category: 'personal'
 tags: ['career', 'fintech', 'ai-ml', 'accounting', 'machine-learning']
-heroImage: '/images/blog/finance-ai-bridge.jpg'
+heroImage: '/images/blog/finance-ai-bridge.webp'
 draft: false
 featured: true
 ---
@@ -113,6 +113,7 @@ Through this journey, I've discovered several principles for successfully bridgi
 ### 1. Domain Knowledge is Non-Negotiable
 
 Generic ML models fail in finance because they don't understand:
+
 - Double-entry bookkeeping constraints
 - Temporal consistency requirements (fiscal periods, accruals)
 - Regulatory boundaries and compliance needs
@@ -120,6 +121,7 @@ Generic ML models fail in finance because they don't understand:
 ### 2. Interpretability Matters
 
 In finance, black-box models are often useless. Accountants and auditors need to understand:
+
 - **Why** a transaction was flagged as anomalous
 - **How** a forecast was generated
 - **What** assumptions underlie a model's predictions

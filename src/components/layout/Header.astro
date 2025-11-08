@@ -17,6 +17,13 @@ interface Props {
 }
 
 const { currentPath = '' } = Astro.props;
+
+// Detect current language from URL path
+const currentLang = currentPath.startsWith('/en/') || currentPath === '/en' ? 'en' : 
+                   currentPath.startsWith('/ro/') || currentPath === '/ro' ? 'ro' : 'de';
+
+// Generate the base path for the current language
+const basePath = currentLang === 'de' ? '' : `/${currentLang}`;
 ---
 
 <header
@@ -31,7 +38,7 @@ const { currentPath = '' } = Astro.props;
     <div class="flex items-center justify-between h-16 md:h-20">
       <!-- Logo/Brand -->
       <a
-        href="/"
+        href={basePath || '/'}
         class="flex items-center space-x-2 group focus-ring rounded-lg"
         aria-label="Go to homepage"
       >
@@ -45,7 +52,7 @@ const { currentPath = '' } = Astro.props;
 
       <!-- Desktop Navigation -->
       <div class="hidden md:block">
-        <Navigation currentPath={currentPath} />
+        <Navigation currentPath={currentPath} basePath={basePath} />
       </div>
 
       <!-- Right Section: Theme Toggle & Mobile Menu -->
@@ -104,7 +111,7 @@ const { currentPath = '' } = Astro.props;
       aria-label="Mobile navigation"
     >
       <div class="pb-4 pt-2 space-y-1 border-t border-light-border dark:border-dark-border">
-        <Navigation currentPath={currentPath} mobile />
+        <Navigation currentPath={currentPath} basePath={basePath} mobile />
       </div>
     </div>
   </div>
