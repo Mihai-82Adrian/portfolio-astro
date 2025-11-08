@@ -16,6 +16,8 @@ import { translations } from '@data/translations';
 import { generatePersonSchema, generateBreadcrumbSchema } from '@utils/structuredData';
 import { Image } from 'astro:assets';
 import profileImage from '@/../public/images/me.webp';
+import photographyImage from '@/../public/images/out1.webp';
+import profitMindsLogo from '@/../public/images/profit-minds-logo.webp';
 
 const lang = 'en';
 const t = translations[lang];
@@ -35,7 +37,7 @@ const hobbies = [
   {
     title: t.about.hobbies.photography.title,
     description: t.about.hobbies.photography.description,
-    image: '/images/out1.webp'
+    image: photographyImage
   },
   {
     title: t.about.hobbies.technology.title,
@@ -45,7 +47,7 @@ const hobbies = [
   {
     title: t.about.hobbies.ecommerce.title,
     description: t.about.hobbies.ecommerce.description,
-    logo: '/images/profit-minds-logo.webp',
+    logo: profitMindsLogo,
     link: 'https://profitminds.myspreadshop.de'
   }
 ];
@@ -209,17 +211,25 @@ const skillCategories = [
               {(hobby.image || hobby.logo) && (
                 <div class="flex-shrink-0">
                   {hobby.image && (
-                    <img
+                    <Image
                       src={hobby.image}
                       alt={hobby.title}
+                      width={256}
+                      height={192}
+                      format="avif"
+                      quality={80}
                       class="w-full md:w-64 h-48 object-cover rounded-lg"
                       loading="lazy"
                     />
                   )}
                   {hobby.logo && !hobby.image && (
-                    <img
+                    <Image
                       src={hobby.logo}
                       alt={hobby.title}
+                      width={192}
+                      height={192}
+                      format="avif"
+                      quality={80}
                       class="w-48 h-auto rounded-lg"
                       loading="lazy"
                     />
