@@ -34,8 +34,8 @@ interface Props {
 
 const {
   title = 'Mihai Adrian Mateescu',
-  subtitle = 'Senior Data Scientist & AI Engineer',
-  description = 'Building scalable ML systems with Rust, Julia, and cutting-edge AI technologies. Passionate about high-performance computing and data-driven solutions.',
+  subtitle = 'Finanzbuchhalter',
+  description = 'Engagierter Finanzbuchhalter mit Erfahrung in der Buchhaltung und Finanzverwaltung, spezialisiert auf die detaillierte Analyse von Geschäftsvorfällen und die steuerliche Berichterstattung.',
   primaryCta = 'View Projects',
   primaryHref = '/projects',
   secondaryCta = 'Read Blog',
@@ -47,6 +47,18 @@ const {
 
 <section class="hero-section">
   <Container maxWidth="lg" paddingY="xl">
+    <!-- Hero Banner Image (Wide) -->
+    {imageSrc && (
+      <div class="hero-banner-wrapper">
+        <img 
+          src={imageSrc} 
+          alt={imageAlt} 
+          class="hero-banner"
+          loading="eager"
+        />
+      </div>
+    )}
+
     <div class="hero-content">
       <!-- Animated Badge -->
       <div class="hero-badge">
@@ -104,15 +116,15 @@ const {
 
       <!-- Tech Stack Icons (Optional) -->
       <div class="hero-tech-stack">
-        <p class="hero-tech-label">Specialized in:</p>
+        <p class="hero-tech-label">Kompetenzen:</p>
         <div class="hero-tech-icons">
-          <span class="hero-tech-item">Rust</span>
+          <span class="hero-tech-item">DATEV</span>
           <span class="hero-tech-separator">·</span>
-          <span class="hero-tech-item">Julia</span>
+          <span class="hero-tech-item">Finanzbuchhaltung</span>
           <span class="hero-tech-separator">·</span>
-          <span class="hero-tech-item">Python</span>
+          <span class="hero-tech-item">Umsatzsteuer</span>
           <span class="hero-tech-separator">·</span>
-          <span class="hero-tech-item">ML/AI</span>
+          <span class="hero-tech-item">Jahresabschlüsse</span>
         </div>
       </div>
     </div>
@@ -135,6 +147,22 @@ const {
     @apply relative z-10;
     @apply text-center;
     animation: fadeIn 0.5s ease-out;
+  }
+
+  /* Hero Banner (Wide) */
+  .hero-banner-wrapper {
+    @apply w-full mb-12;
+    @apply flex justify-center;
+  }
+
+  .hero-banner {
+    @apply w-full max-w-4xl;
+    @apply rounded-xl;
+    @apply shadow-2xl;
+    @apply object-cover;
+    animation: fadeIn 0.7s ease-out;
+    max-height: 400px;
+    height: auto;
   }
 
   /* Badge */

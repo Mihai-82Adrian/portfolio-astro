@@ -1,0 +1,121 @@
+---
+/**
+ * Education Page
+ *
+ * Academic and professional training background
+ * Displays university education, IHK certifications, and ongoing training
+ */
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@components/ui/Container.astro';
+import Card from '@components/ui/Card.astro';
+import Badge from '@components/ui/Badge.astro';
+import { education } from '@data/education';
+import { translations } from '@data/translations';
+
+const lang = 'en';
+const t = translations[lang];
+
+const title = `${t.education.title} | Mihai Adrian Mateescu`;
+const description = `${t.education.subtitle} - Weiterbildung zum Bilanzbuchhalter (IHK) und berufliche Qualifikationen`;
+---
+
+<BaseLayout title={title} description={description} lang={lang}>
+  <Container>
+    <!-- Page Header -->
+    <section class="py-12 md:py-16">
+      <div class="text-center max-w-3xl mx-auto">
+        <h1 class="text-4xl md:text-5xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+          {t.education.title}
+        </h1>
+        <p class="text-xl text-text-secondary-light dark:text-text-secondary-dark">
+          {t.education.subtitle}
+        </p>
+      </div>
+    </section>
+
+    <!-- Education Items -->
+    <section class="py-12 space-y-8">
+      {education.map((edu) => {
+        const dateStr = edu.endDate === 'present' || edu.status === 'ongoing'
+          ? `${edu.startDate.split('-')[1]}.${edu.startDate.split('-')[0]} - ${t.education.ongoing}`
+          : `${edu.startDate} - ${edu.endDate}`;
+
+        const statusText = edu.status === 'ongoing'
+          ? t.education.ongoing
+          : edu.status === 'completed'
+            ? t.education.completed
+            : t.education.incomplete;
+
+        const statusVariant = edu.status === 'ongoing'
+          ? 'primary'
+          : edu.status === 'completed'
+            ? 'success'
+            : 'secondary';
+
+        return (
+          <Card>
+            <div class="flex flex-col md:flex-row gap-6">
+              <!-- Logo -->
+              <div class="flex-shrink-0">
+                <div class="w-24 h-24 bg-light-surface dark:bg-dark-surface rounded-lg flex items-center justify-center p-4">
+                  <img
+                    src={edu.logo}
+                    alt={`${edu.institution} Logo`}
+                    class="max-w-full max-h-full object-contain"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+
+              <!-- Content -->
+              <div class="flex-1">
+                <div class="flex items-start justify-between gap-4 mb-3">
+                  <div>
+                    <h2 class="text-xl md:text-2xl font-semibold text-text-primary-light dark:text-text-primary-dark">
+                      {edu.degree[lang]}
+                    </h2>
+                    <h3 class="text-lg text-eucalyptus-600 dark:text-eucalyptus-400 mt-1">
+                      {edu.institution}
+                    </h3>
+                  </div>
+                  <Badge variant={statusVariant}>{statusText}</Badge>
+                </div>
+
+                <p class="text-text-secondary-light dark:text-text-secondary-dark mb-2">
+                  <strong>{edu.field[lang]}</strong>
+                </p>
+
+                <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+                  {dateStr} | {edu.location}
+                </p>
+
+                {edu.description[lang].length > 0 && (
+                  <ul class="space-y-2 text-text-secondary-light dark:text-text-secondary-dark">
+                    {edu.description[lang].map((item) => (
+                      <li class="flex items-start">
+                        <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2">•</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </Card>
+        );
+      })}
+    </section>
+
+    <!-- Back to Home Link -->
+    <div class="py-8 text-center">
+      <a
+        href="/"
+        class="text-eucalyptus-600 dark:text-eucalyptus-400 hover:underline inline-flex items-center gap-2"
+      >
+        <span>←</span>
+        <span>{t.common.backToHome}</span>
+      </a>
+    </div>
+  </Container>
+</BaseLayout>

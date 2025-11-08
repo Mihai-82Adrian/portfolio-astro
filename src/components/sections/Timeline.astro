@@ -106,14 +106,21 @@ const displayItems = items.length > 0 ? items : defaultItems;
           {/* Timeline Content */}
           <div class="timeline-content">
             <div class="timeline-header">
-              <div>
+              {/* Company Logo */}
+              {item.icon && (
+                <div class="timeline-logo">
+                  <img 
+                    src={item.icon} 
+                    alt={`${item.company} Logo`}
+                    class="company-logo"
+                    loading="lazy"
+                  />
+                </div>
+              )}
+              
+              <div class="timeline-info">
                 <h3 class="timeline-role">{item.role}</h3>
                 <p class="timeline-company">{item.company}</p>
-              </div>
-              <div class="timeline-meta">
-                <time class="timeline-date">
-                  {item.startDate} - {item.endDate || 'Present'}
-                </time>
                 {item.location && (
                   <p class="timeline-location">
                     <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -124,9 +131,13 @@ const displayItems = items.length > 0 ? items : defaultItems;
                   </p>
                 )}
               </div>
+              
+              <div class="timeline-meta">
+                <time class="timeline-date">
+                  {item.startDate} - {item.endDate || 'Present'}
+                </time>
+              </div>
             </div>
-
-            <p class="timeline-description">{item.description}</p>
 
             {/* Achievements */}
             {item.achievements && item.achievements.length > 0 && (
@@ -240,21 +251,42 @@ const displayItems = items.length > 0 ? items : defaultItems;
   .timeline-header {
     @apply flex flex-col md:flex-row md:items-start md:justify-between;
     @apply mb-4;
-    @apply gap-2;
+    @apply gap-4;
+  }
+
+  /* Company Logo */
+  .timeline-logo {
+    @apply w-20 h-20 md:w-24 md:h-24;
+    @apply flex-shrink-0;
+    @apply bg-white dark:bg-gray-800;
+    @apply rounded-lg;
+    @apply flex items-center justify-center;
+    @apply p-2;
+    @apply border border-light-border dark:border-dark-border;
+  }
+
+  .company-logo {
+    @apply w-full h-full object-contain;
+  }
+
+  .timeline-info {
+    @apply flex-grow;
   }
 
   .timeline-role {
-    @apply text-xl md:text-2xl font-semibold;
+    @apply text-lg md:text-xl font-semibold;
     @apply text-text-primary-light dark:text-text-primary-dark;
+    @apply mb-1;
   }
 
   .timeline-company {
-    @apply text-lg font-medium;
+    @apply text-base md:text-lg font-medium;
     @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+    @apply mb-1;
   }
 
   .timeline-meta {
-    @apply flex flex-col items-start md:items-end gap-1;
+    @apply flex-shrink-0;
     @apply text-sm;
   }
 

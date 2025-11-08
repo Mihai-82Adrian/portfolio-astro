@@ -1,6 +1,6 @@
 ---
 /**
- * Homepage - Mihai Adrian Mateescu Portfolio
+ * Homepage - Mihai Adrian Mateescu Portfolio (English)
  *
  * Main landing page with professional overview,
  * skills summary, and links to main sections
@@ -13,10 +13,10 @@ import Card from '@components/ui/Card.astro';
 import Button from '@components/ui/Button.astro';
 import { translations } from '@data/translations';
 
-const lang = 'de';
+const lang = 'ro';
 const t = translations[lang];
 
-const title = 'Mihai Adrian Mateescu - Finanzbuchhalter Portfolio';
+const title = 'Mihai Adrian Mateescu - Financial Accountant Portfolio';
 const description = t.home.description;
 ---
 
@@ -30,10 +30,10 @@ const description = t.home.description;
     imageAlt="Mihai Adrian Mateescu"
   >
     <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-      <Button href="/experience" variant="primary" size="lg">
+      <Button href="/en/experience" variant="primary" size="lg">
         {t.nav.experience}
       </Button>
-      <Button href="/blog" variant="secondary" size="lg">
+      <Button href="/en/blog" variant="secondary" size="lg">
         {t.nav.blog}
       </Button>
       <Button href="#contact" variant="outline" size="lg">
@@ -60,7 +60,7 @@ const description = t.home.description;
 
           <div>
             <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6">
-              Kontakt
+              Contact
             </h2>
             <div class="space-y-3 text-text-secondary-light dark:text-text-secondary-dark">
               <p>
@@ -100,9 +100,9 @@ const description = t.home.description;
             {t.nav.education}
           </h3>
           <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
-            Weiterbildung zum Bilanzbuchhalter (IHK) und IHK-Zertifizierungen
+            Training to become a certified accountant (IHK) and IHK certifications
           </p>
-          <Button href="/education" variant="ghost" size="sm">
+          <Button href="/en/education" variant="ghost" size="sm">
             {t.common.learnMore} →
           </Button>
         </Card>
@@ -112,9 +112,9 @@ const description = t.home.description;
             {t.nav.experience}
           </h3>
           <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
-            21 Jahre Berufserfahrung in Buchhaltung, Vertrieb und Management
+            21 years of professional experience in accounting, sales and management
           </p>
-          <Button href="/experience" variant="ghost" size="sm">
+          <Button href="/en/experience" variant="ghost" size="sm">
             {t.common.learnMore} →
           </Button>
         </Card>
@@ -124,9 +124,9 @@ const description = t.home.description;
             {t.nav.certifications}
           </h3>
           <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
-            IHK-Zertifikate, Arbeitszeugnisse und Sprachzertifikate
+            IHK certificates, employment references and language certificates
           </p>
-          <Button href="/certifications" variant="ghost" size="sm">
+          <Button href="/en/certifications" variant="ghost" size="sm">
             {t.common.learnMore} →
           </Button>
         </Card>
@@ -174,9 +174,9 @@ const description = t.home.description;
           {t.home.hobbies.title}
         </h2>
         <p class="text-text-secondary-light dark:text-text-secondary-dark mb-6 max-w-2xl mx-auto">
-          Fotografie, Technologie und mein E-Commerce-Projekt Profit Minds
+          Photography, technology and my e-commerce project Profit Minds
         </p>
-        <Button href="/about" variant="primary">
+        <Button href="/en/about" variant="primary">
           {t.home.hobbies.learnMore}
         </Button>
       </Card>

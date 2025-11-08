@@ -20,6 +20,8 @@ interface Skill {
 interface SkillCategory {
   category: string;
   icon?: string;
+  status?: string;
+  note?: string;
   skills: Skill[];
 }
 
@@ -118,6 +120,16 @@ const proficiencyConfig = {
             <div class="skill-category-header">
               {category.icon && (
                 <div class="skill-category-icon">
+                  {category.icon === 'finance' && (
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  )}
+                  {category.icon === 'commerce' && (
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  )}
                   {category.icon === 'code' && (
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
@@ -128,19 +140,24 @@ const proficiencyConfig = {
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                     </svg>
                   )}
-                  {category.icon === 'database' && (
+                  {category.icon === 'language' && (
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                     </svg>
                   )}
-                  {category.icon === 'cloud' && (
+                  {category.icon === 'team' && (
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                   )}
                 </div>
               )}
-              <h3 class="skill-category-title">{category.category}</h3>
+              <div class="flex-1">
+                <h3 class="skill-category-title">{category.category}</h3>
+                {category.status && (
+                  <p class="skill-category-status">{category.status}</p>
+                )}
+              </div>
             </div>
 
             {/* Skills List */}
@@ -159,6 +176,15 @@ const proficiencyConfig = {
                 </li>
               ))}
             </ul>
+
+            {/* Category Note */}
+            {category.note && (
+              <div class="skill-category-note">
+                <p class="text-sm text-text-tertiary-light dark:text-text-tertiary-dark italic">
+                  {category.note}
+                </p>
+              </div>
+            )}
           </div>
         </Card>
       ))}
@@ -213,6 +239,11 @@ const proficiencyConfig = {
     @apply text-text-primary-light dark:text-text-primary-dark;
   }
 
+  .skill-category-status {
+    @apply text-sm text-eucalyptus-600 dark:text-eucalyptus-400;
+    @apply font-medium mt-1;
+  }
+
   /* Skills List */
   .skills-list {
     @apply space-y-3;
@@ -228,5 +259,9 @@ const proficiencyConfig = {
   .skill-name {
     @apply text-base font-medium;
     @apply text-text-primary-light dark:text-text-primary-dark;
+  }
+
+  .skill-category-note {
+    @apply mt-4 pt-4 border-t border-light-border dark:border-dark-border;
   }
 </style>

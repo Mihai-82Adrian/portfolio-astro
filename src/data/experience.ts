@@ -27,6 +27,46 @@ export interface Position {
 
 export const careerPositions: Position[] = [
   {
+    id: '14',
+    company: 'modal3 Logistik GmbH',
+    role: {
+      de: 'Finanzbuchhalter',
+      en: 'Financial Accountant',
+      ro: 'Contabil Financiar'
+    },
+    location: 'Hamburg, Germany (Hybrid)',
+    startDate: '2025-05',
+    endDate: 'present',
+    description: {
+      de: [
+        'Vollständige Bearbeitung der laufenden Finanzbuchhaltung (Debitoren, Kreditoren, Sachkonten).',
+        'Prüfung, Kontierung und Buchung von Eingangs- und Ausgangsrechnungen.',
+        'Abstimmung und Pflege von Konten sowie Überwachung offener Posten.',
+        'Erstellung von Umsatzsteuervoranmeldungen und Unterstützung bei Monats- und Jahresabschlüssen.',
+        'Unterstützung der Geschäftsführung durch betriebswirtschaftliche Auswertungen (BWA) und Reports.',
+        'Mitwirkung an der Digitalisierung von Rechnungs- und Buchhaltungsprozessen.'
+      ],
+      en: [
+        'Complete processing of ongoing financial accounting (accounts receivable, accounts payable, general ledger).',
+        'Review, account assignment and posting of incoming and outgoing invoices.',
+        'Reconciliation and maintenance of accounts as well as monitoring of open items.',
+        'Preparation of VAT advance returns and support for monthly and annual financial statements.',
+        'Support for management through business evaluations (BWA) and reports.',
+        'Participation in the digitalization of invoice and accounting processes.'
+      ],
+      ro: [
+        'Procesare completă a contabilității financiare curente (conturi de încasat, conturi de plătit, registru general).',
+        'Verificare, contabilizare și înregistrare a facturilor primite și emise.',
+        'Reconcilierea și întreținerea conturilor precum și monitorizarea posturilor deschise.',
+        'Pregătirea declarațiilor de TVA și sprijin pentru situațiile financiare lunare și anuale.',
+        'Sprijin pentru management prin evaluări economice (BWA) și rapoarte.',
+        'Participare la digitalizarea proceselor de facturare și contabilitate.'
+      ]
+    },
+    logo: '/images/modal3.png',
+    technologies: ['SelectLine', 'Modality', 'ELO', 'Finanzbuchhaltung', 'BWA', 'Umsatzsteuer']
+  },
+  {
     id: '13',
     company: 'Kesen Steuerberatungsgesellschaft mbH',
     role: {
@@ -36,7 +76,7 @@ export const careerPositions: Position[] = [
     },
     location: 'Hamburg, Germany',
     startDate: '2024-02',
-    endDate: 'present',
+    endDate: '2025-04',
     description: {
       de: [
         'Prüfung und Verbuchung von Geschäftsvorfällen: Sorgfältige Prüfung, Kontierung und Buchung laufender Geschäftsvorfälle unter Einhaltung der geltenden Buchführungsstandards und -richtlinien.',
@@ -52,7 +92,7 @@ export const careerPositions: Position[] = [
       ]
     },
     logo: '/images/kesen.png',
-    technologies: ['DATEV', 'Umsatzsteuer', 'Finanzbuchhaltung']
+    technologies: ['Simba', 'Umsatzsteuer', 'Finanzbuchhaltung']
   },
   {
     id: '12',
@@ -80,7 +120,7 @@ export const careerPositions: Position[] = [
       ]
     },
     logo: '/images/herrmann.png',
-    technologies: ['DATEV', 'Jahresabschluss', 'Umsatzsteuer']
+    technologies: ['Agenda', 'Jahresabschluss', 'Umsatzsteuer']
   },
   {
     id: '11',

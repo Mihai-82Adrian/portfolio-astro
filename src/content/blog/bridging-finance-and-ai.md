@@ -1,6 +1,6 @@
 ---
-title: "Bridging Finance and AI: My Journey from Accountant to ML Practitioner"
-description: "How my dual identity as a certified accountant and AI/ML engineer creates unique opportunities in the FinTech space."
+title: "Bridging Finance and AI: My Learning Journey as an Accountant Exploring ML"
+description: "How my background as an accountant drives my curiosity about AI/ML concepts - a self-learner's exploration of the intersection between finance and technology."
 pubDate: 2025-11-07
 category: 'personal'
 tags: ['career', 'fintech', 'ai-ml', 'accounting', 'machine-learning']
@@ -9,9 +9,7 @@ draft: false
 featured: true
 ---
 
-# Bridging Finance and AI: My Journey from Accountant to ML Practitioner
-
-The intersection of finance and artificial intelligence is one of the most exciting frontiers in technology today. As someone who has walked the path from traditional accounting to cutting-edge machine learning, I've discovered that this dual expertise creates unique opportunities that neither field alone can offer.
+The intersection of finance and artificial intelligence is one of the most exciting frontiers in technology today. As an accountant fascinated by technology, I've been exploring how machine learning concepts could apply to financial contexts. This is a learning journey, not professional expertise - I'm sharing insights from my perspective as a self-taught enthusiast.
 
 ## The Accountant's Perspective
 
@@ -22,11 +20,11 @@ My journey began in the structured world of German accounting. Working toward my
 - **Financial modeling** - Building balance sheets, P&L statements, and cash flow analyses
 - **Risk assessment** - Identifying anomalies and potential fraud patterns
 
-These skills might seem distant from AI/ML, but they form the foundation of my approach to machine learning in financial contexts.
+These skills might seem distant from AI/ML, but they form the foundation of my curiosity about how machine learning could apply to financial contexts.
 
-## The Machine Learning Engineer's Toolkit
+## Exploring ML Concepts as a Self-Learner
 
-Parallel to my accounting studies, I developed expertise in modern ML engineering:
+Through online courses and hobby projects, I've been learning about modern ML concepts and how they might apply to accounting:
 
 ```python
 # Example: Anomaly detection in financial transactions

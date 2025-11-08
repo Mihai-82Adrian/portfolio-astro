@@ -1,0 +1,254 @@
+---
+/**
+ * Certifications Page
+ *
+ * Professional certifications, work references, and language certificates
+ * Displays IHK certifications, work references, and downloadable PDFs
+ */
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@components/ui/Container.astro';
+import Card from '@components/ui/Card.astro';
+import Badge from '@components/ui/Badge.astro';
+import Button from '@components/ui/Button.astro';
+import { certifications, getCertificationsByCategory } from '@data/certifications';
+import { translations } from '@data/translations';
+
+const lang = 'en';
+const t = translations[lang];
+
+const title = `${t.certifications.title} | Mihai Adrian Mateescu`;
+const description = `${t.certifications.subtitle} - IHK-Zertifikate, Arbeitszeugnisse und Sprachzertifikate`;
+
+// Group certifications by category
+const professionalCerts = getCertificationsByCategory('professional');
+const languageCerts = getCertificationsByCategory('language');
+const referenceCerts = getCertificationsByCategory('reference');
+const otherCerts = getCertificationsByCategory('other');
+
+const categoryLabels = {
+  professional: 'Berufliche Zertifikate',
+  language: 'Sprachzertifikate',
+  reference: 'Arbeitszeugnisse',
+  other: 'Weitere Dokumente'
+};
+---
+
+<BaseLayout title={title} description={description} lang={lang}>
+  <Container>
+    <!-- Page Header -->
+    <section class="py-12 md:py-16">
+      <div class="text-center max-w-3xl mx-auto">
+        <h1 class="text-4xl md:text-5xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+          {t.certifications.title}
+        </h1>
+        <p class="text-xl text-text-secondary-light dark:text-text-secondary-dark">
+          {t.certifications.subtitle}
+        </p>
+        <div class="mt-6">
+          <Badge variant="primary" size="lg">
+            {certifications.length} Zertifikate
+          </Badge>
+        </div>
+      </div>
+    </section>
+
+    <!-- Professional Certifications -->
+    {professionalCerts.length > 0 && (
+      <section class="py-12">
+        <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-8">
+          {categoryLabels.professional}
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {professionalCerts.map((cert) => (
+            <Card>
+              <div class="flex flex-col items-center text-center">
+                <h3 class="text-xl font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-4">
+                  {cert.title[lang]}
+                </h3>
+
+                {cert.image && (
+                  <img
+                    src={cert.image}
+                    alt={cert.title[lang]}
+                    class="w-48 h-auto rounded-lg shadow-md mb-4"
+                    loading="lazy"
+                  />
+                )}
+
+                {cert.description && (
+                  <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+                    {cert.description[lang]}
+                  </p>
+                )}
+
+                <div class="flex flex-col gap-2 w-full mt-auto">
+                  <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                    <strong>Aussteller:</strong> {cert.issuer}
+                  </div>
+                  {cert.dateObtained && (
+                    <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                      <strong>Erhalten:</strong> {cert.dateObtained}
+                    </div>
+                  )}
+
+                  {cert.pdfUrl && (
+                    <Button href={cert.pdfUrl} variant="primary" size="sm" class="mt-4">
+                      {t.certifications.download}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Language Certifications -->
+    {languageCerts.length > 0 && (
+      <section class="py-12">
+        <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-8">
+          {categoryLabels.language}
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {languageCerts.map((cert) => (
+            <Card>
+              <div class="flex flex-col items-center text-center">
+                <h3 class="text-xl font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-4">
+                  {cert.title[lang]}
+                </h3>
+
+                {cert.image && (
+                  <img
+                    src={cert.image}
+                    alt={cert.title[lang]}
+                    class="w-48 h-auto rounded-lg shadow-md mb-4"
+                    loading="lazy"
+                  />
+                )}
+
+                {cert.description && (
+                  <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+                    {cert.description[lang]}
+                  </p>
+                )}
+
+                <div class="flex flex-col gap-2 w-full mt-auto">
+                  <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                    <strong>Aussteller:</strong> {cert.issuer}
+                  </div>
+
+                  {cert.pdfUrl && (
+                    <Button href={cert.pdfUrl} variant="primary" size="sm" class="mt-4">
+                      {t.certifications.download}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Work References -->
+    {referenceCerts.length > 0 && (
+      <section class="py-12">
+        <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-8">
+          {categoryLabels.reference}
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {referenceCerts.map((cert) => (
+            <Card>
+              <div class="flex flex-col items-center text-center">
+                <h3 class="text-xl font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-4">
+                  {cert.title[lang]}
+                </h3>
+
+                {cert.image && (
+                  <img
+                    src={cert.image}
+                    alt={cert.title[lang]}
+                    class="w-48 h-auto rounded-lg shadow-md mb-4"
+                    loading="lazy"
+                  />
+                )}
+
+                <div class="flex flex-col gap-2 w-full mt-auto">
+                  <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                    <strong>Von:</strong> {cert.issuer}
+                  </div>
+
+                  {cert.pdfUrl && (
+                    <Button href={cert.pdfUrl} variant="primary" size="sm" class="mt-4">
+                      {t.certifications.download}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Other Documents -->
+    {otherCerts.length > 0 && (
+      <section class="py-12">
+        <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-8">
+          {categoryLabels.other}
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {otherCerts.map((cert) => (
+            <Card>
+              <div class="flex flex-col items-center text-center">
+                <h3 class="text-xl font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-4">
+                  {cert.title[lang]}
+                </h3>
+
+                {cert.image && (
+                  <img
+                    src={cert.image}
+                    alt={cert.title[lang]}
+                    class="w-48 h-auto rounded-lg shadow-md mb-4"
+                    loading="lazy"
+                  />
+                )}
+
+                {cert.pdfUrl && (
+                  <Button href={cert.pdfUrl} variant="primary" size="sm" class="mt-4">
+                    {t.certifications.download}
+                  </Button>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- About Certifications Section -->
+    <section class="py-12">
+      <Card>
+        <h2 class="text-2xl md:text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+          {t.certifications.aboutTitle}
+        </h2>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark leading-relaxed">
+          {t.certifications.aboutText}
+        </p>
+      </Card>
+    </section>
+
+    <!-- Back to Home Link -->
+    <div class="py-8 text-center">
+      <a
+        href="/"
+        class="text-eucalyptus-600 dark:text-eucalyptus-400 hover:underline inline-flex items-center gap-2"
+      >
+        <span>←</span>
+        <span>{t.common.backToHome}</span>
+      </a>
+    </div>
+  </Container>
+</BaseLayout>

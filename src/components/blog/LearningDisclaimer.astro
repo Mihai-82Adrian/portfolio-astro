@@ -1,0 +1,69 @@
+---
+/**
+ * Learning Disclaimer Component
+ * 
+ * Displays a clear disclaimer for blog posts about technology topics
+ * to indicate these are learning notes, not professional expertise
+ * 
+ * @component
+ */
+---
+
+<div class="learning-disclaimer">
+  <div class="disclaimer-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="16" x2="12" y2="12"></line>
+      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+    </svg>
+  </div>
+  <div class="disclaimer-content">
+    <h3 class="disclaimer-title">📚 Lernnotiz</h3>
+    <p class="disclaimer-text">
+      Dieser Artikel dokumentiert meine <strong>persönliche Lernreise</strong> als leidenschaftlicher Autodidakt. 
+      Ich bin <strong>kein professioneller Softwareentwickler</strong> oder Data Scientist. 
+      Diese Inhalte sind <strong>Anfänger-/Intermediate-Explorationen</strong>, nicht professionelle Beratung.
+    </p>
+    <p class="disclaimer-subtext">
+      <em>Profession: Finanzbuchhalter | Hobby: Technologie-Exploration durch Online-Kurse & Hobby-Projekte</em>
+    </p>
+  </div>
+</div>
+
+<style>
+  .learning-disclaimer {
+    @apply flex gap-4 p-6 mb-8 rounded-lg;
+    @apply bg-yellow-50 dark:bg-yellow-900/20;
+    @apply border-2 border-yellow-400 dark:border-yellow-600;
+  }
+
+  .disclaimer-icon {
+    @apply flex-shrink-0;
+    @apply w-6 h-6;
+    @apply text-yellow-700 dark:text-yellow-400;
+  }
+
+  .disclaimer-content {
+    @apply flex-1;
+  }
+
+  .disclaimer-title {
+    @apply text-lg font-bold mb-2;
+    @apply text-yellow-800 dark:text-yellow-300;
+  }
+
+  .disclaimer-text {
+    @apply text-base mb-3;
+    @apply text-yellow-900 dark:text-yellow-200;
+    line-height: 1.6;
+  }
+
+  .disclaimer-subtext {
+    @apply text-sm;
+    @apply text-yellow-700 dark:text-yellow-400;
+  }
+
+  .disclaimer-text strong {
+    @apply font-semibold;
+  }
+</style>
