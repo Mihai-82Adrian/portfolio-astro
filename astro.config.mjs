@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import mdx from '@astrojs/mdx';
+import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
@@ -13,6 +14,7 @@ export default defineConfig({
       applyBaseStyles: false, // We'll use our own base styles
     }),
     mdx(),
+    sitemap(),
   ],
   markdown: {
     shikiConfig: {
@@ -21,18 +23,6 @@ export default defineConfig({
         light: 'github-light',
         dark: 'github-dark',
       },
-      // Enable language grammars for blog content
-      langs: [
-        'typescript',
-        'javascript',
-        'python',
-        'rust',
-        'julia',
-        'bash',
-        'json',
-        'yaml',
-        'markdown',
-      ],
       // Wrap long code lines
       wrap: true,
       // Add transformers for enhanced code blocks

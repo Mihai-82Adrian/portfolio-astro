@@ -26,6 +26,8 @@ interface SkillCategory {
 interface Props {
   /** Skill categories */
   categories?: SkillCategory[];
+  /** Skills object with technical, languages, and soft skills */
+  skills?: any;
   /** Section title */
   title?: string;
   /** Section description */
@@ -36,6 +38,7 @@ interface Props {
 
 const {
   categories = [],
+  skills,
   title = 'Skills & Expertise',
   description = 'Technologies and tools I work with to build scalable, high-performance solutions.',
   showProficiency = true,

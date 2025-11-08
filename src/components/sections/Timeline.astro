@@ -12,14 +12,20 @@ import Container from '@components/ui/Container.astro';
 import Badge from '@components/ui/Badge.astro';
 
 interface TimelineItem {
-  company: string;
-  role: string;
-  startDate: string;
+  id?: string;
+  company?: string;
+  role?: string;
+  title?: string;
+  subtitle?: string;
+  startDate?: string;
+  date?: string;
   endDate?: string; // Optional for current positions
   location?: string;
-  description: string;
+  description?: string | string[];
   achievements?: string[];
   technologies?: string[];
+  tags?: string[];
+  icon?: string;
   current?: boolean;
 }
 
