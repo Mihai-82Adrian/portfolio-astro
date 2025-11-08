@@ -26,35 +26,11 @@ import ProjectShowcase from '@components/sections/ProjectShowcase.astro';
 import Timeline from '@components/sections/Timeline.astro';
 import SkillsMatrix from '@components/sections/SkillsMatrix.astro';
 import ContactForm from '@components/sections/ContactForm.astro';
+import { getCollection } from 'astro:content';
 
-// Sample data for testing
-const samplePosts = [
-  {
-    title: 'Getting Started with Rust for Data Science',
-    slug: 'rust-for-data-science',
-    description: 'Learn how to leverage Rust\'s performance and safety for data science workflows.',
-    pubDate: new Date('2024-01-15'),
-    readingTime: 8,
-    tags: ['Rust', 'Data Science', 'Performance'],
-    featured: true,
-  },
-  {
-    title: 'Building High-Performance ML Pipelines',
-    slug: 'ml-pipelines',
-    description: 'A comprehensive guide to designing scalable machine learning pipelines.',
-    pubDate: new Date('2024-01-10'),
-    readingTime: 12,
-    tags: ['ML', 'Python', 'Architecture'],
-  },
-  {
-    title: 'Julia for Scientific Computing',
-    slug: 'julia-scientific-computing',
-    description: 'Exploring Julia\'s capabilities for numerical and scientific computing.',
-    pubDate: new Date('2024-01-05'),
-    readingTime: 10,
-    tags: ['Julia', 'HPC', 'Optimization'],
-  },
-];
+// Get actual blog posts for testing
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+const samplePosts = allPosts.slice(0, 3);
 
 const sampleHeadings = [
   { depth: 2, slug: 'introduction', text: 'Introduction' },

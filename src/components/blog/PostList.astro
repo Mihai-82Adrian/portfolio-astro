@@ -8,25 +8,12 @@
  * @component
  */
 
+import type { CollectionEntry } from 'astro:content';
 import PostCard from './PostCard.astro';
 
-interface Post {
-  title: string;
-  slug: string;
-  description?: string;
-  pubDate: Date;
-  readingTime?: number;
-  tags?: string[];
-  image?: {
-    src: string;
-    alt: string;
-  };
-  featured?: boolean;
-}
-
 interface Props {
-  /** Array of posts to display */
-  posts: Post[];
+  /** Array of posts to display (from getCollection) */
+  posts: CollectionEntry<'blog'>[];
   /** Grid layout columns */
   columns?: '1' | '2' | '3';
   /** Show empty state if no posts */
@@ -58,14 +45,14 @@ const columnClasses = {
   >
     {posts.map((post) => (
       <PostCard
-        title={post.title}
+        title={post.data.title}
         slug={post.slug}
-        description={post.description}
-        pubDate={post.pubDate}
-        readingTime={post.readingTime}
-        tags={post.tags}
-        image={post.image}
-        featured={post.featured}
+        description={post.data.description}
+        pubDate={post.data.pubDate}
+        readingTime={post.data.readingTime}
+        tags={post.data.tags}
+        image={post.data.heroImage ? { src: post.data.heroImage, alt: post.data.title } : undefined}
+        featured={post.data.featured}
       />
     ))}
   </div>
