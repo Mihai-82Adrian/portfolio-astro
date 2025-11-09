@@ -1,0 +1,14 @@
+# Netlify/Cloudflare Pages Redirects
+# Blog and Projects are English-only, redirect EN/RO to main (DE) version
+
+# Blog redirects
+/en/blog           /blog            301
+/en/blog/*         /blog/:splat     301
+/ro/blog           /blog            301
+/ro/blog/*         /blog/:splat     301
+
+# Projects redirects
+/en/projects       /projects        301
+/en/projects/*     /projects/:splat 301
+/ro/projects       /projects        301
+/ro/projects/*     /projects/:splat 301

@@ -16,12 +16,14 @@ interface Props {
 
 const { currentPath = '', mobile = false, basePath = '' } = Astro.props;
 
+// Blog and Projects are English-only content, always link to main (DE) version
+// Other pages use language-specific paths
 const navigationLinks = [
   { href: `${basePath}/`, label: 'Home' },
   { href: `${basePath}/about`, label: 'About' },
   { href: `${basePath}/experience`, label: 'Experience' },
-  { href: `${basePath}/projects`, label: 'Projects' },
-  { href: `${basePath}/blog`, label: 'Blog' },
+  { href: `/projects`, label: 'Projects' }, // Always main version
+  { href: `/blog`, label: 'Blog' }, // Always main version
   { href: `${basePath}/contact`, label: 'Contact' },
 ];
 

@@ -1,0 +1,22 @@
+# Apache .htaccess for Blog/Projects consolidation
+# Blog and Projects are English-only, redirect EN/RO to main (DE) version
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# Blog redirects (EN -> main)
+RewriteRule ^en/blog/?$ /blog/ [R=301,L]
+RewriteRule ^en/blog/(.*)$ /blog/$1 [R=301,L]
+
+# Blog redirects (RO -> main)
+RewriteRule ^ro/blog/?$ /blog/ [R=301,L]
+RewriteRule ^ro/blog/(.*)$ /blog/$1 [R=301,L]
+
+# Projects redirects (EN -> main)
+RewriteRule ^en/projects/?$ /projects/ [R=301,L]
+RewriteRule ^en/projects/(.*)$ /projects/$1 [R=301,L]
+
+# Projects redirects (RO -> main)
+RewriteRule ^ro/projects/?$ /projects/ [R=301,L]
+RewriteRule ^ro/projects/(.*)$ /projects/$1 [R=301,L]
+</IfModule>

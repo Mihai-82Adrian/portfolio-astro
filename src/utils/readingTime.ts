@@ -2,14 +2,17 @@
  * Calculate reading time for blog content
  * @param content - Markdown or plain text content
  * @param wordsPerMinute - Average reading speed (default: 200 wpm)
- * @returns Reading time in minutes (rounded to nearest minute)
+ * @returns Reading time object with minutes and formatted text
  */
 export function calculateReadingTime(
   content: string,
   wordsPerMinute: number = 200
-): number {
+): { minutes: number; text: string; words: number } {
+  // Remove frontmatter
+  const withoutFrontmatter = content.replace(/^---[\s\S]*?---/, '');
+  
   // Remove markdown syntax for accurate word count
-  const plainText = content
+  const plainText = withoutFrontmatter
     // Remove code blocks
     .replace(/```[\s\S]*?```/g, '')
     // Remove inline code
@@ -26,13 +29,15 @@ export function calculateReadingTime(
     .replace(/[*_]{1,2}([^*_]+)[*_]{1,2}/g, '$1');
 
   // Count words (split by whitespace)
-  const words = plainText.trim().split(/\s+/).length;
+  const words = plainText.trim().split(/\s+/).filter(w => w.length > 0).length;
 
   // Calculate reading time in minutes
-  const minutes = words / wordsPerMinute;
+  const minutes = Math.max(1, Math.ceil(words / wordsPerMinute));
+  
+  // Format text
+  const text = minutes === 1 ? '1 min read' : `${minutes} min read`;
 
-  // Round to nearest minute (minimum 1 minute)
-  return Math.max(1, Math.round(minutes));
+  return { minutes, text, words };
 }
 
 /**

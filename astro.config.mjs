@@ -9,6 +9,18 @@ export default defineConfig({
   site: 'https://me-mateescu.de',
   output: 'static',
   outDir: './dist',
+  redirects: {
+    // Consolidate Blog and Projects to main (DE) version
+    // EN/RO versions redirect to authoritative DE version
+    '/en/blog': '/blog',
+    '/en/blog/*': '/blog/:splat',
+    '/ro/blog': '/blog',
+    '/ro/blog/*': '/blog/:splat',
+    '/en/projects': '/projects',
+    '/en/projects/*': '/projects/:splat',
+    '/ro/projects': '/projects',
+    '/ro/projects/*': '/projects/:splat',
+  },
   integrations: [
     tailwind({
       applyBaseStyles: false, // We'll use our own base styles

@@ -7,8 +7,10 @@ import Badge from '@/components/ui/Badge.astro';
 import PostMeta from '@/components/blog/PostMeta.astro';
 import TableOfContents from '@/components/blog/TableOfContents.astro';
 import LearningDisclaimer from '@/components/blog/LearningDisclaimer.astro';
+import ShareButtons from '@/components/blog/ShareButtons.astro';
 import { calculateReadingTime } from '@/utils/readingTime';
 import { generateBlogPostingSchema } from '@/utils/structuredData';
+import { getRelatedPosts } from '@/lib/utils/relatedPosts';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
@@ -27,13 +29,14 @@ const { title, description, pubDate, updatedDate, category, tags, author } = pos
 const { Content, headings } = await post.render();
 
 // Calculate reading time
-const readingTime = calculateReadingTime(post.body);
+const readingTimeData = calculateReadingTime(post.body);
+const readingTime = readingTimeData.minutes;
 
-// Get related posts (same category, excluding current)
-const relatedPosts = (await getCollection('blog', ({ data }) => !data.draft))
-  .filter(p => p.slug !== post.slug && p.data.category === category)
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-  .slice(0, 3);
+// Get all posts for related posts calculation
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+
+// Get related posts using similarity algorithm (category + tags + recency)
+const relatedPosts = getRelatedPosts(post, allPosts, 3);
 
 const pageTitle = `${title} - Mihai Adrian Mateescu`;
 
@@ -122,33 +125,13 @@ const blogPostingSchema = generateBlogPostingSchema(post, Astro.url.toString());
 
           <!-- Share Buttons -->
           <div>
-            <h3 class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark mb-3">
-              Share this article
-            </h3>
-            <div class="flex gap-3">
-              <a
-                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(Astro.url.toString())}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="px-4 py-2 bg-surface-light dark:bg-surface-dark text-text-primary-light dark:text-text-primary-dark rounded-md hover:bg-eucalyptus-100 dark:hover:bg-eucalyptus-900 transition-colors"
-              >
-                Twitter
-              </a>
-              <a
-                href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(Astro.url.toString())}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="px-4 py-2 bg-surface-light dark:bg-surface-dark text-text-primary-light dark:text-text-primary-dark rounded-md hover:bg-eucalyptus-100 dark:hover:bg-eucalyptus-900 transition-colors"
-              >
-                LinkedIn
-              </a>
-              <button
-                onclick={`navigator.clipboard.writeText('${Astro.url}')`}
-                class="px-4 py-2 bg-surface-light dark:bg-surface-dark text-text-primary-light dark:text-text-primary-dark rounded-md hover:bg-eucalyptus-100 dark:hover:bg-eucalyptus-900 transition-colors"
-              >
-                Copy Link
-              </button>
-            </div>
+            <ShareButtons
+              title={title}
+              url={Astro.url.toString()}
+              description={description}
+              showLabel={true}
+              size="md"
+            />
           </div>
         </footer>
       </article>
@@ -168,26 +151,36 @@ const blogPostingSchema = generateBlogPostingSchema(post, Astro.url.toString());
     {relatedPosts.length > 0 && (
       <section class="mt-16 pt-16 border-t border-border-light dark:border-border-dark">
         <h2 class="text-2xl font-bold mb-8 text-text-primary-light dark:text-text-primary-dark">
-          Related Articles
+          You Might Also Like
         </h2>
         <div class="grid md:grid-cols-3 gap-6">
-          {relatedPosts.map(relatedPost => (
-            <Card>
-              <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-3">
-                <time datetime={relatedPost.data.pubDate.toISOString()}>
-                  {relatedPost.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-                </time>
-              </div>
-              <h3 class="text-lg font-bold mb-2 text-text-primary-light dark:text-text-primary-dark">
-                <a href={`/blog/${relatedPost.slug}`} class="hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400">
-                  {relatedPost.data.title}
-                </a>
-              </h3>
-              <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm">
-                {relatedPost.data.description}
-              </p>
-            </Card>
-          ))}
+          {relatedPosts.map(async (relatedPost) => {
+            const relatedReadingTime = calculateReadingTime(relatedPost.body);
+            return (
+              <Card>
+                <div class="flex items-center gap-2 text-sm text-text-secondary-light dark:text-text-secondary-dark mb-3">
+                  <span class="px-2 py-1 bg-eucalyptus-100 dark:bg-eucalyptus-900 text-eucalyptus-700 dark:text-eucalyptus-300 rounded text-xs">
+                    {relatedPost.data.category}
+                  </span>
+                  <time datetime={relatedPost.data.pubDate.toISOString()}>
+                    {relatedPost.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                  </time>
+                  <span class="text-text-tertiary-light dark:text-text-tertiary-dark">•</span>
+                  <span class="text-text-tertiary-light dark:text-text-tertiary-dark">
+                    {relatedReadingTime.text}
+                  </span>
+                </div>
+                <h3 class="text-lg font-bold mb-2 text-text-primary-light dark:text-text-primary-dark">
+                  <a href={`/blog/${relatedPost.slug}`} class="hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400 transition-colors">
+                    {relatedPost.data.title}
+                  </a>
+                </h3>
+                <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm line-clamp-2">
+                  {relatedPost.data.description}
+                </p>
+              </Card>
+            );
+          })}
         </div>
       </section>
     )}

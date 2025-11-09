@@ -1,0 +1,24 @@
+{
+  "redirects": [
+    {
+      "source": "/en/blog/:path*",
+      "destination": "/blog/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/ro/blog/:path*",
+      "destination": "/blog/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/en/projects/:path*",
+      "destination": "/projects/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/ro/projects/:path*",
+      "destination": "/projects/:path*",
+      "permanent": true
+    }
+  ]
+}

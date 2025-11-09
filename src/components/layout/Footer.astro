@@ -39,11 +39,12 @@ const currentLang = currentPath.startsWith('/en/') || currentPath === '/en' ? 'e
 // Generate the base path for the current language
 const basePath = currentLang === 'de' ? '' : `/${currentLang}`;
 
+// Blog and Projects are English-only content, always link to main (DE) version
 const footerLinks = [
   { href: `${basePath}/`, label: 'Home' },
   { href: `${basePath}/about`, label: 'About' },
-  { href: `${basePath}/projects`, label: 'Projects' },
-  { href: `${basePath}/blog`, label: 'Blog' },
+  { href: `/projects`, label: 'Projects' }, // Always main version
+  { href: `/blog`, label: 'Blog' }, // Always main version
   { href: `${basePath}/contact`, label: 'Contact' },
 ];
 
@@ -161,20 +162,29 @@ const languages = [
         </h3>
         <ul class="space-y-2 mb-6">
           {
-            languages.map((lang) => (
-              <li>
-                <a
-                  href={lang.code === 'de' ? '/' : `/${lang.code}/`}
-                  class:list={[
-                    'footer-link',
-                    lang.active && 'font-medium text-eucalyptus-700 dark:text-eucalyptus-300',
-                  ]}
-                  aria-current={lang.active ? 'page' : undefined}
-                >
-                  {lang.label}
-                </a>
-              </li>
-            ))
+            languages.map((lang) => {
+              // Blog and Projects are language-independent (English-only)
+              // When on these pages, stay on same path regardless of language selection
+              const isBlogOrProjects = currentPath.startsWith('/blog') || currentPath.startsWith('/projects');
+              const languageHref = isBlogOrProjects 
+                ? currentPath  // Stay on same blog/project page
+                : (lang.code === 'de' ? '/' : `/${lang.code}/`); // Normal language switching
+              
+              return (
+                <li>
+                  <a
+                    href={languageHref}
+                    class:list={[
+                      'footer-link',
+                      lang.active && 'font-medium text-eucalyptus-700 dark:text-eucalyptus-300',
+                    ]}
+                    aria-current={lang.active ? 'page' : undefined}
+                  >
+                    {lang.label}
+                  </a>
+                </li>
+              );
+            })
           }
         </ul>
 
