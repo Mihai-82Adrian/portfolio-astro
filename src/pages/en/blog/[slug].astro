@@ -1,6 +1,9 @@
 ---
 import { getCollection, type CollectionEntry } from 'astro:content';
-import PostHeader from '@/components/blog/PostHeader.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import Card from '@/components/ui/Card.astro';
+import Badge from '@/components/ui/Badge.astro';
 import PostMeta from '@/components/blog/PostMeta.astro';
 import TableOfContents from '@/components/blog/TableOfContents.astro';
 import LearningDisclaimer from '@/components/blog/LearningDisclaimer.astro';
@@ -38,210 +41,155 @@ const pageTitle = `${title} - Mihai Adrian Mateescu`;
 const blogPostingSchema = generateBlogPostingSchema(post, Astro.url.toString());
 ---
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{pageTitle}</title>
-    <meta name="description" content={description} />
+<BaseLayout title={pageTitle} description={description} lang="en" structuredData={[blogPostingSchema]}>
+  <Container>
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-8 pt-8">
+      <a href="/" class="hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400">Home</a>
+      <span class="mx-2">/</span>
+      <a href="/blog" class="hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400">Blog</a>
+      <span class="mx-2">/</span>
+      <a href={`/blog/category/${category}`} class="hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400">
+        {category}
+      </a>
+      <span class="mx-2">/</span>
+      <span class="text-text-tertiary-light dark:text-text-tertiary-dark">{title}</span>
+    </nav>
 
-    <!-- Open Graph / Social Media -->
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:type" content="article" />
-    <meta property="og:url" content={Astro.url} />
-    <meta property="article:published_time" content={pubDate.toISOString()} />
-    {updatedDate && <meta property="article:modified_time" content={updatedDate.toISOString()} />}
-    <meta property="article:author" content={author.name} />
-    <meta property="article:section" content={category} />
-    {tags.map(tag => <meta property="article:tag" content={tag} />)}
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
-
-    <!-- Canonical URL -->
-    <link rel="canonical" href={Astro.url} />
-
-    <!-- Structured Data (BlogPosting Schema) -->
-    <script type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)} />
-  </head>
-
-  <body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-    <!-- Header -->
-    <header class="border-b border-gray-200 dark:border-gray-800">
-      <div class="container mx-auto px-4 py-6">
-        <nav class="flex items-center justify-between">
-          <a href="/en/" class="text-xl font-bold text-eucalyptus-600 dark:text-eucalyptus-400">
-            Mihai Adrian Mateescu
-          </a>
-          <div class="flex gap-6">
-            <a href="/en/" class="text-gray-600 dark:text-gray-400 hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400">
-              Home
-            </a>
-            <a href="/blog" class="text-eucalyptus-600 dark:text-eucalyptus-400 font-semibold">
-              Blog
-            </a>
-            <a href="/projects" class="text-gray-600 dark:text-gray-400 hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400">
-              Projects
-            </a>
-          </div>
-        </nav>
-      </div>
-    </header>
-
-    <main class="container mx-auto px-4 py-12">
-      <!-- Breadcrumb -->
-      <nav class="text-sm text-gray-600 dark:text-gray-400 mb-8">
-        <a href="/en/" class="hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400">Home</a>
-        <span class="mx-2">/</span>
-        <a href="/blog" class="hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400">Blog</a>
-        <span class="mx-2">/</span>
-        <a href={`/blog/category/${category}`} class="hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400">
-          {category}
-        </a>
-        <span class="mx-2">/</span>
-        <span class="text-gray-400 dark:text-gray-500">{title}</span>
-      </nav>
-
-      <div class="grid lg:grid-cols-[1fr_250px] gap-12">
-        <!-- Main Content -->
-        <article>
-          <!-- Post Header -->
-          <PostHeader
-            title={title}
-            description={description}
-            pubDate={pubDate}
-            updatedDate={updatedDate}
-            category={category}
-            tags={tags}
-          />
-
-          <!-- Post Meta -->
-          <PostMeta
-            author={author}
-            pubDate={pubDate}
-            readingTime={readingTime}
-            category={category}
-          />
-
-          <!-- Learning Disclaimer for technical posts -->
-          {(category === 'ai-ml' || tags.includes('rust') || tags.includes('julia') || tags.includes('machine-learning') || tags.includes('career')) && (
-            <LearningDisclaimer />
+    <div class="grid lg:grid-cols-[1fr_250px] gap-12">
+      <!-- Main Content -->
+      <article>
+        <!-- Post Title -->
+        <header class="mb-8">
+          <h1 class="text-4xl md:text-5xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+            {title}
+          </h1>
+          {description && (
+            <p class="text-xl text-text-secondary-light dark:text-text-secondary-dark">
+              {description}
+            </p>
           )}
+        </header>
 
-          <!-- Post Content with Prose Styling -->
-          <div class="prose dark:prose-invert prose-eucalyptus max-w-none mt-8">
-            <Content />
+        <!-- Post Meta -->
+        <PostMeta
+          author={author}
+          pubDate={pubDate}
+          readingTime={readingTime}
+          category={category}
+        />
+
+        <!-- Learning Disclaimer for technical posts -->
+        {(category === 'ai-ml' || tags.includes('rust') || tags.includes('julia') || tags.includes('machine-learning') || tags.includes('career')) && (
+          <LearningDisclaimer />
+        )}
+
+        <!-- Post Content with Prose Styling -->
+        <div class="prose dark:prose-invert max-w-none mt-8">
+          <Content />
+        </div>
+
+        <!-- Post Footer: Tags and Share -->
+        <footer class="mt-12 pt-8 border-t border-border-light dark:border-border-dark">
+          <!-- Tags -->
+          <div class="mb-6">
+            <h3 class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark mb-3">
+              Tags
+            </h3>
+            <div class="flex flex-wrap gap-2">
+              {tags.map(tag => (
+                <Badge variant="secondary">
+                  <a href={`/blog/tag/${tag}`}>#{tag}</a>
+                </Badge>
+              ))}
+            </div>
           </div>
 
-          <!-- Post Footer: Tags and Share -->
-          <footer class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
-            <!-- Tags -->
-            <div class="mb-6">
-              <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
-                Tags
-              </h3>
-              <div class="flex flex-wrap gap-2">
-                {tags.map(tag => (
-                  <a
-                    href={`/blog/tag/${tag}`}
-                    class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-md hover:bg-eucalyptus-100 dark:hover:bg-eucalyptus-900 transition-colors"
-                  >
-                    #{tag}
-                  </a>
-                ))}
-              </div>
+          <!-- Share Buttons -->
+          <div>
+            <h3 class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark mb-3">
+              Share this article
+            </h3>
+            <div class="flex gap-3">
+              <a
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(Astro.url.toString())}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="px-4 py-2 bg-surface-light dark:bg-surface-dark text-text-primary-light dark:text-text-primary-dark rounded-md hover:bg-eucalyptus-100 dark:hover:bg-eucalyptus-900 transition-colors"
+              >
+                Twitter
+              </a>
+              <a
+                href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(Astro.url.toString())}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="px-4 py-2 bg-surface-light dark:bg-surface-dark text-text-primary-light dark:text-text-primary-dark rounded-md hover:bg-eucalyptus-100 dark:hover:bg-eucalyptus-900 transition-colors"
+              >
+                LinkedIn
+              </a>
+              <button
+                onclick={`navigator.clipboard.writeText('${Astro.url}')`}
+                class="px-4 py-2 bg-surface-light dark:bg-surface-dark text-text-primary-light dark:text-text-primary-dark rounded-md hover:bg-eucalyptus-100 dark:hover:bg-eucalyptus-900 transition-colors"
+              >
+                Copy Link
+              </button>
             </div>
-
-            <!-- Share Buttons -->
-            <div>
-              <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
-                Share this article
-              </h3>
-              <div class="flex gap-3">
-                <a
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(Astro.url.toString())}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-md hover:bg-eucalyptus-100 dark:hover:bg-eucalyptus-900 transition-colors"
-                >
-                  Twitter
-                </a>
-                <a
-                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(Astro.url.toString())}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-md hover:bg-eucalyptus-100 dark:hover:bg-eucalyptus-900 transition-colors"
-                >
-                  LinkedIn
-                </a>
-                <button
-                  onclick={`navigator.clipboard.writeText('${Astro.url}')`}
-                  class="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-md hover:bg-eucalyptus-100 dark:hover:bg-eucalyptus-900 transition-colors"
-                >
-                  Copy Link
-                </button>
-              </div>
-            </div>
-          </footer>
-        </article>
-
-        <!-- Sidebar -->
-        <aside class="space-y-8">
-          <!-- Table of Contents (sticky) -->
-          {headings.length > 0 && (
-            <div class="lg:sticky lg:top-8">
-              <TableOfContents headings={headings} />
-            </div>
-          )}
-        </aside>
-      </div>
-
-      <!-- Related Posts -->
-      {relatedPosts.length > 0 && (
-        <section class="mt-16 pt-16 border-t border-gray-200 dark:border-gray-800">
-          <h2 class="text-2xl font-bold mb-8 text-gray-900 dark:text-gray-100">
-            Related Articles
-          </h2>
-          <div class="grid md:grid-cols-3 gap-8">
-            {relatedPosts.map(relatedPost => (
-              <article class="border border-gray-200 dark:border-gray-800 rounded-lg p-6 hover:border-eucalyptus-500 transition-colors">
-                <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  <time datetime={relatedPost.data.pubDate.toISOString()}>
-                    {relatedPost.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-                  </time>
-                </div>
-                <h3 class="text-lg font-bold mb-2 text-gray-900 dark:text-gray-100">
-                  <a href={`/blog/${relatedPost.slug}`} class="hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400">
-                    {relatedPost.data.title}
-                  </a>
-                </h3>
-                <p class="text-gray-600 dark:text-gray-400 text-sm">
-                  {relatedPost.data.description}
-                </p>
-              </article>
-            ))}
           </div>
-        </section>
-      )}
-    </main>
+        </footer>
+      </article>
 
-    <!-- Footer -->
-    <footer class="border-t border-gray-200 dark:border-gray-800 mt-24">
-      <div class="container mx-auto px-4 py-8 text-center text-gray-600 dark:text-gray-400">
-        <p>&copy; 2025 Mihai Adrian Mateescu. All rights reserved.</p>
-      </div>
-    </footer>
-  </body>
-</html>
+      <!-- Sidebar -->
+      <aside class="space-y-8">
+        <!-- Table of Contents (sticky) -->
+        {headings.length > 0 && (
+          <div class="lg:sticky lg:top-8">
+            <TableOfContents headings={headings} />
+          </div>
+        )}
+      </aside>
+    </div>
+
+    <!-- Related Posts -->
+    {relatedPosts.length > 0 && (
+      <section class="mt-16 pt-16 border-t border-border-light dark:border-border-dark">
+        <h2 class="text-2xl font-bold mb-8 text-text-primary-light dark:text-text-primary-dark">
+          Related Articles
+        </h2>
+        <div class="grid md:grid-cols-3 gap-6">
+          {relatedPosts.map(relatedPost => (
+            <Card>
+              <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-3">
+                <time datetime={relatedPost.data.pubDate.toISOString()}>
+                  {relatedPost.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                </time>
+              </div>
+              <h3 class="text-lg font-bold mb-2 text-text-primary-light dark:text-text-primary-dark">
+                <a href={`/blog/${relatedPost.slug}`} class="hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400">
+                  {relatedPost.data.title}
+                </a>
+              </h3>
+              <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm">
+                {relatedPost.data.description}
+              </p>
+            </Card>
+          ))}
+        </div>
+      </section>
+    )}
+  </Container>
+</BaseLayout>
 
 <style is:global>
   /* Custom prose styling for code blocks with Shiki */
   .prose pre {
-    @apply bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 overflow-x-auto;
+    @apply border rounded-lg p-4 overflow-x-auto;
+    background-color: #f8f9fa !important;
+    border-color: #e9ecef !important;
+  }
+
+  .dark .prose pre {
+    background-color: #1e2126 !important;
+    border-color: #3a3f47 !important;
   }
 
   .prose code {
@@ -250,17 +198,20 @@ const blogPostingSchema = generateBlogPostingSchema(post, Astro.url.toString());
 
   .prose pre code {
     @apply bg-transparent p-0 text-base;
+    color: inherit !important;
   }
 
-  /* Shiki theme support for dark mode */
-  .prose pre {
-    background-color: var(--shiki-light-bg);
-    color: var(--shiki-light);
+  /* Shiki syntax highlighting - ensure good contrast */
+  .prose pre,
+  .prose pre code,
+  .prose pre code span {
+    color: #24292e !important;
   }
 
-  .dark .prose pre {
-    background-color: var(--shiki-dark-bg);
-    color: var(--shiki-dark);
+  .dark .prose pre,
+  .dark .prose pre code,
+  .dark .prose pre code span {
+    color: #e6edf3 !important;
   }
 
   /* Smooth scroll for TOC links */

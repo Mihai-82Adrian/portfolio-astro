@@ -1,5 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
 import PostList from '@/components/blog/PostList.astro';
 
 // Get all published blog posts, sorted by date (newest first)
@@ -24,59 +26,15 @@ const pageTitle = 'Blog - Mihai Adrian Mateescu';
 const pageDescription = 'Articles about AI/ML, finance, FinTech, Rust, Julia, and the intersection of technology and accounting.';
 ---
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{pageTitle}</title>
-    <meta name="description" content={pageDescription} />
-
-    <!-- Open Graph / Social Media -->
-    <meta property="og:title" content={pageTitle} />
-    <meta property="og:description" content={pageDescription} />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={Astro.url} />
-
-    <!-- RSS Feed -->
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title="Blog RSS Feed"
-      href="/rss.xml"
-    />
-  </head>
-
-  <body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-    <!-- Header -->
-    <header class="border-b border-gray-200 dark:border-gray-800">
-      <div class="container mx-auto px-4 py-6">
-        <nav class="flex items-center justify-between">
-          <a href="/" class="text-xl font-bold text-eucalyptus-600 dark:text-eucalyptus-400">
-            Mihai Adrian Mateescu
-          </a>
-          <div class="flex gap-6">
-            <a href="/" class="text-gray-600 dark:text-gray-400 hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400">
-              Home
-            </a>
-            <a href="/blog" class="text-eucalyptus-600 dark:text-eucalyptus-400 font-semibold">
-              Blog
-            </a>
-            <a href="/projects" class="text-gray-600 dark:text-gray-400 hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400">
-              Projects
-            </a>
-          </div>
-        </nav>
-      </div>
-    </header>
-
-    <main class="container mx-auto px-4 py-12">
+<BaseLayout title={pageTitle} description={pageDescription} lang="de">
+  <Container paddingY="lg">
+    <main>
       <!-- Page Header -->
       <div class="mb-12">
-        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+        <h1 class="text-4xl md:text-5xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
           Blog
         </h1>
-        <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl">
+        <p class="text-xl text-text-secondary-light dark:text-text-secondary-dark max-w-3xl">
           Exploring the intersection of finance, AI/ML, and software engineering.
           {sortedPosts.length} articles and counting.
         </p>
@@ -85,13 +43,13 @@ const pageDescription = 'Articles about AI/ML, finance, FinTech, Rust, Julia, an
       <!-- Featured Posts -->
       {featuredPosts.length > 0 && (
         <section class="mb-16">
-          <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+          <h2 class="text-2xl font-bold mb-6 text-text-primary-light dark:text-text-primary-dark">
             Featured Posts
           </h2>
           <div class="grid md:grid-cols-3 gap-8">
             {featuredPosts.map(post => (
-              <article class="border border-gray-200 dark:border-gray-800 rounded-lg p-6 hover:border-eucalyptus-500 transition-colors">
-                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-3">
+              <article class="border border-border-light dark:border-border-dark rounded-lg p-6 hover:border-eucalyptus-500 transition-colors bg-surface-light dark:bg-surface-dark">
+                <div class="flex items-center gap-2 text-sm text-text-secondary-light dark:text-text-secondary-dark mb-3">
                   <span class="px-2 py-1 bg-eucalyptus-100 dark:bg-eucalyptus-900 text-eucalyptus-700 dark:text-eucalyptus-300 rounded">
                     {post.data.category}
                   </span>
@@ -99,17 +57,17 @@ const pageDescription = 'Articles about AI/ML, finance, FinTech, Rust, Julia, an
                     {post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                   </time>
                 </div>
-                <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-gray-100">
+                <h3 class="text-xl font-bold mb-2 text-text-primary-light dark:text-text-primary-dark">
                   <a href={`/blog/${post.slug}`} class="hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400">
                     {post.data.title}
                   </a>
                 </h3>
-                <p class="text-gray-600 dark:text-gray-400 mb-4">
+                <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
                   {post.data.description}
                 </p>
                 <div class="flex flex-wrap gap-2">
                   {post.data.tags.slice(0, 3).map(tag => (
-                    <span class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded">
+                    <span class="text-xs px-2 py-1 bg-surface-light dark:bg-surface-dark text-text-secondary-light dark:text-text-secondary-dark rounded border border-border-light dark:border-border-dark">
                       #{tag}
                     </span>
                   ))}
@@ -131,7 +89,7 @@ const pageDescription = 'Articles about AI/ML, finance, FinTech, Rust, Julia, an
         {categories.map(category => (
           <a
             href={`/blog/category/${category}`}
-            class="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-md hover:bg-eucalyptus-100 dark:hover:bg-eucalyptus-900 transition-colors"
+            class="px-4 py-2 bg-surface-light dark:bg-surface-dark text-text-primary-light dark:text-text-primary-dark rounded-md hover:bg-eucalyptus-100 dark:hover:bg-eucalyptus-900 transition-colors border border-border-light dark:border-border-dark"
           >
             {category}
           </a>
@@ -148,10 +106,10 @@ const pageDescription = 'Articles about AI/ML, finance, FinTech, Rust, Julia, an
             <a
               href={page === 1 ? '/blog' : `/blog/page/${page}`}
               class:list={[
-                'px-4 py-2 rounded-md',
+                'px-4 py-2 rounded-md border',
                 page === currentPage
-                  ? 'bg-eucalyptus-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-eucalyptus-100 dark:hover:bg-eucalyptus-900'
+                  ? 'bg-eucalyptus-600 text-white border-eucalyptus-600'
+                  : 'bg-surface-light dark:bg-surface-dark text-text-primary-light dark:text-text-primary-dark border-border-light dark:border-border-dark hover:bg-eucalyptus-100 dark:hover:bg-eucalyptus-900'
               ]}
             >
               {page}
@@ -162,10 +120,10 @@ const pageDescription = 'Articles about AI/ML, finance, FinTech, Rust, Julia, an
 
       <!-- RSS Subscribe -->
       <div class="mt-16 p-6 bg-eucalyptus-50 dark:bg-eucalyptus-900 rounded-lg">
-        <h2 class="text-xl font-bold mb-2 text-gray-900 dark:text-gray-100">
+        <h2 class="text-xl font-bold mb-2 text-text-primary-light dark:text-text-primary-dark">
           Subscribe via RSS
         </h2>
-        <p class="text-gray-600 dark:text-gray-400 mb-4">
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
           Get notified of new posts in your RSS reader
         </p>
         <a
@@ -180,12 +138,5 @@ const pageDescription = 'Articles about AI/ML, finance, FinTech, Rust, Julia, an
         </a>
       </div>
     </main>
-
-    <!-- Footer -->
-    <footer class="border-t border-gray-200 dark:border-gray-800 mt-24">
-      <div class="container mx-auto px-4 py-8 text-center text-gray-600 dark:text-gray-400">
-        <p>&copy; 2025 Mihai Adrian Mateescu. All rights reserved.</p>
-      </div>
-    </footer>
-  </body>
-</html>
+  </Container>
+</BaseLayout>
