@@ -1,0 +1,503 @@
+{
+  "projects": [
+    {
+      "id": "gds",
+      "slug": "gds",
+      "title": "GDS - Geometrodynamic Semantics",
+      "tagline": "Physics-Inspired Semantic Reasoning for German Legal AI",
+      "description": "Research exploration modeling meaning as a physical phenomenon using hyperdimensional computing and BabelNet integration. Combines geometric principles with semantic understanding for advanced legal AI applications.",
+      "category": "ai-research",
+      "status": {
+        "label": "Active Research",
+        "indicator": "active",
+        "progress": 71.6,
+        "detail": "Model training 71.6% complete (8,954/12,500 iterations)"
+      },
+      "heroImage": "/images/projects/gds-hero.svg",
+      "themeColor": "#6B8E6F",
+      "techStack": [
+        {
+          "name": "Rust",
+          "icon": "🦀",
+          "category": "language"
+        },
+        {
+          "name": "Hyperdimensional Computing",
+          "icon": "🧠",
+          "category": "framework"
+        },
+        {
+          "name": "BabelNet",
+          "icon": "🌐",
+          "category": "data"
+        },
+        {
+          "name": "German Legal AI",
+          "icon": "⚖️",
+          "category": "domain"
+        }
+      ],
+      "metrics": [
+        {
+          "label": "SEQUOIA Lexemes",
+          "value": "330,401",
+          "icon": "📚",
+          "description": "Integrated semantic knowledge base"
+        },
+        {
+          "label": "Performance",
+          "value": "23+ GFLOPS",
+          "icon": "⚡",
+          "description": "AMD Ryzen optimized processing"
+        },
+        {
+          "label": "HDC Lexicons",
+          "value": "8.8GB",
+          "icon": "💾",
+          "description": "Enterprise-scale data storage"
+        },
+        {
+          "label": "Training Progress",
+          "value": "71.6%",
+          "icon": "📊",
+          "description": "Model training completion"
+        }
+      ],
+      "features": [
+        "Physics-inspired semantic reasoning framework",
+        "Hyperdimensional computing architecture for efficient processing",
+        "German legal terminology specialization with domain expertise",
+        "Enterprise-scale processing with 330K+ integrated lexemes",
+        "AMD Ryzen optimized achieving 23+ GFLOPS performance",
+        "BabelNet semantic knowledge integration for multilingual support",
+        "Zero-hallucination framework through geometric constraints",
+        "Real-time semantic similarity computation"
+      ],
+      "links": [
+        {
+          "label": "View Research",
+          "url": "https://mihai-82adrian.github.io/gds-research",
+          "type": "external",
+          "icon": "🔬"
+        },
+        {
+          "label": "Model Card",
+          "url": "https://mihai-82adrian.github.io/gds-research/01_ModelCard_GDS_Details.html",
+          "type": "external",
+          "icon": "📋"
+        },
+        {
+          "label": "Project Chronicle",
+          "url": "https://mihai-82adrian.github.io/gds-research/02_Chronicle_GDS.html",
+          "type": "external",
+          "icon": "📖"
+        },
+        {
+          "label": "GitHub Repository",
+          "url": "#",
+          "type": "private",
+          "icon": "🔒"
+        }
+      ],
+      "timeline": {
+        "started": "2025-06",
+        "lastUpdated": "2025-11-09",
+        "milestones": [
+          {
+            "phase": "Concept Development",
+            "date": "2025-06",
+            "status": "completed",
+            "description": "Initial research and theoretical framework"
+          },
+          {
+            "phase": "Architecture Design",
+            "date": "2025-07",
+            "status": "completed",
+            "description": "Rust implementation architecture and HDC system design"
+          },
+          {
+            "phase": "BabelNet Integration",
+            "date": "2025-08",
+            "status": "completed",
+            "description": "Integration of 330K+ SEQUOIA lexemes"
+          },
+          {
+            "phase": "Model Training",
+            "date": "2025-09 - Present",
+            "status": "in-progress",
+            "description": "71.6% complete (8,954/12,500 iterations)"
+          },
+          {
+            "phase": "Performance Optimization",
+            "date": "2025-10",
+            "status": "completed",
+            "description": "Achieved 23+ GFLOPS on AMD Ryzen systems"
+          },
+          {
+            "phase": "Documentation & Publication",
+            "date": "2025-11",
+            "status": "in-progress",
+            "description": "Research documentation and Quarto website"
+          }
+        ]
+      },
+      "technicalDetails": {
+        "architecture": "Hyperdimensional computing with geometric semantic encoding",
+        "language": "Rust (system programming for performance)",
+        "dataSize": "8.8GB HDC lexicons + 330K+ SEQUOIA lexemes",
+        "performance": "23+ GFLOPS on AMD Ryzen 7 5800H",
+        "deployment": "Local compute optimized for consumer hardware",
+        "specialization": "German legal domain with cross-lingual support"
+      },
+      "github": {
+        "repo": "Mihai-82Adrian/GDS",
+        "private": true,
+        "language": "Rust",
+        "stars": 0,
+        "visibility": "Private research repository"
+      }
+    },
+    {
+      "id": "genesis",
+      "slug": "genesis",
+      "title": "GENESIS - Cognitive Computing Platform",
+      "tagline": "World's First Multi-Technology Cognitive Computing Platform",
+      "description": "Breakthrough innovations in semantic-guided tokenization, quantum-enhanced HDC systems, and neural-symbolic integration. Combines multiple cutting-edge technologies for zero-hallucination AI with real-time knowledge transfer capabilities.",
+      "category": "ai-research",
+      "status": {
+        "label": "Production Ready",
+        "indicator": "production",
+        "progress": 100,
+        "detail": "Semantic tokenizer complete, HDC system in research phase"
+      },
+      "heroImage": "/images/projects/genesis-hero.svg",
+      "themeColor": "#8BB4FF",
+      "techStack": [
+        {
+          "name": "Julia",
+          "icon": "🟣",
+          "category": "language"
+        },
+        {
+          "name": "Rust",
+          "icon": "🦀",
+          "category": "language"
+        },
+        {
+          "name": "Neural-Symbolic AI",
+          "icon": "🧬",
+          "category": "framework"
+        },
+        {
+          "name": "Quantum Computing",
+          "icon": "⚛️",
+          "category": "paradigm"
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Vector Dimensions",
+          "value": "20,000",
+          "icon": "📐",
+          "description": "Hyperdimensional vector space"
+        },
+        {
+          "label": "HDC Lexicon",
+          "value": "8.8GB",
+          "icon": "💾",
+          "description": "Semantic knowledge base"
+        },
+        {
+          "label": "Performance",
+          "value": "23+ GFLOPS",
+          "icon": "⚡",
+          "description": "Computational throughput"
+        },
+        {
+          "label": "Memory Usage",
+          "value": "<100MB",
+          "icon": "🎯",
+          "description": "Runtime memory efficiency"
+        }
+      ],
+      "features": [
+        "World's first semantic-aware BPE tokenizer with breakthrough architecture",
+        "S-P-A framework: Subject-Predicate-Attribute semantic roles",
+        "20,000-dimensional hypervectors with quantum enhancement concepts",
+        "Zero-hallucination framework through symbolic reasoning constraints",
+        "Real-time knowledge transfer during training (71.6% complete)",
+        "Local deployment optimized for consumer hardware (<100MB memory)",
+        "Cross-lingual native understanding (German/English/Romanian)",
+        "2,088 protected German legal terms preserved during training",
+        "Neural-symbolic integration for explainable AI decisions"
+      ],
+      "links": [
+        {
+          "label": "Live Dashboard",
+          "url": "https://mihai-82adrian.github.io/genesis-cognitive-blog",
+          "type": "external",
+          "icon": "🔴"
+        },
+        {
+          "label": "Training Progress",
+          "url": "https://mihai-82adrian.github.io/genesis-cognitive-blog/performance/training-dashboard.html",
+          "type": "external",
+          "icon": "📊"
+        },
+        {
+          "label": "Technical Architecture",
+          "url": "https://mihai-82adrian.github.io/genesis-cognitive-blog/platform/architecture.html",
+          "type": "external",
+          "icon": "🏗️"
+        },
+        {
+          "label": "Innovations",
+          "url": "https://mihai-82adrian.github.io/genesis-cognitive-blog/innovations/semantic-guidance.html",
+          "type": "external",
+          "icon": "💡"
+        },
+        {
+          "label": "GitHub Repositories",
+          "url": "#",
+          "type": "private",
+          "icon": "🔒"
+        }
+      ],
+      "timeline": {
+        "started": "2025-06",
+        "lastUpdated": "2025-11-09",
+        "milestones": [
+          {
+            "phase": "Semantic Tokenizer Development",
+            "date": "2025-06 - 2025-08",
+            "status": "completed",
+            "description": "World's first semantic-aware BPE tokenizer"
+          },
+          {
+            "phase": "Julia Performance Optimization",
+            "date": "2025-07",
+            "status": "completed",
+            "description": "Achieved 23+ GFLOPS throughput"
+          },
+          {
+            "phase": "HDC System Architecture",
+            "date": "2025-08",
+            "status": "completed",
+            "description": "20,000-dimensional hypervector design"
+          },
+          {
+            "phase": "Quantum Enhancement Framework",
+            "date": "2025-09",
+            "status": "completed",
+            "description": "Quantum-inspired optimization techniques"
+          },
+          {
+            "phase": "Neural-Symbolic Integration",
+            "date": "2025-10",
+            "status": "in-progress",
+            "description": "Hybrid reasoning system development"
+          },
+          {
+            "phase": "Live Training Dashboard",
+            "date": "2025-11",
+            "status": "completed",
+            "description": "Real-time metrics at 71.6% progress (2,088 terms)"
+          }
+        ]
+      },
+      "technicalDetails": {
+        "tokenizer": "Semantic-guided BPE with S-P-A framework",
+        "languages": "Julia (performance), Rust (system components)",
+        "hdcSystem": "20,000-dimensional hypervectors with quantum enhancement",
+        "dataSize": "8.8GB lexicon integration (5.0GB + 3.8GB)",
+        "performance": "23+ GFLOPS on AMD Ryzen systems",
+        "memory": "<100MB runtime with enterprise pooling",
+        "specialization": "German legal terminology + cross-lingual coherence",
+        "deployment": "Local-first architecture for consumer hardware"
+      },
+      "github": {
+        "repos": [
+          "project-genesis",
+          "genesis-project-hdc",
+          "genesis-legal-ai",
+          "genesis-ai-legal-system",
+          "genesis-blog",
+          "genesis-cognitive-blog"
+        ],
+        "private": true,
+        "languages": [
+          "Julia",
+          "Ruby",
+          "HTML"
+        ],
+        "totalStars": 0,
+        "visibility": "Multiple private repositories"
+      }
+    },
+    {
+      "id": "profitminds",
+      "slug": "profitminds",
+      "title": "ProfitMinds - Financial Education Platform",
+      "tagline": "Custom Merchandise & Financial Education Resources",
+      "description": "E-commerce platform offering curated financial education resources and custom-designed merchandise for the German market. Combines educational content with sustainable print-on-demand merchandising model.",
+      "category": "ecommerce",
+      "status": {
+        "label": "Live & Operational",
+        "indicator": "live",
+        "progress": 100,
+        "detail": "Active store with on-demand printing and fulfillment"
+      },
+      "heroImage": "/images/projects/profitminds-hero.svg",
+      "themeColor": "#FFB84D",
+      "techStack": [
+        {
+          "name": "Spreadshop",
+          "icon": "🛒",
+          "category": "platform"
+        },
+        {
+          "name": "On-Demand Printing",
+          "icon": "🖨️",
+          "category": "service"
+        },
+        {
+          "name": "E-commerce",
+          "icon": "💳",
+          "category": "domain"
+        },
+        {
+          "name": "German Market",
+          "icon": "🇩🇪",
+          "category": "region"
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Platform",
+          "value": "Spreadshop",
+          "icon": "🛍️",
+          "description": "Professional e-commerce infrastructure"
+        },
+        {
+          "label": "Market",
+          "value": "Germany",
+          "icon": "🇩🇪",
+          "description": "German-language market focus"
+        },
+        {
+          "label": "Products",
+          "value": "Custom Designs",
+          "icon": "🎨",
+          "description": "Professional merchandise design"
+        },
+        {
+          "label": "Inventory",
+          "value": "Zero",
+          "icon": "♻️",
+          "description": "Sustainable print-on-demand model"
+        }
+      ],
+      "features": [
+        "Custom merchandise designs focused on financial education themes",
+        "German market specialization with localized content",
+        "Zero inventory model using sustainable print-on-demand",
+        "Professional branding and design consistency",
+        "Secure payment processing through Spreadshop platform",
+        "Automated order fulfillment and shipping",
+        "High-quality product catalog (apparel, accessories, homeware)",
+        "Environmentally friendly production on customer demand"
+      ],
+      "links": [
+        {
+          "label": "Visit Store",
+          "url": "https://profitminds.myspreadshop.de",
+          "type": "external",
+          "icon": "🛒"
+        },
+        {
+          "label": "Integration Details",
+          "url": "/projects/profitminds",
+          "type": "internal",
+          "icon": "⚙️"
+        }
+      ],
+      "timeline": {
+        "started": "2024",
+        "lastUpdated": "2025-11-09",
+        "milestones": [
+          {
+            "phase": "Store Setup & Branding",
+            "date": "2024",
+            "status": "completed",
+            "description": "Spreadshop platform configuration and brand identity"
+          },
+          {
+            "phase": "Custom Design Development",
+            "date": "2024",
+            "status": "completed",
+            "description": "Financial education themed merchandise designs"
+          },
+          {
+            "phase": "Product Catalog Creation",
+            "date": "2024",
+            "status": "completed",
+            "description": "Apparel, accessories, and homeware products"
+          },
+          {
+            "phase": "German Market Launch",
+            "date": "2024",
+            "status": "completed",
+            "description": "Public launch targeting German-speaking audience"
+          },
+          {
+            "phase": "Active Operations",
+            "date": "2024 - Present",
+            "status": "completed",
+            "description": "Ongoing sales and customer fulfillment"
+          }
+        ]
+      },
+      "technicalDetails": {
+        "platform": "Spreadshop E-commerce Platform",
+        "printingModel": "On-demand printing (zero inventory)",
+        "paymentProcessing": "Secure Spreadshop integrated payments",
+        "fulfillment": "Automated order processing and shipping",
+        "market": "German-speaking countries (Germany, Austria, Switzerland)",
+        "productTypes": "Apparel, accessories, homeware, gifts",
+        "sustainability": "Print-on-demand reduces waste and inventory costs"
+      },
+      "integration": {
+        "type": "manual",
+        "current": "Manual product management through Spreadshop interface",
+        "future": "Spreadshop API integration for automated product sync and analytics"
+      },
+      "businessModel": {
+        "revenue": "Product sales with margin on custom designs",
+        "costs": "Zero inventory, pay-per-product printing",
+        "scalability": "Unlimited product variety without upfront investment",
+        "sustainability": "Environmentally friendly on-demand production"
+      }
+    }
+  ],
+  "categories": [
+    {
+      "id": "ai-research",
+      "label": "AI Research",
+      "icon": "🧠",
+      "description": "Cutting-edge artificial intelligence and cognitive computing research projects"
+    },
+    {
+      "id": "ecommerce",
+      "label": "E-commerce",
+      "icon": "🛒",
+      "description": "Online business platforms and digital commerce solutions"
+    }
+  ],
+  "metadata": {
+    "lastUpdated": "2025-11-09",
+    "version": "1.0",
+    "totalProjects": 3,
+    "activeProjects": 2,
+    "completedProjects": 1
+  }
+}

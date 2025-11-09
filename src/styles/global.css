@@ -11,6 +11,28 @@
 @tailwind utilities;
 
 /**
+ * Font Face Declarations with font-display: swap
+ * Ensures text remains visible during webfont load
+ */
+@font-face {
+  font-family: 'Inter';
+  font-display: swap;
+  src: local('Inter');
+}
+
+@font-face {
+  font-family: 'Playfair Display';
+  font-display: swap;
+  src: local('Playfair Display');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-display: swap;
+  src: local('JetBrains Mono');
+}
+
+/**
  * CSS Custom Properties for Theme Switching
  * These allow smooth dark/light mode transitions
  */

@@ -47,6 +47,13 @@ export default defineConfig({
         else if (url.match(/\/(about|experience|education|certifications)\/?$/)) {
           item.priority = 0.8;
         }
+        // Projects pages - high priority for portfolio showcase
+        else if (url.match(/\/projects\/?$/)) {
+          item.priority = 0.9; // Projects index
+        }
+        else if (url.match(/\/projects\/(gds|genesis|profitminds)\/?$/)) {
+          item.priority = 0.85; // Individual projects
+        }
         // Blog index pages
         else if (url.match(/\/blog\/?$/)) {
           item.priority = 0.7;
@@ -97,6 +104,7 @@ export default defineConfig({
   build: {
     format: 'directory',
     inlineStylesheets: 'auto',
+    assets: '_astro',
   },
   image: {
     // Configure image service (Sharp for optimization)
@@ -104,9 +112,27 @@ export default defineConfig({
       entrypoint: 'astro/assets/services/sharp',
     },
   },
+  compressHTML: true,
   vite: {
     build: {
       cssCodeSplit: true,
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+        },
+      },
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor': ['astro/components'],
+          },
+        },
+      },
+    },
+    ssr: {
+      noExternal: ['@astrojs/prism'],
     },
   },
 });

@@ -4,7 +4,7 @@ description: "Explore concrete applications of machine learning in modern accoun
 pubDate: 2025-11-08
 category: 'fintech'
 tags: ['machine-learning', 'accounting', 'automation', 'python', 'data-science']
-heroImage: '/images/blog/ml-accounting.jpg'
+heroImage: '/images/blog/ml-accounting.webp'
 draft: false
 featured: true
 ---

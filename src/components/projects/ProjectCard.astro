@@ -1,0 +1,387 @@
+---
+import StatusIndicator from './StatusIndicator.astro';
+import TechStackBadge from './TechStackBadge.astro';
+import ProjectMetrics from './ProjectMetrics.astro';
+
+interface Props {
+  project: {
+    id: string;
+    slug: string;
+    title: string;
+    tagline: string;
+    description: string;
+    category: string;
+    status: {
+      label: string;
+      indicator: 'active' | 'production' | 'live' | 'development' | 'research';
+      progress?: number;
+      detail?: string;
+    };
+    heroImage: string;
+    themeColor: string;
+    techStack: Array<{
+      name: string;
+      icon: string;
+      category?: 'language' | 'framework' | 'platform' | 'domain' | 'data' | 'paradigm' | 'service' | 'region';
+    }>;
+    metrics: Array<{
+      label: string;
+      value: string;
+      icon: string;
+      description?: string;
+    }>;
+    links: Array<{
+      label: string;
+      url: string;
+      type: string;
+      icon: string;
+    }>;
+  };
+  featured?: boolean;
+  showMetrics?: boolean;
+}
+
+const { project, featured = false, showMetrics = true } = Astro.props;
+
+// Get primary external link
+const primaryLink = project.links.find(link => link.type === 'external') || project.links[0];
+const detailLink = `/projects/${project.slug}`;
+---
+
+<article 
+  class={`project-card ${featured ? 'featured' : ''}`}
+  data-project-id={project.id}
+  data-category={project.category}
+>
+  <!-- Hero Image -->
+  <div class="card-image">
+    <a href={detailLink} aria-label={`View ${project.title} details`}>
+      <img 
+        src={project.heroImage}
+        alt={`${project.title} - ${project.tagline}`}
+        loading="lazy"
+        width="1200"
+        height="630"
+      />
+    </a>
+  </div>
+
+  <!-- Card Content -->
+  <div class="card-content">
+    <!-- Status Badge -->
+    <div class="card-status">
+      <StatusIndicator status={project.status} size="md" />
+    </div>
+
+    <!-- Title & Tagline -->
+    <div class="card-header">
+      <h3 class="card-title">
+        <a href={detailLink}>{project.title}</a>
+      </h3>
+      <p class="card-tagline">{project.tagline}</p>
+    </div>
+
+    <!-- Description -->
+    <p class="card-description">{project.description}</p>
+
+    <!-- Tech Stack -->
+    <div class="tech-stack">
+      {project.techStack.slice(0, 4).map((tech) => (
+        <TechStackBadge tech={tech} size="sm" />
+      ))}
+      {project.techStack.length > 4 && (
+        <span class="tech-more" title={`${project.techStack.length - 4} more technologies`}>
+          +{project.techStack.length - 4}
+        </span>
+      )}
+    </div>
+
+    <!-- Metrics (optional) -->
+    {showMetrics && (
+      <div class="card-metrics">
+        <ProjectMetrics metrics={project.metrics.slice(0, 4)} columns={2} />
+      </div>
+    )}
+
+    <!-- Action Buttons -->
+    <div class="card-actions">
+      <a 
+        href={detailLink}
+        class="btn btn-primary"
+        aria-label={`View details about ${project.title}`}
+      >
+        <span>View Details</span>
+        <span aria-hidden="true">→</span>
+      </a>
+      {primaryLink && primaryLink.url !== '#' && (
+        <a 
+          href={primaryLink.url}
+          class="btn btn-secondary"
+          target={primaryLink.type === 'external' ? '_blank' : undefined}
+          rel={primaryLink.type === 'external' ? 'noopener noreferrer' : undefined}
+          aria-label={`${primaryLink.label} for ${project.title}${primaryLink.type === 'external' ? ' (opens in new tab)' : ''}`}
+        >
+          <span aria-hidden="true">{primaryLink.icon}</span>
+          <span>{primaryLink.label}</span>
+          {primaryLink.type === 'external' && (
+            <span class="sr-only">(opens in new tab)</span>
+          )}
+        </a>
+      )}
+    </div>
+  </div>
+</article>
+
+<style define:vars={{ themeColor: project.themeColor }}>
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+  }
+
+  .project-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2),
+                0 0 0 1px var(--themeColor),
+                0 0 32px var(--themeColor);
+    border-color: var(--themeColor);
+  }
+
+  .project-card.featured {
+    border-width: 2px;
+    border-color: var(--themeColor);
+  }
+
+  /* Hero Image */
+  .card-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(0,0,0,0.5), rgba(0,0,0,0.8));
+  }
+
+  .card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .project-card:hover .card-image img {
+    transform: scale(1.05);
+  }
+
+  /* Card Content */
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem;
+    flex: 1;
+  }
+
+  /* Status Badge */
+  .card-status {
+    margin: -0.5rem 0 0.5rem 0;
+  }
+
+  .card-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }  .card-title {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0;
+  }
+
+  .card-title a {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .card-title a:hover {
+    color: var(--themeColor);
+  }
+
+  .card-tagline {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .card-description {
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Tech Stack */
+  .tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .tech-more {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+    cursor: help;
+  }
+
+  /* Metrics */
+  .card-metrics {
+    margin-top: 0.5rem;
+  }
+
+  /* Action Buttons */
+  .card-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex: 1;
+  }
+
+  .btn-primary {
+    background: var(--themeColor);
+    color: white;
+    border: 1px solid var(--themeColor);
+  }
+
+  .btn-primary:hover {
+    background: transparent;
+    color: var(--themeColor);
+    box-shadow: 0 0 16px var(--themeColor);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--themeColor);
+    border: 1px solid var(--themeColor);
+  }
+
+  .btn-secondary:hover {
+    background: var(--themeColor);
+    color: white;
+    box-shadow: 0 0 16px var(--themeColor);
+  }
+
+  /* Screen reader only */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .card-content {
+      padding: 1rem;
+      gap: 0.75rem;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+    }
+
+    .card-description {
+      -webkit-line-clamp: 2;
+    }
+
+    .card-actions {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    .project-card {
+      break-inside: avoid;
+      border: 1px solid #333;
+      box-shadow: none;
+    }
+
+    .project-card:hover {
+      transform: none;
+    }
+
+    .btn-secondary {
+      display: none;
+    }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .project-card,
+    .card-image img,
+    .btn {
+      transition: none;
+    }
+
+    .project-card:hover {
+      transform: none;
+    }
+
+    .project-card:hover .card-image img {
+      transform: none;
+    }
+  }
+
+  /* Focus styles */
+  .card-title a:focus-visible,
+  .btn:focus-visible {
+    outline: 2px solid var(--themeColor);
+    outline-offset: 2px;
+  }
+</style>

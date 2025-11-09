@@ -1,0 +1,427 @@
+---
+/**
+ * GitHubWidget Component
+ * Displays GitHub statistics including repos, languages, and recent activity
+ */
+---
+
+<div class="github-widget">
+  <div class="widget-header">
+    <div class="header-icon" aria-hidden="true">💻</div>
+    <h3 class="header-title">GitHub Activity</h3>
+    <a 
+      href="https://github.com/Mihai-82Adrian" 
+      class="header-link"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Visit GitHub profile (opens in new tab)"
+    >
+      View Profile →
+    </a>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-item">
+      <div class="stat-value" data-github-total-repos>13</div>
+      <div class="stat-label">Total Repositories</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value" data-github-public-repos>4</div>
+      <div class="stat-label">Public</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value" data-github-private-repos>9</div>
+      <div class="stat-label">Private</div>
+    </div>
+  </div>
+
+  <!-- Language Distribution -->
+  <div class="languages-section">
+    <h4 class="section-title">Top Languages</h4>
+    <div class="language-bars" data-github-languages>
+      <!-- Languages will be populated by client-side script -->
+      <div class="language-item">
+        <div class="language-header">
+          <span class="language-name">Rust</span>
+          <span class="language-percentage">35%</span>
+        </div>
+        <div class="language-bar">
+          <div class="language-fill" style="width: 35%; background: #dea584;"></div>
+        </div>
+      </div>
+      <div class="language-item">
+        <div class="language-header">
+          <span class="language-name">Julia</span>
+          <span class="language-percentage">25%</span>
+        </div>
+        <div class="language-bar">
+          <div class="language-fill" style="width: 25%; background: #a270ba;"></div>
+        </div>
+      </div>
+      <div class="language-item">
+        <div class="language-header">
+          <span class="language-name">TypeScript</span>
+          <span class="language-percentage">20%</span>
+        </div>
+        <div class="language-bar">
+          <div class="language-fill" style="width: 20%; background: #3178c6;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="activity-section">
+    <h4 class="section-title">Recent Activity</h4>
+    <div class="activity-list" data-github-activity>
+      <div class="activity-empty">
+        <span class="activity-icon">📊</span>
+        <p>Activity data will load shortly...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { getGitHubStats, formatDate, formatEventType } from '../../utils/github';
+
+  // Load GitHub stats on client-side
+  async function loadGitHubStats() {
+    const stats = await getGitHubStats('Mihai-82Adrian');
+    
+    if (!stats) return;
+
+    // Update repo counts
+    const totalReposEl = document.querySelector('[data-github-total-repos]');
+    const publicReposEl = document.querySelector('[data-github-public-repos]');
+    const privateReposEl = document.querySelector('[data-github-private-repos]');
+
+    if (totalReposEl) totalReposEl.textContent = stats.totalRepos.toString();
+    if (publicReposEl) publicReposEl.textContent = stats.publicRepos.toString();
+    if (privateReposEl) privateReposEl.textContent = stats.privateRepos.toString();
+
+    // Update languages
+    const languagesContainer = document.querySelector('[data-github-languages]');
+    if (languagesContainer && stats.languages.length > 0) {
+      languagesContainer.innerHTML = stats.languages
+        .map(
+          (lang) => `
+          <div class="language-item">
+            <div class="language-header">
+              <span class="language-name">${lang.name}</span>
+              <span class="language-percentage">${lang.percentage}%</span>
+            </div>
+            <div class="language-bar">
+              <div class="language-fill" style="width: ${lang.percentage}%; background: ${lang.color};"></div>
+            </div>
+          </div>
+        `
+        )
+        .join('');
+    }
+
+    // Update recent activity
+    const activityContainer = document.querySelector('[data-github-activity]');
+    if (activityContainer) {
+      if (stats.recentActivity.length > 0) {
+        activityContainer.innerHTML = stats.recentActivity
+          .map(
+            (event) => `
+            <div class="activity-item">
+              <div class="activity-type">${formatEventType(event.type)}</div>
+              <div class="activity-repo">${event.repo}</div>
+              <div class="activity-date">${formatDate(event.date)}</div>
+              ${event.message ? `<div class="activity-message">${event.message}</div>` : ''}
+            </div>
+          `
+          )
+          .join('');
+      } else {
+        activityContainer.innerHTML = `
+          <div class="activity-empty">
+            <span class="activity-icon">🔒</span>
+            <p>Recent activity is private</p>
+          </div>
+        `;
+      }
+    }
+  }
+
+  // Load stats when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadGitHubStats);
+  } else {
+    loadGitHubStats();
+  }
+</script>
+
+<style>
+  .github-widget {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    padding: 2rem;
+    margin: 3rem 0;
+  }
+
+  /* Header */
+  .widget-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .header-icon {
+    font-size: 2rem;
+    line-height: 1;
+  }
+
+  .header-title {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0;
+    flex: 1;
+  }
+
+  .header-link {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .header-link:hover {
+    color: var(--color-text-primary);
+    transform: translateX(4px);
+  }
+
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-item {
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+  }
+
+  .stat-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+  }
+
+  .stat-value {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+  }
+
+  /* Section Titles */
+  .section-title {
+    font-family: var(--font-heading);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0 0 1rem;
+  }
+
+  /* Languages */
+  .languages-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 0.75rem;
+  }
+
+  .language-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .language-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .language-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .language-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .language-percentage {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+  }
+
+  .language-bar {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .language-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Activity */
+  .activity-section {
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 0.75rem;
+  }
+
+  .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .activity-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .activity-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--color-primary);
+  }
+
+  .activity-type {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .activity-repo {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    font-family: var(--font-mono);
+  }
+
+  .activity-date {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+  }
+
+  .activity-message {
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+    margin-top: 0.25rem;
+    font-style: italic;
+  }
+
+  .activity-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 2rem;
+    color: var(--color-text-secondary);
+    text-align: center;
+  }
+
+  .activity-icon {
+    font-size: 2rem;
+    opacity: 0.5;
+  }
+
+  .activity-empty p {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .github-widget {
+      padding: 1.5rem;
+    }
+
+    .stats-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .header-title {
+      font-size: 1.25rem;
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+    }
+  }
+
+  /* Loading animation */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  [data-github-total-repos],
+  [data-github-public-repos],
+  [data-github-private-repos] {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  /* Fade in when loaded */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .activity-item {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .activity-item:nth-child(1) { animation-delay: 0.1s; }
+  .activity-item:nth-child(2) { animation-delay: 0.2s; }
+  .activity-item:nth-child(3) { animation-delay: 0.3s; }
+  .activity-item:nth-child(4) { animation-delay: 0.4s; }
+  .activity-item:nth-child(5) { animation-delay: 0.5s; }
+</style>

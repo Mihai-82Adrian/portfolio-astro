@@ -1,0 +1,716 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import StatusIndicator from '../../components/projects/StatusIndicator.astro';
+import TechStackBadge from '../../components/projects/TechStackBadge.astro';
+import ProjectMetrics from '../../components/projects/ProjectMetrics.astro';
+import projectsData from '../../data/projects.json';
+
+export async function getStaticPaths() {
+  const { projects } = projectsData;
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { projects } = projectsData;
+
+// Get related projects (other projects in same category)
+const relatedProjects = projects
+  .filter(p => p.id !== project.id && p.category === project.category)
+  .slice(0, 2);
+
+// Get next/previous projects
+const currentIndex = projects.findIndex(p => p.id === project.id);
+const prevProject = currentIndex > 0 ? projects[currentIndex - 1] : null;
+const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex + 1] : null;
+---
+
+<BaseLayout 
+  title={`${project.title} - Projects`}
+  description={project.tagline}
+  ogImage={project.heroImage}
+>
+  <main class="project-detail" data-project-id={project.id}>
+    <!-- Hero Section -->
+    <section class="hero" style={`--theme-color: ${project.themeColor}`}>
+      <div class="hero-image">
+        <img 
+          src={project.heroImage}
+          alt={`${project.title} - ${project.tagline}`}
+          width="1200"
+          height="630"
+        />
+        <div class="hero-overlay"></div>
+      </div>
+      <div class="container hero-content">
+        <div class="breadcrumb">
+          <a href="/projects">← Back to Projects</a>
+        </div>
+        <StatusIndicator status={project.status} size="lg" />
+        <h1 class="project-title">{project.title}</h1>
+        <p class="project-tagline">{project.tagline}</p>
+        <div class="hero-actions">
+          {project.links.map((link) => (
+            link.url !== '#' && (
+              <a 
+                href={link.url}
+                class={`btn ${link.type === 'external' ? 'btn-primary' : 'btn-secondary'}`}
+                target={link.type === 'external' ? '_blank' : undefined}
+                rel={link.type === 'external' ? 'noopener noreferrer' : undefined}
+              >
+                <span aria-hidden="true">{link.icon}</span>
+                <span>{link.label}</span>
+              </a>
+            )
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <div class="container content-wrapper">
+      <!-- Overview Section -->
+      <section class="section overview">
+        <h2 class="section-title">Project Overview</h2>
+        <p class="project-description">{project.description}</p>
+      </section>
+
+      <!-- Metrics Grid -->
+      <section class="section metrics-section">
+        <h2 class="section-title">Key Metrics</h2>
+        <ProjectMetrics metrics={project.metrics} columns={4} />
+      </section>
+
+      <!-- Tech Stack Grid -->
+      <section class="section tech-section">
+        <h2 class="section-title">Technology Stack</h2>
+        <div class="tech-grid">
+          {project.techStack.map((tech) => (
+            <TechStackBadge tech={tech} size="lg" />
+          ))}
+        </div>
+      </section>
+
+      <!-- Features List -->
+      <section class="section features-section">
+        <h2 class="section-title">Key Features</h2>
+        <ul class="features-list">
+          {project.features.map((feature) => (
+            <li class="feature-item">
+              <span class="feature-icon" aria-hidden="true">✓</span>
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <!-- Timeline -->
+      {project.timeline && (
+        <section class="section timeline-section">
+          <h2 class="section-title">Project Timeline</h2>
+          <div class="timeline-info">
+            <div class="timeline-meta">
+              <span><strong>Started:</strong> {project.timeline.started}</span>
+              <span><strong>Last Updated:</strong> {project.timeline.lastUpdated}</span>
+            </div>
+          </div>
+          <div class="timeline">
+            {project.timeline.milestones.map((milestone, index) => (
+              <div class={`timeline-item ${milestone.status}`}>
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                  <h3 class="milestone-phase">{milestone.phase}</h3>
+                  <p class="milestone-date">{milestone.date}</p>
+                  <p class="milestone-description">{milestone.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <!-- Technical Details -->
+      {project.technicalDetails && (
+        <section class="section technical-section">
+          <h2 class="section-title">Technical Details</h2>
+          <dl class="technical-details">
+            {Object.entries(project.technicalDetails).map(([key, value]) => (
+              <div class="detail-item">
+                <dt class="detail-label">{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:</dt>
+                <dd class="detail-value">{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
+
+      <!-- Related Projects -->
+      {relatedProjects.length > 0 && (
+        <section class="section related-section">
+          <h2 class="section-title">Related Projects</h2>
+          <div class="related-grid">
+            {relatedProjects.map((related) => (
+              <a href={`/projects/${related.slug}`} class="related-card">
+                <img src={related.heroImage} alt={related.title} />
+                <div class="related-content">
+                  <h3>{related.title}</h3>
+                  <p>{related.tagline}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <!-- Navigation -->
+      <nav class="project-nav" aria-label="Project navigation">
+        {prevProject && (
+          <a href={`/projects/${prevProject.slug}`} class="nav-link prev">
+            <span class="nav-arrow">←</span>
+            <div class="nav-content">
+              <span class="nav-label">Previous</span>
+              <span class="nav-title">{prevProject.title}</span>
+            </div>
+          </a>
+        )}
+        {nextProject && (
+          <a href={`/projects/${nextProject.slug}`} class="nav-link next">
+            <div class="nav-content">
+              <span class="nav-label">Next</span>
+              <span class="nav-title">{nextProject.title}</span>
+            </div>
+            <span class="nav-arrow">→</span>
+          </a>
+        )}
+      </nav>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  /* Hero Section */
+  .hero {
+    position: relative;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 4rem;
+  }
+
+  .hero-image {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0.5) 50%,
+      rgba(0, 0, 0, 0.8) 100%
+    );
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 4rem 2rem;
+  }
+
+  .breadcrumb {
+    margin-bottom: 2rem;
+  }
+
+  .breadcrumb a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    transition: color 0.2s ease;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--theme-color);
+  }
+
+  .project-title {
+    font-family: var(--font-heading);
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 700;
+    color: white;
+    margin: 1.5rem 0 1rem;
+    line-height: 1.1;
+  }
+
+  .project-tagline {
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 2rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--theme-color);
+    color: white;
+    border: 2px solid var(--theme-color);
+  }
+
+  .btn-primary:hover {
+    background: transparent;
+    color: var(--theme-color);
+    box-shadow: 0 0 20px var(--theme-color);
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: white;
+  }
+
+  /* Content Wrapper */
+  .content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  /* Sections */
+  .section {
+    margin-bottom: 4rem;
+  }
+
+  .section-title {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--color-primary);
+  }
+
+  /* Overview */
+  .project-description {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: var(--color-text-secondary);
+  }
+
+  /* Tech Grid */
+  .tech-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  /* Features List */
+  .features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    transition: all 0.2s ease;
+  }
+
+  .feature-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--color-primary);
+    transform: translateX(8px);
+  }
+
+  .feature-icon {
+    flex-shrink: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.875rem;
+  }
+
+  /* Timeline */
+  .timeline-info {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 0.5rem;
+  }
+
+  .timeline-meta {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+  }
+
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--color-primary), transparent);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-bottom: 2rem;
+  }
+
+  .timeline-marker {
+    position: absolute;
+    left: -2.5rem;
+    top: 0.5rem;
+    width: 1rem;
+    height: 1rem;
+    background: var(--color-primary);
+    border-radius: 50%;
+    border: 3px solid var(--color-bg-primary);
+  }
+
+  .timeline-item.completed .timeline-marker {
+    background: #10B981;
+  }
+
+  .timeline-item.in-progress .timeline-marker {
+    background: #F59E0B;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .milestone-phase {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 0.5rem;
+  }
+
+  .milestone-date {
+    font-size: 0.875rem;
+    color: var(--color-primary);
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+  }
+
+  .milestone-description {
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* Technical Details */
+  .technical-details {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .detail-item {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 0.5rem;
+  }
+
+  .detail-label {
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+
+  .detail-value {
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  /* Related Projects */
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .related-card {
+    display: block;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    overflow: hidden;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .related-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    border-color: var(--color-primary);
+  }
+
+  .related-card img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+  }
+
+  .related-content {
+    padding: 1.5rem;
+  }
+
+  .related-content h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 0.5rem;
+  }
+
+  .related-content p {
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  /* Project Navigation */
+  .project-nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin: 4rem 0;
+    padding: 2rem 0;
+    border-top: 2px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .nav-link:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--color-primary);
+    transform: translateX(8px);
+  }
+
+  .nav-link.prev:hover {
+    transform: translateX(-8px);
+  }
+
+  .nav-link.next {
+    justify-content: flex-end;
+  }
+
+  .nav-arrow {
+    font-size: 1.5rem;
+    color: var(--color-primary);
+  }
+
+  .nav-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .nav-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+  }
+
+  .nav-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero {
+      min-height: 50vh;
+    }
+
+    .hero-content {
+      padding: 3rem 1rem;
+    }
+
+    .content-wrapper {
+      padding: 0 1rem;
+    }
+
+    .section {
+      margin-bottom: 3rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+    }
+
+    .detail-item {
+      grid-template-columns: 1fr;
+    }
+
+    .timeline {
+      padding-left: 1.5rem;
+    }
+
+    .project-nav {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Page load animations */
+  @keyframes heroFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(1.05);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .hero-image img {
+    animation: heroFadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hero-content {
+    animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s backwards;
+  }
+
+  .breadcrumb {
+    animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.1s backwards;
+  }
+
+  /* Stagger content sections */
+  .section {
+    animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+  }
+
+  .section:nth-of-type(1) { animation-delay: 0.3s; }
+  .section:nth-of-type(2) { animation-delay: 0.4s; }
+  .section:nth-of-type(3) { animation-delay: 0.5s; }
+  .section:nth-of-type(4) { animation-delay: 0.6s; }
+  .section:nth-of-type(5) { animation-delay: 0.7s; }
+
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-image img,
+    .hero-content,
+    .breadcrumb,
+    .section {
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+  // Add smooth scroll behavior for anchor links
+  document.addEventListener('DOMContentLoaded', () => {
+    const anchorLinks = document.querySelectorAll('a[href^="#"]');
+    
+    anchorLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href')?.slice(1);
+        if (targetId) {
+          const targetElement = document.getElementById(targetId);
+          if (targetElement) {
+            targetElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        }
+      });
+    });
+  });
+</script>
+</BaseLayout>

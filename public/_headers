@@ -1,0 +1,63 @@
+# Netlify Headers Configuration for Performance Optimization
+# This file configures caching and security headers for optimal performance
+
+# Cache static assets (images, fonts, etc.) for 1 year
+/images/*
+  Cache-Control: public, max-age=31536000, immutable
+  
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache CSS and JS for 1 year (with content hash in filename)
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML files - cache for 1 hour, revalidate
+/*.html
+  Cache-Control: public, max-age=3600, must-revalidate
+
+# Root HTML - cache for 1 hour, revalidate
+/
+  Cache-Control: public, max-age=3600, must-revalidate
+
+# Blog pages - cache for 1 hour
+/blog/*
+  Cache-Control: public, max-age=3600, must-revalidate
+
+# WebP images - cache for 1 year
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+# SVG images - cache for 1 year
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+
+# Favicon - cache for 1 week
+/favicon.ico
+  Cache-Control: public, max-age=604800
+
+# Manifest - cache for 1 week
+/site.webmanifest
+  Cache-Control: public, max-age=604800
+
+# Sitemap - cache for 1 day
+/sitemap*.xml
+  Cache-Control: public, max-age=86400
+
+# Robots.txt - cache for 1 day
+/robots.txt
+  Cache-Control: public, max-age=86400
+
+# Security headers for all pages
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()

@@ -4,7 +4,7 @@ description: "A deep dive into the technical architecture of me-mateescu.de, cov
 pubDate: 2025-11-11
 category: 'personal'
 tags: ['astro', 'tailwind', 'typescript', 'web-development', 'portfolio', 'performance']
-heroImage: '/images/blog/tech-stack.jpg'
+heroImage: '/images/blog/tech-stack.webp'
 draft: false
 featured: true
 ---

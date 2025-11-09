@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" style="background: linear-gradient(135deg, #d9941f 0%, #f5a842 50%, #FFB84D 100%);">
+  <!-- E-commerce and education theme -->
+  <defs>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD699;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFB84D;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background pattern - merchandise grid -->
+  <g opacity="0.15">
+    <rect x="100" y="100" width="150" height="150" rx="10" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <rect x="280" y="100" width="150" height="150" rx="10" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <rect x="460" y="100" width="150" height="150" rx="10" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <rect x="640" y="100" width="150" height="150" rx="10" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <rect x="820" y="100" width="150" height="150" rx="10" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    
+    <rect x="100" y="280" width="150" height="150" rx="10" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <rect x="280" y="280" width="150" height="150" rx="10" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <rect x="460" y="280" width="150" height="150" rx="10" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <rect x="640" y="280" width="150" height="150" rx="10" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <rect x="820" y="280" width="150" height="150" rx="10" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+  </g>
+  
+  <!-- Central icon elements -->
+  <g filter="url(#shadow)">
+    <!-- Shopping cart icon -->
+    <g transform="translate(480, 240)">
+      <circle cx="30" cy="80" r="8" fill="#FFFFFF"/>
+      <circle cx="70" cy="80" r="8" fill="#FFFFFF"/>
+      <path d="M 10 20 L 20 20 L 30 60 L 80 60 L 90 30 L 25 30" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    
+    <!-- Education book icon -->
+    <g transform="translate(650, 240)">
+      <rect x="0" y="20" width="60" height="70" rx="5" fill="#FFFFFF" opacity="0.9"/>
+      <rect x="10" y="30" width="40" height="5" fill="#FFB84D"/>
+      <rect x="10" y="45" width="40" height="5" fill="#FFB84D"/>
+      <rect x="10" y="60" width="30" height="5" fill="#FFB84D"/>
+    </g>
+    
+    <!-- Growth chart icon -->
+    <g transform="translate(340, 260)">
+      <polyline points="0,60 30,45 60,50 90,20" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="0" cy="60" r="6" fill="#FFFFFF"/>
+      <circle cx="30" cy="45" r="6" fill="#FFFFFF"/>
+      <circle cx="60" cy="50" r="6" fill="#FFFFFF"/>
+      <circle cx="90" cy="20" r="6" fill="#FFFFFF"/>
+    </g>
+  </g>
+  
+  <!-- Decorative elements -->
+  <g opacity="0.6">
+    <!-- Stars for excellence -->
+    <path d="M 150 480 L 157 500 L 178 504 L 161 518 L 166 540 L 150 528 L 134 540 L 139 518 L 122 504 L 143 500 Z" fill="#FFFFFF"/>
+    <path d="M 1050 180 L 1057 200 L 1078 204 L 1061 218 L 1066 240 L 1050 228 L 1034 240 L 1039 218 L 1022 204 L 1043 200 Z" fill="#FFFFFF"/>
+  </g>
+  
+  <!-- Text overlay -->
+  <text x="600" y="100" font-family="Inter, system-ui, sans-serif" font-size="48" font-weight="700" fill="#FFFFFF" text-anchor="middle">
+    ProfitMinds
+  </text>
+  <text x="600" y="570" font-family="Inter, system-ui, sans-serif" font-size="20" font-weight="400" fill="#FFFFFF" text-anchor="middle" opacity="0.95">
+    Financial Education · Custom Merchandise · German Market
+  </text>
+</svg>

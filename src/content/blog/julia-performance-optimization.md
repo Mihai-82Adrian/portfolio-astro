@@ -4,7 +4,7 @@ description: "Learn how Julia achieves C-level performance with Python-like synt
 pubDate: 2025-11-10
 category: 'ai-ml'
 tags: ['julia', 'performance', 'scientific-computing', 'optimization', 'programming']
-heroImage: '/images/blog/julia-performance.jpg'
+heroImage: '/images/blog/julia-performance-optimization-hero.webp'
 draft: false
 featured: true
 ---

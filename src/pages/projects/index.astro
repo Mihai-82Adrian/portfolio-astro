@@ -1,0 +1,566 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/projects/ProjectCard.astro';
+import GitHubWidget from '../../components/projects/GitHubWidget.astro';
+import projectsData from '../../data/projects.json';
+
+const { projects, categories } = projectsData;
+
+const pageTitle = 'Research & Innovation Portfolio';
+const pageDescription = 'Explore cutting-edge AI research projects and innovative e-commerce solutions. From physics-inspired semantic reasoning to quantum-enhanced cognitive computing platforms.';
+---
+
+<BaseLayout 
+  title={pageTitle}
+  description={pageDescription}
+  ogImage="/images/projects/og-projects.jpg"
+>
+  <main class="projects-page">
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-content">
+          <h1 class="hero-title">{pageTitle}</h1>
+          <p class="hero-description">
+            Pioneering innovations at the intersection of artificial intelligence, cognitive computing, and digital commerce.
+            Explore research breakthroughs and practical applications that push technological boundaries.
+          </p>
+        </div>
+
+        <!-- Category Filter Bar -->
+        <div class="filter-bar" role="group" aria-label="Project category filters">
+          <button 
+            class="filter-btn active" 
+            data-filter="all"
+            aria-pressed="true"
+          >
+            <span class="filter-icon" aria-hidden="true">🔍</span>
+            <span>All Projects</span>
+            <span class="filter-count">{projects.length}</span>
+          </button>
+          {categories.map((category) => {
+            const count = projects.filter(p => p.category === category.id).length;
+            return (
+              <button 
+                class="filter-btn" 
+                data-filter={category.id}
+                aria-pressed="false"
+              >
+                <span class="filter-icon" aria-hidden="true">{category.icon}</span>
+                <span>{category.label}</span>
+                <span class="filter-count">{count}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+
+    <!-- Projects Grid -->
+    <section class="projects-section">
+      <div class="container">
+        <div class="projects-grid" role="list">
+          {projects.map((project) => (
+            <div 
+              class="project-item" 
+              data-category={project.category}
+              role="listitem"
+            >
+              <ProjectCard project={project} />
+            </div>
+          ))}
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" hidden>
+          <div class="empty-icon" aria-hidden="true">🔍</div>
+          <h2 class="empty-title">No projects found</h2>
+          <p class="empty-description">Try selecting a different category filter.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" aria-hidden="true">🧠</div>
+            <div class="stat-value">{projects.filter(p => p.category === 'ai-research').length}</div>
+            <div class="stat-label">AI Research Projects</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" aria-hidden="true">🚀</div>
+            <div class="stat-value">{projects.filter(p => p.status.indicator === 'production' || p.status.indicator === 'live').length}</div>
+            <div class="stat-label">Production Systems</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" aria-hidden="true">⚡</div>
+            <div class="stat-value">23+</div>
+            <div class="stat-label">GFLOPS Performance</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" aria-hidden="true">🌐</div>
+            <div class="stat-value">330K+</div>
+            <div class="stat-label">Integrated Lexemes</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GitHub Widget -->
+    <section class="github-section">
+      <div class="container">
+        <GitHubWidget />
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<script>
+  // Client-side filtering functionality with animations
+  document.addEventListener('DOMContentLoaded', () => {
+    const filterButtons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+    const projectItems = document.querySelectorAll<HTMLElement>('.project-item');
+    const emptyState = document.querySelector<HTMLElement>('.empty-state');
+    
+    // Intersection Observer for scroll animations
+    const observerOptions = {
+      threshold: 0.15,
+      rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const scrollObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+          scrollObserver.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+    
+    // Observe all project items for scroll animation
+    projectItems.forEach((item) => {
+      scrollObserver.observe(item);
+    });
+    
+    // Get initial filter from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialFilter = urlParams.get('category') || 'all';
+    
+    // Apply initial filter
+    if (initialFilter !== 'all') {
+      applyFilter(initialFilter);
+    }
+    
+    // Add click handlers to filter buttons
+    filterButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter || 'all';
+        
+        // Update active state
+        filterButtons.forEach(btn => {
+          btn.classList.remove('active');
+          btn.setAttribute('aria-pressed', 'false');
+        });
+        button.classList.add('active');
+        button.setAttribute('aria-pressed', 'true');
+        
+        // Apply filter with animation
+        applyFilter(filter);
+        
+        // Update URL without reload
+        const url = new URL(window.location.href);
+        if (filter === 'all') {
+          url.searchParams.delete('category');
+        } else {
+          url.searchParams.set('category', filter);
+        }
+        window.history.pushState({}, '', url);
+      });
+    });
+    
+    function applyFilter(filter: string) {
+      let visibleCount = 0;
+      
+      projectItems.forEach((item, index) => {
+        const category = item.dataset.category || '';
+        const shouldShow = filter === 'all' || category === filter;
+        
+        if (shouldShow) {
+          // Show with stagger animation
+          item.style.animationDelay = `${index * 0.08}s`;
+          item.hidden = false;
+          item.classList.add('filter-fade-in');
+          visibleCount++;
+        } else {
+          // Hide with fade out
+          item.classList.remove('filter-fade-in');
+          item.classList.add('filter-fade-out');
+          setTimeout(() => {
+            item.hidden = true;
+            item.classList.remove('filter-fade-out');
+          }, 300);
+        }
+      });
+      
+      // Show/hide empty state with animation
+      if (emptyState) {
+        if (visibleCount === 0) {
+          emptyState.hidden = false;
+          emptyState.classList.add('fade-in');
+        } else {
+          emptyState.classList.remove('fade-in');
+          emptyState.hidden = true;
+        }
+      }
+    }
+  });
+</script>
+
+<style>
+  /* Hero Section */
+  .hero {
+    padding: 4rem 0 3rem;
+    background: linear-gradient(135deg, rgba(107, 142, 111, 0.1) 0%, rgba(107, 142, 111, 0.05) 100%);
+  }
+
+  .hero-content {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 3rem;
+  }
+
+  .hero-title {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 1rem;
+    line-height: 1.2;
+  }
+
+  .hero-description {
+    font-size: clamp(1rem, 2vw, 1.125rem);
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Filter Bar */
+  .filter-bar {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .filter-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--color-primary);
+    color: var(--color-text-primary);
+    transform: translateY(-2px);
+  }
+
+  .filter-btn.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+  }
+
+  .filter-icon {
+    font-size: 1.125em;
+    line-height: 1;
+  }
+
+  .filter-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+  }
+
+  .filter-btn.active .filter-count {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Projects Section */
+  .projects-section {
+    padding: 4rem 0;
+  }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 1200px) {
+    .projects-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .project-item[hidden] {
+    display: none;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+  }
+
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  .empty-title {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 0.5rem;
+  }
+
+  .empty-description {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  /* Stats Section */
+  .stats-section {
+    padding: 3rem 0 2rem;
+    background: linear-gradient(135deg, rgba(107, 142, 111, 0.05) 0%, rgba(107, 142, 111, 0.1) 100%);
+  }
+
+  /* GitHub Section */
+  .github-section {
+    padding: 2rem 0 4rem;
+    background: linear-gradient(135deg, rgba(107, 142, 111, 0.1) 0%, rgba(107, 142, 111, 0.05) 100%);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+  }
+
+  .stat-card {
+    text-align: center;
+    padding: 2rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-primary);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat-value {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero {
+      padding: 3rem 0 2rem;
+    }
+
+    .filter-bar {
+      flex-direction: column;
+      padding: 1rem;
+    }
+
+    .filter-btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .projects-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .stat-card {
+      padding: 1.5rem 0.75rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Animations */
+  
+  /* Scroll-triggered fade-in animation */
+  .project-item {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
+                transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .project-item.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Stagger animation for initial load */
+  .project-item:nth-child(1) { transition-delay: 0.05s; }
+  .project-item:nth-child(2) { transition-delay: 0.1s; }
+  .project-item:nth-child(3) { transition-delay: 0.15s; }
+  .project-item:nth-child(4) { transition-delay: 0.2s; }
+  .project-item:nth-child(5) { transition-delay: 0.25s; }
+  .project-item:nth-child(6) { transition-delay: 0.3s; }
+
+  /* Filter transition animations */
+  @keyframes filterFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  @keyframes filterFadeOut {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+  }
+
+  .filter-fade-in {
+    animation: filterFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .filter-fade-out {
+    animation: filterFadeOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  /* Empty state fade in */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .fade-in {
+    animation: fadeIn 0.4s ease-out;
+  }
+
+  /* Smooth height transitions for grid */
+  .projects-grid {
+    transition: height 0.3s ease;
+  }
+
+  /* Enhanced hover effects for stat cards */
+  .stat-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(107, 142, 111, 0.1), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .stat-card:hover::before {
+    left: 100%;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    .project-item,
+    .filter-fade-in,
+    .filter-fade-out,
+    .fade-in,
+    .stat-card,
+    .filter-btn {
+      animation: none !important;
+      transition: none !important;
+    }
+
+    .project-item {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+</BaseLayout>

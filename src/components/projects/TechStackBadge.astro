@@ -1,0 +1,176 @@
+---
+interface Props {
+  tech: {
+    name: string;
+    icon: string;
+    category?: 'language' | 'framework' | 'platform' | 'domain' | 'data' | 'paradigm' | 'service' | 'region';
+  };
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const { tech, size = 'md' } = Astro.props;
+
+const categoryConfig = {
+  language: {
+    color: '#3B82F6',
+    bgColor: 'rgba(59, 130, 246, 0.1)',
+    borderColor: 'rgba(59, 130, 246, 0.3)',
+  },
+  framework: {
+    color: '#A855F7',
+    bgColor: 'rgba(168, 85, 247, 0.1)',
+    borderColor: 'rgba(168, 85, 247, 0.3)',
+  },
+  platform: {
+    color: '#10B981',
+    bgColor: 'rgba(16, 185, 129, 0.1)',
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+  },
+  domain: {
+    color: '#F59E0B',
+    bgColor: 'rgba(245, 158, 11, 0.1)',
+    borderColor: 'rgba(245, 158, 11, 0.3)',
+  },
+  data: {
+    color: '#06B6D4',
+    bgColor: 'rgba(6, 182, 212, 0.1)',
+    borderColor: 'rgba(6, 182, 212, 0.3)',
+  },
+  paradigm: {
+    color: '#EC4899',
+    bgColor: 'rgba(236, 72, 153, 0.1)',
+    borderColor: 'rgba(236, 72, 153, 0.3)',
+  },
+  service: {
+    color: '#8B5CF6',
+    bgColor: 'rgba(139, 92, 246, 0.1)',
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  region: {
+    color: '#EF4444',
+    bgColor: 'rgba(239, 68, 68, 0.1)',
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+  },
+};
+
+const config = categoryConfig[tech.category || 'platform'];
+---
+
+<span 
+  class={`tech-badge badge-${size}`}
+  data-category={tech.category}
+  title={`${tech.name}${tech.category ? ` (${tech.category})` : ''}`}
+>
+  <span class="tech-icon" aria-hidden="true">{tech.icon}</span>
+  <span class="tech-name">{tech.name}</span>
+</span>
+
+<style define:vars={{ 
+  badgeColor: config.color,
+  badgeBg: config.bgColor,
+  badgeBorder: config.borderColor
+}}>
+  .tech-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    background: var(--badgeBg);
+    border: 1px solid var(--badgeBorder);
+    font-family: var(--font-body);
+    font-weight: 500;
+    color: var(--badgeColor);
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    cursor: default;
+  }
+
+  /* Size variants */
+  .badge-sm {
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+    gap: 0.25rem;
+  }
+
+  .badge-md {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    gap: 0.375rem;
+  }
+
+  .badge-lg {
+    padding: 0.375rem 1rem;
+    font-size: 1rem;
+    gap: 0.5rem;
+  }
+
+  .tech-badge:hover {
+    background: var(--badgeColor);
+    color: white;
+    border-color: var(--badgeColor);
+    box-shadow: 0 0 12px var(--badgeBorder);
+    transform: translateY(-1px) scale(1.05);
+  }
+
+  .tech-icon {
+    font-size: 1em;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tech-name {
+    line-height: 1.2;
+  }
+
+  /* Accessibility - focus state */
+  .tech-badge:focus-visible {
+    outline: 2px solid var(--badgeColor);
+    outline-offset: 2px;
+  }
+
+  /* Dark mode adjustments */
+  @media (prefers-color-scheme: dark) {
+    .tech-badge {
+      background: rgba(0, 0, 0, 0.3);
+      border-color: var(--badgeColor);
+    }
+
+    .tech-badge:hover {
+      background: var(--badgeColor);
+      color: white;
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    .tech-badge {
+      border: 1px solid var(--badgeColor);
+      background: white;
+      color: var(--badgeColor);
+    }
+  }
+
+  /* Responsive font sizing */
+  @media (max-width: 768px) {
+    .tech-badge {
+      font-size: 0.875em;
+    }
+  }
+
+  /* Animation for initial load */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .tech-badge {
+    animation: fadeIn 0.3s ease-out;
+  }
+</style>

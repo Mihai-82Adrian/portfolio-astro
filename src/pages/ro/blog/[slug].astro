@@ -71,6 +71,21 @@ const blogPostingSchema = generateBlogPostingSchema(post, Astro.url.toString());
           )}
         </header>
 
+        <!-- Hero Image -->
+        {post.data.heroImage && (
+          <div class="mb-8 -mx-4 sm:mx-0">
+            <img
+              src={post.data.heroImage}
+              alt={title}
+              class="w-full h-auto rounded-lg shadow-lg object-cover"
+              loading="eager"
+              decoding="async"
+              width="1200"
+              height="630"
+            />
+          </div>
+        )}
+
         <!-- Post Meta -->
         <PostMeta
           author={author}

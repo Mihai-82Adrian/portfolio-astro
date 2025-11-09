@@ -1,0 +1,246 @@
+---
+interface Props {
+  metrics: Array<{
+    label: string;
+    value: string;
+    icon: string;
+    description?: string;
+  }>;
+  columns?: 2 | 3 | 4;
+  theme?: 'light' | 'dark';
+}
+
+const { metrics, columns = 4, theme = 'light' } = Astro.props;
+---
+
+<div class={`metrics-grid metrics-cols-${columns}`} data-theme={theme}>
+  {metrics.map((metric) => (
+    <div 
+      class="metric-card"
+      title={metric.description || `${metric.label}: ${metric.value}`}
+    >
+      <div class="metric-icon" aria-hidden="true">
+        {metric.icon}
+      </div>
+      <div class="metric-content">
+        <div class="metric-value">{metric.value}</div>
+        <div class="metric-label">{metric.label}</div>
+      </div>
+      {metric.description && (
+        <span class="sr-only">{metric.description}</span>
+      )}
+    </div>
+  ))}
+</div>
+
+<style>
+  .metrics-grid {
+    display: grid;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  /* Column layouts */
+  .metrics-cols-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-cols-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-cols-4 {
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .metrics-cols-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .metrics-cols-4 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .metrics-cols-3 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .metrics-cols-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .metrics-cols-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .metric-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
+  }
+
+  .metric-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--color-primary);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .metric-icon {
+    font-size: 2rem;
+    line-height: 1;
+    margin-bottom: 0.75rem;
+    filter: grayscale(0.3);
+    transition: filter 0.3s ease;
+  }
+
+  .metric-card:hover .metric-icon {
+    filter: grayscale(0);
+    transform: scale(1.1);
+  }
+
+  .metric-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .metric-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1.2;
+    font-family: var(--font-heading);
+  }
+
+  .metric-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    line-height: 1.4;
+    font-family: var(--font-body);
+  }
+
+  /* Screen reader only text */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Dark theme adjustments */
+  [data-theme="dark"] .metric-card {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  [data-theme="dark"] .metric-card:hover {
+    background: rgba(0, 0, 0, 0.5);
+    border-color: var(--color-primary);
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    .metrics-grid {
+      gap: 0.75rem;
+    }
+
+    .metric-card {
+      padding: 1rem 0.75rem;
+    }
+
+    .metric-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .metric-value {
+      font-size: 1.25rem;
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .metric-value {
+      font-size: 1.375rem;
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    .metric-card {
+      break-inside: avoid;
+      border: 1px solid #ccc;
+      background: white;
+    }
+
+    .metric-card:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  /* Animation on scroll */
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .metric-card {
+    animation: slideUp 0.5s ease-out;
+  }
+
+  /* Stagger animation for multiple cards */
+  .metric-card:nth-child(1) { animation-delay: 0.1s; }
+  .metric-card:nth-child(2) { animation-delay: 0.2s; }
+  .metric-card:nth-child(3) { animation-delay: 0.3s; }
+  .metric-card:nth-child(4) { animation-delay: 0.4s; }
+  .metric-card:nth-child(5) { animation-delay: 0.5s; }
+  .metric-card:nth-child(6) { animation-delay: 0.6s; }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .metric-card {
+      animation: none;
+      transition: none;
+    }
+
+    .metric-card:hover {
+      transform: none;
+    }
+  }
+
+  /* Focus styles for accessibility */
+  .metric-card:focus-within {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+</style>

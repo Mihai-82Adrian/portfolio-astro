@@ -4,7 +4,7 @@ description: "Demystify Rust's lifetime annotations with practical examples, com
 pubDate: 2025-11-09
 category: 'ai-ml'
 tags: ['rust', 'programming', 'memory-safety', 'systems-programming', 'tutorial']
-heroImage: '/images/blog/rust-lifetimes.jpg'
+heroImage: '/images/blog/rust-lifetimes.webp'
 draft: false
 featured: true
 ---
