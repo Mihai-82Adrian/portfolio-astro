@@ -8,6 +8,7 @@ import PostMeta from '@/components/blog/PostMeta.astro';
 import TableOfContents from '@/components/blog/TableOfContents.astro';
 import LearningDisclaimer from '@/components/blog/LearningDisclaimer.astro';
 import ShareButtons from '@/components/blog/ShareButtons.astro';
+import Comments from '@/components/blog/Comments.astro';
 import { calculateReadingTime } from '@/utils/readingTime';
 import { generateBlogPostingSchema } from '@/utils/structuredData';
 import { getRelatedPosts } from '@/lib/utils/relatedPosts';
@@ -184,6 +185,9 @@ const blogPostingSchema = generateBlogPostingSchema(post, Astro.url.toString());
         </div>
       </section>
     )}
+
+    <!-- Comments Section -->
+    <Comments />
   </Container>
 </BaseLayout>
 

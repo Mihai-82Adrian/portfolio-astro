@@ -1,0 +1,157 @@
+---
+/**
+ * Giscus Comments Component
+ * 
+ * GitHub Discussions-powered comment system with dark/light mode support.
+ * Requires GitHub Discussions to be enabled on the repository.
+ * 
+ * Configuration:
+ * - Repository: Mihai-82Adrian/portfolio-astro
+ * - Mapping: pathname (URL-based, best for blogs)
+ * - Theme: Matches site's light/dark mode automatically
+ * 
+ * @component
+ */
+
+interface Props {
+  /** Optional custom class for styling */
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+
+// Giscus configuration
+const REPO = "Mihai-82Adrian/portfolio-astro";
+const REPO_ID = "R_kgDOQTF7rw"; // Get from https://giscus.app after setup
+const CATEGORY = "General"; // Default category
+const CATEGORY_ID = "DIC_kwDOQTF7r84ClL8Q"; // Get from https://giscus.app after setup
+---
+
+<div class:list={["giscus-container", className]}>
+  <div 
+    class="giscus"
+    data-repo={REPO}
+    data-repo-id={REPO_ID}
+    data-category={CATEGORY}
+    data-category-id={CATEGORY_ID}
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="preferred_color_scheme"
+    data-lang="en"
+    data-loading="lazy"
+    crossorigin="anonymous"
+  ></div>
+</div>
+
+<script>
+  /**
+   * Dynamically load Giscus script and handle theme changes
+   */
+  function initializeGiscus() {
+    // Load Giscus script
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.setAttribute('data-repo', 'Mihai-82Adrian/portfolio-astro');
+    script.setAttribute('data-repo-id', 'R_kgDOQTF7rw');
+    script.setAttribute('data-category', 'General');
+    script.setAttribute('data-category-id', 'DIC_kwDOQTF7r84ClL8Q');
+    script.setAttribute('data-mapping', 'pathname');
+    script.setAttribute('data-strict', '0');
+    script.setAttribute('data-reactions-enabled', '1');
+    script.setAttribute('data-emit-metadata', '0');
+    script.setAttribute('data-input-position', 'top');
+    script.setAttribute('data-theme', 'preferred_color_scheme');
+    script.setAttribute('data-lang', 'en');
+    script.setAttribute('data-loading', 'lazy');
+    script.setAttribute('crossorigin', 'anonymous');
+    script.async = true;
+
+    const container = document.querySelector('.giscus');
+    if (container) {
+      container.appendChild(script);
+    }
+  }
+
+  /**
+   * Handle theme changes and update Giscus theme
+   */
+  function handleThemeChange() {
+    const iframe = document.querySelector<HTMLIFrameElement>('.giscus-frame');
+    if (!iframe) return;
+
+    const theme = document.documentElement.classList.contains('dark')
+      ? 'dark'
+      : 'light';
+
+    // Send theme change message to Giscus iframe
+    iframe.contentWindow?.postMessage(
+      {
+        giscus: {
+          setConfig: {
+            theme: theme,
+          },
+        },
+      },
+      'https://giscus.app'
+    );
+  }
+
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeGiscus);
+  } else {
+    initializeGiscus();
+  }
+
+  // Listen for theme toggle changes
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (
+        mutation.type === 'attributes' &&
+        mutation.attributeName === 'class'
+      ) {
+        handleThemeChange();
+      }
+    });
+  });
+
+  // Observe the html element for class changes (dark mode toggle)
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class'],
+  });
+
+  // Handle initial theme on iframe load
+  window.addEventListener('message', (event) => {
+    if (event.origin !== 'https://giscus.app') return;
+    
+    // Wait a bit for iframe to be fully loaded
+    if (event.data?.giscus?.discussion) {
+      setTimeout(handleThemeChange, 100);
+    }
+  });
+</script>
+
+<style>
+  .giscus-container {
+    @apply mt-12 pt-8 border-t border-light-border dark:border-dark-border;
+  }
+
+  .giscus {
+    @apply w-full;
+  }
+
+  /* Ensure iframe takes full width */
+  :global(.giscus-frame) {
+    @apply w-full;
+  }
+
+  /* Add spacing for better visual separation */
+  .giscus-container::before {
+    content: 'Comments';
+    @apply block mb-6 text-2xl font-bold text-text-primary-light dark:text-text-primary-dark;
+  }
+</style>
