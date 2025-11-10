@@ -469,6 +469,32 @@ using BenchmarkTools
 6. **Profile before optimizing** - Measure, don't guess
 7. **Vectorize when possible** - But don't sacrifice readability
 
+## Mathematical Foundations
+
+Julia's performance in scientific computing relies on efficient numerical operations. Consider the Black-Scholes formula for option pricing:
+
+$$
+C(S, t) = N(d_1)S - N(d_2)Ke^{-r(T-t)}
+$$
+
+where:
+
+$$
+d_1 = \frac{\ln(S/K) + (r + \sigma^2/2)(T-t)}{\sigma\sqrt{T-t}}
+$$
+
+$$
+d_2 = d_1 - \sigma\sqrt{T-t}
+$$
+
+In Julia, implementing this numerically stable formula is straightforward while maintaining C-level performance. The sum of squares formula can be expressed as:
+
+$$
+\sum_{i=1}^{n} i^2 = \frac{n(n+1)(2n+1)}{6}
+$$
+
+This closed-form solution is $O(1)$ versus $O(n)$ for iterative computation.
+
 ## Julia vs. Other Languages
 
 For numerical computing:

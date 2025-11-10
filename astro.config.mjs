@@ -110,8 +110,18 @@ export default defineConfig({
       ],
     },
     // Enable GFM and smartypants for better markdown processing
-    remarkPlugins: [],
-    rehypePlugins: [],
+    remarkPlugins: [
+      'remark-math', // Parse math syntax in markdown
+    ],
+    rehypePlugins: [
+      ['rehype-katex', {
+        // KaTeX options
+        strict: false,
+        throwOnError: false,
+        trust: false,
+        output: 'html',
+      }],
+    ],
   },
   build: {
     format: 'directory',
