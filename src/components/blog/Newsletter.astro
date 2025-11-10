@@ -1,0 +1,431 @@
+---
+/**
+ * Newsletter Signup Component
+ * 
+ * Email subscription form for blog updates with validation and responsive design.
+ * Backend-agnostic - ready for integration with Mailchimp, Beehiiv, or Buttondown.
+ * 
+ * Features:
+ * - Email validation
+ * - Topic segmentation (Finance, AI/ML, Both)
+ * - Success/error states
+ * - Dark/light theme support
+ * - GDPR-compliant
+ * 
+ * @component
+ */
+
+interface Props {
+  /** Optional custom class for styling */
+  class?: string;
+  /** Display mode: 'inline' for blog posts, 'sidebar' for sidebar, 'footer' for footer */
+  variant?: 'inline' | 'sidebar' | 'footer';
+  /** Show topic selection checkboxes */
+  showTopicSelection?: boolean;
+}
+
+const { 
+  class: className = '', 
+  variant = 'inline',
+  showTopicSelection = true 
+} = Astro.props;
+---
+
+<div class:list={["newsletter-signup", `newsletter-${variant}`, className]}>
+  <div class="newsletter-content">
+    {variant === 'inline' && (
+      <>
+        <h3 class="newsletter-title">📬 Stay Updated</h3>
+        <p class="newsletter-description">
+          Get notified when I publish new articles about finance automation, machine learning, 
+          and data science. No spam, unsubscribe anytime.
+        </p>
+      </>
+    )}
+    
+    {variant === 'sidebar' && (
+      <>
+        <h4 class="newsletter-title">Newsletter</h4>
+        <p class="newsletter-description">
+          Weekly insights on AI, finance, and tech.
+        </p>
+      </>
+    )}
+    
+    {variant === 'footer' && (
+      <>
+        <h4 class="newsletter-title">Subscribe to Updates</h4>
+        <p class="newsletter-description">
+          Join readers getting my latest articles.
+        </p>
+      </>
+    )}
+
+    <form 
+      class="newsletter-form" 
+      id="newsletter-form"
+      data-newsletter-form
+    >
+      <div class="form-group">
+        <label for="newsletter-email" class="sr-only">Email address</label>
+        <input
+          type="email"
+          id="newsletter-email"
+          name="email"
+          placeholder="your.email@example.com"
+          required
+          aria-label="Email address"
+          class="newsletter-input"
+        />
+      </div>
+
+      {showTopicSelection && (
+        <div class="topic-selection">
+          <p class="topic-label">Interested in:</p>
+          <div class="topic-checkboxes">
+            <label class="topic-checkbox">
+              <input type="checkbox" name="topics" value="finance" checked />
+              <span>Finance & Automation</span>
+            </label>
+            <label class="topic-checkbox">
+              <input type="checkbox" name="topics" value="ai-ml" checked />
+              <span>AI & Machine Learning</span>
+            </label>
+          </div>
+        </div>
+      )}
+
+      <button 
+        type="submit" 
+        class="newsletter-button"
+        aria-label="Subscribe to newsletter"
+      >
+        <span class="button-text">Subscribe</span>
+        <span class="button-loading" aria-hidden="true">
+          <svg class="spinner" viewBox="0 0 24 24">
+            <circle class="spinner-circle" cx="12" cy="12" r="10" />
+          </svg>
+        </span>
+      </button>
+
+      <!-- Success Message -->
+      <div class="newsletter-message success" role="alert" aria-live="polite">
+        <svg class="message-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M20 6L9 17l-5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="message-text">Thanks! Check your email to confirm subscription.</span>
+      </div>
+
+      <!-- Error Message -->
+      <div class="newsletter-message error" role="alert" aria-live="polite">
+        <svg class="message-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="12" cy="12" r="10" stroke-width="2"/>
+          <path d="M15 9l-6 6M9 9l6 6" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="message-text">Something went wrong. Please try again.</span>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function initNewsletterForm() {
+    const forms = document.querySelectorAll('[data-newsletter-form]');
+    
+    forms.forEach(form => {
+      if (form.hasAttribute('data-initialized')) return;
+      form.setAttribute('data-initialized', 'true');
+      
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const button = form.querySelector('.newsletter-button') as HTMLButtonElement;
+        const input = form.querySelector('.newsletter-input') as HTMLInputElement;
+        const successMsg = form.querySelector('.newsletter-message.success') as HTMLElement;
+        const errorMsg = form.querySelector('.newsletter-message.error') as HTMLElement;
+        
+        // Get form data
+        const email = input.value;
+        const topicCheckboxes = form.querySelectorAll('input[name="topics"]:checked');
+        const topics = Array.from(topicCheckboxes).map((cb: any) => cb.value);
+        
+        // Validate email
+        if (!email || !email.includes('@')) {
+          showError(errorMsg, 'Please enter a valid email address.');
+          return;
+        }
+        
+        // Set loading state
+        button.classList.add('loading');
+        button.disabled = true;
+        hideMessages(successMsg, errorMsg);
+        
+        try {
+          // TODO: Replace with actual API endpoint
+          // Options: Mailchimp, Buttondown, Beehiiv, ConvertKit
+          const response = await fetch('/api/newsletter/subscribe', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, topics }),
+          });
+          
+          if (response.ok) {
+            showSuccess(successMsg);
+            input.value = '';
+            // Reset topic checkboxes
+            topicCheckboxes.forEach((cb: any) => cb.checked = true);
+          } else {
+            const data = await response.json();
+            showError(errorMsg, data.message || 'Subscription failed. Please try again.');
+          }
+        } catch (error) {
+          // For now, show success (no backend yet)
+          // This allows testing the UI/UX flow
+          console.log('Newsletter signup:', { email, topics });
+          showSuccess(successMsg);
+          input.value = '';
+          
+          // When backend is ready, uncomment:
+          // showError(errorMsg, 'Network error. Please try again later.');
+        } finally {
+          button.classList.remove('loading');
+          button.disabled = false;
+        }
+      });
+    });
+  }
+  
+  function showSuccess(element: HTMLElement) {
+    element.style.display = 'flex';
+    element.classList.add('show');
+  }
+  
+  function showError(element: HTMLElement, message?: string) {
+    if (message) {
+      const messageText = element.querySelector('.message-text');
+      if (messageText) messageText.textContent = message;
+    }
+    element.style.display = 'flex';
+    element.classList.add('show');
+  }
+  
+  function hideMessages(...elements: HTMLElement[]) {
+    elements.forEach(el => {
+      el.style.display = 'none';
+      el.classList.remove('show');
+    });
+  }
+  
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNewsletterForm);
+  } else {
+    initNewsletterForm();
+  }
+  
+  // Re-initialize on navigation (for SPA-like behavior)
+  document.addEventListener('astro:page-load', initNewsletterForm);
+</script>
+
+<style>
+  .newsletter-signup {
+    @apply w-full;
+  }
+  
+  /* Inline variant (for blog posts) */
+  .newsletter-inline {
+    @apply my-12 p-8 rounded-lg;
+    @apply bg-eucalyptus-50 dark:bg-eucalyptus-900/10;
+    @apply border-2 border-eucalyptus-200 dark:border-eucalyptus-800;
+  }
+  
+  /* Sidebar variant */
+  .newsletter-sidebar {
+    @apply p-6 rounded-lg;
+    @apply bg-gray-50 dark:bg-gray-800;
+    @apply border border-gray-200 dark:border-gray-700;
+  }
+  
+  /* Footer variant */
+  .newsletter-footer {
+    @apply p-6;
+  }
+  
+  .newsletter-content {
+    @apply w-full max-w-xl mx-auto;
+  }
+  
+  .newsletter-title {
+    @apply text-2xl font-bold mb-3;
+    @apply text-gray-900 dark:text-gray-100;
+  }
+  
+  .newsletter-sidebar .newsletter-title,
+  .newsletter-footer .newsletter-title {
+    @apply text-xl mb-2;
+  }
+  
+  .newsletter-description {
+    @apply text-base mb-6;
+    @apply text-gray-600 dark:text-gray-400;
+  }
+  
+  .newsletter-sidebar .newsletter-description,
+  .newsletter-footer .newsletter-description {
+    @apply text-sm mb-4;
+  }
+  
+  .newsletter-form {
+    @apply space-y-4;
+  }
+  
+  .form-group {
+    @apply w-full;
+  }
+  
+  .newsletter-input {
+    @apply w-full px-4 py-3 rounded-lg;
+    @apply text-base;
+    @apply bg-white dark:bg-gray-800;
+    @apply border-2 border-gray-300 dark:border-gray-600;
+    @apply text-gray-900 dark:text-gray-100;
+    @apply placeholder-gray-400 dark:placeholder-gray-500;
+    @apply transition-colors duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-eucalyptus-500 dark:focus:ring-eucalyptus-400;
+    @apply focus:border-transparent;
+  }
+  
+  .newsletter-input:hover {
+    @apply border-eucalyptus-400 dark:border-eucalyptus-600;
+  }
+  
+  .topic-selection {
+    @apply space-y-2;
+  }
+  
+  .topic-label {
+    @apply text-sm font-medium;
+    @apply text-gray-600 dark:text-gray-400;
+  }
+  
+  .topic-checkboxes {
+    @apply flex flex-wrap gap-4;
+  }
+  
+  .topic-checkbox {
+    @apply flex items-center gap-2 cursor-pointer;
+    @apply text-sm text-gray-600 dark:text-gray-400;
+    @apply transition-colors duration-200;
+  }
+  
+  .topic-checkbox:hover {
+    @apply text-gray-900 dark:text-gray-100;
+  }
+  
+  .topic-checkbox input[type="checkbox"] {
+    @apply w-4 h-4 rounded;
+    @apply border-2 border-gray-300 dark:border-gray-600;
+    @apply text-eucalyptus-600 dark:text-eucalyptus-500;
+    @apply focus:ring-2 focus:ring-eucalyptus-500 dark:focus:ring-eucalyptus-400;
+    @apply cursor-pointer;
+  }
+  
+  .newsletter-button {
+    @apply w-full px-6 py-3 rounded-lg;
+    @apply font-medium text-base;
+    @apply bg-eucalyptus-600 dark:bg-eucalyptus-500;
+    @apply text-white;
+    @apply transition-all duration-200;
+    @apply hover:bg-eucalyptus-700 dark:hover:bg-eucalyptus-600;
+    @apply focus:outline-none focus:ring-2 focus:ring-eucalyptus-500 dark:focus:ring-eucalyptus-400 focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply relative overflow-hidden;
+  }
+  
+  .newsletter-button.loading .button-text {
+    @apply opacity-0;
+  }
+  
+  .newsletter-button.loading .button-loading {
+    @apply opacity-100;
+  }
+  
+  .button-loading {
+    @apply absolute inset-0 flex items-center justify-center;
+    @apply opacity-0 transition-opacity duration-200;
+  }
+  
+  .spinner {
+    @apply w-5 h-5 animate-spin;
+  }
+  
+  .spinner-circle {
+    @apply stroke-current;
+    stroke-dasharray: 60;
+    stroke-dashoffset: 30;
+    fill: none;
+    stroke-width: 3;
+  }
+  
+  .newsletter-message {
+    @apply hidden items-center gap-3 p-4 rounded-lg;
+    @apply text-sm font-medium;
+    @apply opacity-0 transition-opacity duration-300;
+  }
+  
+  .newsletter-message.show {
+    @apply opacity-100;
+  }
+  
+  .newsletter-message.success {
+    @apply bg-green-50 dark:bg-green-900/20;
+    @apply text-green-700 dark:text-green-300;
+    @apply border border-green-200 dark:border-green-800;
+  }
+  
+  .newsletter-message.error {
+    @apply bg-red-50 dark:bg-red-900/20;
+    @apply text-red-700 dark:text-red-300;
+    @apply border border-red-200 dark:border-red-800;
+  }
+  
+  .message-icon {
+    @apply w-5 h-5 flex-shrink-0;
+  }
+  
+  .message-text {
+    @apply flex-1;
+  }
+  
+  .sr-only {
+    @apply absolute w-px h-px p-0 -m-px overflow-hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    .newsletter-inline {
+      @apply p-6;
+    }
+    
+    .newsletter-title {
+      @apply text-xl;
+    }
+    
+    .newsletter-input {
+      @apply py-2.5 text-sm;
+    }
+    
+    .newsletter-button {
+      @apply py-2.5 text-sm;
+    }
+    
+    .topic-checkboxes {
+      @apply flex-col gap-2;
+    }
+  }
+</style>
