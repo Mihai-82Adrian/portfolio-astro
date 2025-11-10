@@ -88,72 +88,145 @@ const filteredHeadings = headings.filter((h) => h.depth <= 3);
 )}
 
 <script>
-  // Mobile toggle functionality
-  const tocToggle = document.getElementById('toc-toggle');
-  const tocContent = document.getElementById('toc-content');
+  function initTableOfContents() {
+    // Mobile toggle functionality
+    const tocToggle = document.getElementById('toc-toggle');
+    const tocContent = document.getElementById('toc-content');
 
-  if (tocToggle && tocContent) {
-    tocToggle.addEventListener('click', () => {
-      const isExpanded = tocToggle.getAttribute('aria-expanded') === 'true';
-      tocToggle.setAttribute('aria-expanded', String(!isExpanded));
-      tocContent.classList.toggle('hidden');
+    if (tocToggle && tocContent) {
+      tocToggle.addEventListener('click', () => {
+        const isExpanded = tocToggle.getAttribute('aria-expanded') === 'true';
+        tocToggle.setAttribute('aria-expanded', String(!isExpanded));
+        tocContent.classList.toggle('hidden');
 
-      // Rotate icon
-      const icon = tocToggle.querySelector('.toc-toggle-icon');
-      if (icon) {
-        icon.classList.toggle('rotate-180');
-      }
-    });
-  }
+        // Rotate icon
+        const icon = tocToggle.querySelector('.toc-toggle-icon');
+        if (icon) {
+          icon.classList.toggle('rotate-180');
+        }
+      });
+    }
 
-  // Scroll-spy functionality
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        const id = entry.target.getAttribute('id');
-        const link = document.querySelector(`[data-toc-link="${id}"]`);
+    // Enhanced scroll-spy functionality
+    let currentActiveLink: Element | null = null;
 
-        if (link) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const id = entry.target.getAttribute('id');
+          if (!id) return;
+          
+          const link = document.querySelector(`[data-toc-link="${id}"]`);
+          if (!link) return;
+
           if (entry.isIntersecting) {
-            // Remove active class from all links
-            document.querySelectorAll('[data-toc-link]').forEach((l) => {
-              l.classList.remove('toc-link-active');
-            });
+            // Remove active class from previous link
+            if (currentActiveLink && currentActiveLink !== link) {
+              currentActiveLink.classList.remove('toc-link-active');
+            }
+            
             // Add active class to current link
             link.classList.add('toc-link-active');
+            currentActiveLink = link;
+
+            // Scroll TOC to show active link (desktop)
+            if (window.innerWidth >= 768) {
+              const tocWrapper = document.querySelector('.toc-wrapper');
+              const tocLink = link as HTMLElement;
+              if (tocWrapper && tocLink) {
+                const tocRect = tocWrapper.getBoundingClientRect();
+                const linkRect = tocLink.getBoundingClientRect();
+                
+                // Scroll if link is not fully visible
+                if (linkRect.top < tocRect.top || linkRect.bottom > tocRect.bottom) {
+                  tocLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+              }
+            }
+          }
+        });
+      },
+      {
+        rootMargin: '-100px 0px -66%',
+        threshold: [0, 0.25, 0.5, 0.75, 1],
+      }
+    );
+
+    // Observe all headings
+    const headings = document.querySelectorAll('h2[id], h3[id]');
+    headings.forEach((heading) => {
+      observer.observe(heading);
+    });
+
+    // Set initial active link on page load
+    setTimeout(() => {
+      const hash = window.location.hash.slice(1);
+      if (hash) {
+        const link = document.querySelector(`[data-toc-link="${hash}"]`);
+        if (link) {
+          link.classList.add('toc-link-active');
+          currentActiveLink = link;
+        }
+      } else if (headings.length > 0) {
+        // Activate first heading if no hash
+        const firstHeading = headings[0];
+        const id = firstHeading.getAttribute('id');
+        if (id) {
+          const link = document.querySelector(`[data-toc-link="${id}"]`);
+          if (link) {
+            link.classList.add('toc-link-active');
+            currentActiveLink = link;
+          }
+        }
+      }
+    }, 100);
+
+    // Smooth scroll to heading on click
+    document.querySelectorAll('[data-toc-link]').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const id = link.getAttribute('data-toc-link');
+        const target = document.getElementById(id || '');
+
+        if (target) {
+          const yOffset = -100; // Offset for fixed header
+          const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
+
+          window.scrollTo({ top: y, behavior: 'smooth' });
+
+          // Update URL hash
+          history.pushState(null, '', `#${id}`);
+
+          // Update active link
+          if (currentActiveLink) {
+            currentActiveLink.classList.remove('toc-link-active');
+          }
+          link.classList.add('toc-link-active');
+          currentActiveLink = link;
+
+          // Close mobile TOC after selection
+          if (window.innerWidth < 768 && tocToggle && tocContent) {
+            tocToggle.setAttribute('aria-expanded', 'false');
+            tocContent.classList.add('hidden');
+            const icon = tocToggle.querySelector('.toc-toggle-icon');
+            if (icon) {
+              icon.classList.remove('rotate-180');
+            }
           }
         }
       });
-    },
-    {
-      rootMargin: '-100px 0px -66%',
-      threshold: 0,
-    }
-  );
-
-  // Observe all headings
-  document.querySelectorAll('h2[id], h3[id]').forEach((heading) => {
-    observer.observe(heading);
-  });
-
-  // Smooth scroll to heading on click
-  document.querySelectorAll('[data-toc-link]').forEach((link) => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const id = link.getAttribute('data-toc-link');
-      const target = document.getElementById(id || '');
-
-      if (target) {
-        const yOffset = -100; // Offset for fixed header
-        const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
-
-        window.scrollTo({ top: y, behavior: 'smooth' });
-
-        // Update URL hash
-        history.pushState(null, '', `#${id}`);
-      }
     });
-  });
+  }
+
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTableOfContents);
+  } else {
+    initTableOfContents();
+  }
+
+  // Re-initialize on navigation (for SPA-like behavior)
+  document.addEventListener('astro:page-load', initTableOfContents);
 </script>
 
 <style>
@@ -163,17 +236,20 @@ const filteredHeadings = headings.filter((h) => h.depth <= 3);
 
   .toc-container {
     @apply rounded-lg;
-    @apply border border-light-border dark:border-dark-border;
-    @apply bg-light-surface dark:bg-dark-surface;
+    @apply border border-gray-200 dark:border-gray-700;
+    @apply bg-white dark:bg-gray-800;
   }
 
   /* Mobile Toggle */
   .toc-toggle {
     @apply w-full flex items-center justify-between;
     @apply p-4 md:hidden;
-    @apply text-text-primary-light dark:text-text-primary-dark;
-    @apply  rounded-lg;
-    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+    @apply text-gray-900 dark:text-gray-100;
+    @apply rounded-lg;
+  }
+  
+  .toc-toggle:focus-visible {
+    @apply outline-none ring-2 ring-eucalyptus-500 ring-offset-2;
   }
 
   .toc-title {
@@ -201,7 +277,7 @@ const filteredHeadings = headings.filter((h) => h.depth <= 3);
 
   .toc-heading {
     @apply text-sm font-semibold uppercase tracking-wide mb-4;
-    @apply text-text-secondary-light dark:text-text-secondary-dark;
+    @apply text-gray-600 dark:text-gray-400;
   }
 
   .toc-list {
@@ -223,12 +299,15 @@ const filteredHeadings = headings.filter((h) => h.depth <= 3);
 
   .toc-link {
     @apply block py-1 text-sm;
-    @apply text-text-secondary-light dark:text-text-secondary-dark;
+    @apply text-gray-600 dark:text-gray-400;
     @apply hover:text-eucalyptus-700 dark:hover:text-eucalyptus-300;
     @apply transition-colors duration-150;
-    @apply  rounded;
-    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+    @apply rounded;
     text-decoration: none;
+  }
+  
+  .toc-link:focus-visible {
+    @apply outline-none ring-2 ring-eucalyptus-500 ring-offset-2;
   }
 
   /* Active link indicator */
@@ -256,7 +335,7 @@ const filteredHeadings = headings.filter((h) => h.depth <= 3);
   }
 
   .toc-wrapper::-webkit-scrollbar-track {
-    @apply bg-light-surface dark:bg-dark-surface;
+    @apply bg-white dark:bg-gray-800;
     border-radius: 3px;
   }
 
