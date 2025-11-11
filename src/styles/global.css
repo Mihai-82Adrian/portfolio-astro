@@ -49,6 +49,9 @@
   --text-inverse: #E8E6E1;     /* Inverse text (on dark backgrounds) */
 
   --border-color: #E8E4DD;     /* Default borders */
+  
+  /* Primary brand color - Eucalyptus */
+  --color-primary: #4A6B4E;    /* eucalyptus-700 for light mode (darker for better contrast) */
   --border-subtle: #F5F3F0;    /* Subtle borders */
 
   --accent-primary: #6B8E6F;   /* Eucalyptus green */
@@ -101,6 +104,9 @@
   --link-color: #9FBFA8;       /* Link color (lighter for dark mode AAA) */
   --link-hover: #8BC299;       /* Link hover */
   --link-visited: #C9B89B;     /* Visited link (warm gold) */
+
+  /* Primary brand color - Eucalyptus (lighter for dark mode) */
+  --color-primary: #8BC299;    /* eucalyptus-300 for dark mode (lighter for better visibility) */
 
   /* Semantic Colors (adjusted for dark mode) */
   --success: #8BC299;
@@ -259,16 +265,21 @@
   /* Primary button (eucalyptus green) */
   .btn-primary {
     @apply btn;
-    @apply bg-eucalyptus-600 text-white;
+    @apply bg-eucalyptus-600;
+    color: white !important; /* Force white text - WCAG AAA 7.5:1 contrast */
     @apply hover:bg-eucalyptus-700;
     @apply focus-visible:ring-eucalyptus-500;
     @apply dark:bg-eucalyptus-400 dark:text-eucalyptus-950;
     @apply dark:hover:bg-eucalyptus-300;
 
     /* WCAG AAA Compliance:
-       Light mode: eucalyptus-600 (#5A7961) on white = 7.5:1 ✓
-       Dark mode: eucalyptus-400 (#7BA888) on eucalyptus-950 (#1A211D) = 8.2:1 ✓
+       Light mode: White text on eucalyptus-600 (#5A7961) = 7.5:1 contrast ✓
+       Dark mode: eucalyptus-950 text on eucalyptus-400 (#7BA888) = 8.2:1 ✓
     */
+  }
+  
+  .btn-primary:hover {
+    color: white !important; /* Force white text on hover too */
   }
 
   /* Secondary button (solid taupe) */
@@ -317,11 +328,11 @@
     @apply prose prose-lg max-w-prose;
     @apply prose-headings:text-text-primary-light;
     @apply prose-p:text-text-primary-light;
-    @apply prose-a:text-eucalyptus-700;
+    @apply prose-a:text-eucalyptus-800 prose-a:underline prose-a:decoration-eucalyptus-600/50;
     @apply dark:prose-dark;
     @apply dark:prose-headings:text-text-primary-dark;
     @apply dark:prose-p:text-text-primary-dark;
-    @apply dark:prose-a:text-eucalyptus-300;
+    @apply dark:prose-a:text-eucalyptus-200 dark:prose-a:decoration-eucalyptus-400/50;
   }
 }
 

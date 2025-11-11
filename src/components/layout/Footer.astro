@@ -8,6 +8,16 @@
  * @component
  */
 
+import { translations } from '@data/translations';
+import type { Language } from '@utils/i18n';
+
+// Get language from parent layout
+interface Props {
+  lang?: Language;
+}
+
+const { lang = 'de' } = Astro.props;
+
 const currentYear = new Date().getFullYear();
 
 const socialLinks = [
@@ -31,10 +41,12 @@ const socialLinks = [
   },
 ];
 
-// Detect current language from URL path
+// Use language from prop instead of URL detection
 const currentPath = Astro.url.pathname;
-const currentLang = currentPath.startsWith('/en/') || currentPath === '/en' ? 'en' : 
-                   currentPath.startsWith('/ro/') || currentPath === '/ro' ? 'ro' : 'de';
+const currentLang = lang;
+
+// Get translations for current language
+const t = translations[currentLang];
 
 // Generate the base path for the current language
 const basePath = currentLang === 'de' ? '' : `/${currentLang}`;
@@ -45,7 +57,7 @@ const footerLinks = [
   { href: `${basePath}/about`, label: 'About' },
   { href: `/projects`, label: 'Projects' }, // Always main version
   { href: `/blog`, label: 'Blog' }, // Always main version
-  { href: `${basePath}/contact`, label: 'Contact' },
+  // Contact info is inline on homepage at #contact
 ];
 
 const legalLinks = [
@@ -73,8 +85,7 @@ const languages = [
           <span class="text-2xl font-bold text-gradient">MAM</span>
         </div>
         <p class="text-text-secondary-light dark:text-text-secondary-dark mb-6 max-w-md">
-          Finanzbuchhalter mit Leidenschaft für Zahlen und kontinuierliches Lernen. 
-          Aktuell: Weiterbildung zum Bilanzbuchhalter (IHK). Hobby: Technologie-Exploration.
+          {t.footer.description}
         </p>
 
         <!-- Social Links -->
@@ -222,15 +233,17 @@ const languages = [
 
 <style>
   .footer-link {
-    @apply text-text-secondary-light dark:text-text-secondary-dark;
-    @apply hover:text-eucalyptus-700 dark:hover:text-eucalyptus-300;
+    @apply text-eucalyptus-800 dark:text-eucalyptus-200;
+    @apply underline decoration-eucalyptus-600/50 dark:decoration-eucalyptus-400/50;
+    @apply hover:text-eucalyptus-900 dark:hover:text-eucalyptus-100;
+    @apply hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300;
     @apply transition-colors duration-150;
-    @apply  rounded;
+    @apply rounded;
     &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
   }
 
   .social-link {
-    @apply p-2 rounded-lg;
+    @apply p-3 rounded-lg min-w-[44px] min-h-[44px] flex items-center justify-center;
     @apply text-text-secondary-light dark:text-text-secondary-dark;
     @apply hover:text-eucalyptus-700 dark:hover:text-eucalyptus-300;
     @apply hover:bg-eucalyptus-50 dark:hover:bg-dark-elevated;

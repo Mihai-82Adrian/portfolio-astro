@@ -30,6 +30,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
 <BaseLayout 
   title={`${project.title} - Projects`}
   description={project.tagline}
+  lang="en"
   ogImage={project.heroImage}
 >
   <main class="project-detail" data-project-id={project.id}>
@@ -285,15 +286,15 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
   }
 
   .btn-primary {
-    background: var(--theme-color);
-    color: white;
-    border: 2px solid var(--theme-color);
+    background: var(--theme-color, #5A7961);
+    color: white !important;
+    border: 2px solid var(--theme-color, #5A7961);
   }
 
   .btn-primary:hover {
-    background: transparent;
-    color: var(--theme-color);
-    box-shadow: 0 0 20px var(--theme-color);
+    background: var(--theme-color, #4A6451);
+    color: white !important;
+    box-shadow: 0 0 20px var(--theme-color, #5A7961);
   }
 
   .btn-secondary {

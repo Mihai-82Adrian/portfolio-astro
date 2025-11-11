@@ -192,13 +192,13 @@
   .header-link {
     font-size: 0.9375rem;
     font-weight: 600;
-    color: var(--color-primary);
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+    @apply hover:text-eucalyptus-800 dark:hover:text-eucalyptus-200;
     text-decoration: none;
     transition: all 0.2s ease;
   }
 
   .header-link:hover {
-    color: var(--color-text-primary);
     transform: translateX(4px);
   }
 
@@ -221,7 +221,7 @@
 
   .stat-item:hover {
     background: rgba(255, 255, 255, 0.08);
-    border-color: var(--color-primary);
+    @apply border-eucalyptus-600 dark:border-eucalyptus-400;
     transform: translateY(-2px);
   }
 
@@ -229,7 +229,7 @@
     font-family: var(--font-heading);
     font-size: 2rem;
     font-weight: 700;
-    color: var(--color-primary);
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
     line-height: 1;
     margin-bottom: 0.5rem;
   }
@@ -327,13 +327,13 @@
 
   .activity-item:hover {
     background: rgba(255, 255, 255, 0.08);
-    border-color: var(--color-primary);
+    @apply border-eucalyptus-600 dark:border-eucalyptus-400;
   }
 
   .activity-type {
     font-size: 0.75rem;
     font-weight: 600;
-    color: var(--color-primary);
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }

@@ -23,6 +23,7 @@ export interface Translations {
     title: string;
     subtitle: string;
     description: string;
+    skillsLabel: string; // Hero skills section label
     cta: {
       viewProjects: string;
       readBlog: string;
@@ -57,6 +58,7 @@ export interface Translations {
     skills: string;
     skillsSubtitle: string;
     professionalIdentityText: string;
+    visitButton: string; // "Visit" button text for external links
     hobbies: {
       photography: {
         title: string;
@@ -160,6 +162,7 @@ export interface Translations {
   };
   // Footer
   footer: {
+    description: string;
     copyright: string;
     madeWith: string;
   };
@@ -187,6 +190,7 @@ export const translations: Record<Language, Translations> = {
       title: 'Mihai Adrian Mateescu',
       subtitle: 'Finanzbuchhalter',
       description: 'Engagierter Finanzbuchhalter mit Erfahrung in der Buchhaltung und Finanzverwaltung, spezialisiert auf die detaillierte Analyse von Geschäftsvorfällen und die steuerliche Berichterstattung. Mit einer ausgeprägten Leidenschaft für Zahlen und einem scharfen Auge für Details suche ich stets nach Möglichkeiten, meine beruflichen Fähigkeiten weiterzuentwickeln. Meine vielseitige Erfahrung, die von der Buchhaltung bis hin zum Management von Teams reicht, empfiehlt mich als einen flexiblen Fachmann, der in jeder finanziellen Umgebung einen Mehrwert schafft.',
+      skillsLabel: 'Kompetenzen:',
       cta: {
         viewProjects: 'Projekte ansehen',
         readBlog: 'Blog lesen',
@@ -231,6 +235,7 @@ export const translations: Record<Language, Translations> = {
       skills: 'Kompetenzen',
       skillsSubtitle: 'Ehrliche Selbsteinschätzung meiner beruflichen und technischen Fähigkeiten',
       professionalIdentityText: 'Engagierter Finanzbuchhalter mit Erfahrung in der Buchhaltung und Finanzverwaltung, spezialisiert auf die detaillierte Analyse von Geschäftsvorfällen und die steuerliche Berichterstattung. Mit einer ausgeprägten Leidenschaft für Zahlen und einem scharfen Auge für Details suche ich stets nach Möglichkeiten, meine beruflichen Fähigkeiten weiterzuentwickeln.',
+      visitButton: 'Besuche',
       hobbies: {
         photography: {
           title: 'Fotografie',
@@ -375,6 +380,7 @@ export const translations: Record<Language, Translations> = {
       notFound: 'Nicht gefunden'
     },
     footer: {
+      description: 'Finanzbuchhalter mit Leidenschaft für Zahlen und kontinuierliches Lernen. Aktuell: Weiterbildung zum Bilanzbuchhalter (IHK). Hobby: Technologie-Exploration.',
       copyright: '© 2025 Mihai Adrian Mateescu',
       madeWith: 'Erstellt mit'
     },
@@ -399,6 +405,7 @@ export const translations: Record<Language, Translations> = {
       title: 'Mihai Adrian Mateescu',
       subtitle: 'Financial Accountant',
       description: 'Dedicated Financial Accountant with experience in accounting and financial management, specializing in detailed analysis of business transactions and tax reporting. With a strong passion for numbers and a keen eye for detail, I constantly seek opportunities to further develop my professional skills. My diverse experience, ranging from accounting to team management, positions me as a flexible professional who creates value in any financial environment.',
+      skillsLabel: 'Skills:',
       cta: {
         viewProjects: 'View Projects',
         readBlog: 'Read Blog',
@@ -443,6 +450,7 @@ export const translations: Record<Language, Translations> = {
       skills: 'Competencies',
       skillsSubtitle: 'Honest self-assessment of my professional and technical skills',
       professionalIdentityText: 'Dedicated Financial Accountant with experience in accounting and financial management, specialized in detailed analysis of business transactions and tax reporting. With a strong passion for numbers and a keen eye for detail, I constantly seek opportunities to further develop my professional skills.',
+      visitButton: 'Visit',
       hobbies: {
         photography: {
           title: 'Photography',
@@ -587,6 +595,7 @@ export const translations: Record<Language, Translations> = {
       notFound: 'Not Found'
     },
     footer: {
+      description: 'Financial Accountant with a passion for numbers and continuous learning. Currently: Further training to become a certified accountant (IHK). Hobby: Technology exploration.',
       copyright: '© 2025 Mihai Adrian Mateescu',
       madeWith: 'Made with'
     },
@@ -611,6 +620,7 @@ export const translations: Record<Language, Translations> = {
       title: 'Mihai Adrian Mateescu',
       subtitle: 'Contabil Financiar',
       description: 'Contabil Financiar dedicat cu experiență în contabilitate și management financiar, specializat în analiza detaliată a tranzacțiilor comerciale și raportarea fiscală. Cu o pasiune puternică pentru cifre și un ochi atent la detalii, caut constant oportunități de a-mi dezvolta abilitățile profesionale. Experiența mea diversă, care variază de la contabilitate la managementul echipelor, mă poziționează ca un profesionist flexibil care creează valoare în orice mediu financiar.',
+      skillsLabel: 'Competențe:',
       cta: {
         viewProjects: 'Vezi Proiecte',
         readBlog: 'Citește Blog',
@@ -655,6 +665,7 @@ export const translations: Record<Language, Translations> = {
       skills: 'Competențe',
       skillsSubtitle: 'Autoevaluare onestă a abilităților mele profesionale și tehnice',
       professionalIdentityText: 'Contabil Financiar dedicat cu experiență în contabilitate și management financiar, specializat în analiza detaliată a tranzacțiilor comerciale și raportarea fiscală. Cu o pasiune puternică pentru cifre și un ochi atent la detalii, caut constant oportunități de a-mi dezvolta abilitățile profesionale.',
+      visitButton: 'Descoperă',
       hobbies: {
         photography: {
           title: 'Fotografie',
@@ -799,6 +810,7 @@ export const translations: Record<Language, Translations> = {
       notFound: 'Nu a fost găsit'
     },
     footer: {
+      description: 'Contabil Financiar cu pasiune pentru cifre și învățare continuă. În prezent: Formare pentru a deveni contabil certificat (IHK). Hobby: Explorare tehnologică.',
       copyright: '© 2025 Mihai Adrian Mateescu',
       madeWith: 'Creat cu'
     },

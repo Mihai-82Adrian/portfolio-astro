@@ -1,6 +1,6 @@
 ---
 /**
- * Homepage - Mihai Adrian Mateescu Portfolio (English)
+ * Homepage - Mihai Adrian Mateescu Portfolio (Romanian)
  *
  * Main landing page with professional overview,
  * skills summary, and links to main sections
@@ -32,14 +32,15 @@ const structuredData = [personSchema, websiteSchema];
     title={t.home.title}
     subtitle={t.home.subtitle}
     description={t.home.description}
+    skillsLabel={t.home.skillsLabel}
     imageSrc="/images/2025-2_50PM.webp"
     imageAlt="Mihai Adrian Mateescu"
   >
     <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-      <Button href="/en/experience" variant="primary" size="lg">
+      <Button href="/ro/experience" variant="primary" size="lg">
         {t.nav.experience}
       </Button>
-      <Button href="/en/blog" variant="secondary" size="lg">
+      <Button href="/blog" variant="secondary" size="lg">
         {t.nav.blog}
       </Button>
       <Button href="#contact" variant="outline" size="lg">
@@ -71,13 +72,13 @@ const structuredData = [personSchema, websiteSchema];
             <div class="space-y-3 text-text-secondary-light dark:text-text-secondary-dark">
               <p>
                 <strong>{t.contact.phone}:</strong>{' '}
-                <a href="tel:+491704740121" class="text-eucalyptus-600 dark:text-eucalyptus-400 hover:underline">
+                <a href="tel:+491704740121" class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/50 dark:decoration-eucalyptus-400/50 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300">
                   +49 170 474 0121
                 </a>
               </p>
               <p>
                 <strong>{t.contact.email}:</strong>{' '}
-                <a href="mailto:mihai.mateescu@web.de" class="text-eucalyptus-600 dark:text-eucalyptus-400 hover:underline">
+                <a href="mailto:mihai.mateescu@web.de" class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/50 dark:decoration-eucalyptus-400/50 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300">
                   mihai.mateescu@web.de
                 </a>
               </p>
@@ -87,7 +88,7 @@ const structuredData = [personSchema, websiteSchema];
                   href="https://www.linkedin.com/in/mateescu-mihai-922b3169"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-eucalyptus-600 dark:text-eucalyptus-400 hover:underline"
+                  class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/50 dark:decoration-eucalyptus-400/50 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300"
                 >
                   Mateescu Mihai
                 </a>
@@ -108,7 +109,7 @@ const structuredData = [personSchema, websiteSchema];
           <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
             {t.home.quickLinks.education}
           </p>
-          <Button href="/en/education" variant="ghost" size="sm">
+          <Button href="/ro/education" variant="ghost" size="sm">
             {t.common.learnMore} →
           </Button>
         </Card>
@@ -120,7 +121,7 @@ const structuredData = [personSchema, websiteSchema];
           <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
             {t.home.quickLinks.experience}
           </p>
-          <Button href="/en/experience" variant="ghost" size="sm">
+          <Button href="/ro/experience" variant="ghost" size="sm">
             {t.common.learnMore} →
           </Button>
         </Card>
@@ -132,7 +133,7 @@ const structuredData = [personSchema, websiteSchema];
           <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
             {t.home.quickLinks.certifications}
           </p>
-          <Button href="/en/certifications" variant="ghost" size="sm">
+          <Button href="/ro/certifications" variant="ghost" size="sm">
             {t.common.learnMore} →
           </Button>
         </Card>
@@ -182,7 +183,7 @@ const structuredData = [personSchema, websiteSchema];
         <p class="text-text-secondary-light dark:text-text-secondary-dark mb-6 max-w-2xl mx-auto">
           {t.home.quickLinks.hobbiesText}
         </p>
-        <Button href="/en/about" variant="primary">
+        <Button href="/ro/about" variant="primary">
           {t.home.hobbies.learnMore}
         </Button>
       </Card>

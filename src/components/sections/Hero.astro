@@ -32,6 +32,8 @@ interface Props {
   imageSrc?: string;
   /** Hero image alt text */
   imageAlt?: string;
+  /** Skills section label */
+  skillsLabel?: string;
 }
 
 const {
@@ -44,6 +46,7 @@ const {
   secondaryHref = '/blog',
   imageSrc,
   imageAlt = '',
+  skillsLabel = 'Kompetenzen:',
 } = Astro.props;
 ---
 
@@ -122,7 +125,7 @@ const {
 
       <!-- Tech Stack Icons (Optional) -->
       <div class="hero-tech-stack">
-        <p class="hero-tech-label">Kompetenzen:</p>
+        <p class="hero-tech-label">{skillsLabel}</p>
         <div class="hero-tech-icons">
           <span class="hero-tech-item">DATEV</span>
           <span class="hero-tech-separator">·</span>
