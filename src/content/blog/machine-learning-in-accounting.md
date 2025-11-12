@@ -4,6 +4,7 @@ description: "A research-driven exploration of how ML can augment accounting —
 pubDate: 2025-11-12
 category: 'fintech'
 tags: ['machine-learning', 'accounting', 'fintech', 'explainability', 'compliance']
+heroImage: '/images/blog/ml-accounting.webp'
 updated: 2025-11-12
 featured: true
 draft: false
