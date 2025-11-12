@@ -8,7 +8,6 @@ tags: ['accounting', 'machine-learning', 'gobd', 'xrechnung', 'zugferd', 'ifrs',
 heroImage: '/images/blog/finance-ai-bridge.webp'
 draft: false
 featured: true
-readingTime: '18 min'
 ---
 
 The intersection of finance and artificial intelligence represents one of the most consequential frontiers in modern technology. As an accountant pursuing expertise in machine learning, I've discovered that the most valuable innovations emerge not from pure technical prowess or domain knowledge alone, but from their rigorous integration. This article documents a learning journey grounded in German accounting standards (HGB, GoBD, UStG), international reporting frameworks (IFRS 15), and state-of-the-art ML techniques validated for production use.
