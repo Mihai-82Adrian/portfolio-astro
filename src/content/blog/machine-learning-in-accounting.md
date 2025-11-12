@@ -41,6 +41,10 @@ Across these domains, research from 2022–2025 indicates that ML-augmented work
 
 ---
 
+> 📊 **Quick Reference: Method Comparison Table**
+>
+> For a comprehensive comparison of ML methods across all accounting tasks (invoice extraction, categorization, anomaly detection), see the [Editorial Artifacts](/assets/blog/ml-accounting/editorial-artifacts.md) which includes detailed strength/weakness analysis and "when to use" guidance.
+
 ## Concept Area 1: Document Intelligence for Invoices
 
 Invoice processing represents one of the most mature applications of ML in accounting. The problem is well-defined: extract structured fields (vendor name, invoice date, amount, VAT, payment terms) from images and PDFs, validate against accounting rules, and route for approval or exception handling.
@@ -207,6 +211,8 @@ Machine learning approaches to categorization operate along a spectrum from clas
 Research and industry case studies indicate that baseline TF-IDF + classical ML achieves 70–80% accuracy on well-defined account hierarchies; modern embeddings reach 80–90% with adequate labeled data (typically 500+ examples per category). However, accuracy plateaus when accounts are semantically similar (e.g., "office supplies" vs. "stationery") or when descriptions are vague.
 
 ### Human-in-the-Loop Workflow
+
+> 💡 **See the complete workflow visualization in [Editorial Artifacts](/assets/blog/ml-accounting/editorial-artifacts.md)** - includes detailed HITL pipeline diagram with confidence-based routing and feedback loops.
 
 The critical insight is that **perfect accuracy is neither necessary nor desirable**. Instead, a tiered workflow balances automation and human judgment:
 
