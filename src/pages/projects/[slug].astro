@@ -49,7 +49,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
         <div class="breadcrumb">
           <a href="/projects">← Back to Projects</a>
         </div>
-        <StatusIndicator status={project.status} size="lg" />
+        <StatusIndicator status={project.status as any} size="lg" />
         <h1 class="project-title">{project.title}</h1>
         <p class="project-tagline">{project.tagline}</p>
         <div class="hero-actions">
@@ -88,7 +88,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
         <h2 class="section-title">Technology Stack</h2>
         <div class="tech-grid">
           {project.techStack.map((tech) => (
-            <TechStackBadge tech={tech} size="lg" />
+            <TechStackBadge tech={tech as any} size="lg" />
           ))}
         </div>
       </section>

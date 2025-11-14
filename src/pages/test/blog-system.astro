@@ -303,9 +303,9 @@ const jsonCode = `{
               <div class="space-y-2 text-gray-700 dark:text-gray-300">
                 <p><strong>Sample post:</strong> {samplePost.data.title}</p>
                 <p><strong>Word count estimate:</strong> {samplePost.body.split(/\s+/).length} words (includes markdown)</p>
-                <p><strong>Reading time (EN):</strong> {formatReadingTime(calculateReadingTime(samplePost.body), 'en')}</p>
-                <p><strong>Reading time (DE):</strong> {formatReadingTime(calculateReadingTime(samplePost.body), 'de')}</p>
-                <p><strong>Reading time (RO):</strong> {formatReadingTime(calculateReadingTime(samplePost.body), 'ro')}</p>
+                <p><strong>Reading time (EN):</strong> {formatReadingTime(calculateReadingTime(samplePost.body).minutes, 'en')}</p>
+                <p><strong>Reading time (DE):</strong> {formatReadingTime(calculateReadingTime(samplePost.body).minutes, 'de')}</p>
+                <p><strong>Reading time (RO):</strong> {formatReadingTime(calculateReadingTime(samplePost.body).minutes, 'ro')}</p>
                 <p class="text-sm text-green-600 dark:text-green-400 mt-4">
                   ✓ Reading time calculation working (200 words/minute)
                 </p>

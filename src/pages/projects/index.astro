@@ -67,7 +67,7 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
               data-category={project.category}
               role="listitem"
             >
-              <ProjectCard project={project} />
+              <ProjectCard project={project as any} />
             </div>
           ))}
         </div>

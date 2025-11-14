@@ -264,4 +264,5 @@ if (result.warnings.length > 0) {
   result.warnings.forEach(warn => console.warn(`  WARNING: ${warn}`));
 }
 
-export { GermanInvoiceValidator, GermanInvoice, ValidationResult };
+export { GermanInvoiceValidator };
+export type { GermanInvoice, ValidationResult };
