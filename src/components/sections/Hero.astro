@@ -75,10 +75,13 @@ const {
         <span class="hero-badge-text">Available for consulting</span>
       </div>
 
-      <!-- Main Title -->
+      <!-- Main Title with Accent -->
       <h1 class="hero-title">
         {title}
       </h1>
+
+      <!-- Accent Line -->
+      <div class="hero-accent-line"></div>
 
       <!-- Subtitle with Gradient -->
       <p class="hero-subtitle">
@@ -201,9 +204,42 @@ const {
   /* Title */
   .hero-title {
     @apply text-4xl sm:text-5xl md:text-6xl lg:text-7xl;
-    @apply font-bold mb-4;
+    @apply font-bold mb-6;
     @apply text-text-primary-light dark:text-text-primary-dark;
     line-height: 1.1;
+  }
+
+  /* Accent Line - Eucalyptus Visual Hierarchy */
+  .hero-accent-line {
+    @apply w-24 h-1 mx-auto mb-6;
+    @apply rounded-full;
+    background: linear-gradient(
+      90deg,
+      theme('colors.eucalyptus.500') 0%,
+      theme('colors.eucalyptus.600') 50%,
+      theme('colors.eucalyptus.700') 100%
+    );
+    animation: expandLine 0.8s ease-out 0.3s both;
+  }
+
+  @keyframes expandLine {
+    from {
+      width: 0;
+      opacity: 0;
+    }
+    to {
+      width: 6rem;
+      opacity: 1;
+    }
+  }
+
+  .dark .hero-accent-line {
+    background: linear-gradient(
+      90deg,
+      theme('colors.eucalyptus.400') 0%,
+      theme('colors.eucalyptus.500') 50%,
+      theme('colors.eucalyptus.600') 100%
+    );
   }
 
   /* Subtitle */
@@ -298,6 +334,26 @@ const {
     66% {
       transform: translate(-20px, 20px) scale(0.9);
     }
+  }
+
+  /* Gradient Text - Eucalyptus Theme */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(
+      135deg,
+      theme('colors.eucalyptus.600') 0%,
+      theme('colors.eucalyptus.700') 50%,
+      theme('colors.eucalyptus.800') 100%
+    );
+  }
+
+  .dark .text-gradient {
+    background-image: linear-gradient(
+      135deg,
+      theme('colors.eucalyptus.300') 0%,
+      theme('colors.eucalyptus.400') 50%,
+      theme('colors.eucalyptus.500') 100%
+    );
   }
 
   /* Dark mode adjustments */

@@ -104,20 +104,20 @@ const displayItems = items.length > 0 ? items : defaultItems;
           </div>
 
           {/* Timeline Content */}
-          <div class="timeline-content">
+          <div class="timeline-content" data-timeline-item>
             <div class="timeline-header">
               {/* Company Logo */}
               {item.icon && (
                 <div class="timeline-logo">
-                  <img 
-                    src={item.icon} 
+                  <img
+                    src={item.icon}
                     alt={`${item.company} Logo`}
                     class="company-logo"
                     loading="lazy"
                   />
                 </div>
               )}
-              
+
               <div class="timeline-info">
                 <h3 class="timeline-role">{item.role}</h3>
                 <p class="timeline-company">{item.company}</p>
@@ -131,7 +131,7 @@ const displayItems = items.length > 0 ? items : defaultItems;
                   </p>
                 )}
               </div>
-              
+
               <div class="timeline-meta">
                 <time class="timeline-date">
                   {item.startDate} - {item.endDate || 'Present'}
@@ -324,4 +324,60 @@ const displayItems = items.length > 0 ? items : defaultItems;
     @apply flex flex-wrap gap-2 pt-4;
     @apply border-t border-light-border dark:border-dark-border;
   }
+
+  /* Interactive Animation States */
+  .timeline-content {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .timeline-content.timeline-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Stagger animation delay for each item */
+  .timeline-item:nth-child(1) .timeline-content { transition-delay: 0.1s; }
+  .timeline-item:nth-child(2) .timeline-content { transition-delay: 0.2s; }
+  .timeline-item:nth-child(3) .timeline-content { transition-delay: 0.3s; }
+  .timeline-item:nth-child(4) .timeline-content { transition-delay: 0.4s; }
+  .timeline-item:nth-child(5) .timeline-content { transition-delay: 0.5s; }
+  .timeline-item:nth-child(n+6) .timeline-content { transition-delay: 0.6s; }
 </style>
+
+<script>
+  // Intersection Observer for scroll animations
+  if (typeof window !== 'undefined') {
+    const observeTimeline = () => {
+      const timelineItems = document.querySelectorAll('[data-timeline-item]');
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('timeline-visible');
+              // Unobserve after animation to improve performance
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        {
+          threshold: 0.15,
+          rootMargin: '0px 0px -50px 0px'
+        }
+      );
+
+      timelineItems.forEach((item) => {
+        observer.observe(item);
+      });
+    };
+
+    // Run on page load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', observeTimeline);
+    } else {
+      observeTimeline();
+    }
+  }
+</script>

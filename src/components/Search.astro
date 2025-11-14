@@ -1,0 +1,112 @@
+---
+// Pagefind Search Component
+// Provides static search functionality for blog posts
+---
+
+<div id="search" class="search-container">
+  <div class="search-wrapper">
+    <label for="search-input" class="sr-only">Search blog posts</label>
+    <div id="pagefind-search" class="pagefind-ui"></div>
+  </div>
+</div>
+
+<script>
+  // Import Pagefind UI dynamically after page load
+  window.addEventListener('DOMContentLoaded', () => {
+    const script = document.createElement('script');
+    script.src = '/pagefind/pagefind-ui.js';
+    script.type = 'module';
+    script.onload = () => {
+      // @ts-ignore - PagefindUI is loaded dynamically
+      new window.PagefindUI({
+        element: '#pagefind-search',
+        showSubResults: true,
+        showImages: false,
+        excerptLength: 15,
+        translations: {
+          placeholder: 'Search blog posts...',
+          zero_results: 'No results for [SEARCH_TERM]',
+        },
+      });
+    };
+    document.head.appendChild(script);
+
+    // Load Pagefind CSS
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '/pagefind/pagefind-ui.css';
+    document.head.appendChild(link);
+  });
+</script>
+
+<style>
+  .search-container {
+    width: 100%;
+    margin: 2rem 0;
+  }
+
+  .search-wrapper {
+    max-width: 48rem;
+    margin: 0 auto;
+  }
+
+  /* Custom Pagefind UI styling to match eucalyptus theme */
+  :global(.pagefind-ui__search-input) {
+    border: 2px solid theme('colors.eucalyptus.500');
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+
+  :global(.pagefind-ui__search-input:focus) {
+    outline: none;
+    border-color: theme('colors.eucalyptus.600');
+    box-shadow: 0 0 0 3px theme('colors.eucalyptus.100');
+  }
+
+  :global(.pagefind-ui__result-link) {
+    color: theme('colors.eucalyptus.700');
+    font-weight: 600;
+  }
+
+  :global(.pagefind-ui__result-link:hover) {
+    color: theme('colors.eucalyptus.800');
+  }
+
+  :global(.pagefind-ui__result-excerpt mark) {
+    background-color: theme('colors.eucalyptus.100');
+    color: theme('colors.eucalyptus.900');
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+  }
+
+  /* Dark mode support */
+  :global([data-theme='dark'] .pagefind-ui__search-input) {
+    background-color: theme('colors.dark.surface');
+    border-color: theme('colors.eucalyptus.400');
+    color: theme('colors.text.primary.dark');
+  }
+
+  :global([data-theme='dark'] .pagefind-ui__result-link) {
+    color: theme('colors.eucalyptus.300');
+  }
+
+  :global([data-theme='dark'] .pagefind-ui__result-excerpt mark) {
+    background-color: theme('colors.eucalyptus.800');
+    color: theme('colors.eucalyptus.100');
+  }
+
+  /* Screen reader only class */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+</style>

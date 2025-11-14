@@ -1,0 +1,240 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import Card from '@/components/ui/Card.astro';
+import Badge from '@/components/ui/Badge.astro';
+
+const pageTitle = 'What I\'m Doing Now - Mihai Adrian Mateescu';
+const pageDescription = 'Current learning focus, projects, and professional activities. Updated monthly.';
+const lastUpdated = '2025-11-13';
+---
+
+<BaseLayout title={pageTitle} description={pageDescription} lang="en">
+  <Container paddingY="lg">
+    <main class="max-w-3xl mx-auto">
+      <!-- Page Header -->
+      <div class="mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+          What I'm Doing Now
+        </h1>
+        <p class="text-xl text-text-secondary-light dark:text-text-secondary-dark">
+          A snapshot of my current focus, learning journey, and projects.
+        </p>
+        <p class="text-sm text-text-tertiary-light dark:text-text-tertiary-dark mt-2">
+          Last updated: <time datetime={lastUpdated}>{new Date(lastUpdated).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
+        </p>
+      </div>
+
+      <!-- Current Learning -->
+      <section class="mb-12">
+        <Card>
+          <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+            📚 Current Learning
+          </h2>
+          <div class="space-y-4">
+            <div>
+              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
+                Bilanzbuchhalter (IHK) Studies
+              </h3>
+              <p class="text-text-secondary-light dark:text-text-secondary-dark mb-2">
+                Pursuing advanced German accounting certification, focusing on IFRS, HGB compliance,
+                and corporate financial reporting. This deepens my expertise in financial statement
+                preparation and regulatory frameworks.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <Badge variant="secondary">#IFRS</Badge>
+                <Badge variant="secondary">#HGB</Badge>
+                <Badge variant="secondary">#Taxation</Badge>
+                <Badge variant="secondary">#Financial-Reporting</Badge>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
+                Machine Learning in Finance
+              </h3>
+              <p class="text-text-secondary-light dark:text-text-secondary-dark mb-2">
+                Exploring applications of ML in accounting automation, anomaly detection, and
+                document AI. Researching transformer models for financial document understanding.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <Badge variant="secondary">#PyTorch</Badge>
+                <Badge variant="secondary">#Transformers</Badge>
+                <Badge variant="secondary">#Document-AI</Badge>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
+                Rust for Systems Programming
+              </h3>
+              <p class="text-text-secondary-light dark:text-text-secondary-dark mb-2">
+                Deepening knowledge of Rust's ownership model, lifetimes, and async programming
+                for building high-performance financial data processing tools.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <Badge variant="secondary">#Rust</Badge>
+                <Badge variant="secondary">#Async</Badge>
+                <Badge variant="secondary">#Performance</Badge>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </section>
+
+      <!-- Current Projects -->
+      <section class="mb-12">
+        <Card>
+          <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+            🚀 Current Projects
+          </h2>
+          <div class="space-y-4">
+            <div>
+              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
+                Portfolio Website Refactoring
+              </h3>
+              <p class="text-text-secondary-light dark:text-text-secondary-dark mb-2">
+                Migrating from static HTML to Astro 5.x with Tailwind CSS 4.x. Building a
+                modern, multilingual portfolio with blog, project showcase, and career timeline.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <Badge variant="secondary">#Astro</Badge>
+                <Badge variant="secondary">#Tailwind</Badge>
+                <Badge variant="secondary">#TypeScript</Badge>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
+                GoBD Compliance Research
+              </h3>
+              <p class="text-text-secondary-light dark:text-text-secondary-dark mb-2">
+                Researching GoBD compliance requirements for digital accounting systems in Germany,
+                exploring automation opportunities for audit trail generation and tax compliance.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <Badge variant="secondary">#GoBD</Badge>
+                <Badge variant="secondary">#Compliance</Badge>
+                <Badge variant="secondary">#Automation</Badge>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
+                Blog Content Development
+              </h3>
+              <p class="text-text-secondary-light dark:text-text-secondary-dark mb-2">
+                Writing technical articles on AI/ML in finance, Rust programming, and FinTech
+                compliance. Target: 26-52 posts per year (2026 goal: 40 posts).
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <Badge variant="secondary">#Technical-Writing</Badge>
+                <Badge variant="secondary">#SEO</Badge>
+                <Badge variant="secondary">#Content-Strategy</Badge>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </section>
+
+      <!-- Current Reading -->
+      <section class="mb-12">
+        <Card>
+          <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+            📖 Current Reading
+          </h2>
+          <ul class="space-y-3 text-text-secondary-light dark:text-text-secondary-dark">
+            <li class="flex items-start">
+              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2">•</span>
+              <div>
+                <strong class="text-text-primary-light dark:text-text-primary-dark">
+                  "The Rust Programming Language" (2nd Edition)
+                </strong>
+                <span> by Steve Klabnik & Carol Nichols</span>
+              </div>
+            </li>
+            <li class="flex items-start">
+              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2">•</span>
+              <div>
+                <strong class="text-text-primary-light dark:text-text-primary-dark">
+                  "Designing Machine Learning Systems"
+                </strong>
+                <span> by Chip Huyen</span>
+              </div>
+            </li>
+            <li class="flex items-start">
+              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2">•</span>
+              <div>
+                <strong class="text-text-primary-light dark:text-text-primary-dark">
+                  "IFRS Essentials"
+                </strong>
+                <span> by Dieter Christian & Norbert Lüdenbach</span>
+              </div>
+            </li>
+            <li class="flex items-start">
+              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2">•</span>
+              <div>
+                <strong class="text-text-primary-light dark:text-text-primary-dark">
+                  Research Papers:
+                </strong>
+                <span> Transformer architectures for financial document understanding</span>
+              </div>
+            </li>
+          </ul>
+        </Card>
+      </section>
+
+      <!-- Current Professional Focus -->
+      <section class="mb-12">
+        <Card>
+          <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+            💼 Current Professional Focus
+          </h2>
+          <div class="space-y-4 text-text-secondary-light dark:text-text-secondary-dark">
+            <div>
+              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
+                Finance & Accounting Expertise
+              </h3>
+              <p>
+                Working on complex financial reporting scenarios, month-end closings, and
+                compliance automation. Bridging accounting domain knowledge with technical skills.
+              </p>
+            </div>
+
+            <div>
+              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
+                AI/ML Applications in FinTech
+              </h3>
+              <p>
+                Researching practical applications of machine learning in accounting automation,
+                fraud detection, and intelligent document processing for financial workflows.
+              </p>
+            </div>
+
+            <div>
+              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
+                Technical Writing & Knowledge Sharing
+              </h3>
+              <p>
+                Publishing research-driven articles on finance, AI/ML, and software engineering.
+                Building an audience through SEO-optimized technical content.
+              </p>
+            </div>
+          </div>
+        </Card>
+      </section>
+
+      <!-- About This Page -->
+      <section class="border-t border-border-light dark:border-border-dark pt-8">
+        <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+          This is a <a href="https://nownownow.com/about"
+             class="text-eucalyptus-700 dark:text-eucalyptus-300 hover:underline"
+             target="_blank"
+             rel="noopener noreferrer">"now page"</a>,
+          inspired by Derek Sivers. It's a snapshot of what I'm currently focused on,
+          updated monthly. Last updated on {new Date(lastUpdated).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.
+        </p>
+      </section>
+    </main>
+  </Container>
+</BaseLayout>

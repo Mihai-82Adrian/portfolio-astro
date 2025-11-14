@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Container from '@/components/ui/Container.astro';
 import PostList from '@/components/blog/PostList.astro';
+import Search from '@/components/Search.astro';
 import { calculateReadingTime } from '@/utils/readingTime';
 
 // Get all published blog posts, sorted by date (newest first)
@@ -52,6 +53,9 @@ const pageDescription = 'Articles about AI/ML, finance, FinTech, Rust, Julia, an
           {sortedPosts.length} articles and counting.
         </p>
       </div>
+
+      <!-- Search -->
+      <Search />
 
       <!-- Featured Posts -->
       {featuredPosts.length > 0 && (
