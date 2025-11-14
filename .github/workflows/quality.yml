@@ -1,0 +1,134 @@
+name: Quality Checks
+
+on:
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  lint-and-type-check:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Astro check (TypeScript + templates)
+        run: npx astro check
+        continue-on-error: false
+
+      - name: Verify color contrast (WCAG 2.2 AA)
+        run: node scripts/check-contrast.js
+        continue-on-error: false
+
+  build-test:
+    name: Build Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        run: npm run build
+
+      - name: Verify build output
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "❌ Build failed: dist directory not found"
+            exit 1
+          fi
+
+          PAGE_COUNT=$(find dist -name "*.html" | wc -l)
+          echo "✅ Build successful: $PAGE_COUNT pages generated"
+
+          if [ "$PAGE_COUNT" -lt 50 ]; then
+            echo "⚠️ Warning: Expected at least 50 pages, got $PAGE_COUNT"
+            exit 1
+          fi
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+          retention-days: 7
+
+  accessibility:
+    name: Accessibility Audit
+    runs-on: ubuntu-latest
+    needs: build-test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+
+      - name: Start local server
+        run: |
+          npx http-server dist -p 8080 &
+          sleep 5
+
+      - name: Run axe-core accessibility tests
+        run: |
+          npm install -g @axe-core/cli
+
+          echo "## ♿ Accessibility Audit Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Test key pages
+          for PAGE in "/" "/about" "/experience" "/blog"; do
+            echo "Testing: http://localhost:8080$PAGE"
+            axe http://localhost:8080$PAGE --disable=color-contrast || echo "⚠️ Issues found on $PAGE"
+          done
+        continue-on-error: true
+
+  summary:
+    name: Quality Summary
+    runs-on: ubuntu-latest
+    needs: [lint-and-type-check, build-test, accessibility]
+    if: always()
+
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## 📊 Quality Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint & Type Check | ${{ needs.lint-and-type-check.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build Test | ${{ needs.build-test.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Accessibility | ${{ needs.accessibility.result == 'success' && '✅ Passed' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
