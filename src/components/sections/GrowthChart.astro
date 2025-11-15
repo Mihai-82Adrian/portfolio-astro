@@ -378,7 +378,7 @@ if (!xAxisLabels.includes(maxYear)) {
       const points = document.querySelectorAll('.seniority-point');
 
       points.forEach(point => {
-        point.addEventListener('mouseenter', function() {
+        point.addEventListener('mouseenter', function(this: Element) {
           const tooltip = this.getAttribute('data-tooltip');
           if (tooltip) {
             // Could implement custom tooltip here
