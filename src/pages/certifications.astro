@@ -96,12 +96,29 @@ const categoryLabels = t.certifications.categories;
                       <strong>Erhalten:</strong> {cert.dateObtained}
                     </div>
                   )}
-
-                  {cert.pdfUrl && (
-                    <Button href={cert.pdfUrl} variant="primary" size="sm" class="mt-4">
-                      {t.certifications.download}
-                    </Button>
+                  {cert.validUntil && (
+                    <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                      <strong>Gültigkeit:</strong>{' '}
+                      {cert.validUntil === 'unlimited' ? (
+                        <Badge variant="success" size="sm" class="inline-flex">Unbefristet gültig</Badge>
+                      ) : (
+                        <span>Gültig bis {cert.validUntil}</span>
+                      )}
+                    </div>
                   )}
+
+                  <div class="flex flex-col sm:flex-row gap-2 mt-4">
+                    {cert.pdfUrl && (
+                      <Button href={cert.pdfUrl} variant="primary" size="sm" class="flex-1">
+                        {t.certifications.download}
+                      </Button>
+                    )}
+                    {cert.verificationUrl && (
+                      <Button href={cert.verificationUrl} variant="secondary" size="sm" class="flex-1" target="_blank" rel="noopener noreferrer">
+                        Verifizieren
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </Card>
@@ -143,12 +160,34 @@ const categoryLabels = t.certifications.categories;
                   <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
                     <strong>Aussteller:</strong> {cert.issuer}
                   </div>
-
-                  {cert.pdfUrl && (
-                    <Button href={cert.pdfUrl} variant="primary" size="sm" class="mt-4">
-                      {t.certifications.download}
-                    </Button>
+                  {cert.dateObtained && (
+                    <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                      <strong>Erhalten:</strong> {cert.dateObtained}
+                    </div>
                   )}
+                  {cert.validUntil && (
+                    <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                      <strong>Gültigkeit:</strong>{' '}
+                      {cert.validUntil === 'unlimited' ? (
+                        <Badge variant="success" size="sm" class="inline-flex">Unbefristet gültig</Badge>
+                      ) : (
+                        <span>Gültig bis {cert.validUntil}</span>
+                      )}
+                    </div>
+                  )}
+
+                  <div class="flex flex-col sm:flex-row gap-2 mt-4">
+                    {cert.pdfUrl && (
+                      <Button href={cert.pdfUrl} variant="primary" size="sm" class="flex-1">
+                        {t.certifications.download}
+                      </Button>
+                    )}
+                    {cert.verificationUrl && (
+                      <Button href={cert.verificationUrl} variant="secondary" size="sm" class="flex-1" target="_blank" rel="noopener noreferrer">
+                        Verifizieren
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </Card>
@@ -184,12 +223,24 @@ const categoryLabels = t.certifications.categories;
                   <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
                     <strong>Von:</strong> {cert.issuer}
                   </div>
-
-                  {cert.pdfUrl && (
-                    <Button href={cert.pdfUrl} variant="primary" size="sm" class="mt-4">
-                      {t.certifications.download}
-                    </Button>
+                  {cert.dateObtained && (
+                    <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                      <strong>Erhalten:</strong> {cert.dateObtained}
+                    </div>
                   )}
+
+                  <div class="flex flex-col sm:flex-row gap-2 mt-4">
+                    {cert.pdfUrl && (
+                      <Button href={cert.pdfUrl} variant="primary" size="sm" class="flex-1">
+                        {t.certifications.download}
+                      </Button>
+                    )}
+                    {cert.verificationUrl && (
+                      <Button href={cert.verificationUrl} variant="secondary" size="sm" class="flex-1" target="_blank" rel="noopener noreferrer">
+                        Verifizieren
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </Card>
@@ -221,11 +272,21 @@ const categoryLabels = t.certifications.categories;
                   />
                 )}
 
-                {cert.pdfUrl && (
-                  <Button href={cert.pdfUrl} variant="primary" size="sm" class="mt-4">
-                    {t.certifications.download}
-                  </Button>
-                )}
+                <div class="flex flex-col gap-2 w-full mt-auto">
+                  {cert.dateObtained && (
+                    <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                      <strong>Erhalten:</strong> {cert.dateObtained}
+                    </div>
+                  )}
+
+                  <div class="flex flex-col sm:flex-row gap-2 mt-4">
+                    {cert.pdfUrl && (
+                      <Button href={cert.pdfUrl} variant="primary" size="sm" class="flex-1">
+                        {t.certifications.download}
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </div>
             </Card>
           ))}

@@ -250,7 +250,7 @@ const proficiencyConfig = {
   }
 
   .skill-item {
-    @apply flex items-center justify-between gap-3;
+    @apply flex items-start justify-between gap-3;
     @apply py-2 px-3 rounded-lg;
     @apply hover:bg-eucalyptus-50 dark:hover:bg-dark-elevated;
     @apply transition-colors duration-150;
@@ -259,6 +259,15 @@ const proficiencyConfig = {
   .skill-name {
     @apply text-base font-medium;
     @apply text-text-primary-light dark:text-text-primary-dark;
+    @apply flex-1;
+    /* Ensure proper text wrapping without breaking badge alignment */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    /* Maintain consistent line height for proper spacing */
+    line-height: 1.5;
+    /* Add slight padding-right to prevent text from touching badge on wrap */
+    padding-right: 0.5rem;
   }
 
   .skill-category-note {

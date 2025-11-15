@@ -14,7 +14,8 @@ export interface Certification {
   };
   issuer: string;
   dateObtained?: string;
-  validUntil?: string;
+  validUntil?: string; // ISO date string or 'unlimited' for permanent certifications
+  verificationUrl?: string; // URL to verify certificate authenticity (IHK registry, LinkedIn, etc.)
   image: string;
   pdfUrl?: string;
   description?: {
@@ -35,6 +36,8 @@ export const certifications: Certification[] = [
     },
     issuer: 'IHK (Industrie- und Handelskammer)',
     dateObtained: '2023-07',
+    validUntil: 'unlimited',
+    verificationUrl: 'https://www.ihk.de',
     image: '/images/ihk1.png',
     pdfUrl: '/images/IHK - Fachkraft für Buchführung.pdf',
     description: {
@@ -53,6 +56,8 @@ export const certifications: Certification[] = [
     },
     issuer: 'IHK (Industrie- und Handelskammer)',
     dateObtained: '2023',
+    validUntil: 'unlimited',
+    verificationUrl: 'https://www.ihk.de',
     image: '/images/ihk2.png',
     pdfUrl: '/images/IHK - Finanzbuchhaltung.pdf',
     description: {
@@ -71,6 +76,8 @@ export const certifications: Certification[] = [
     },
     issuer: 'IHK (Industrie- und Handelskammer)',
     dateObtained: '2023',
+    validUntil: 'unlimited',
+    verificationUrl: 'https://www.ihk.de',
     image: '/images/ihk3.png',
     pdfUrl: '/images/IHK - Lohn- und Gehaltsrechnung.pdf',
     description: {
@@ -89,6 +96,8 @@ export const certifications: Certification[] = [
     },
     issuer: 'IHK FOSA',
     dateObtained: '2023',
+    validUntil: 'unlimited',
+    verificationUrl: 'https://www.ihk-fosa.de',
     image: '/images/ihkf.png',
     pdfUrl: '/images/Bescheid über Gleichwertigkeit - IHK.pdf',
     description: {
@@ -143,6 +152,8 @@ export const certifications: Certification[] = [
     },
     issuer: 'telc GmbH',
     dateObtained: '2022',
+    validUntil: 'unlimited',
+    verificationUrl: 'https://www.telc.net',
     image: '/images/telc.png',
     pdfUrl: '/images/telc B2 Zertifikat Mateescu.pdf',
     description: {
