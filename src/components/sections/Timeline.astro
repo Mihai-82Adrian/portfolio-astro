@@ -39,44 +39,6 @@ interface Props {
   description?: string;
 }
 
-const {
-  items = [],
-  title = 'Career Journey',
-  description = 'My professional experience in data science, machine learning, and software engineering.',
-} = Astro.props;
-
-// Default timeline items if none provided
-const defaultItems: TimelineItem[] = [
-  {
-    company: 'Tech Company',
-    role: 'Senior Data Scientist',
-    startDate: '2022',
-    endDate: 'Present',
-    location: 'Remote',
-    description: 'Leading ML initiatives and building scalable data pipelines.',
-    achievements: [
-      'Reduced model training time by 70% using Rust-based pipeline',
-      'Deployed 15+ ML models to production serving 1M+ users',
-      'Mentored 5 junior data scientists',
-    ],
-    technologies: ['Rust', 'Python', 'TensorFlow', 'AWS'],
-    current: true,
-  },
-  {
-    company: 'Previous Company',
-    role: 'Data Scientist',
-    startDate: '2019',
-    endDate: '2022',
-    location: 'Berlin, Germany',
-    description: 'Developed predictive models and analytics solutions.',
-    achievements: [
-      'Built recommendation system with 25% engagement increase',
-      'Implemented A/B testing framework used across org',
-    ],
-    technologies: ['Python', 'Scikit-learn', 'PostgreSQL'],
-  },
-];
-
 const displayItems = items.length > 0 ? items : defaultItems;
 ---
 
@@ -569,3 +531,4 @@ const displayItems = items.length > 0 ? items : defaultItems;
     document.addEventListener('timeline:filter', handleTimelineFilter as EventListener);
   }
 </script>
+
