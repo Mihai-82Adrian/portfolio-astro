@@ -106,11 +106,11 @@ const basePath = currentLang === 'de' ? '' : `/${currentLang}`;
     <!-- Mobile Menu -->
     <div
       id="mobile-menu"
-      class="md:hidden hidden"
+      class="md:hidden hidden absolute left-0 right-0 top-full bg-light-bg dark:bg-dark-bg shadow-lg dark:shadow-2xl"
       role="navigation"
       aria-label="Mobile navigation"
     >
-      <div class="pb-4 pt-2 space-y-1 border-t border-light-border dark:border-dark-border">
+      <div class="pb-4 pt-2 space-y-1 border-t border-light-border dark:border-dark-border max-h-[calc(100vh-5rem)] overflow-y-auto">
         <Navigation currentPath={currentPath} basePath={basePath} mobile />
       </div>
     </div>
