@@ -337,9 +337,9 @@
     {
       "id": "profitminds",
       "slug": "profitminds",
-      "title": "ProfitMinds - Financial Education Platform",
-      "tagline": "Custom Merchandise & Financial Education Resources",
-      "description": "E-commerce platform offering curated financial education resources and custom-designed merchandise for the German market. Combines educational content with sustainable print-on-demand merchandising model.",
+      "title": "ProfitMinds - Print-on-Demand Merchandise",
+      "tagline": "Custom-Designed Merchandise & Apparel",
+      "description": "Print-on-demand merchandise shop offering custom-designed apparel, accessories, and homeware for the German market. Zero-inventory sustainable business model with professional quality products and automated fulfillment.",
       "category": "ecommerce",
       "status": {
         "label": "Live & Operational",
@@ -398,14 +398,14 @@
         }
       ],
       "features": [
-        "Custom merchandise designs focused on financial education themes",
-        "German market specialization with localized content",
+        "Custom-designed merchandise with unique creative concepts",
+        "German market specialization with local shipping and support",
         "Zero inventory model using sustainable print-on-demand",
-        "Professional branding and design consistency",
+        "Professional branding and design quality",
         "Secure payment processing through Spreadshop platform",
-        "Automated order fulfillment and shipping",
-        "High-quality product catalog (apparel, accessories, homeware)",
-        "Environmentally friendly production on customer demand"
+        "Automated order fulfillment and shipping logistics",
+        "Diverse product catalog (apparel, accessories, homeware, gifts)",
+        "Environmentally friendly on-demand production reducing waste"
       ],
       "links": [
         {
@@ -435,7 +435,7 @@
             "phase": "Custom Design Development",
             "date": "2024",
             "status": "completed",
-            "description": "Financial education themed merchandise designs"
+            "description": "Original merchandise designs and creative concepts"
           },
           {
             "phase": "Product Catalog Creation",
