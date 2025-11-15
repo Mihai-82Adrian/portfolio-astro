@@ -99,6 +99,21 @@ jobs:
           branch: ${{ github.ref_name }}
           wranglerVersion: '3'
 
+      - name: Purge Cloudflare cache
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        run: |
+          echo "Purging Cloudflare cache for me-mateescu.de..."
+          RESPONSE=$(curl -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_ZONE_ID }}/purge_cache" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}')
+          echo "Cache purge response: $RESPONSE"
+          if echo "$RESPONSE" | grep -q '"success":true'; then
+            echo "✅ Cache purged successfully"
+          else
+            echo "⚠️  Cache purge may have failed - check response above"
+          fi
+
       - name: Deploy preview (PR)
         if: github.event_name == 'pull_request'
         uses: cloudflare/pages-action@v1
