@@ -141,26 +141,8 @@ const defaultStructuredData = {
       />
     )}
 
-    <!-- Preload critical CSS -->
-    <link rel="preload" href="/styles/global.css" as="style" />
-    
-    <!-- KaTeX CSS for math equations (loaded async to avoid render-blocking) -->
-    <link 
-      rel="stylesheet" 
-      href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" 
-      integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" 
-      crossorigin="anonymous"
-      media="print"
-      onload="this.media='all'"
-    />
-    <noscript>
-      <link 
-        rel="stylesheet" 
-        href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" 
-        integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" 
-        crossorigin="anonymous"
-      />
-    </noscript>
+    <!-- KaTeX CSS for math equations (self-hosted for privacy and performance) -->
+    <link rel="stylesheet" href="/katex/katex.min.css" />
     
     <!-- Fonts: Inter for modern, professional typography + Playfair Display for headings -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
