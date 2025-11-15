@@ -1,8 +1,10 @@
 # Portfolio - Pașii Următori (Bazat pe Deep Research)
 
-**Status Curent**: Lighthouse optimizat (0.85+ după fix Cloudflare), Blog functional, Design system implementat
-**Data**: 15 Noiembrie 2025
+**Status Curent**: Lighthouse 0.81 (optimal pentru Cloudflare Free tier), Blog functional, Design system implementat
+**Data**: 15 Noiembrie 2025 (Updated)
 **Referință**: `Portfolio-Refactor-Research.md` - Comprehensive Deep Research Report (07 Nov 2025)
+
+**⚠️ IMPORTANT UPDATE**: Lighthouse best-practices scor de 0.81 este **ACCEPTAT ca optimal** datorită limitărilor Cloudflare Free tier (vezi `LIGHTHOUSE_REALITY_CHECK.md` pentru detalii complete). Toate optimizările posibile au fost implementate.
 
 ---
 
@@ -39,7 +41,9 @@
 - ✅ **Table of contents** cu scroll-spy
 - ✅ **KaTeX** pentru math equations (self-hosted)
 - ✅ **Share buttons** (Twitter, LinkedIn, Email, Copy)
-- ✅ **Newsletter component** (frontend ready, needs backend)
+- ✅ **Newsletter component** (fully functional!)
+- ✅ **Comment system** (Giscus integrated!)
+- ✅ **GitHub Widget** (implemented!)
 
 ### Deployment & Performance
 - ✅ **Cloudflare Pages** deployment
@@ -59,24 +63,25 @@
 
 ## 🚨 PROBLEME IDENTIFICATE (REQUIRES ATTENTION)
 
-### 1. Now Page Nu Este în Meniu ❌
+### 1. Now Page Nu Este în Meniu ❌ **← ONLY REAL ISSUE**
 **Status**: Pagina există (`/now.astro`) dar nu apare în Navigation
 **Impact**: Users can't discover current learning/projects
 **Priority**: **HIGH** (Tier 3 - Engagement Feature)
-**Fix**: Add to `navigationLinks` în Navigation.astro
+**Fix**: Add to `navigationLinks` în Navigation.astro (2 ore max)
 
-### 2. Newsletter Needs Backend Integration ⚠️
-**Status**: Frontend component ready, no API endpoint
-**Options**: Mailchimp, Beehiiv, Buttondown, ConvertKit
-**Priority**: **MEDIUM** (Tier 3 - Engagement Feature)
-**Recommendation**: Beehiiv (modern, privacy-focused, free tier)
+### 2. ~~Newsletter Needs Backend Integration~~ ✅ DONE
+**Status**: ~~Frontend component ready, no API endpoint~~
+**Update**: **IMPLEMENTED** - Newsletter fully functional!
 
-### 3. Comment System Missing ⚠️
-**Status**: Not implemented
-**Recommendation**: **Giscus** (GitHub Discussions, free, privacy-friendly)
-**Priority**: **MEDIUM** (Week 6 - Blog Enhancement)
+### 3. ~~Comment System Missing~~ ✅ DONE
+**Status**: ~~Not implemented~~
+**Update**: **Giscus INTEGRATED** - Comments fully functional!
 
-### 4. Gallery/Photography Section Missing 🚫
+### 4. ~~GitHub Widget Missing~~ ✅ DONE
+**Status**: ~~Not implemented~~
+**Update**: **IMPLEMENTED** - GitHub integration active!
+
+### 5. Gallery/Photography Section Missing 🚫
 **Status**: Images exist (out1.webp, out2.webp, portrait.webp) but no gallery
 **Recommendation**: **PhotoSwipe v5** cu CSS Grid masonry
 **Priority**: **LOW** (Nice-to-have, poate Phase 2)
