@@ -130,16 +130,7 @@ const defaultStructuredData = {
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json" set:html={JSON.stringify(structuredData || defaultStructuredData)} />
 
-    <!-- Preload Critical Resources (LCP Optimization) -->
-    {currentPath === '/' && (
-      <link
-        rel="preload"
-        as="image"
-        href="/images/2025-2_50PM.webp"
-        type="image/webp"
-        fetchpriority="high"
-      />
-    )}
+    <!-- Image preload removed - Astro's Image component with loading="eager" handles optimization automatically -->
 
     <!-- KaTeX CSS for math equations (self-hosted for privacy and performance) -->
     <link rel="stylesheet" href="/katex/katex.min.css" />
