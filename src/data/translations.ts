@@ -24,6 +24,7 @@ export interface Translations {
     subtitle: string;
     description: string;
     skillsLabel: string; // Hero skills section label
+    heroSkills: string[]; // Short skills for Hero section
     cta: {
       viewProjects: string;
       readBlog: string;
@@ -191,6 +192,7 @@ export const translations: Record<Language, Translations> = {
       subtitle: 'Finanzbuchhalter',
       description: 'Engagierter Finanzbuchhalter mit Erfahrung in der Buchhaltung und Finanzverwaltung, spezialisiert auf die detaillierte Analyse von Geschäftsvorfällen und die steuerliche Berichterstattung. Mit einer ausgeprägten Leidenschaft für Zahlen und einem scharfen Auge für Details suche ich stets nach Möglichkeiten, meine beruflichen Fähigkeiten weiterzuentwickeln. Meine vielseitige Erfahrung, die von der Buchhaltung bis hin zum Management von Teams reicht, empfiehlt mich als einen flexiblen Fachmann, der in jeder finanziellen Umgebung einen Mehrwert schafft.',
       skillsLabel: 'Kompetenzen:',
+      heroSkills: ['DATEV', 'Finanzbuchhaltung', 'Umsatzsteuer', 'Jahresabschlüsse'],
       cta: {
         viewProjects: 'Projekte ansehen',
         readBlog: 'Blog lesen',
@@ -406,6 +408,7 @@ export const translations: Record<Language, Translations> = {
       subtitle: 'Financial Accountant',
       description: 'Dedicated Financial Accountant with experience in accounting and financial management, specializing in detailed analysis of business transactions and tax reporting. With a strong passion for numbers and a keen eye for detail, I constantly seek opportunities to further develop my professional skills. My diverse experience, ranging from accounting to team management, positions me as a flexible professional who creates value in any financial environment.',
       skillsLabel: 'Skills:',
+      heroSkills: ['DATEV', 'Financial Accounting', 'VAT', 'Annual Statements'],
       cta: {
         viewProjects: 'View Projects',
         readBlog: 'Read Blog',
@@ -621,6 +624,7 @@ export const translations: Record<Language, Translations> = {
       subtitle: 'Contabil Financiar',
       description: 'Contabil Financiar dedicat cu experiență în contabilitate și management financiar, specializat în analiza detaliată a tranzacțiilor comerciale și raportarea fiscală. Cu o pasiune puternică pentru cifre și un ochi atent la detalii, caut constant oportunități de a-mi dezvolta abilitățile profesionale. Experiența mea diversă, care variază de la contabilitate la managementul echipelor, mă poziționează ca un profesionist flexibil care creează valoare în orice mediu financiar.',
       skillsLabel: 'Competențe:',
+      heroSkills: ['DATEV', 'Contabilitate Financiară', 'TVA', 'Situații Anuale'],
       cta: {
         viewProjects: 'Vezi Proiecte',
         readBlog: 'Citește Blog',

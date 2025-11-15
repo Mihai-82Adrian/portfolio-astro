@@ -34,6 +34,8 @@ interface Props {
   imageAlt?: string;
   /** Skills section label */
   skillsLabel?: string;
+  /** Skills array */
+  skills?: string[];
 }
 
 const {
@@ -47,6 +49,7 @@ const {
   imageSrc,
   imageAlt = '',
   skillsLabel = 'Kompetenzen:',
+  skills = ['DATEV', 'Finanzbuchhaltung', 'Umsatzsteuer', 'Jahresabschlüsse'],
 } = Astro.props;
 ---
 
@@ -130,13 +133,12 @@ const {
       <div class="hero-tech-stack">
         <p class="hero-tech-label">{skillsLabel}</p>
         <div class="hero-tech-icons">
-          <span class="hero-tech-item">DATEV</span>
-          <span class="hero-tech-separator">·</span>
-          <span class="hero-tech-item">Finanzbuchhaltung</span>
-          <span class="hero-tech-separator">·</span>
-          <span class="hero-tech-item">Umsatzsteuer</span>
-          <span class="hero-tech-separator">·</span>
-          <span class="hero-tech-item">Jahresabschlüsse</span>
+          {skills.map((skill, index) => (
+            <>
+              <span class="hero-tech-item">{skill}</span>
+              {index < skills.length - 1 && <span class="hero-tech-separator">·</span>}
+            </>
+          ))}
         </div>
       </div>
     </div>

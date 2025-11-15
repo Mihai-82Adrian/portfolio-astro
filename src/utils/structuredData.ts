@@ -138,7 +138,7 @@ export function generatePersonSchema(lang: 'de' | 'en' | 'ro' = 'de'): PersonSch
       addressCountry: 'DE'
     },
     sameAs: [
-      'https://www.linkedin.com/in/mateescu-mihai-922b3169',
+      'https://www.linkedin.com/in/mihai-adrian-mateescu',
       'https://github.com/Mihai-82Adrian',
       'https://profit-minds.de'
     ],
