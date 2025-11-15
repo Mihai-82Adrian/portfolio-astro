@@ -133,8 +133,8 @@ jobs:
             https://me-mateescu.de/about
             https://me-mateescu.de/experience
             https://me-mateescu.de/blog
-          uploadArtifacts: true
-          temporaryPublicStorage: true
+          uploadArtifacts: false
+          temporaryPublicStorage: false
 
       - name: Check Lighthouse scores
         run: |
