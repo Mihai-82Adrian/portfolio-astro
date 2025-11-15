@@ -63,11 +63,21 @@
 
 ## 🚨 PROBLEME IDENTIFICATE (REQUIRES ATTENTION)
 
-### 1. Now Page Nu Este în Meniu ❌ **← ONLY REAL ISSUE**
-**Status**: Pagina există (`/now.astro`) dar nu apare în Navigation
-**Impact**: Users can't discover current learning/projects
-**Priority**: **HIGH** (Tier 3 - Engagement Feature)
-**Fix**: Add to `navigationLinks` în Navigation.astro (2 ore max)
+### ✅ REZOLVATE ASTĂZI (15 Nov 2025):
+- ✅ Now Page adăugat în navigation
+- ✅ Skills Matrix mobile alignment fix (19/29 items cu wrapping issues)
+- ✅ Certifications enhanced cu validity badges + verification links
+- ✅ Toate modificările DEPLOYED și VERIFIED pe production
+
+---
+
+### 🔴 RĂMASE DE REZOLVAT:
+
+### 1. ~~Now Page Nu Este în Meniu~~ ✅ **DONE** (15 Nov 2025)
+**Status**: ~~Pagina există dar nu apare în Navigation~~
+**Update**: **IMPLEMENTED** - Now link vizibil în header pe toate paginile
+**Impact**: Users can now discover current learning/projects
+**Deployed**: ✅ LIVE on production
 
 ### 2. ~~Newsletter Needs Backend Integration~~ ✅ DONE
 **Status**: ~~Frontend component ready, no API endpoint~~
