@@ -1,0 +1,397 @@
+---
+/**
+ * GrowthChart Component
+ *
+ * Career progression visualization showing:
+ * - Seniority level over time
+ * - Technology adoption timeline
+ * - Role complexity progression
+ *
+ * Uses pure SVG for lightweight, responsive rendering
+ * Mobile-first design
+ *
+ * @component
+ */
+
+import Container from '@components/ui/Container.astro';
+import Card from '@components/ui/Card.astro';
+
+interface Position {
+  id: string;
+  company: string;
+  role: { de: string; en: string; ro: string };
+  startDate: string;
+  endDate: string | 'present';
+  technologies?: string[];
+}
+
+interface Props {
+  /** Career positions data */
+  positions: Position[];
+  /** Current language */
+  lang?: 'de' | 'en' | 'ro';
+}
+
+const { positions, lang = 'de' } = Astro.props;
+
+// Calculate seniority level based on role title
+const calculateSeniorityLevel = (role: string): number => {
+  const roleLower = role.toLowerCase();
+
+  if (roleLower.includes('auszubildender') || roleLower.includes('trainee') || roleLower.includes('kassierer') || roleLower.includes('cashier') || roleLower.includes('verkaufsberater') || roleLower.includes('consultant')) {
+    return 1; // Entry level
+  } else if (roleLower.includes('mitarbeiter') || roleLower.includes('associate') || roleLower.includes('anlagenmechaniker') || roleLower.includes('technician')) {
+    return 2; // Junior
+  } else if (roleLower.includes('buchhalter') || roleLower.includes('accountant') || roleLower.includes('finanzbuchhalter')) {
+    return 3; // Mid-level
+  } else if (roleLower.includes('leiter') || roleLower.includes('manager') || roleLower.includes('filialleiter')) {
+    return 4; // Senior
+  } else {
+    return 2; // Default to junior
+  }
+};
+
+// Create timeline data points
+const timelineData = positions
+  .map((position) => {
+    const startYear = parseInt(position.startDate.split('-')[0]);
+    const endYear = position.endDate === 'present' ? new Date().getFullYear() : parseInt(position.endDate.split('-')[0]);
+    const seniorityLevel = calculateSeniorityLevel(position.role[lang]);
+    const techCount = position.technologies?.length || 0;
+
+    return {
+      year: startYear,
+      endYear,
+      company: position.company,
+      role: position.role[lang],
+      seniority: seniorityLevel,
+      techCount,
+      technologies: position.technologies || []
+    };
+  })
+  .sort((a, b) => a.year - b.year);
+
+// Get year range
+const allYears = timelineData.flatMap(d => [d.year, d.endYear]);
+const minYear = Math.min(...allYears);
+const maxYear = Math.max(...allYears);
+const yearRange = maxYear - minYear || 1;
+
+// SVG dimensions
+const width = 800;
+const height = 400;
+const padding = { top: 40, right: 40, bottom: 60, left: 60 };
+const chartWidth = width - padding.left - padding.right;
+const chartHeight = height - padding.top - padding.bottom;
+
+// Scale functions
+const scaleX = (year: number) => {
+  return ((year - minYear) / yearRange) * chartWidth;
+};
+
+const scaleY = (level: number) => {
+  return chartHeight - (level / 4) * chartHeight;
+};
+
+// Generate path for seniority progression
+const seniorityPath = timelineData.map((d, i) => {
+  const x = scaleX(d.year);
+  const y = scaleY(d.seniority);
+  return i === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
+}).join(' ');
+
+// Generate tech adoption points
+const techAdoptionPoints = timelineData.map(d => ({
+  x: scaleX(d.year),
+  y: scaleY(d.techCount / 2), // Scale tech count to 0-4 range
+  count: d.techCount,
+  year: d.year,
+  company: d.company
+}));
+
+// Y-axis labels
+const yAxisLabels = [
+  { level: 4, label: 'Senior' },
+  { level: 3, label: 'Mid-Level' },
+  { level: 2, label: 'Junior' },
+  { level: 1, label: 'Entry' }
+];
+
+// X-axis labels (every 5 years or major milestones)
+const xAxisLabels = [];
+for (let year = minYear; year <= maxYear; year += 5) {
+  xAxisLabels.push(year);
+}
+if (!xAxisLabels.includes(maxYear)) {
+  xAxisLabels.push(maxYear);
+}
+---
+
+<section class="growth-chart-section">
+  <Container maxWidth="xl" paddingY="lg">
+    <Card>
+      <div class="chart-header">
+        <h2 class="chart-title">Career Growth Trajectory</h2>
+        <p class="chart-description">
+          Professional progression from {minYear} to {maxYear} ({positions.length} positions)
+        </p>
+      </div>
+
+      <!-- Chart Container -->
+      <div class="chart-container">
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          class="chart-svg"
+          role="img"
+          aria-label="Career growth trajectory visualization"
+        >
+          <!-- Grid Lines -->
+          <g class="grid">
+            {yAxisLabels.map(({ level }) => (
+              <line
+                x1={padding.left}
+                y1={padding.top + scaleY(level)}
+                x2={padding.left + chartWidth}
+                y2={padding.top + scaleY(level)}
+                class="grid-line"
+              />
+            ))}
+          </g>
+
+          <!-- Y-Axis -->
+          <line
+            x1={padding.left}
+            y1={padding.top}
+            x2={padding.left}
+            y2={padding.top + chartHeight}
+            class="axis-line"
+          />
+
+          <!-- Y-Axis Labels -->
+          <g class="y-axis-labels">
+            {yAxisLabels.map(({ level, label }) => (
+              <text
+                x={padding.left - 10}
+                y={padding.top + scaleY(level)}
+                class="axis-label"
+                text-anchor="end"
+                dominant-baseline="middle"
+              >
+                {label}
+              </text>
+            ))}
+          </g>
+
+          <!-- X-Axis -->
+          <line
+            x1={padding.left}
+            y1={padding.top + chartHeight}
+            x2={padding.left + chartWidth}
+            y2={padding.top + chartHeight}
+            class="axis-line"
+          />
+
+          <!-- X-Axis Labels -->
+          <g class="x-axis-labels">
+            {xAxisLabels.map((year) => (
+              <text
+                x={padding.left + scaleX(year)}
+                y={padding.top + chartHeight + 20}
+                class="axis-label"
+                text-anchor="middle"
+              >
+                {year}
+              </text>
+            ))}
+          </g>
+
+          <!-- Seniority Progression Line -->
+          <path
+            d={seniorityPath}
+            class="seniority-line"
+            fill="none"
+          />
+
+          <!-- Seniority Points -->
+          <g class="seniority-points">
+            {timelineData.map((d) => (
+              <circle
+                cx={padding.left + scaleX(d.year)}
+                cy={padding.top + scaleY(d.seniority)}
+                r="6"
+                class="seniority-point"
+                data-tooltip={`${d.year}: ${d.role} at ${d.company}`}
+              >
+                <title>{d.year}: {d.role} at {d.company}</title>
+              </circle>
+            ))}
+          </g>
+
+          <!-- Chart Labels -->
+          <text
+            x={padding.left + chartWidth / 2}
+            y={height - 10}
+            class="axis-title"
+            text-anchor="middle"
+          >
+            Year
+          </text>
+
+          <text
+            x={20}
+            y={padding.top + chartHeight / 2}
+            class="axis-title"
+            text-anchor="middle"
+            transform={`rotate(-90, 20, ${padding.top + chartHeight / 2})`}
+          >
+            Seniority Level
+          </text>
+        </svg>
+      </div>
+
+      <!-- Legend -->
+      <div class="chart-legend">
+        <div class="legend-item">
+          <div class="legend-marker seniority-marker"></div>
+          <span>Seniority Progression</span>
+        </div>
+        <div class="legend-note">
+          <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+            Career trajectory from entry-level positions ({timelineData.filter(d => d.seniority === 1).length} positions)
+            to mid/senior roles ({timelineData.filter(d => d.seniority >= 3).length} positions) over {yearRange} years.
+          </p>
+        </div>
+      </div>
+    </Card>
+  </Container>
+</section>
+
+<style>
+  .growth-chart-section {
+    @apply bg-light-bg dark:bg-dark-bg;
+  }
+
+  /* Chart Header */
+  .chart-header {
+    @apply mb-8 text-center md:text-left;
+  }
+
+  .chart-title {
+    @apply text-2xl md:text-3xl font-bold;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+    @apply mb-2;
+  }
+
+  .chart-description {
+    @apply text-base md:text-lg;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+  }
+
+  /* Chart Container */
+  .chart-container {
+    @apply w-full overflow-x-auto;
+    @apply bg-white dark:bg-gray-900;
+    @apply rounded-lg p-4;
+    @apply border border-light-border dark:border-dark-border;
+  }
+
+  .chart-svg {
+    @apply w-full h-auto;
+    @apply min-w-[600px]; /* Ensure minimum width on mobile */
+  }
+
+  /* Grid */
+  .grid-line {
+    @apply stroke-light-border dark:stroke-dark-border;
+    stroke-width: 1;
+    opacity: 0.5;
+  }
+
+  /* Axes */
+  .axis-line {
+    @apply stroke-text-secondary-light dark:stroke-text-secondary-dark;
+    stroke-width: 2;
+  }
+
+  .axis-label {
+    @apply fill-text-secondary-light dark:fill-text-secondary-dark;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .axis-title {
+    @apply fill-text-primary-light dark:fill-text-primary-dark;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  /* Seniority Line */
+  .seniority-line {
+    @apply stroke-eucalyptus-600 dark:stroke-eucalyptus-400;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Seniority Points */
+  .seniority-point {
+    @apply fill-eucalyptus-700 dark:fill-eucalyptus-300;
+    @apply stroke-white dark:stroke-gray-900;
+    stroke-width: 2;
+    transition: r 0.2s ease, fill 0.2s ease;
+    cursor: pointer;
+  }
+
+  .seniority-point:hover {
+    r: 8;
+    @apply fill-eucalyptus-800 dark:fill-eucalyptus-200;
+  }
+
+  /* Legend */
+  .chart-legend {
+    @apply mt-6 pt-6;
+    @apply border-t border-light-border dark:border-dark-border;
+    @apply flex flex-col md:flex-row gap-4 md:gap-8 items-start md:items-center;
+  }
+
+  .legend-item {
+    @apply flex items-center gap-2;
+  }
+
+  .legend-marker {
+    @apply w-8 h-1 rounded;
+  }
+
+  .seniority-marker {
+    @apply bg-eucalyptus-600 dark:bg-eucalyptus-400;
+  }
+
+  .legend-note {
+    @apply flex-1;
+  }
+</style>
+
+<script>
+  // Add interactivity to chart points
+  if (typeof window !== 'undefined') {
+    const initChart = () => {
+      const points = document.querySelectorAll('.seniority-point');
+
+      points.forEach(point => {
+        point.addEventListener('mouseenter', function() {
+          const tooltip = this.getAttribute('data-tooltip');
+          if (tooltip) {
+            // Could implement custom tooltip here
+            // For now, browser title attribute handles it
+          }
+        });
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initChart);
+    } else {
+      initChart();
+    }
+  }
+</script>

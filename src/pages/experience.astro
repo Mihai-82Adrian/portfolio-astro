@@ -8,6 +8,8 @@
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Timeline from '@components/sections/Timeline.astro';
+import TimelineFilters from '@components/sections/TimelineFilters.astro';
+import GrowthChart from '@components/sections/GrowthChart.astro';
 import Container from '@components/ui/Container.astro';
 import Card from '@components/ui/Card.astro';
 import Badge from '@components/ui/Badge.astro';
@@ -58,6 +60,24 @@ const timelineItems = careerPositions.map((position) => {
 
 // Skills gained from experience
 const practicalSkills = t.experience.practicalSkills;
+
+// Extract unique companies for filter
+const uniqueCompanies = [...new Set(careerPositions.map(p => p.company))];
+
+// Extract unique technologies for filter
+const allTechnologies = careerPositions
+  .flatMap(p => p.technologies || [])
+  .filter(Boolean);
+const uniqueTechnologies = [...new Set(allTechnologies)];
+
+// Get year range
+const years = careerPositions.map(p => {
+  const startYear = parseInt(p.startDate.split('-')[0]);
+  const endYear = p.endDate === 'present' ? new Date().getFullYear() : parseInt(p.endDate.split('-')[0]);
+  return [startYear, endYear];
+}).flat();
+const minYear = Math.min(...years);
+const maxYear = Math.max(...years);
 ---
 
 <BaseLayout title={title} description={description} lang={lang} structuredData={structuredData}>
@@ -81,8 +101,20 @@ const practicalSkills = t.experience.practicalSkills;
 
     <!-- Career Timeline -->
     <section class="py-12">
+      <!-- Filters -->
+      <TimelineFilters
+        companies={uniqueCompanies}
+        technologies={uniqueTechnologies}
+        minYear={minYear}
+        maxYear={maxYear}
+      />
+
+      <!-- Timeline -->
       <Timeline items={timelineItems} />
     </section>
+
+    <!-- Growth Trajectory Visualization -->
+    <GrowthChart positions={careerPositions} lang={lang} />
 
     <!-- Practical Skills Section -->
     <section class="py-12">

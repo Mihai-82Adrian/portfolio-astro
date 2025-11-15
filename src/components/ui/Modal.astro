@@ -1,0 +1,248 @@
+---
+/**
+ * Modal Component
+ *
+ * Accessible modal overlay for displaying detailed content.
+ * Features:
+ * - Mobile-first responsive design
+ * - Keyboard navigation (ESC to close)
+ * - Click outside to close
+ * - Scroll lock when open
+ * - WCAG 2.2 AAA compliant
+ *
+ * @component
+ */
+
+interface Props {
+  /** Modal ID for accessibility */
+  id: string;
+  /** Aria label for the modal */
+  ariaLabel?: string;
+  /** Size variant */
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+}
+
+const {
+  id,
+  ariaLabel = 'Modal dialog',
+  size = 'lg',
+} = Astro.props;
+
+const sizeClasses = {
+  sm: 'max-w-md',
+  md: 'max-w-2xl',
+  lg: 'max-w-4xl',
+  xl: 'max-w-6xl',
+  full: 'max-w-full mx-4'
+};
+---
+
+<div
+  id={id}
+  class="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby={`${id}-title`}
+  aria-label={ariaLabel}
+  data-modal
+  hidden
+>
+  <!-- Backdrop -->
+  <div class="modal-backdrop" data-modal-backdrop></div>
+
+  <!-- Modal Container -->
+  <div class="modal-container">
+    <div class:list={['modal-content', sizeClasses[size]]}>
+      <!-- Close Button -->
+      <button
+        type="button"
+        class="modal-close"
+        data-modal-close
+        aria-label="Close modal"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <!-- Modal Body (slot) -->
+      <div class="modal-body">
+        <slot />
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Modal Overlay */
+  .modal {
+    @apply fixed inset-0 z-50;
+    @apply flex items-center justify-center;
+    @apply transition-opacity duration-300;
+  }
+
+  .modal[hidden] {
+    @apply opacity-0 pointer-events-none;
+  }
+
+  .modal:not([hidden]) {
+    @apply opacity-100;
+  }
+
+  /* Backdrop */
+  .modal-backdrop {
+    @apply absolute inset-0;
+    @apply bg-black/60 backdrop-blur-sm;
+    @apply transition-opacity duration-300;
+  }
+
+  /* Modal Container */
+  .modal-container {
+    @apply relative w-full h-full;
+    @apply flex items-center justify-center;
+    @apply p-4 md:p-6;
+    @apply overflow-y-auto;
+  }
+
+  /* Modal Content */
+  .modal-content {
+    @apply relative w-full;
+    @apply bg-light-surface dark:bg-dark-surface;
+    @apply border border-light-border dark:border-dark-border;
+    @apply rounded-lg shadow-2xl;
+    @apply transform transition-transform duration-300;
+    @apply max-h-[90vh] overflow-y-auto;
+  }
+
+  .modal[hidden] .modal-content {
+    @apply scale-95;
+  }
+
+  .modal:not([hidden]) .modal-content {
+    @apply scale-100;
+  }
+
+  /* Close Button */
+  .modal-close {
+    @apply absolute top-4 right-4 z-10;
+    @apply p-2 rounded-lg;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+    @apply bg-light-bg dark:bg-dark-bg;
+    @apply border border-light-border dark:border-dark-border;
+    @apply hover:bg-eucalyptus-50 dark:hover:bg-dark-elevated;
+    @apply hover:text-eucalyptus-700 dark:hover:text-eucalyptus-300;
+    @apply focus:outline-none focus:ring-2 focus:ring-eucalyptus-500 focus:ring-offset-2;
+    @apply transition-colors duration-150;
+  }
+
+  /* Modal Body */
+  .modal-body {
+    @apply p-6 md:p-8;
+  }
+
+  /* Scroll Lock */
+  body:has(.modal:not([hidden])) {
+    @apply overflow-hidden;
+  }
+</style>
+
+<script>
+  /**
+   * Modal functionality with keyboard and click handling
+   */
+  class ModalController {
+    private modal: HTMLElement;
+    private closeButtons: NodeListOf<HTMLElement>;
+    private backdrop: HTMLElement | null;
+
+    constructor(modalElement: HTMLElement) {
+      this.modal = modalElement;
+      this.closeButtons = modalElement.querySelectorAll('[data-modal-close]');
+      this.backdrop = modalElement.querySelector('[data-modal-backdrop]');
+
+      this.init();
+    }
+
+    private init() {
+      // Close on button click
+      this.closeButtons.forEach(button => {
+        button.addEventListener('click', () => this.close());
+      });
+
+      // Close on backdrop click
+      if (this.backdrop) {
+        this.backdrop.addEventListener('click', () => this.close());
+      }
+
+      // Close on ESC key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !this.modal.hidden) {
+          this.close();
+        }
+      });
+
+      // Listen for custom open event
+      this.modal.addEventListener('modal:open', () => this.open());
+      this.modal.addEventListener('modal:close', () => this.close());
+    }
+
+    public open() {
+      this.modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+
+      // Focus first focusable element
+      const firstFocusable = this.modal.querySelector<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      firstFocusable?.focus();
+
+      // Dispatch opened event
+      this.modal.dispatchEvent(new CustomEvent('modal:opened'));
+    }
+
+    public close() {
+      this.modal.hidden = true;
+      document.body.style.overflow = '';
+
+      // Dispatch closed event
+      this.modal.dispatchEvent(new CustomEvent('modal:closed'));
+    }
+  }
+
+  // Initialize all modals on page
+  if (typeof window !== 'undefined') {
+    const initModals = () => {
+      const modals = document.querySelectorAll<HTMLElement>('[data-modal]');
+      modals.forEach(modal => new ModalController(modal));
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initModals);
+    } else {
+      initModals();
+    }
+  }
+
+  // Global helper functions
+  window.openModal = (modalId: string) => {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.dispatchEvent(new CustomEvent('modal:open'));
+    }
+  };
+
+  window.closeModal = (modalId: string) => {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.dispatchEvent(new CustomEvent('modal:close'));
+    }
+  };
+
+  // TypeScript declarations for global functions
+  declare global {
+    interface Window {
+      openModal: (modalId: string) => void;
+      closeModal: (modalId: string) => void;
+    }
+  }
+</script>

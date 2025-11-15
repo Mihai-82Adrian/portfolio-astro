@@ -1,0 +1,469 @@
+---
+/**
+ * TimelineFilters Component
+ *
+ * Filter controls for timeline: companies, technologies, year range
+ * Mobile-first design with collapsible filters
+ *
+ * @component
+ */
+
+import Badge from '@components/ui/Badge.astro';
+
+interface Props {
+  /** Available companies for filtering */
+  companies: string[];
+  /** Available technologies/skills for filtering */
+  technologies: string[];
+  /** Minimum year */
+  minYear: number;
+  /** Maximum year */
+  maxYear: number;
+}
+
+const { companies, technologies, minYear, maxYear } = Astro.props;
+
+// Sort companies and technologies alphabetically
+const sortedCompanies = [...companies].sort();
+const sortedTechnologies = [...technologies].sort();
+---
+
+<div class="timeline-filters" data-timeline-filters>
+  <!-- Filter Header -->
+  <div class="filter-header">
+    <h3 class="filter-title">Filter Timeline</h3>
+    <button
+      type="button"
+      class="filter-toggle md:hidden"
+      data-filter-toggle
+      aria-label="Toggle filters"
+      aria-expanded="false"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+      </svg>
+      <span class="ml-2">Filters</span>
+      <span class="filter-count" data-filter-count hidden></span>
+    </button>
+    <button
+      type="button"
+      class="filter-clear"
+      data-filter-clear
+      aria-label="Clear all filters"
+      hidden
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+      <span class="ml-1">Clear All</span>
+    </button>
+  </div>
+
+  <!-- Filter Content -->
+  <div class="filter-content" data-filter-content hidden>
+    <!-- Companies Filter -->
+    <div class="filter-group">
+      <h4 class="filter-group-title">Companies</h4>
+      <div class="filter-options">
+        {sortedCompanies.map((company) => (
+          <label class="filter-option">
+            <input
+              type="checkbox"
+              name="company"
+              value={company}
+              class="filter-checkbox"
+              data-filter-type="company"
+            />
+            <span class="filter-label">{company}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+
+    <!-- Technologies Filter -->
+    <div class="filter-group">
+      <h4 class="filter-group-title">Technologies & Skills</h4>
+      <div class="filter-options filter-options-wrap">
+        {sortedTechnologies.map((tech) => (
+          <label class="filter-option-badge">
+            <input
+              type="checkbox"
+              name="technology"
+              value={tech}
+              class="filter-checkbox-hidden"
+              data-filter-type="technology"
+            />
+            <Badge size="sm" class="filter-badge">
+              {tech}
+            </Badge>
+          </label>
+        ))}
+      </div>
+    </div>
+
+    <!-- Year Range Filter -->
+    <div class="filter-group">
+      <h4 class="filter-group-title">
+        Year Range
+        <span class="filter-year-display" data-year-display>
+          {minYear} - {maxYear}
+        </span>
+      </h4>
+      <div class="filter-range">
+        <input
+          type="range"
+          name="yearStart"
+          min={minYear}
+          max={maxYear}
+          value={minYear}
+          class="filter-slider"
+          data-filter-type="yearStart"
+          aria-label="Start year"
+        />
+        <input
+          type="range"
+          name="yearEnd"
+          min={minYear}
+          max={maxYear}
+          value={maxYear}
+          class="filter-slider"
+          data-filter-type="yearEnd"
+          aria-label="End year"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Filter Container */
+  .timeline-filters {
+    @apply bg-light-surface dark:bg-dark-surface;
+    @apply border border-light-border dark:border-dark-border;
+    @apply rounded-lg p-4 md:p-6;
+    @apply mb-8;
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Filter Header */
+  .filter-header {
+    @apply flex items-center justify-between;
+  }
+
+  .filter-title {
+    @apply text-lg md:text-xl font-semibold;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+  }
+
+  .filter-toggle {
+    @apply flex items-center gap-2;
+    @apply px-4 py-2 rounded-lg;
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+    @apply bg-eucalyptus-50 dark:bg-dark-elevated;
+    @apply hover:bg-eucalyptus-100 dark:hover:bg-eucalyptus-900/30;
+    @apply transition-colors duration-150;
+  }
+
+  .filter-clear {
+    @apply flex items-center gap-1;
+    @apply px-3 py-1.5 rounded-lg;
+    @apply text-sm font-medium;
+    @apply text-red-600 dark:text-red-400;
+    @apply bg-red-50 dark:bg-red-900/20;
+    @apply hover:bg-red-100 dark:hover:bg-red-900/30;
+    @apply transition-colors duration-150;
+  }
+
+  .filter-count {
+    @apply ml-2 px-2 py-0.5 rounded-full;
+    @apply text-xs font-bold;
+    @apply bg-eucalyptus-600 dark:bg-eucalyptus-500;
+    @apply text-white;
+  }
+
+  /* Filter Content */
+  .filter-content {
+    @apply mt-6;
+    @apply grid grid-cols-1 md:grid-cols-3 gap-6;
+  }
+
+  .filter-content[hidden] {
+    @apply hidden md:grid;
+  }
+
+  /* Filter Group */
+  .filter-group {
+    @apply space-y-3;
+  }
+
+  .filter-group-title {
+    @apply text-sm font-semibold uppercase tracking-wide;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+    @apply flex items-center justify-between;
+  }
+
+  .filter-year-display {
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+    @apply font-mono text-xs;
+  }
+
+  /* Filter Options */
+  .filter-options {
+    @apply space-y-2;
+  }
+
+  .filter-options-wrap {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .filter-option {
+    @apply flex items-center gap-2;
+    @apply cursor-pointer;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+    @apply hover:text-eucalyptus-700 dark:hover:text-eucalyptus-300;
+    @apply transition-colors duration-150;
+  }
+
+  .filter-checkbox {
+    @apply w-4 h-4 rounded;
+    @apply border-2 border-light-border dark:border-dark-border;
+    @apply text-eucalyptus-600 dark:text-eucalyptus-400;
+    @apply focus:ring-2 focus:ring-eucalyptus-500 focus:ring-offset-2;
+    @apply cursor-pointer;
+  }
+
+  .filter-label {
+    @apply text-sm;
+  }
+
+  /* Badge Filter Options */
+  .filter-option-badge {
+    @apply cursor-pointer;
+    @apply transition-all duration-150;
+  }
+
+  .filter-checkbox-hidden {
+    @apply sr-only;
+  }
+
+  .filter-option-badge input:checked + .filter-badge {
+    @apply bg-eucalyptus-600 dark:bg-eucalyptus-500;
+    @apply text-white;
+    @apply ring-2 ring-eucalyptus-500 ring-offset-2;
+  }
+
+  .filter-option-badge:hover .filter-badge {
+    @apply bg-eucalyptus-100 dark:bg-eucalyptus-900/50;
+  }
+
+  .filter-badge {
+    @apply transition-all duration-150;
+  }
+
+  /* Year Range Sliders */
+  .filter-range {
+    @apply space-y-2;
+  }
+
+  .filter-slider {
+    @apply w-full h-2 rounded-lg;
+    @apply bg-light-border dark:bg-dark-border;
+    @apply appearance-none cursor-pointer;
+  }
+
+  .filter-slider::-webkit-slider-thumb {
+    @apply appearance-none w-4 h-4 rounded-full;
+    @apply bg-eucalyptus-600 dark:bg-eucalyptus-400;
+    @apply cursor-pointer;
+    @apply hover:bg-eucalyptus-700 dark:hover:bg-eucalyptus-300;
+  }
+
+  .filter-slider::-moz-range-thumb {
+    @apply w-4 h-4 rounded-full;
+    @apply bg-eucalyptus-600 dark:bg-eucalyptus-400;
+    @apply cursor-pointer border-0;
+    @apply hover:bg-eucalyptus-700 dark:hover:bg-eucalyptus-300;
+  }
+
+  .filter-slider:focus {
+    @apply outline-none ring-2 ring-eucalyptus-500 ring-offset-2;
+  }
+</style>
+
+<script>
+  /**
+   * Timeline Filter Controller
+   * Manages filter state and dispatches filter events
+   */
+  class TimelineFilterController {
+    private container: HTMLElement;
+    private toggle: HTMLElement | null;
+    private content: HTMLElement | null;
+    private clearButton: HTMLElement | null;
+    private countBadge: HTMLElement | null;
+    private yearDisplay: HTMLElement | null;
+    private filters: Map<string, Set<string>>;
+
+    constructor(container: HTMLElement) {
+      this.container = container;
+      this.toggle = container.querySelector('[data-filter-toggle]');
+      this.content = container.querySelector('[data-filter-content]');
+      this.clearButton = container.querySelector('[data-filter-clear]');
+      this.countBadge = container.querySelector('[data-filter-count]');
+      this.yearDisplay = container.querySelector('[data-year-display]');
+      this.filters = new Map([
+        ['company', new Set()],
+        ['technology', new Set()],
+        ['yearStart', new Set()],
+        ['yearEnd', new Set()]
+      ]);
+
+      this.init();
+    }
+
+    private init() {
+      // Toggle filters on mobile
+      this.toggle?.addEventListener('click', () => this.toggleFilters());
+
+      // Clear all filters
+      this.clearButton?.addEventListener('click', () => this.clearAllFilters());
+
+      // Listen to filter changes
+      const checkboxes = this.container.querySelectorAll<HTMLInputElement>('[data-filter-type]');
+      checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', () => this.handleFilterChange());
+      });
+
+      // Listen to year range changes
+      const yearInputs = this.container.querySelectorAll<HTMLInputElement>('.filter-slider');
+      yearInputs.forEach(input => {
+        input.addEventListener('input', () => this.handleYearChange());
+      });
+    }
+
+    private toggleFilters() {
+      if (this.content) {
+        const isHidden = this.content.hidden;
+        this.content.hidden = !isHidden;
+        this.toggle?.setAttribute('aria-expanded', String(isHidden));
+      }
+    }
+
+    private handleFilterChange() {
+      // Update filter state
+      const companies = this.container.querySelectorAll<HTMLInputElement>('[data-filter-type="company"]:checked');
+      const technologies = this.container.querySelectorAll<HTMLInputElement>('[data-filter-type="technology"]:checked');
+
+      this.filters.set('company', new Set(Array.from(companies).map(c => c.value)));
+      this.filters.set('technology', new Set(Array.from(technologies).map(t => t.value)));
+
+      this.updateUI();
+      this.dispatchFilterEvent();
+    }
+
+    private handleYearChange() {
+      const yearStart = this.container.querySelector<HTMLInputElement>('[data-filter-type="yearStart"]');
+      const yearEnd = this.container.querySelector<HTMLInputElement>('[data-filter-type="yearEnd"]');
+
+      if (yearStart && yearEnd) {
+        const start = parseInt(yearStart.value);
+        const end = parseInt(yearEnd.value);
+
+        // Ensure start <= end
+        if (start > end) {
+          yearStart.value = String(end);
+        }
+
+        // Update display
+        if (this.yearDisplay) {
+          this.yearDisplay.textContent = `${yearStart.value} - ${yearEnd.value}`;
+        }
+
+        this.filters.set('yearStart', new Set([yearStart.value]));
+        this.filters.set('yearEnd', new Set([yearEnd.value]));
+
+        this.updateUI();
+        this.dispatchFilterEvent();
+      }
+    }
+
+    private updateUI() {
+      const totalFilters =
+        this.filters.get('company')!.size +
+        this.filters.get('technology')!.size;
+
+      // Show/hide clear button
+      if (this.clearButton) {
+        this.clearButton.hidden = totalFilters === 0;
+      }
+
+      // Update count badge
+      if (this.countBadge) {
+        if (totalFilters > 0) {
+          this.countBadge.textContent = String(totalFilters);
+          this.countBadge.hidden = false;
+        } else {
+          this.countBadge.hidden = true;
+        }
+      }
+    }
+
+    private clearAllFilters() {
+      // Uncheck all checkboxes
+      const checkboxes = this.container.querySelectorAll<HTMLInputElement>('[data-filter-type]:checked');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+      });
+
+      // Reset year ranges
+      const yearStart = this.container.querySelector<HTMLInputElement>('[data-filter-type="yearStart"]');
+      const yearEnd = this.container.querySelector<HTMLInputElement>('[data-filter-type="yearEnd"]');
+
+      if (yearStart && yearEnd) {
+        yearStart.value = yearStart.min;
+        yearEnd.value = yearEnd.max;
+
+        if (this.yearDisplay) {
+          this.yearDisplay.textContent = `${yearStart.min} - ${yearEnd.max}`;
+        }
+      }
+
+      // Clear filter state
+      this.filters.set('company', new Set());
+      this.filters.set('technology', new Set());
+      this.filters.set('yearStart', new Set([yearStart?.min || '']));
+      this.filters.set('yearEnd', new Set([yearEnd?.max || '']));
+
+      this.updateUI();
+      this.dispatchFilterEvent();
+    }
+
+    private dispatchFilterEvent() {
+      const filterData = {
+        companies: Array.from(this.filters.get('company') || []),
+        technologies: Array.from(this.filters.get('technology') || []),
+        yearStart: Array.from(this.filters.get('yearStart') || [])[0] || '',
+        yearEnd: Array.from(this.filters.get('yearEnd') || [])[0] || ''
+      };
+
+      this.container.dispatchEvent(new CustomEvent('timeline:filter', {
+        detail: filterData,
+        bubbles: true
+      }));
+    }
+  }
+
+  // Initialize filters
+  if (typeof window !== 'undefined') {
+    const initFilters = () => {
+      const filters = document.querySelectorAll<HTMLElement>('[data-timeline-filters]');
+      filters.forEach(filter => new TimelineFilterController(filter));
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initFilters);
+    } else {
+      initFilters();
+    }
+  }
+</script>

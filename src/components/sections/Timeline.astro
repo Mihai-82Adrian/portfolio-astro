@@ -10,6 +10,7 @@
 
 import Container from '@components/ui/Container.astro';
 import Badge from '@components/ui/Badge.astro';
+import Modal from '@components/ui/Modal.astro';
 
 interface TimelineItem {
   id?: string;
@@ -104,7 +105,14 @@ const displayItems = items.length > 0 ? items : defaultItems;
           </div>
 
           {/* Timeline Content */}
-          <div class="timeline-content" data-timeline-item>
+          <button
+            type="button"
+            class="timeline-content"
+            data-timeline-item
+            data-modal-trigger={`timeline-modal-${item.id || index}`}
+            onclick={`window.openModal('timeline-modal-${item.id || index}')`}
+            aria-label={`View details for ${item.role} at ${item.company}`}
+          >
             <div class="timeline-header">
               {/* Company Logo */}
               {item.icon && (
@@ -156,10 +164,100 @@ const displayItems = items.length > 0 ? items : defaultItems;
                 ))}
               </div>
             )}
-          </div>
+          </button>
         </div>
       ))}
     </div>
+
+    {/* Modals for each timeline item */}
+    {displayItems.map((item, index) => (
+      <Modal id={`timeline-modal-${item.id || index}`} ariaLabel={`Details for ${item.role} at ${item.company}`} size="lg">
+        <div class="modal-timeline-header">
+          {item.icon && (
+            <div class="modal-company-logo">
+              <img
+                src={item.icon}
+                alt={`${item.company} Logo`}
+                class="w-full h-full object-contain"
+                loading="lazy"
+              />
+            </div>
+          )}
+          <div class="flex-1">
+            <h2 id={`timeline-modal-${item.id || index}-title`} class="text-2xl md:text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-2">
+              {item.role}
+            </h2>
+            <p class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-1">
+              {item.company}
+            </p>
+            <div class="flex flex-wrap gap-4 text-sm text-text-secondary-light dark:text-text-secondary-dark">
+              <time class="font-medium">
+                {item.startDate} - {item.endDate || 'Present'}
+              </time>
+              {item.location && (
+                <span class="flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  {item.location}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Description */}
+        {item.description && (
+          <div class="mt-6">
+            <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark mb-3">
+              Description
+            </h3>
+            {Array.isArray(item.description) ? (
+              <ul class="list-disc list-inside space-y-2 text-text-secondary-light dark:text-text-secondary-dark">
+                {item.description.map((desc) => (
+                  <li class="pl-2">{desc}</li>
+                ))}
+              </ul>
+            ) : (
+              <p class="text-text-secondary-light dark:text-text-secondary-dark leading-relaxed">
+                {item.description}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Achievements */}
+        {item.achievements && item.achievements.length > 0 && (
+          <div class="mt-6">
+            <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark mb-3">
+              Key Achievements
+            </h3>
+            <ul class="list-disc list-inside space-y-2">
+              {item.achievements.map((achievement) => (
+                <li class="text-text-secondary-light dark:text-text-secondary-dark pl-2">
+                  {achievement}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Technologies */}
+        {item.technologies && item.technologies.length > 0 && (
+          <div class="mt-6">
+            <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark mb-3">
+              Technologies & Skills
+            </h3>
+            <div class="flex flex-wrap gap-2">
+              {item.technologies.map((tech) => (
+                <Badge size="sm">{tech}</Badge>
+              ))}
+            </div>
+          </div>
+        )}
+      </Modal>
+    ))}
   </Container>
 </section>
 
@@ -236,16 +334,22 @@ const displayItems = items.length > 0 ? items : defaultItems;
 
   /* Timeline Content */
   .timeline-content {
-    @apply flex-grow;
+    @apply flex-grow w-full text-left;
     @apply bg-light-surface dark:bg-dark-surface;
     @apply rounded-lg p-6 md:p-8;
     @apply border border-light-border dark:border-dark-border;
     @apply transition-all duration-200;
+    @apply cursor-pointer;
     box-shadow: var(--shadow-card);
   }
 
   .timeline-content:hover {
     box-shadow: var(--shadow-elevated);
+    @apply border-eucalyptus-500 dark:border-eucalyptus-400;
+  }
+
+  .timeline-content:focus {
+    @apply outline-none ring-2 ring-eucalyptus-500 ring-offset-2;
   }
 
   .timeline-header {
@@ -344,6 +448,23 @@ const displayItems = items.length > 0 ? items : defaultItems;
   .timeline-item:nth-child(4) .timeline-content { transition-delay: 0.4s; }
   .timeline-item:nth-child(5) .timeline-content { transition-delay: 0.5s; }
   .timeline-item:nth-child(n+6) .timeline-content { transition-delay: 0.6s; }
+
+  /* Modal Styles */
+  .modal-timeline-header {
+    @apply flex flex-col md:flex-row gap-4 md:gap-6 items-start;
+    @apply pb-6 mb-6;
+    @apply border-b border-light-border dark:border-dark-border;
+  }
+
+  .modal-company-logo {
+    @apply w-24 h-24 md:w-32 md:h-32;
+    @apply flex-shrink-0;
+    @apply bg-white dark:bg-gray-800;
+    @apply rounded-lg;
+    @apply flex items-center justify-center;
+    @apply p-3;
+    @apply border border-light-border dark:border-dark-border;
+  }
 </style>
 
 <script>
@@ -379,5 +500,72 @@ const displayItems = items.length > 0 ? items : defaultItems;
     } else {
       observeTimeline();
     }
+
+    // Timeline filtering logic
+    const handleTimelineFilter = (event: CustomEvent) => {
+      const { companies, technologies, yearStart, yearEnd } = event.detail;
+
+      const timelineItems = document.querySelectorAll('.timeline-item');
+
+      timelineItems.forEach((item) => {
+        const button = item.querySelector('button[data-timeline-item]');
+        if (!button) return;
+
+        // Extract item data from button attributes or text content
+        const companyElement = item.querySelector('.timeline-company');
+        const techElements = item.querySelectorAll('.timeline-technologies [class*="badge"]');
+        const dateElement = item.querySelector('.timeline-date');
+
+        const company = companyElement?.textContent?.trim() || '';
+        const techs = Array.from(techElements).map(el => el.textContent?.trim() || '');
+        const dateText = dateElement?.textContent?.trim() || '';
+
+        // Parse year from date (format: "MM/YYYY - MM/YYYY" or "MM/YYYY - Present")
+        const yearMatch = dateText.match(/\d{4}/);
+        const itemStartYear = yearMatch ? parseInt(yearMatch[0]) : 0;
+
+        const allYearMatches = dateText.match(/\d{4}/g) || [];
+        const itemEndYear = allYearMatches.length > 1
+          ? parseInt(allYearMatches[allYearMatches.length - 1])
+          : (dateText.includes('Present') || dateText.includes('Heute') ? new Date().getFullYear() : itemStartYear);
+
+        // Apply filters
+        let shouldShow = true;
+
+        // Company filter
+        if (companies.length > 0 && !companies.includes(company)) {
+          shouldShow = false;
+        }
+
+        // Technology filter (show if ANY technology matches)
+        if (technologies.length > 0) {
+          const hasMatchingTech = technologies.some(tech => techs.includes(tech));
+          if (!hasMatchingTech) {
+            shouldShow = false;
+          }
+        }
+
+        // Year range filter
+        const filterStartYear = yearStart ? parseInt(yearStart) : 0;
+        const filterEndYear = yearEnd ? parseInt(yearEnd) : 9999;
+
+        if (itemEndYear < filterStartYear || itemStartYear > filterEndYear) {
+          shouldShow = false;
+        }
+
+        // Show/hide item
+        const itemElement = item as HTMLElement;
+        if (shouldShow) {
+          itemElement.style.display = '';
+          itemElement.removeAttribute('aria-hidden');
+        } else {
+          itemElement.style.display = 'none';
+          itemElement.setAttribute('aria-hidden', 'true');
+        }
+      });
+    };
+
+    // Listen for filter events
+    document.addEventListener('timeline:filter', handleTimelineFilter as EventListener);
   }
 </script>
