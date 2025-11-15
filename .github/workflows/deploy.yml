@@ -134,6 +134,7 @@ jobs:
             https://me-mateescu.de/experience
             https://me-mateescu.de/blog
           configPath: './lighthouserc.json'
+          uploadArtifacts: false
           temporaryPublicStorage: true
 
       - name: Check Lighthouse scores
