@@ -21,7 +21,7 @@ const personSchema = generatePersonSchema('de');
   lang="de"
 >
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={toJsonLd(personSchema as Record<string, unknown>)} />
+    <script type="application/ld+json" set:html={toJsonLd(personSchema as unknown as Record<string, unknown>)} />
   </Fragment>
 
   <main class="container-custom py-24">
