@@ -1,0 +1,185 @@
+---
+/**
+ * Impressum (Legal Notice) Page
+ *
+ * Required by DDG (Digitale-Dienste-Gesetz, formerly TMG §5)
+ * Information obligations for digital services in Germany
+ */
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { generatePersonSchema, toJsonLd } from '@utils/structuredData';
+
+const title = 'Impressum | Mihai Adrian Mateescu';
+const description = 'Legal notice and contact information according to DDG (German Digital Services Act)';
+
+const personSchema = generatePersonSchema('de');
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  lang="de"
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={toJsonLd(personSchema)} />
+  </Fragment>
+
+  <main class="container-custom py-24">
+    <article class="prose-custom max-w-3xl mx-auto">
+      <h1 class="text-4xl font-bold mb-8">Impressum</h1>
+
+      <p class="text-lg text-text-secondary-light dark:text-text-secondary-dark mb-12">
+        Angaben gemäß § 5 DDG (Digitale-Dienste-Gesetz)
+      </p>
+
+      <!-- Contact Information -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">Kontaktinformationen</h2>
+
+        <div class="space-y-4 text-lg">
+          <div>
+            <p class="font-medium">Mihai Adrian Mateescu</p>
+            <p class="text-text-secondary-light dark:text-text-secondary-dark">
+              Bahnhofstraße 65b<br>
+              21218 Seevetal<br>
+              Deutschland
+            </p>
+          </div>
+
+          <div>
+            <p class="font-medium mb-2">Kontakt:</p>
+            <p class="text-text-secondary-light dark:text-text-secondary-dark">
+              <strong>Telefon:</strong> <a href="tel:+491704740121" class="link">+49 170 4740121</a><br>
+              <strong>E-Mail:</strong> <a href="mailto:mihai.mateescu@web.de" class="link">mihai.mateescu@web.de</a>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- VAT Information -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">Umsatzsteuer</h2>
+        <p class="text-lg text-text-secondary-light dark:text-text-secondary-dark">
+          Gemäß § 19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).
+        </p>
+      </section>
+
+      <!-- Professional Qualification -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">Berufsbezeichnung</h2>
+        <p class="text-lg text-text-secondary-light dark:text-text-secondary-dark">
+          <strong>Qualifikation:</strong> Fachkraft für Buchführung (IHK)<br>
+          <strong>Verliehen durch:</strong> IHK Nord-Westfalen<br>
+          <strong>Land der Verleihung:</strong> Deutschland
+        </p>
+      </section>
+
+      <!-- Responsible for Content -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">Redaktionelle Verantwortung</h2>
+        <p class="text-lg text-text-secondary-light dark:text-text-secondary-dark">
+          Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV:<br>
+          <strong>Mihai Adrian Mateescu</strong><br>
+          Bahnhofstraße 65b<br>
+          21218 Seevetal<br>
+          Deutschland
+        </p>
+      </section>
+
+      <!-- EU Dispute Resolution -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">EU-Streitschlichtung</h2>
+        <p class="text-lg text-text-secondary-light dark:text-text-secondary-dark">
+          Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:
+          <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" class="link">
+            https://ec.europa.eu/consumers/odr/
+          </a><br>
+          Meine E-Mail-Adresse finden Sie oben im Impressum.
+        </p>
+      </section>
+
+      <!-- Consumer Dispute Resolution -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">Verbraucherstreitbeilegung</h2>
+        <p class="text-lg text-text-secondary-light dark:text-text-secondary-dark">
+          Ich bin nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer
+          Verbraucherschlichtungsstelle teilzunehmen.
+        </p>
+      </section>
+
+      <!-- Disclaimer -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">Haftungsausschluss</h2>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Haftung für Inhalte</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Als Diensteanbieter bin ich gemäß § 7 Abs.1 DDG für eigene Inhalte auf diesen Seiten
+          nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG bin ich als
+          Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde
+          Informationen zu überwachen oder nach Umständen zu forschen, die auf eine
+          rechtswidrige Tätigkeit hinweisen.
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den
+          allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist
+          jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich.
+          Bei Bekanntwerden von entsprechenden Rechtsverletzungen werde ich diese Inhalte
+          umgehend entfernen.
+        </p>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Haftung für Links</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte ich
+          keinen Einfluss habe. Deshalb kann ich für diese fremden Inhalte auch keine Gewähr
+          übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter
+          oder Betreiber der Seiten verantwortlich.
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße
+          überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar.
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete
+          Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von
+          Rechtsverletzungen werde ich derartige Links umgehend entfernen.
+        </p>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Urheberrecht</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten
+          unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung,
+          Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes
+          bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen
+          Gebrauch gestattet. Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt
+          wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte
+          Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung
+          aufmerksam werden, bitte ich um einen entsprechenden Hinweis. Bei Bekanntwerden von
+          Rechtsverletzungen werde ich derartige Inhalte umgehend entfernen.
+        </p>
+      </section>
+
+      <!-- Back Link -->
+      <div class="mt-12 pt-8 border-t border-light-border dark:border-dark-border">
+        <a href="/" class="link inline-flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          Zurück zur Startseite
+        </a>
+      </div>
+    </article>
+  </main>
+</BaseLayout>
+
+<style>
+  .link {
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+    @apply underline decoration-eucalyptus-600/50 dark:decoration-eucalyptus-400/50;
+    @apply hover:text-eucalyptus-900 dark:hover:text-eucalyptus-100;
+    @apply hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300;
+    @apply transition-colors duration-150;
+  }
+</style>

@@ -1,0 +1,311 @@
+---
+/**
+ * Datenschutzerklärung (Privacy Policy) Page
+ *
+ * Required by DSGVO (GDPR) Art. 13, 14
+ * Privacy policy for data protection in the European Union
+ */
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+const title = 'Datenschutzerklärung | Mihai Adrian Mateescu';
+const description = 'Privacy policy and data protection information according to GDPR (General Data Protection Regulation)';
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  lang="de"
+>
+  <main class="container-custom py-24">
+    <article class="prose-custom max-w-3xl mx-auto">
+      <h1 class="text-4xl font-bold mb-8">Datenschutzerklärung</h1>
+
+      <p class="text-lg text-text-secondary-light dark:text-text-secondary-dark mb-12">
+        Diese Datenschutzerklärung klärt Sie über die Art, den Umfang und Zweck der Verarbeitung
+        von personenbezogenen Daten auf dieser Website auf. Stand: November 2025
+      </p>
+
+      <!-- Data Controller -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">1. Verantwortlicher</h2>
+        <p class="text-lg text-text-secondary-light dark:text-text-secondary-dark">
+          Verantwortlich für die Datenverarbeitung auf dieser Website ist:<br><br>
+          <strong>Mihai Adrian Mateescu</strong><br>
+          Bahnhofstraße 65b<br>
+          21218 Seevetal<br>
+          Deutschland<br><br>
+          <strong>Telefon:</strong> <a href="tel:+491704740121" class="link">+49 170 4740121</a><br>
+          <strong>E-Mail:</strong> <a href="mailto:mihai.mateescu@web.de" class="link">mihai.mateescu@web.de</a>
+        </p>
+      </section>
+
+      <!-- Data Collection Overview -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">2. Datenerfassung auf dieser Website</h2>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Welche Daten werden erfasst?</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Diese Website erhebt und verarbeitet folgende personenbezogene Daten:
+        </p>
+        <ul class="list-disc list-inside space-y-2 text-text-secondary-light dark:text-text-secondary-dark mb-6">
+          <li>Server-Logdaten (IP-Adresse, Browser-Typ, Zeitstempel, besuchte Seiten)</li>
+          <li>Kommentardaten über Giscus (GitHub-Nutzername, Avatar, Kommentartext)</li>
+          <li>Technische Daten zur Bereitstellung der Website</li>
+        </ul>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Wofür nutzen wir Ihre Daten?</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Die Daten werden erhoben, um:
+        </p>
+        <ul class="list-disc list-inside space-y-2 text-text-secondary-light dark:text-text-secondary-dark mb-6">
+          <li>Die Website technisch bereitzustellen und zu sichern</li>
+          <li>Fehler zu erkennen und zu beheben</li>
+          <li>Die Funktionalität der Kommentarfunktion zu gewährleisten</li>
+          <li>Rechtliche Anforderungen zu erfüllen</li>
+        </ul>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Welche Rechte haben Sie?</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          Sie haben jederzeit das Recht auf unentgeltliche Auskunft über Ihre gespeicherten
+          personenbezogenen Daten, deren Herkunft und Empfänger und den Zweck der Datenverarbeitung
+          sowie ein Recht auf Berichtigung oder Löschung dieser Daten. Siehe Abschnitt 7 für Details.
+        </p>
+      </section>
+
+      <!-- Hosting & CDN -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">3. Hosting und Content Delivery</h2>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Cloudflare Pages</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Diese Website wird auf Cloudflare Pages gehostet. Der Anbieter ist Cloudflare, Inc.,
+          101 Townsend St, San Francisco, CA 94107, USA.
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <strong>Datenverarbeitung:</strong> Cloudflare verarbeitet Ihre IP-Adresse, Browser-Informationen
+          und weitere technische Daten zur Bereitstellung der Website und zur Sicherheit (DDoS-Schutz, CDN).
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an
+          sicherer und zuverlässiger Bereitstellung der Website).
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <strong>Datenschutzerklärung:</strong>
+          <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer" class="link">
+            https://www.cloudflare.com/privacypolicy/
+          </a>
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          <strong>Datenübermittlung USA:</strong> Cloudflare ist nach dem EU-US Data Privacy Framework
+          zertifiziert und bietet angemessenes Datenschutzniveau.
+        </p>
+      </section>
+
+      <!-- Server Logs -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">4. Server-Logdateien</h2>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Bei jedem Aufruf dieser Website werden automatisch Informationen in Server-Logdateien
+          gespeichert, die Ihr Browser übermittelt:
+        </p>
+        <ul class="list-disc list-inside space-y-2 text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <li>IP-Adresse des anfragenden Rechners</li>
+          <li>Datum und Uhrzeit der Anfrage</li>
+          <li>Name und URL der abgerufenen Datei</li>
+          <li>Übertragene Datenmenge</li>
+          <li>Meldung über erfolgreichen Abruf (HTTP-Status-Code)</li>
+          <li>Browser-Typ und Version</li>
+          <li>Betriebssystem</li>
+          <li>Referer-URL (zuvor besuchte Seite)</li>
+        </ul>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an
+          technischer Bereitstellung und Sicherheit der Website).
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          <strong>Speicherdauer:</strong> Die Logdaten werden automatisch nach maximal 30 Tagen gelöscht.
+        </p>
+      </section>
+
+      <!-- SSL/TLS Encryption -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">5. SSL- bzw. TLS-Verschlüsselung</h2>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Diese Website nutzt aus Sicherheitsgründen und zum Schutz der Übertragung vertraulicher
+          Inhalte eine SSL- bzw. TLS-Verschlüsselung. Eine verschlüsselte Verbindung erkennen Sie
+          daran, dass die Adresszeile des Browsers von "http://" auf "https://" wechselt und an
+          dem Schloss-Symbol in Ihrer Browserzeile.
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          Wenn die SSL- bzw. TLS-Verschlüsselung aktiviert ist, können die Daten, die Sie an uns
+          übermitteln, nicht von Dritten mitgelesen werden.
+        </p>
+      </section>
+
+      <!-- Giscus Comments -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">6. Kommentarfunktion (Giscus)</h2>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Auf Blog-Artikeln steht eine Kommentarfunktion zur Verfügung, die über den Dienst
+          "Giscus" bereitgestellt wird. Giscus nutzt GitHub Discussions für die Speicherung
+          von Kommentaren.
+        </p>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Datenverarbeitung</h3>
+        <ul class="list-disc list-inside space-y-2 text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <li>Um zu kommentieren, müssen Sie sich mit Ihrem GitHub-Account anmelden</li>
+          <li>Giscus/GitHub speichert: GitHub-Nutzername, Avatar, Kommentartext, Zeitstempel</li>
+          <li>Kommentare werden öffentlich in GitHub Discussions gespeichert</li>
+          <li>IP-Adressen werden von GitHub gemäß deren Datenschutzerklärung verarbeitet</li>
+        </ul>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Rechtsgrundlage und Speicherdauer</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. a DSGVO (Einwilligung durch GitHub-Login)
+          und Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an interaktiver Kommunikation).
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <strong>Speicherdauer:</strong> Kommentare bleiben so lange gespeichert, bis Sie diese
+          selbst über GitHub löschen oder ich das Repository entferne.
+        </p>
+
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <strong>Giscus:</strong>
+          <a href="https://github.com/giscus/giscus" target="_blank" rel="noopener noreferrer" class="link">
+            https://github.com/giscus/giscus
+          </a>
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          <strong>GitHub Datenschutz:</strong>
+          <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement" target="_blank" rel="noopener noreferrer" class="link">
+            GitHub Privacy Statement
+          </a>
+        </p>
+      </section>
+
+      <!-- User Rights -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">7. Ihre Rechte nach DSGVO</h2>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Sie haben folgende Rechte bezüglich Ihrer personenbezogenen Daten:
+        </p>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Auskunftsrecht (Art. 15 DSGVO)</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Sie haben das Recht, Auskunft über Ihre von uns verarbeiteten personenbezogenen Daten
+          zu verlangen.
+        </p>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Berichtigungsrecht (Art. 16 DSGVO)</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Sie haben das Recht, unverzüglich die Berichtigung unrichtiger oder die Vervollständigung
+          Ihrer bei uns gespeicherten personenbezogenen Daten zu verlangen.
+        </p>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Löschungsrecht (Art. 17 DSGVO)</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Sie haben das Recht, die Löschung Ihrer bei uns gespeicherten personenbezogenen Daten
+          zu verlangen, soweit nicht gesetzliche Aufbewahrungspflichten oder andere Rechtsgrundlagen
+          entgegenstehen.
+        </p>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Einschränkung der Verarbeitung (Art. 18 DSGVO)</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Sie haben das Recht, die Einschränkung der Verarbeitung Ihrer personenbezogenen Daten
+          zu verlangen.
+        </p>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Datenübertragbarkeit (Art. 20 DSGVO)</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Sie haben das Recht, Ihre Daten, die Sie uns bereitgestellt haben, in einem strukturierten,
+          gängigen und maschinenlesbaren Format zu erhalten oder die Übermittlung an einen anderen
+          Verantwortlichen zu verlangen.
+        </p>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Widerspruchsrecht (Art. 21 DSGVO)</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Sie haben das Recht, aus Gründen, die sich aus Ihrer besonderen Situation ergeben,
+          jederzeit gegen die Verarbeitung Sie betreffender personenbezogener Daten Widerspruch
+          einzulegen.
+        </p>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Widerruf von Einwilligungen (Art. 7 Abs. 3 DSGVO)</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Sie haben das Recht, erteilte Einwilligungen mit Wirkung für die Zukunft zu widerrufen.
+        </p>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Beschwerderecht (Art. 77 DSGVO)</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Sie haben das Recht, sich bei einer Aufsichtsbehörde zu beschweren, insbesondere in dem
+          Mitgliedstaat Ihres Aufenthaltsorts, Ihres Arbeitsplatzes oder des Orts des mutmaßlichen
+          Verstoßes, wenn Sie der Ansicht sind, dass die Verarbeitung der Sie betreffenden
+          personenbezogenen Daten rechtswidrig ist.
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          <strong>Zuständige Aufsichtsbehörde in Deutschland:</strong><br>
+          Die Landesbeauftragte für Datenschutz Niedersachsen<br>
+          Prinzenstraße 5<br>
+          30159 Hannover<br>
+          <a href="https://lfd.niedersachsen.de" target="_blank" rel="noopener noreferrer" class="link">
+            https://lfd.niedersachsen.de
+          </a>
+        </p>
+      </section>
+
+      <!-- No Analytics -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">8. Keine Analyse-Tools oder Cookies</h2>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Diese Website verwendet derzeit <strong>keine Analyse-Tools</strong> wie Google Analytics,
+          Matomo oder ähnliche Dienste.
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          Es werden <strong>keine nicht-technischen Cookies</strong> gesetzt. Lediglich technisch
+          notwendige Cookies können zum Einsatz kommen, um die Funktionalität der Website zu
+          gewährleisten.
+        </p>
+      </section>
+
+      <!-- Changes to Privacy Policy -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">9. Änderungen dieser Datenschutzerklärung</h2>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          Ich behalte mir vor, diese Datenschutzerklärung anzupassen, damit sie stets den aktuellen
+          rechtlichen Anforderungen entspricht oder um Änderungen meiner Leistungen in der
+          Datenschutzerklärung umzusetzen. Für Ihren erneuten Besuch gilt dann die neue
+          Datenschutzerklärung.
+        </p>
+      </section>
+
+      <!-- Contact for Privacy -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">10. Fragen zum Datenschutz</h2>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          Wenn Sie Fragen zum Datenschutz haben, schreiben Sie mir bitte eine E-Mail:<br>
+          <a href="mailto:mihai.mateescu@web.de" class="link">mihai.mateescu@web.de</a>
+        </p>
+      </section>
+
+      <!-- Back Link -->
+      <div class="mt-12 pt-8 border-t border-light-border dark:border-dark-border">
+        <a href="/" class="link inline-flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          Zurück zur Startseite
+        </a>
+      </div>
+    </article>
+  </main>
+</BaseLayout>
+
+<style>
+  .link {
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+    @apply underline decoration-eucalyptus-600/50 dark:decoration-eucalyptus-400/50;
+    @apply hover:text-eucalyptus-900 dark:hover:text-eucalyptus-100;
+    @apply hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300;
+    @apply transition-colors duration-150;
+  }
+</style>
