@@ -139,7 +139,7 @@ export function generatePersonSchema(lang: 'de' | 'en' | 'ro' = 'de'): PersonSch
     },
     sameAs: [
       'https://www.linkedin.com/in/mateescu-mihai-922b3169',
-      'https://github.com/yourusername', // TODO: Add real GitHub profile
+      'https://github.com/Mihai-82Adrian',
       'https://profit-minds.de'
     ],
     knowsLanguage: ['de', 'en', 'ro'],
