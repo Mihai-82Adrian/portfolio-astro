@@ -1,37 +1,70 @@
+# AI Chat PoC (Hardened)
 
-# AI Chat PoC Documentation
+> **Status**: Proof of Concept (PoC)  
+> **Type**: RAG-based Chatbot  
+> **Endpoint**: `/api/chat` (Cloudflare Pages Function)
 
 ## Overview
 
-A lightweight, secure AI chat widget for the portfolio. It uses Cloudflare Pages Functions (`functions/api/chat.ts`) to proxy requests to OpenAI, retrieving context from a generated `corpus.jsonl` file.
+The AI Chat is an experimental "Copilot" feature that allows visitors to query the portfolio content using natural language. It uses Retrieval-Augmented Generation (RAG) to provide grounded answers based on the site's content.
+
+## Architecture
+
+### Frontend
+
+- **Components**:
+  - `ChatWidget.astro`: Reusable, instance-aware chat interface. Container-agnostic (can be embedded or placed in a drawer).
+  - `ChatDrawer.astro`: Global accessible overlay/modal (`role="dialog"`) that wraps `ChatWidget`.
+  - `Header.astro`: Contains the "AI Copilot" trigger button.
+- **Pages**:
+  - `/ai`: Dedicated showcase page with embedded chat and capabilities overview.
+- **Styling**: Tailwind CSS (Eucalyptus palette), Dark mode compatible.
+- **Accessibility**:
+  - WAI-ARIA Dialog pattern for Drawer.
+  - "Label in Name" compliance.
+  - `aria-live` regions for messages.
+  - Focus management (Focus Trap, Return Focus).
+
+### Backend
+
+- **Platform**: Cloudflare Pages Functions
+- **File**: `functions/api/chat.ts`
+- **Logic**:
+  1. Validates input (Rate detection, Length limits).
+  2. Performs Vector Search (mocked or real).
+  3. Calls LLM Provider (e.g., OpenAI/Anthropic/Local).
+  4. Returns streamed or JSON response.
 
 ## Security Features
 
-- **No InnerHTML**: Frontend constructs DOM nodes safely via `document.createElement` to prevent XSS.
-- **Input Validation**: Messages capped at 2000 characters; empty messages rejected.
-- **Rate Limiting**: In-memory IP bucket (10 requests/minute per IP).
-- **System Prompt Hardening**: Explicit instructions to ignore leaked prompt injections from the corpus.
-- **Corpus Caching**: Parsed corpus is cached in global scope for warm starts.
+1. **Strict DOM Rendering**: No `innerHTML` usage. Messages are built using `document.createElement`.
+2. **XSS Protection**: Links are rendered with `rel="noopener noreferrer"`.
+3. **Input Validation**: Max length 500 chars, empty check.
+4. **Rate Limiting**: Server-side IP-based limiting (simulated in PoC).
 
-## Accessibility (A11y)
+## Development
 
-- **ARIA Labels**: All buttons (Open/Close/Send) have accessible names.
-- **Focus Management**: Focus moves to input on open, returns to toggle button on close.
-- **Keyboard Support**: Esc key closes the chat window.
+### Linting
 
-## Configuration
+We enforce strict rules for the chat component to prevent regression.
 
-managed via `functions/api/chat.ts` and `src/components/ChatWidget.astro`.
+```bash
+# Check for forbidden patterns (like innerHTML)
+npm run lint:chat
 
-### Environment Variables
+# Strict accessibility check
+npm run lint:a11y:strict
+```
 
-Set these in Cloudflare Pages settings or `.dev.vars` for local dev:
+### Usage
+
+- **Global**: Click "AI Copilot" in the header to open the drawer.
+- **Dedicated**: Visit `/ai` to see the full-page experience.
 
 - `OPENAI_API_KEY`: Required for generating answers.
 
 ## Development
 
-- **Linting**: `npm run lint:chat` checks for forbidden patterns (e.g., `innerHTML`).
 - **Local Run**: `npm run dev` (uses `wrangler pages dev` for functions).
 
 ## Future Roadmap

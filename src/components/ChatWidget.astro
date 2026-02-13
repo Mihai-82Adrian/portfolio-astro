@@ -1,231 +1,225 @@
 
+---
+/**
+ * ChatWidget Component
+ *
+ * Reusable AI Chat interface.
+ * Can be embedded in a page or placed in a drawer.
+ *
+ * @component
+ */
+interface Props {
+  class?: string;
+  id?: string;
+  title?: string;
+  subtitle?: string;
+}
 
-// Removed unused import
+const {
+  class: className = '',
+  id = 'ai-chat-widget',
+  title = 'Portfolio Assistant',
+  subtitle = 'Ask about my skills & experience',
+} = Astro.props;
+---
 
-
-<div id="ai-chat-widget" class="fixed bottom-4 right-4 z-50 font-sans">
-  <!-- Checkbox for toggle state (CSS only approach or JS? JS is easier for chat logic) -->
-  
-  <!-- Chat Window -->
-  <div id="chat-window" class="hidden flex-col bg-white dark:bg-gray-800 shadow-2xl rounded-2xl w-80 sm:w-96 h-[500px] border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 ease-in-out transform origin-bottom-right">
-    
-
-    <!-- Header -->
-    <div class="bg-eucalyptus-600 p-4 text-white flex justify-between items-center">
-      <div>
-        <h3 class="font-bold text-lg">Portfolio Assistant</h3>
-        <p class="text-xs opacity-80">Ask about my skills & experience</p>
-      </div>
-      <button id="close-chat" class="hover:bg-eucalyptus-700 p-1 rounded" aria-label="Close Chat">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-        </svg>
-      </button>
+<div id={id} class:list={["chat-widget flex flex-col bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 overflow-hidden w-full h-full", className]} data-chat-widget>
+  <!-- Header -->
+  <div class="bg-eucalyptus-600 p-4 text-white flex justify-between items-center shrink-0">
+    <div>
+      <h3 class="font-bold text-lg">{title}</h3>
+      <p class="text-xs opacity-80">{subtitle}</p>
     </div>
-
-    <!-- Messages Area -->
-    <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900">
-      <div class="message ai bg-white dark:bg-gray-800 p-3 rounded-lg rounded-tl-none shadow-sm text-sm dark:text-gray-200 border border-gray-100 dark:border-gray-700">
-        Hi! I'm an AI assistant. I can answer questions about Mihai's work based on this portfolio. How can I help?
-        <br><span class="text-[10px] text-gray-400 mt-1 block">⚠️ Answers are generated and may contain errors.</span>
-      </div>
-    </div>
-
-    <!-- Input Area -->
-    <form id="chat-form" class="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex gap-2">
-      <input 
-        type="text" 
-        id="chat-input" 
-        placeholder="Ask a question..." 
-        aria-label="Chat Message"
-        class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-eucalyptus-500 dark:bg-gray-700 dark:text-white text-sm"
-        required
-      />
-      <button 
-        type="submit" 
-        aria-label="Send Message"
-        class="bg-eucalyptus-600 hover:bg-eucalyptus-700 text-white p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 rotate-90" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-        </svg>
-      </button>
-    </form>
+    <!-- Close button is optional and handled by parent if needed (e.g. Drawer) -->
+    <slot name="header-actions" />
   </div>
 
-  <!-- Toggle Button -->
-  <button id="open-chat" aria-label="Open Chat" aria-controls="chat-window" aria-expanded="false" class="w-14 h-14 bg-eucalyptus-600 hover:bg-eucalyptus-700 text-white rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-    </svg>
-  </button>
+  <!-- Messages Area -->
+  <div class="chat-messages flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900" aria-live="polite" aria-atomic="false">
+    <div class="message ai bg-white dark:bg-gray-800 p-3 rounded-lg rounded-tl-none shadow-sm text-sm dark:text-gray-200 border border-gray-100 dark:border-gray-700 max-w-[85%]">
+      Hi! I'm an AI assistant. I can answer questions about Mihai's work based on this portfolio. How can I help?
+      <br><span class="text-[10px] text-gray-400 mt-1 block">⚠️ Answers are generated and may contain errors.</span>
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <form class="chat-form p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex gap-2 shrink-0">
+    <input
+      type="text"
+      placeholder="Ask a question..."
+      aria-label="Chat Message"
+      class="chat-input flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-eucalyptus-500 dark:bg-gray-700 dark:text-white text-sm"
+      required
+    />
+    <button
+      type="submit"
+      aria-label="Send Message"
+      class="bg-eucalyptus-600 hover:bg-eucalyptus-700 text-white p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 rotate-90" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+      </svg>
+    </button>
+  </form>
 </div>
 
-
 <script>
-  // Vanilla JS logic
-  const widget = document.getElementById('ai-chat-widget');
-  const openBtn = document.getElementById('open-chat');
-  const closeBtn = document.getElementById('close-chat');
-  const windowEl = document.getElementById('chat-window');
-  const form = document.getElementById('chat-form') as HTMLFormElement;
-  const input = document.getElementById('chat-input') as HTMLInputElement;
-  const messagesEl = document.getElementById('chat-messages');
+  class ChatWidget {
+    container: HTMLElement;
+    form: HTMLFormElement;
+    input: HTMLInputElement;
+    messagesEl: HTMLElement;
+    submitBtn: HTMLButtonElement | null;
 
-  let isOpen = false;
+    constructor(el: HTMLElement) {
+      this.container = el;
+      this.form = el.querySelector('.chat-form') as HTMLFormElement;
+      this.input = el.querySelector('.chat-input') as HTMLInputElement;
+      this.messagesEl = el.querySelector('.chat-messages') as HTMLElement;
+      this.submitBtn = this.form.querySelector('button[type="submit"]');
 
-  function toggleChat() {
-    isOpen = !isOpen;
-    if (isOpen) {
-      windowEl?.classList.remove('hidden');
-      windowEl?.classList.add('flex'); // Ensure it displays as flex
-      openBtn?.classList.add('hidden');
-      openBtn?.setAttribute('aria-expanded', 'true');
-      
-      // Focus management
-      setTimeout(() => input?.focus(), 100);
-    } else {
-      windowEl?.classList.add('hidden');
-      windowEl?.classList.remove('flex');
-      openBtn?.classList.remove('hidden');
-      openBtn?.setAttribute('aria-expanded', 'false');
-      
-      // Return focus
-      openBtn?.focus();
+      this.init();
     }
-  }
 
-  // Handle Esc key to close
-  windowEl?.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && isOpen) toggleChat();
-  });
+    init() {
+      this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+    }
 
-  openBtn?.addEventListener('click', toggleChat);
-  closeBtn?.addEventListener('click', toggleChat);
-
-  // Safe DOM creation to prevent XSS
-  function createMessageElement(text: string, isUser: boolean, sources: any[] = []) {
+    createMessageElement(text: string, isUser: boolean, sources: any[] = []) {
       const div = document.createElement('div');
-      
+
       if (isUser) {
-          div.className = "message user bg-eucalyptus-600 text-white p-3 rounded-lg rounded-tr-none shadow-sm text-sm ml-8 self-end";
-          div.textContent = text;
+        div.className = "message user bg-eucalyptus-600 text-white p-3 rounded-lg rounded-tr-none shadow-sm text-sm ml-auto max-w-[85%] self-end mb-4 animate-fade-in";
+        div.textContent = text;
       } else {
-          div.className = "message ai bg-white dark:bg-gray-800 p-3 rounded-lg rounded-tl-none shadow-sm text-sm dark:text-gray-200 border border-gray-100 dark:border-gray-700 mr-8";
-          
-          // Main text
-          const textSpan = document.createElement('span');
-          textSpan.className = "whitespace-pre-wrap"; // Preserve newlines safely
-          textSpan.textContent = text;
-          div.appendChild(textSpan);
+        div.className = "message ai bg-white dark:bg-gray-800 p-3 rounded-lg rounded-tl-none shadow-sm text-sm dark:text-gray-200 border border-gray-100 dark:border-gray-700 mr-auto max-w-[85%] mb-4 animate-fade-in";
 
-          // Sources
-          if (sources && sources.length > 0) {
-              const sourceDiv = document.createElement('div');
-              sourceDiv.className = "mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 text-xs";
-              
-              const strong = document.createElement('strong');
-              strong.className = "text-gray-500 uppercase tracking-wider";
-              strong.textContent = "Sources:";
-              sourceDiv.appendChild(strong);
+        const textSpan = document.createElement('span');
+        textSpan.className = "whitespace-pre-wrap";
+        textSpan.textContent = text;
+        div.appendChild(textSpan);
 
-              const ul = document.createElement('ul');
-              ul.className = "list-disc pl-4 mt-1 space-y-1";
-              
-              sources.forEach(src => {
-                  const li = document.createElement('li');
-                  const a = document.createElement('a');
-                  a.href = src.url;
-                  a.target = "_blank";
-                  a.rel = "noopener noreferrer"; // Sec requirement
-                  a.className = "text-eucalyptus-600 hover:underline truncate block";
-                  a.textContent = src.title || "Source";
-                  li.appendChild(a);
-                  ul.appendChild(li);
-              });
-              sourceDiv.appendChild(ul);
-              div.appendChild(sourceDiv);
-          }
+        if (sources && sources.length > 0) {
+          const sourceDiv = document.createElement('div');
+          sourceDiv.className = "mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 text-xs";
+
+          const strong = document.createElement('strong');
+          strong.className = "text-gray-500 uppercase tracking-wider block mb-1";
+          strong.textContent = "Sources:";
+          sourceDiv.appendChild(strong);
+
+          const ul = document.createElement('ul');
+          ul.className = "list-disc pl-4 space-y-1";
+
+          sources.forEach(src => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = src.url;
+            a.target = "_blank";
+            a.rel = "noopener noreferrer";
+            a.className = "text-eucalyptus-600 hover:underline truncate block";
+            a.textContent = src.title || "Source";
+            li.appendChild(a);
+            ul.appendChild(li);
+          });
+          sourceDiv.appendChild(ul);
+          div.appendChild(sourceDiv);
+        }
       }
       return div;
-  }
+    }
 
-  function appendMessage(text: string, isUser: boolean, sources: any[] = []) {
-    if (!messagesEl) return;
-    const msgNode = createMessageElement(text, isUser, sources);
-    messagesEl.appendChild(msgNode);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
+    appendMessage(text: string, isUser: boolean, sources: any[] = []) {
+      const msgNode = this.createMessageElement(text, isUser, sources);
+      this.messagesEl.appendChild(msgNode);
+      this.scrollToBottom();
+    }
 
-  function showLoading() {
-      if (!messagesEl) return;
-      
-      // Create safe loading indicator
+    showLoading() {
       const div = document.createElement('div');
-      div.id = 'loading-indicator';
-      div.className = "message ai bg-white dark:bg-gray-800 p-3 rounded-lg rounded-tl-none shadow-sm text-sm w-16";
-      
-      // Helper for dots
+      div.className = "loading-indicator message ai bg-white dark:bg-gray-800 p-3 rounded-lg rounded-tl-none shadow-sm text-sm w-16 mb-4 animate-fade-in";
+
       const createDot = (delayClass: string) => {
-          const dot = document.createElement('div');
-          dot.className = `w-2 h-2 bg-gray-400 rounded-full animate-bounce ${delayClass}`;
-          return dot;
+        const dot = document.createElement('div');
+        dot.className = `w-2 h-2 bg-gray-400 rounded-full animate-bounce ${delayClass}`;
+        return dot;
       };
 
       const container = document.createElement('div');
-      container.className = "flex space-x-1";
+      container.className = "flex space-x-1 justify-center";
       container.appendChild(createDot(''));
       container.appendChild(createDot('delay-75'));
       container.appendChild(createDot('delay-150'));
-      
+
       div.appendChild(container);
-      messagesEl.appendChild(div);
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-
-  function removeLoading() {
-      const el = document.getElementById('loading-indicator');
-      el?.remove();
-  }
-
-  form?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const text = input.value.trim();
-    if (!text) return;
-
-    // UI Updates
-    appendMessage(text, true);
-    input.value = '';
-    const submitBtn = form.querySelector('button');
-    if(submitBtn) submitBtn.disabled = true;
-
-    showLoading();
-
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, lang: document.documentElement.lang })
-      });
-
-      removeLoading();
-
-      if (!res.ok) {
-         if (res.status === 429) throw new Error('Too many requests. Please wait.');
-         throw new Error('API Error');
-      }
-
-      const data = await res.json();
-      appendMessage(data.answer, false, data.sources);
-
-    } catch (err: any) {
-      removeLoading();
-      appendMessage(err.message || "Sorry, something went wrong.", false);
-      console.error(err);
-    } finally {
-        if(submitBtn) submitBtn.disabled = false;
-        input.focus();
+      this.messagesEl.appendChild(div);
+      this.scrollToBottom();
     }
+
+    removeLoading() {
+      const el = this.messagesEl.querySelector('.loading-indicator');
+      el?.remove();
+    }
+
+    scrollToBottom() {
+      this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
+    }
+
+    async handleSubmit(e: Event) {
+      e.preventDefault();
+      const text = this.input.value.trim();
+      if (!text) return;
+
+      this.appendMessage(text, true);
+      this.input.value = '';
+      if (this.submitBtn) this.submitBtn.disabled = true;
+
+      this.showLoading();
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, lang: document.documentElement.lang })
+        });
+
+        this.removeLoading();
+
+        if (!res.ok) {
+          if (res.status === 429) throw new Error('Too many requests. Please wait.');
+          throw new Error('API Error');
+        }
+
+        const data = await res.json();
+        this.appendMessage(data.answer, false, data.sources);
+
+      } catch (err: any) {
+        this.removeLoading();
+        this.appendMessage(err.message || "Sorry, something went wrong.", false);
+        console.error(err);
+      } finally {
+        if (this.submitBtn) this.submitBtn.disabled = false;
+        this.input.focus();
+      }
+    }
+  }
+
+  // Initialize all chat widgets on the page
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-chat-widget]').forEach(el => {
+      new ChatWidget(el as HTMLElement);
+    });
   });
 </script>
+
+<style>
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
 

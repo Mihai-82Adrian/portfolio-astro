@@ -1,0 +1,167 @@
+---
+/**
+ * ChatDrawer Component
+ *
+ * Global accessible drawer/modal for the AI Chat.
+ * Implements WAI-ARIA dialog pattern (role="dialog", modal, focus trap).
+ *
+ * Properties:
+ * - Triggers via 'chat:toggle' event on window
+ * - Manages focus return
+ * - Handles Escape key
+ * - Animates slide-in
+ */
+
+import ChatWidget from './ChatWidget.astro';
+---
+
+<div
+  id="chat-drawer-backdrop"
+  class="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300"
+  aria-hidden="true"
+></div>
+
+<div
+  id="chat-drawer"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="chat-drawer-title"
+  class="fixed z-[101] bg-white dark:bg-gray-800 shadow-2xl transition-transform duration-300 ease-in-out transform translate-y-full md:translate-y-0 md:translate-x-full
+         bottom-0 left-0 right-0 h-[80vh] rounded-t-2xl
+         md:top-0 md:bottom-0 md:right-0 md:left-auto md:h-full md:w-[450px] md:rounded-l-2xl md:rounded-tr-none
+         flex flex-col border-l border-gray-200 dark:border-gray-700 hidden"
+>
+  <!-- Screen Reader Title -->
+  <h2 id="chat-drawer-title" class="sr-only">AI Copilot Chat Window</h2>
+
+  <!-- Header with Close Button -->
+  <div class="flex justify-end p-2 absolute top-2 right-2 z-10">
+    <button
+      id="chat-drawer-close"
+      class="p-2 text-white bg-black/20 hover:bg-black/40 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white"
+      aria-label="Close AI Chat"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <ChatWidget class="h-full w-full" id="drawer-chat-widget">
+    <div slot="header-actions">
+        <!-- Close button allocated in absolute position above -->
+    </div>
+  </ChatWidget>
+</div>
+
+<script>
+  const backdrop = document.getElementById('chat-drawer-backdrop');
+  const drawer = document.getElementById('chat-drawer');
+  const closeBtn = document.getElementById('chat-drawer-close');
+  // First focusable element inside (Close Button is the first logic choice, or the input inside ChatWidget)
+  // We'll focus the Close button first as per standard dialog patterns, or the Input if we prefer.
+  // Standard is usually the first interactive element or the close button.
+
+  let isOpen = false;
+  let lastFocusedElement: HTMLElement | null = null;
+
+  function openDrawer(triggerElement?: HTMLElement) {
+    if (isOpen) return;
+    isOpen = true;
+    lastFocusedElement = triggerElement || (document.activeElement as HTMLElement);
+
+    // Show elems
+    backdrop?.classList.remove('hidden');
+    drawer?.classList.remove('hidden');
+
+    // Trigger reflow for animation
+    void drawer?.offsetWidth;
+
+    // Animate in
+    backdrop?.classList.remove('opacity-0');
+    drawer?.classList.remove('translate-y-full', 'md:translate-x-full');
+
+    // ARIA updates
+    // Optional: lock body scroll
+    document.body.style.overflow = 'hidden';
+
+    // Focus Management
+    setTimeout(() => {
+        // Find the input inside the chat widget to focus immediately for utility
+        const input = drawer?.querySelector('input') as HTMLInputElement;
+        if (input) input.focus();
+        else closeBtn?.focus();
+    }, 100);
+  }
+
+  function closeDrawer() {
+    if (!isOpen) return;
+    isOpen = false;
+
+    // Animate out
+    backdrop?.classList.add('opacity-0');
+    drawer?.classList.add('translate-y-full', 'md:translate-x-full');
+
+    // Wait for transition to finish before hiding
+    setTimeout(() => {
+      backdrop?.classList.add('hidden');
+      drawer?.classList.add('hidden');
+      document.body.style.overflow = '';
+      
+      // Return focus
+      if (lastFocusedElement) {
+        lastFocusedElement.focus();
+        lastFocusedElement = null;
+      }
+    }, 300);
+  }
+
+  // Event Listeners
+  window.addEventListener('chat:toggle', (e: Event) => {
+    const customEvent = e as CustomEvent;
+    const trigger = customEvent.detail?.trigger as HTMLElement;
+    if (isOpen) closeDrawer();
+    else openDrawer(trigger);
+  });
+  
+  window.addEventListener('chat:open', (e: Event) => {
+    const customEvent = e as CustomEvent;
+    openDrawer(customEvent.detail?.trigger);
+  });
+
+  window.addEventListener('chat:close', () => {
+    closeDrawer();
+  });
+
+  closeBtn?.addEventListener('click', closeDrawer);
+  backdrop?.addEventListener('click', closeDrawer);
+
+  // Escape Key & Focus Trap (Basic)
+  document.addEventListener('keydown', (e) => {
+    if (!isOpen) return;
+
+    if (e.key === 'Escape') {
+      closeDrawer();
+    }
+
+    if (e.key === 'Tab') {
+      const focusableEls = drawer?.querySelectorAll('a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select');
+      if (!focusableEls || focusableEls.length === 0) return;
+
+      const firstEl = focusableEls[0] as HTMLElement;
+      const lastEl = focusableEls[focusableEls.length - 1] as HTMLElement;
+
+      if (e.shiftKey) { /* shift + tab */
+        if (document.activeElement === firstEl) {
+          lastEl.focus();
+          e.preventDefault();
+        }
+      } else { /* tab */
+        if (document.activeElement === lastEl) {
+          firstEl.focus();
+          e.preventDefault();
+        }
+      }
+    }
+  });
+</script>

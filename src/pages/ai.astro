@@ -1,0 +1,133 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import ChatWidget from '@/components/ChatWidget.astro';
+import Badge from '@/components/ui/Badge.astro';
+
+const pageTitle = "AI Copilot (PoC) - Mihai Adrian Mateescu";
+const description = "Experiment with the AI Copilot to ask questions about my portfolio, skills, and experience.";
+---
+
+<BaseLayout title={pageTitle} description={description}>
+  <Container>
+    <div class="py-12 md:py-20">
+      <!-- Hero Section -->
+      <div class="text-center mb-16">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-eucalyptus-100 dark:bg-eucalyptus-900/30 text-eucalyptus-700 dark:text-eucalyptus-300 border border-eucalyptus-200 dark:border-eucalyptus-800 text-sm font-medium mb-6">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-eucalyptus-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-eucalyptus-500"></span>
+          </span>
+          Proof of Concept
+        </div>
+        <h1 class="text-4xl md:text-5xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6">
+          AI Copilot
+        </h1>
+        <p class="text-xl text-text-secondary-light dark:text-text-secondary-dark max-w-2xl mx-auto">
+          An experimental conversational interface powered by RAG (Retrieval-Augmented Generation) to help you navigate my professional portfolio.
+        </p>
+      </div>
+
+      <!-- Main Grid -->
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+        
+        <!-- Left Column: Info & Context -->
+        <div class="space-y-12">
+          
+          <!-- Capabilities -->
+          <section>
+            <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-eucalyptus-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Capabilities
+            </h2>
+            <ul class="space-y-3">
+              {[
+                "Answers questions about my work experience and skills",
+                "Summarizes my projects and technical stack",
+                "Provides context about my background in Finance & Tech",
+                "Cites sources from portfolio pages"
+              ].map(item => (
+                <li class="flex items-start gap-3 text-text-secondary-light dark:text-text-secondary-dark">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-eucalyptus-500 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <!-- Limitations -->
+          <section>
+            <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              Limitations
+            </h2>
+            <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-6">
+              <ul class="space-y-3">
+                {[
+                  "May occasionally hallucinate or provide incorrect info",
+                  "Limited to information present on this website",
+                  "Still in Proof of Concept (PoC) phase",
+                  "History is not persisted between sessions"
+                ].map(item => (
+                  <li class="flex items-start gap-3 text-text-secondary-light dark:text-text-secondary-dark">
+                    <span class="text-orange-500 mt-0.5">•</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+
+          <!-- Example Questions -->
+          <section>
+            <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+              Try asking...
+            </h2>
+            <div class="flex flex-wrap gap-2">
+              {[
+                "What is your experience with Astro?",
+                "Tell me about the Payroll project",
+                "Do you know Rust?",
+                "How do you combine Finance and Tech?",
+                "What are your certifications?"
+              ].map(q => (
+                <button 
+                  class="example-query px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-text-secondary-light dark:text-text-secondary-dark hover:border-eucalyptus-500 hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400 transition-colors text-left"
+                  onclick={`
+                    const input = document.querySelector('.page-embedded-chat input');
+                    const form = document.querySelector('.page-embedded-chat form');
+                    if(input && form) {
+                      input.value = "${q}";
+                      input.focus();
+                      // Optional: auto-submit
+                      // form.requestSubmit(); 
+                    }
+                  `}
+                >
+                  "{q}"
+                </button>
+              ))}
+            </div>
+          </section>
+
+        </div>
+
+        <!-- Right Column: Chat Interface -->
+        <div class="lg:sticky lg:top-24 h-[600px] shadow-2xl rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+           <ChatWidget 
+             class="page-embedded-chat h-full w-full" 
+             title="AI Copilot"
+             subtitle="Powered by Vector Search & LLMs"
+           />
+        </div>
+
+      </div>
+    </div>
+  </Container>
+</BaseLayout>
