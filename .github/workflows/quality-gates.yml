@@ -2,15 +2,15 @@ name: Quality Gates
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   quality:
     name: Design System & Build Quality
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,13 +19,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install Dependencies
         run: npm ci
 
       - name: Design System Audit
         run: npm run lint:design-system:strict
+
+      - name: Content Audit
+        run: npm run lint:content -- --strict
+
+      - name: Export Corpus
+        run: npm run export:corpus
 
       - name: Type Check
         run: npm run check
