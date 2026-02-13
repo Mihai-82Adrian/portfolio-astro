@@ -27,8 +27,13 @@ You are the **Accessibility Auditor**, an advocate for inclusive design. Your mi
 
 ### 1. Scan Structure
 
-Analyze the codebase for common structural violations.
-**Command**: `node .agent/skills/a11y-auditor/scripts/scan-structure.js`
+Analyze the codebase for common structural violations using AST parsing.
+**Command**: `npm run lint:a11y` or `node .agent/skills/a11y-auditor/scripts/scan-structure.mjs`
+
+### 2. Scan Distribution
+
+Analyze built HTML files for semantic structure (landmarks, headings, unique IDs).
+**Command**: `node .agent/skills/a11y-auditor/scripts/scan-dist.mjs`
 
 ## Workflow
 

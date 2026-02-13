@@ -14,10 +14,10 @@
     "lint:design-system:json": "node .agent/skills/design-system-guardian/scripts/audit-styles.js --json",
     "lint:a11y": "node .agent/skills/a11y-auditor/scripts/scan-structure.mjs && node .agent/skills/a11y-auditor/scripts/scan-dist.mjs",
     "lint:a11y:strict": "node .agent/skills/a11y-auditor/scripts/scan-structure.mjs --strict && node .agent/skills/a11y-auditor/scripts/scan-dist.mjs --strict",
+    "lint:chat": "node scripts/lint-chat.js",
     "ci:a11y": "npm run build && npm run lint:a11y:strict",
+    "ci:quality": "npm run lint:design-system && npm run lint:chat && npm run check && npm run build",
     "lint:content": "node .agent/skills/content-architect/scripts/audit-content.mjs",
-    "export:corpus": "node .agent/skills/content-architect/scripts/export-corpus.mjs",
-    "ci:quality": "npm run lint:design-system && npm run check && npm run build",
     "dev:chat": "npx wrangler pages dev dist --function-mode=local --compatibility-date=2024-01-01 --live-reload",
     "astro": "astro"
   },
