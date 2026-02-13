@@ -24,6 +24,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^24.10.0",
     "autoprefixer": "^10.4.21",
+    "baseline-browser-mapping": "^2.9.19",
     "pagefind": "^1.4.0",
     "patch-package": "^8.0.1",
     "rehype-katex": "^7.0.1",

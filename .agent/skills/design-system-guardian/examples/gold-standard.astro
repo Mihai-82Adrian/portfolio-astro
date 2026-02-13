@@ -1,0 +1,63 @@
+---
+/**
+ * gold-standard.astro
+ * 
+ * This component demonstrates PERFECT adherence to the Design System Guardian rules.
+ * Use this as a reference when generating new UI components.
+ * 
+ * Rules demonstrated:
+ * 1. No magic numbers (all spacing from tokens)
+ * 2. No hardcoded hex (all colors from tokens)
+ * 3. Accessibility best practices (semantic HTML, focus states)
+ * 4. Dark mode support
+ */
+
+interface Props {
+  title: string;
+  description: string;
+  ctaText?: string;
+  ctaLink?: string;
+}
+
+const { title, description, ctaText = "Learn More", ctaLink = "#" } = Astro.props;
+---
+
+<article class="group relative flex flex-col items-start justify-between rounded-lg border border-light-border bg-light-surface p-6 shadow-card transition-all hover:shadow-elevated dark:border-dark-border dark:bg-dark-surface dark:hover:shadow-dark-elevated">
+  <!-- Content Container -->
+  <div class="space-y-4">
+    <!-- Header with semantic tag -->
+    <header class="flex items-center gap-x-4 text-xs">
+      <time datetime="2025-03-15" class="text-text-secondary-light dark:text-text-secondary-dark">
+        Mar 15, 2025
+      </time>
+      <span class="relative z-10 rounded-full bg-eucalyptus-50 px-3 py-1.5 font-medium text-eucalyptus-700 dark:bg-eucalyptus-900 dark:text-eucalyptus-300">
+        Design System
+      </span>
+    </header>
+
+    <!-- Main Title with strictly defined typography -->
+    <h3 class="mt-3 text-lg font-semibold leading-6 text-text-primary-light group-hover:text-eucalyptus-600 dark:text-text-primary-dark dark:group-hover:text-eucalyptus-400">
+      <a href={ctaLink}>
+        <span class="absolute inset-0"></span>
+        {title}
+      </a>
+    </h3>
+
+    <!-- Description using secondary text color -->
+    <p class="mt-5 line-clamp-3 text-sm leading-6 text-text-secondary-light dark:text-text-secondary-dark">
+      {description}
+    </p>
+  </div>
+
+  <!-- Footer / CTA -->
+  <div class="relative mt-8 flex items-center gap-x-4">
+    <div class="text-sm leading-6">
+      <p class="font-semibold text-text-primary-light dark:text-text-primary-dark">
+        <a href={ctaLink}>
+          <span class="absolute inset-0"></span>
+          {ctaText} <span aria-hidden="true">&rarr;</span>
+        </a>
+      </p>
+    </div>
+  </div>
+</article>

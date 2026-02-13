@@ -10,6 +10,7 @@
  * - SEO-friendly defaults
  * - Multilingual support (DE/EN/RO)
  * - hreflang tags for language variants
+ * - Pagefind indexing (data-pagefind-body)
  */
 
 import { themeScript } from '@/utils/theme';
@@ -33,20 +34,48 @@ const {
   title = 'Mihai Adrian Mateescu - Finanzbuchhalter Portfolio',
   description = 'Finanzbuchhalter mit Erfahrung in Buchhaltung, Finanzmanagement und Steuerberatung. Aktuell in Weiterbildung zum Bilanzbuchhalter (IHK).',
   ogImage = '/images/me.webp',
-  canonicalURL = Astro.url.href,
-  lang = 'de',
+  canonicalURL, // NOTE: we will compute a stable default below
+  lang: langProp,
   noindex = false,
   structuredData
 } = Astro.props;
 
 const siteTitle = 'Mihai Adrian Mateescu';
-const fullTitle = title === siteTitle ? title : `${title} | ${siteTitle}`;
-const siteUrl = 'https://me-mateescu.de';
+
+// Prefer Astro.site (from astro.config.mjs `site:`), fallback to hard-coded
+const siteUrl =
+  (Astro.site?.href?.replace(/\/$/, '') ?? 'https://me-mateescu.de');
+
 const currentPath = Astro.url.pathname;
+
+// Your rule: Blog is EN-only (even though it lives at /blog without /en prefix)
+const isBlog = currentPath === '/blog' || currentPath.startsWith('/blog/');
+
+// Infer language from pathname if not explicitly passed via props
+const inferredLang: Language =
+  isBlog ? 'en' :
+  currentPath.startsWith('/en') ? 'en' :
+  currentPath.startsWith('/ro') ? 'ro' :
+  'de';
+
+const lang: Language = langProp ?? inferredLang;
+
+// Canonical should be stable (production origin), allow override from props
+const canonicalHref = canonicalURL ?? new URL(currentPath, siteUrl).href;
+
+const fullTitle = title === siteTitle ? title : `${title} | ${siteTitle}`;
 const fullImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
 
 // Generate alternate language URLs
-const alternateUrls = getAlternateUrls(currentPath, siteUrl);
+// For EN-only blog: emit only en + x-default to avoid claiming translations
+const alternateUrls = isBlog
+  ? { en: canonicalHref, 'x-default': canonicalHref }
+  : getAlternateUrls(currentPath, siteUrl);
+
+const ogLocale =
+  lang === 'de' ? 'de_DE' :
+  lang === 'en' ? 'en_GB' :
+  'ro_RO';
 
 // Default structured data (Person schema)
 const defaultStructuredData = {
@@ -90,7 +119,7 @@ const defaultStructuredData = {
     {!noindex && <meta name="robots" content="index, follow" />}
 
     <!-- Canonical URL -->
-    <link rel="canonical" href={canonicalURL} />
+    <link rel="canonical" href={canonicalHref} />
 
     <!-- Alternate Language Links (hreflang) -->
     {Object.entries(alternateUrls).map(([hreflang, url]) => (
@@ -99,15 +128,15 @@ const defaultStructuredData = {
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:url" content={canonicalHref} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={fullImageUrl} />
-    <meta property="og:locale" content={lang === 'de' ? 'de_DE' : lang === 'en' ? 'en_GB' : 'ro_RO'} />
+    <meta property="og:locale" content={ogLocale} />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content={canonicalURL} />
+    <meta name="twitter:url" content={canonicalHref} />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={fullImageUrl} />
@@ -128,14 +157,15 @@ const defaultStructuredData = {
     <link rel="manifest" href="/site.webmanifest" />
 
     <!-- Structured Data (JSON-LD) -->
-    <script type="application/ld+json" set:html={JSON.stringify(structuredData || defaultStructuredData)} />
-
-    <!-- Image preload removed - Astro's Image component with loading="eager" handles optimization automatically -->
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(structuredData || defaultStructuredData)}
+    />
 
     <!-- KaTeX CSS for math equations (self-hosted for privacy and performance) -->
     <link rel="stylesheet" href="/katex/katex.min.css" />
-    
-    <!-- Fonts: Inter for modern, professional typography + Playfair Display for headings -->
+
+    <!-- Fonts: Inter + Playfair Display + JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -154,6 +184,7 @@ const defaultStructuredData = {
     <!-- Theme initialization (inline to prevent flash) -->
     <script is:inline set:html={themeScript} />
   </head>
+
   <body class="min-h-screen bg-light-bg dark:bg-dark-bg text-text-primary-light dark:text-text-primary-dark antialiased transition-colors duration-300">
     <!-- Skip to main content link (WCAG 2.2 AAA) -->
     <a
@@ -163,12 +194,23 @@ const defaultStructuredData = {
       Skip to main content
     </a>
 
-    <Header currentPath={currentPath} />
+    <!-- Header: keep out of Pagefind index (optional safety) -->
+    <div data-pagefind-ignore>
+      <Header currentPath={currentPath} />
+    </div>
 
-    <main id="main-content" class="pt-16 md:pt-20">
+    <!-- ✅ Pagefind body scope: once this exists anywhere, other pages need it too -->
+    <main
+      id="main-content"
+      class="pt-16 md:pt-20"
+      data-pagefind-body
+    >
       <slot />
     </main>
 
-    <Footer lang={lang} />
+    <!-- Footer: keep out of Pagefind index (optional safety) -->
+    <div data-pagefind-ignore>
+      <Footer lang={lang} />
+    </div>
   </body>
 </html>

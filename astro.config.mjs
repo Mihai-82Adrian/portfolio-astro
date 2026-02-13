@@ -4,14 +4,30 @@ import tailwind from '@astrojs/tailwind';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 
-// https://astro.build/config
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+
+// Shared Markdown pipeline (MDX will extend this by default)
+const remarkPlugins = [remarkMath];
+const rehypePlugins = [
+  [
+    rehypeKatex,
+    {
+      strict: false,
+      throwOnError: false,
+      trust: false,
+      output: 'html',
+    },
+  ],
+];
+
 export default defineConfig({
   site: 'https://me-mateescu.de',
   output: 'static',
   outDir: './dist',
+
   redirects: {
     // Consolidate Blog and Projects to main (DE) version
-    // EN/RO versions redirect to authoritative DE version
     '/en/blog': '/blog',
     '/en/blog/*': '/blog/:splat',
     '/ro/blog': '/blog',
@@ -21,11 +37,15 @@ export default defineConfig({
     '/ro/projects': '/projects',
     '/ro/projects/*': '/projects/:splat',
   },
+
   integrations: [
     tailwind({
-      applyBaseStyles: false, // We'll use our own base styles
+      applyBaseStyles: false,
     }),
+
+    // MDX inherits the `markdown` config (remark/rehype, gfm, etc.) by default
     mdx(),
+
     sitemap({
       i18n: {
         defaultLocale: 'de',
@@ -35,12 +55,10 @@ export default defineConfig({
           ro: 'ro-RO',
         },
       },
-      filter: (page) => {
-        // Exclude test pages and drafts
-        return !page.includes('/test/') && 
-               !page.includes('/design-system-test') &&
-               !page.includes('/draft');
-      },
+      filter: (page) =>
+        !page.includes('/test/') &&
+        !page.includes('/design-system-test') &&
+        !page.includes('/draft'),
       customPages: [
         'https://me-mateescu.de/',
         'https://me-mateescu.de/en/',
@@ -48,93 +66,91 @@ export default defineConfig({
       ],
       serialize(item) {
         const url = item.url;
-        
-        // Homepage - exact matches only (highest priority)
-        if (url === 'https://me-mateescu.de/' || 
-            url === 'https://me-mateescu.de/en/' || 
-            url === 'https://me-mateescu.de/ro/') {
+
+        // Homepage - exact matches only
+        if (
+          url === 'https://me-mateescu.de/' ||
+          url === 'https://me-mateescu.de/en/' ||
+          url === 'https://me-mateescu.de/ro/'
+        ) {
           item.priority = 1.0;
-        } 
-        // Main pages - about, experience, education, certifications
-        else if (url.match(/\/(about|experience|education|certifications)\/?$/)) {
+          return item;
+        }
+
+        // Main pages
+        if (url.match(/\/(about|experience|education|certifications)\/?$/)) {
           item.priority = 0.8;
+          return item;
         }
-        // Projects pages - high priority for portfolio showcase
-        else if (url.match(/\/projects\/?$/)) {
-          item.priority = 0.9; // Projects index
+
+        // Projects
+        if (url.match(/\/projects\/?$/)) {
+          item.priority = 0.9;
+          return item;
         }
-        else if (url.match(/\/projects\/(gds|genesis|profitminds)\/?$/)) {
-          item.priority = 0.85; // Individual projects
+        if (url.match(/\/projects\/(gds|genesis|profitminds)\/?$/)) {
+          item.priority = 0.85;
+          return item;
         }
-        // Blog index pages
-        else if (url.match(/\/blog\/?$/)) {
+
+        // Blog
+        if (url.match(/\/blog\/?$/)) {
           item.priority = 0.7;
+          return item;
         }
-        // Individual blog posts (not categories, not tags)
-        else if (url.includes('/blog/') && 
-                 !url.includes('/category/') && 
-                 !url.includes('/tag/')) {
+        if (
+          url.includes('/blog/') &&
+          !url.includes('/category/') &&
+          !url.includes('/tag/')
+        ) {
           item.priority = 0.7;
+          return item;
         }
-        // Blog categories and tags
-        else if (url.includes('/blog/category/') || url.includes('/blog/tag/')) {
+        if (url.includes('/blog/category/') || url.includes('/blog/tag/')) {
           item.priority = 0.5;
+          return item;
         }
-        // All other pages
-        else {
-          item.priority = 0.4;
-        }
-        
+
+        // Everything else
+        item.priority = 0.4;
         return item;
       },
     }),
   ],
+
   markdown: {
+    // ✅ Use real imports, not "remark-math"/"rehype-katex" strings
+    remarkPlugins,
+    rehypePlugins,
+
+    // Astro has these enabled by default, but keeping explicit is fine
+    gfm: true,
+    smartypants: true,
+
+    // Shiki themes
     shikiConfig: {
-      // Use dual themes for dark/light mode
       themes: {
         light: 'github-light',
         dark: 'github-dark',
       },
-      // Wrap long code lines
       wrap: true,
-      // Add transformers for enhanced code blocks
-      transformers: [
-        {
-          name: 'add-language-class',
-          pre(node) {
-            const lang = this.options.lang || 'plaintext';
-            this.addClassToHast(node, `language-${lang}`);
-          },
-        },
-      ],
     },
-    // Enable GFM and smartypants for better markdown processing
-    remarkPlugins: [
-      'remark-math', // Parse math syntax in markdown
-    ],
-    rehypePlugins: [
-      ['rehype-katex', {
-        // KaTeX options
-        strict: false,
-        throwOnError: false,
-        trust: false,
-        output: 'html',
-      }],
-    ],
   },
+
   build: {
     format: 'directory',
     inlineStylesheets: 'auto',
     assets: '_astro',
   },
+
   image: {
-    // Configure image service (Sharp for optimization)
     service: {
       entrypoint: 'astro/assets/services/sharp',
     },
   },
+
   compressHTML: true,
+
   vite: {
     build: {
       cssCodeSplit: true,
@@ -145,16 +161,6 @@ export default defineConfig({
           drop_debugger: true,
         },
       },
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            'vendor': ['astro/components'],
-          },
-        },
-      },
-    },
-    ssr: {
-      noExternal: ['@astrojs/prism'],
     },
   },
 });
