@@ -61,7 +61,7 @@ const blogPostingSchema = generateBlogPostingSchema(post, Astro.url.toString());
       <span class="text-text-tertiary-light dark:text-text-tertiary-dark">{title}</span>
     </nav>
 
-    <div class="grid lg:grid-cols-[1fr_250px] gap-12">
+    <div class="grid lg:grid-cols-[1fr_16rem] gap-12">
       <!-- Main Content -->
       <article>
         <!-- Post Title -->
@@ -199,13 +199,13 @@ const blogPostingSchema = generateBlogPostingSchema(post, Astro.url.toString());
   /* Custom prose styling for code blocks with Shiki */
   .prose pre {
     @apply border rounded-lg p-4 overflow-x-auto;
-    background-color: #f8f9fa !important;
-    border-color: #e9ecef !important;
+    background-color: theme('colors.light.surface') !important;
+    border-color: theme('colors.light.border') !important;
   }
 
   .dark .prose pre {
-    background-color: #1e2126 !important;
-    border-color: #3a3f47 !important;
+    background-color: theme('colors.dark.surface') !important;
+    border-color: theme('colors.dark.border') !important;
   }
 
   .prose code {
@@ -221,13 +221,13 @@ const blogPostingSchema = generateBlogPostingSchema(post, Astro.url.toString());
   .prose pre,
   .prose pre code,
   .prose pre code span {
-    color: #24292e !important;
+    color: theme('colors.text.primary.light') !important;
   }
 
   .dark .prose pre,
   .dark .prose pre code,
   .dark .prose pre code span {
-    color: #e6edf3 !important;
+    color: theme('colors.text.primary.dark') !important;
   }
 
   /* Smooth scroll for TOC links */

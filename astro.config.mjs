@@ -141,6 +141,7 @@ export default defineConfig({
     format: 'directory',
     inlineStylesheets: 'auto',
     assets: '_astro',
+    redirects: false,
   },
 
   image: {

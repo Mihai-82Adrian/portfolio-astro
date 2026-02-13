@@ -1,0 +1,171 @@
+{
+    "colors": {
+        "eucalyptus": {
+            "50": "#F0F4F1",
+            "100": "#E1EBE4",
+            "200": "#C3D7C9",
+            "300": "#9FBFA8",
+            "400": "#7BA888",
+            "500": "#6B8E6F",
+            "600": "#557159",
+            "700": "#4A6451",
+            "800": "#3A4E41",
+            "900": "#2C3832",
+            "950": "#1A211D"
+        },
+        "taupe": {
+            "50": "#FAF8F5",
+            "100": "#F5F3F0",
+            "200": "#E8E4DD",
+            "300": "#D8D2C7",
+            "400": "#C9B89B",
+            "500": "#B8A485",
+            "600": "#9E8B6C",
+            "700": "#8B7355",
+            "800": "#6F5A41",
+            "900": "#544433"
+        },
+        "success": {
+            "light": "#E8F5E9",
+            "DEFAULT": "#7BA888",
+            "dark": "#5A8563"
+        },
+        "warning": {
+            "light": "#FFF8E1",
+            "DEFAULT": "#D9A74B",
+            "dark": "#B8873D"
+        },
+        "error": {
+            "light": "#FFEBEE",
+            "DEFAULT": "#B85C4A",
+            "dark": "#9A4A3A"
+        },
+        "info": {
+            "light": "#E0F2F1",
+            "DEFAULT": "#5B9BA3",
+            "dark": "#4A7F85"
+        },
+        "dark": {
+            "bg": "#0F0F0F",
+            "surface": "#1A1916",
+            "elevated": "#252320",
+            "border": "#3A3530",
+            "accent": "#8BC299"
+        },
+        "light": {
+            "bg": "#FDFBF8",
+            "surface": "#F5F3F0",
+            "elevated": "#FFFFFF",
+            "border": "#E8E4DD"
+        },
+        "text": {
+            "primary": {
+                "light": "#2C2C2C",
+                "dark": "#E8E6E1"
+            },
+            "secondary": {
+                "light": "#5A5A5A",
+                "dark": "#A99E94"
+            },
+            "tertiary": {
+                "light": "#6E6E6E",
+                "dark": "#6F6760"
+            }
+        }
+    },
+    "fontFamily": {
+        "sans": [
+            "Inter",
+            "Geist"
+        ],
+        "mono": [
+            "JetBrains Mono",
+            "Fira Code"
+        ]
+    },
+    "fontSize": {
+        "xs": [
+            "0.75rem",
+            {
+                "lineHeight": "1rem"
+            }
+        ],
+        "sm": [
+            "0.875rem",
+            {
+                "lineHeight": "1.25rem"
+            }
+        ],
+        "base": [
+            "1rem",
+            {
+                "lineHeight": "1.5rem"
+            }
+        ],
+        "lg": [
+            "1.125rem",
+            {
+                "lineHeight": "1.75rem"
+            }
+        ],
+        "xl": [
+            "1.25rem",
+            {
+                "lineHeight": "1.75rem"
+            }
+        ],
+        "2xl": [
+            "1.5rem",
+            {
+                "lineHeight": "2rem"
+            }
+        ],
+        "3xl": [
+            "1.875rem",
+            {
+                "lineHeight": "2.25rem"
+            }
+        ],
+        "4xl": [
+            "2.25rem",
+            {
+                "lineHeight": "2.5rem"
+            }
+        ],
+        "5xl": [
+            "3rem",
+            {
+                "lineHeight": "3.5rem"
+            }
+        ],
+        "6xl": [
+            "3.5rem",
+            {
+                "lineHeight": "4rem"
+            }
+        ]
+    },
+    "spacing": {
+        "18": "4.5rem",
+        "88": "22rem",
+        "112": "28rem",
+        "128": "32rem"
+    },
+    "borderRadius": {
+        "DEFAULT": "0.5rem",
+        "lg": "1rem",
+        "xl": "1.5rem"
+    },
+    "boxShadow": {
+        "subtle": "0 2px 8px rgba(0, 0, 0, 0.08)",
+        "elevated": "0 8px 24px rgba(0, 0, 0, 0.12)",
+        "card": "0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.08)",
+        "dark-subtle": "0 2px 8px rgba(0, 0, 0, 0.3)",
+        "dark-elevated": "0 8px 24px rgba(0, 0, 0, 0.5)"
+    },
+    "maxWidth": {
+        "content": "65ch",
+        "prose": "75ch",
+        "container": "1200px"
+    }
+}

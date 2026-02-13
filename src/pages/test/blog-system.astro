@@ -514,12 +514,12 @@ const jsonCode = `{
 
   /* Shiki theme support */
   pre {
-    background-color: var(--shiki-light-bg, #f6f8fa);
-    color: var(--shiki-light, #24292e);
+    background-color: var(--shiki-light-bg, theme('colors.light.surface'));
+    color: var(--shiki-light, theme('colors.text.primary.light'));
   }
 
   .dark pre {
-    background-color: var(--shiki-dark-bg, #0d1117);
-    color: var(--shiki-dark, #c9d1d9);
+    background-color: var(--shiki-dark-bg, theme('colors.dark.surface'));
+    color: var(--shiki-dark, theme('colors.text.primary.dark'));
   }
 </style>

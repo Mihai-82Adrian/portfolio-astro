@@ -286,15 +286,15 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
   }
 
   .btn-primary {
-    background: var(--theme-color, #5A7961);
+    background: var(--theme-color, theme('colors.eucalyptus.600'));
     color: white !important;
-    border: 2px solid var(--theme-color, #5A7961);
+    border: 2px solid var(--theme-color, theme('colors.eucalyptus.600'));
   }
 
   .btn-primary:hover {
-    background: var(--theme-color, #4A6451);
+    background: var(--theme-color, theme('colors.eucalyptus.700'));
     color: white !important;
-    box-shadow: 0 0 20px var(--theme-color, #5A7961);
+    box-shadow: 0 0 20px var(--theme-color, theme('colors.eucalyptus.600'));
   }
 
   .btn-secondary {
@@ -434,11 +434,11 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
   }
 
   .timeline-item.completed .timeline-marker {
-    background: #10B981;
+    background: theme('colors.success.DEFAULT');
   }
 
   .timeline-item.in-progress .timeline-marker {
-    background: #F59E0B;
+    background: theme('colors.warning.DEFAULT');
     animation: pulse 2s infinite;
   }
 

@@ -11,35 +11,37 @@ interface Props {
 
 const { status, size = 'md' } = Astro.props;
 
+import tokens from '../../data/design-tokens.json';
+
 const statusConfig = {
   active: {
     icon: '🟢',
-    color: '#4ADE80',
-    bgColor: 'rgba(74, 222, 128, 0.1)',
+    color: tokens.colors.success.DEFAULT,
+    bgColor: tokens.colors.success.light,
     label: status.label,
   },
   production: {
     icon: '🚀',
-    color: '#3B82F6',
-    bgColor: 'rgba(59, 130, 246, 0.1)',
+    color: tokens.colors.eucalyptus[500],
+    bgColor: tokens.colors.eucalyptus[100],
     label: status.label,
   },
   live: {
     icon: '✅',
-    color: '#10B981',
-    bgColor: 'rgba(16, 185, 129, 0.1)',
+    color: tokens.colors.success.dark,
+    bgColor: tokens.colors.success.light,
     label: status.label,
   },
   development: {
     icon: '🚧',
-    color: '#F59E0B',
-    bgColor: 'rgba(245, 158, 11, 0.1)',
+    color: tokens.colors.warning.DEFAULT,
+    bgColor: tokens.colors.warning.light,
     label: status.label,
   },
   research: {
     icon: '🔬',
-    color: '#A855F7',
-    bgColor: 'rgba(168, 85, 247, 0.1)',
+    color: tokens.colors.info.DEFAULT,
+    bgColor: tokens.colors.info.light,
     label: status.label,
   },
 };

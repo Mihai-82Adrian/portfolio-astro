@@ -19,6 +19,7 @@ import Footer from '@components/layout/Footer.astro';
 import type { Language } from '@utils/i18n';
 import { getAlternateUrls } from '@utils/i18n';
 import '@/styles/global.css';
+import tokens from '@/data/design-tokens.json';
 
 interface Props {
   title?: string;
@@ -147,11 +148,11 @@ const defaultStructuredData = {
     <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png" />
     <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
-    <link rel="mask-icon" href="/images/safari-pinned-tab.svg" color="#6B8E6F" />
+    <link rel="mask-icon" href="/images/safari-pinned-tab.svg" color={tokens.colors.eucalyptus[500]} />
 
     <!-- Theme Color (matches eucalyptus green) -->
-    <meta name="theme-color" content="#6B8E6F" />
-    <meta name="msapplication-TileColor" content="#6B8E6F" />
+    <meta name="theme-color" content={tokens.colors.eucalyptus[500]} />
+    <meta name="msapplication-TileColor" content={tokens.colors.eucalyptus[500]} />
 
     <!-- Web Manifest -->
     <link rel="manifest" href="/site.webmanifest" />
