@@ -12,6 +12,9 @@ const blog = defineCollection({
     updatedDate: z.coerce.date().optional(),
     heroImage: z.string().optional(),
 
+    // Language enforcement (Content Architect V2)
+    lang: z.literal('en').default('en'),
+
     // Taxonomy
     category: z.enum(['finance', 'ai-ml', 'fintech', 'personal']),
     tags: z.array(z.string()),

@@ -13,6 +13,7 @@ author:
   name: 'Mihai Adrian Mateescu'
   email: 'mihai.mateescu@web.de'
   url: 'https://me-mateescu.de'
+lang: 'en'
 ---
 
 # A Modern Portfolio Architecture: Research Insights on Astro, Tailwind, and TypeScript
@@ -28,6 +29,7 @@ Throughout this text, observations are framed as research findings under control
 Before evaluating frameworks, requirements were established by studying modern web best practices (2023–2025) from sources including Google Web Vitals guidance, W3C accessibility standards, and performance benchmarking research:
 
 **Performance Targets**
+
 - Largest Contentful Paint (LCP): <1.5s (research target; Google recommends <2.5s for "good")
 - Cumulative Layout Shift (CLS): <0.1 (measure of visual stability)
 - First Contentful Paint (FCP): <1.0s
@@ -35,6 +37,7 @@ Before evaluating frameworks, requirements were established by studying modern w
 - SEO: Full HTML crawlability, structured metadata
 
 **Content & Type Safety**
+
 - Markdown/MDX with syntax highlighting for Rust, Julia, Python, TypeScript
 - Type-safe frontmatter validation at build time
 - Multilingual UI support (English, German, Romanian) with English content
@@ -42,6 +45,7 @@ Before evaluating frameworks, requirements were established by studying modern w
 - Code Collections schema with Zod validation
 
 **Developer Experience**
+
 - TypeScript strict mode throughout
 - Sub-3 second full builds in development
 - Hot Module Replacement for instant feedback
@@ -49,6 +53,7 @@ Before evaluating frameworks, requirements were established by studying modern w
 - One-command deployment to global CDN
 
 **Accessibility & Design System**
+
 - WCAG 2.2 AA compliance (4.5:1 text contrast minimum; 7:1 for AAA)
 - System-aware dark mode
 - Eucalyptus green brand color (#6B8E6F) with validated contrast ratios
@@ -300,6 +305,7 @@ const { Content } = await post.render();
 ```
 
 The prose classes configure:
+
 - Line-height and letter-spacing for readability
 - Margin and padding scales
 - Custom color tokens (via `prose-eucalyptus`)
@@ -434,6 +440,7 @@ export function formatReadingTime(minutes: number, locale: string = 'en'): strin
 ## Build & Deployment: Cloudflare Pages Workflow
 
 Static site hosting on Cloudflare Pages provides:
+
 - Global CDN with 250+ edge locations
 - Automatic HTTPS
 - Branch previews for pull requests
@@ -487,6 +494,7 @@ jobs:
 ```
 
 **Workflow notes:**
+
 - `actions/checkout@v4`: Latest stable version (v3 is deprecated)
 - `actions/setup-node@v4`: Node 20 LTS is recommended for optimal ES2024 support
 - `NODE_ENV=production`: Reduces bundle size for Tailwind and other build tools
@@ -494,6 +502,7 @@ jobs:
 - `pages-action@v1`: Latest Cloudflare Pages action
 
 **Security best practices:**
+
 - Store `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in GitHub Environments
 - Use GitHub Environments to restrict production deploys to specific branches
 - Never commit `dist/` directory; generate during CI/CD only
@@ -533,6 +542,7 @@ import heroImg from '@assets/hero.jpg';
 ```
 
 **Output:** Astro generates multiple formats and sizes:
+
 - `hero-800w.avif` (modern browsers, best compression)
 - `hero-800w.webp` (fallback for older browsers)
 - `hero-800w.jpg` (final fallback)
@@ -569,6 +579,7 @@ Fonts significantly impact LCP (Largest Contentful Paint). Astro recommends:
 ```
 
 **Key properties:**
+
 - `rel="preload"`: Requests font early, before CSS parsing
 - `crossorigin`: Required for fonts, even from same origin
 - `font-display: swap`: Uses system font initially, swaps when web font loads (avoids layout shift)
@@ -588,6 +599,7 @@ import SearchWidget from '@components/SearchWidget.tsx';
 ```
 
 Vite analysis:
+
 - Static imports are bundled with the entry chunk
 - Dynamic imports become separate chunks
 - Each island gets its own chunk if not tree-shakeable
@@ -604,6 +616,7 @@ Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'
 ```
 
 **Rationale:**
+
 - `default-src 'self'`: Only resources from same origin
 - `script-src 'self'`: Only local scripts (no inline, no external)
 - `style-src 'unsafe-inline'`: Scoped Astro styles use inline `<style>` tags
@@ -627,17 +640,20 @@ The following measurements are from local testing with specific configurations a
 ### Observed Results
 
 **Lighthouse Scores (mobile):**
+
 - Performance: 100
 - Accessibility: 100
 - Best Practices: 100
 - SEO: 100
 
 **Core Web Vitals:**
+
 - **LCP:** 0.58s (median; target <2.5s)
 - **INP:** 18ms (median; target <200ms)
 - **CLS:** 0.002 (median; target <0.1)
 
 **Asset Sizes:**
+
 - Initial HTML: 14.2KB gzipped
 - CSS (Tailwind): 7.8KB gzipped
 - JavaScript (React + theme toggle): 11.2KB gzipped
@@ -646,12 +662,14 @@ The following measurements are from local testing with specific configurations a
 ### Caveats & Variability
 
 Lighthouse scores fluctuate 5–15 points between runs due to:
+
 - CPU throttling variance
 - Network simulation accuracy
 - Cache state on CDN
 - Third-party script performance (if any)
 
 These metrics illustrate *what is achievable* with a well-optimized Astro stack in a controlled environment. Real-world performance depends on:
+
 - Hosting latency (TTFB—Time to First Byte)
 - User device capabilities
 - Network conditions
@@ -688,6 +706,7 @@ These metrics illustrate *what is achievable* with a well-optimized Astro stack 
 Before deploying an Astro + Tailwind + TypeScript site to production:
 
 ### Configuration & Build
+
 - [ ] `astro check` passes without errors
 - [ ] `tsc --noEmit` passes (TypeScript strict mode)
 - [ ] `npm run build` completes in <60 seconds
@@ -695,6 +714,7 @@ Before deploying an Astro + Tailwind + TypeScript site to production:
 - [ ] `NODE_ENV=production` during builds
 
 ### Performance
+
 - [ ] LCP <2.5s on 4G throttling (mobile)
 - [ ] CLS <0.1 (measure after all fonts load)
 - [ ] CSS bundle <20KB gzipped
@@ -702,6 +722,7 @@ Before deploying an Astro + Tailwind + TypeScript site to production:
 - [ ] Zero layout shifts during font loading
 
 ### Accessibility
+
 - [ ] Color contrast ≥4.5:1 for all text (WCAG AA)
 - [ ] Interactive elements keyboard-accessible
 - [ ] Form labels associated with inputs
@@ -709,6 +730,7 @@ Before deploying an Astro + Tailwind + TypeScript site to production:
 - [ ] Focus styles visible with `:focus-visible`
 
 ### Security
+
 - [ ] CSP header configured and tested
 - [ ] No inline event handlers (`onclick`, `onload`)
 - [ ] User-generated markdown sanitized with DOMPurify or similar
@@ -716,6 +738,7 @@ Before deploying an Astro + Tailwind + TypeScript site to production:
 - [ ] GitHub Actions secrets properly scoped
 
 ### SEO & Content
+
 - [ ] Frontmatter schema validated for all posts
 - [ ] Meta descriptions provided (50–160 characters)
 - [ ] RSS feed valid (test with feed validator)
@@ -723,6 +746,7 @@ Before deploying an Astro + Tailwind + TypeScript site to production:
 - [ ] Open Graph tags for social sharing
 
 ### Deployment
+
 - [ ] GitHub Actions workflow tested on PR branch
 - [ ] Cloudflare Pages project configured
 - [ ] Environment variables set (API token, account ID)
