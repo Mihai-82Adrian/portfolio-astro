@@ -8,7 +8,7 @@ import crypto from 'node:crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(__dirname, '../../../../');
-const OUTPUT_DIR = path.join(PROJECT_ROOT, 'dist');
+const OUTPUT_DIR = path.join(PROJECT_ROOT, 'public');
 const OUTPUT_FILE = path.join(OUTPUT_DIR, 'corpus.jsonl');
 
 /**

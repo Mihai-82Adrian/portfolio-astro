@@ -14,9 +14,8 @@ author:
   email: 'mihai.mateescu@web.de'
   url: 'https://me-mateescu.de'
 lang: 'en'
----
 
-# A Modern Portfolio Architecture: Research Insights on Astro, Tailwind, and TypeScript
+---
 
 ## Introduction: Research Framing
 

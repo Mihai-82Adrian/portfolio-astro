@@ -20,6 +20,7 @@ import type { Language } from '@utils/i18n';
 import { getAlternateUrls } from '@utils/i18n';
 import '@/styles/global.css';
 import tokens from '@/data/design-tokens.json';
+import ChatWidget from '@components/ChatWidget.astro';
 
 interface Props {
   title?: string;
@@ -213,5 +214,7 @@ const defaultStructuredData = {
     <div data-pagefind-ignore>
       <Footer lang={lang} />
     </div>
+    <!-- AI Chat Widget -->
+    <ChatWidget />
   </body>
 </html>
