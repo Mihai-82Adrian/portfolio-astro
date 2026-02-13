@@ -37,20 +37,21 @@ const {
   <!-- Messages Area -->
   <div class="chat-messages flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900" aria-live="polite" aria-atomic="false">
     <div class="message ai bg-white dark:bg-gray-800 p-3 rounded-lg rounded-tl-none shadow-sm text-sm dark:text-gray-200 border border-gray-100 dark:border-gray-700 max-w-[85%]">
-      Hi! I'm an AI assistant. I can answer questions about Mihai's work based on this portfolio. How can I help?
+      Hi! I'm an AI assistant. I can answer questions about Mihai's skills, experience, certifications, and projects.
+      <br><span class="text-[11px] text-eucalyptus-700 dark:text-eucalyptus-300 mt-1 block">💡 Tip: Paste a job posting and ask "Does Mihai fit this role?" for a detailed match analysis.</span>
       <br><span class="text-[10px] text-gray-400 mt-1 block">⚠️ Answers are generated and may contain errors.</span>
     </div>
   </div>
 
   <!-- Input Area -->
-  <form class="chat-form p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex gap-2 shrink-0">
-    <input
-      type="text"
-      placeholder="Ask a question..."
+  <form class="chat-form p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex gap-2 items-end shrink-0">
+    <textarea
+      placeholder="Ask a question or paste a job posting..."
       aria-label="Chat Message"
-      class="chat-input flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-eucalyptus-500 dark:bg-gray-700 dark:text-white text-sm"
+      rows="1"
+      class="chat-input flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-eucalyptus-500 dark:bg-gray-700 dark:text-white text-sm resize-none overflow-hidden max-h-32"
       required
-    />
+    ></textarea>
     <button
       type="submit"
       aria-label="Send Message"
@@ -67,14 +68,14 @@ const {
   class ChatWidget {
     container: HTMLElement;
     form: HTMLFormElement;
-    input: HTMLInputElement;
+    input: HTMLTextAreaElement;
     messagesEl: HTMLElement;
     submitBtn: HTMLButtonElement | null;
 
     constructor(el: HTMLElement) {
       this.container = el;
       this.form = el.querySelector('.chat-form') as HTMLFormElement;
-      this.input = el.querySelector('.chat-input') as HTMLInputElement;
+      this.input = el.querySelector('.chat-input') as HTMLTextAreaElement;
       this.messagesEl = el.querySelector('.chat-messages') as HTMLElement;
       this.submitBtn = this.form.querySelector('button[type="submit"]');
 
@@ -83,7 +84,22 @@ const {
 
     init() {
       this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+
+      // Auto-resize textarea as user types
+      this.input.addEventListener('input', () => {
+        this.input.style.height = 'auto';
+        this.input.style.height = Math.min(this.input.scrollHeight, 128) + 'px';
+      });
+
+      // Enter sends message, Shift+Enter adds newline
+      this.input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          this.form.requestSubmit();
+        }
+      });
     }
+
 
     createMessageElement(text: string, isUser: boolean, sources: any[] = []) {
       const div = document.createElement('div');
@@ -172,6 +188,7 @@ const {
 
       this.appendMessage(text, true);
       this.input.value = '';
+      this.input.style.height = 'auto';
       if (this.submitBtn) this.submitBtn.disabled = true;
 
       this.showLoading();
@@ -186,8 +203,24 @@ const {
         this.removeLoading();
 
         if (!res.ok) {
-          if (res.status === 429) throw new Error('Too many requests. Please wait.');
-          throw new Error('API Error');
+          let errorMsg = 'Something went wrong. Please try again.';
+          let errorCode = 'UNKNOWN';
+          try {
+            const errData = await res.json();
+            errorCode = errData.code || 'UNKNOWN';
+            // User-friendly messages based on error code
+            const codeMessages: Record<string, string> = {
+              'RATE_LIMIT': 'Too many requests — please wait a moment.',
+              'INPUT_EMPTY': 'Please type a message first.',
+              'INPUT_TOO_LONG': 'Message is too long (max 4000 chars).',
+              'CORPUS_LOAD_FAILED': 'Knowledge base unavailable. Try again later.',
+              'OPENAI_KEY_MISSING': 'AI service is not configured. See docs/chat.md.',
+              'OPENAI_UPSTREAM_ERROR': 'AI service is temporarily unavailable.',
+            };
+            errorMsg = codeMessages[errorCode] || errData.error || errorMsg;
+          } catch { /* response wasn't JSON */ }
+          console.warn(`[Chat] API error ${res.status} (${errorCode})`);
+          throw new Error(errorMsg);
         }
 
         const data = await res.json();
@@ -196,11 +229,11 @@ const {
       } catch (err: any) {
         this.removeLoading();
         this.appendMessage(err.message || "Sorry, something went wrong.", false);
-        console.error(err);
       } finally {
         if (this.submitBtn) this.submitBtn.disabled = false;
         this.input.focus();
       }
+
     }
   }
 
