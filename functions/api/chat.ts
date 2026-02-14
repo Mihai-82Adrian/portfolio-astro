@@ -12,6 +12,13 @@ interface Doc {
     metadata?: {
         type?: string;
         lang?: string;
+        source?: string;
+        category?: string;
+        keywords?: string[];
+        proficiency?: string;
+        years?: number;
+        phase?: string;
+        period?: string;
     };
 }
 
@@ -153,42 +160,42 @@ const INTENT_PATTERNS: IntentPattern[] = [
     {
         intent: 'contact_phone',
         patterns: [
-            /\b(phone|telefon|nummer|anrufen|rufnummer|handy|mobil|call|ring)\b/i,
+            /\b(phone|telefon|nummer|anrufen|rufnummer|handy|mobil|call|ring)/i,
         ],
         minConfidence: 0.5,
     },
     {
         intent: 'contact',
         patterns: [
-            /\b(contact|kontakt|contacta|email|e-mail|mail|reach|erreichen|linkedin|write|schreiben|adresa|adresse|address)\b/i,
+            /\b(contact|kontakt|contacta|email|e-mail|mail|reach|erreichen|linkedin|write|schreiben|adresa|adresse|address)/i,
         ],
         minConfidence: 0.5,
     },
     {
         intent: 'current_role',
         patterns: [
-            /\b(current|aktuell|actual|position|rolle|rol|job|stelle|arbeitet|works?|employer|arbeitgeber|angajator|title|titel|titlu)\b/i,
+            /\b(current|aktuell|actual|position|rolle|rol|job|stelle|arbeitet|works?|employer|arbeitgeber|angajator|title|titel|titlu)/i,
         ],
         minConfidence: 0.3,
     },
     {
         intent: 'skills',
         patterns: [
-            /\b(skills?|fähigkeit|kompetenz|competenț|technologies|technologie|tools?|stack|können|qualifikation|qualification|what.+can|was.+kann)\b/i,
+            /\b(skills?|fähigkeit|kompetenz|competenț|technologies|technologie|tools?|stack|können|qualifikation|qualification|what.+can|was.+kann)/i,
         ],
         minConfidence: 0.3,
     },
     {
         intent: 'certifications',
         patterns: [
-            /\b(certif|zertifik|certificar|diploma?|abschluss|abschlüsse|IHK|telc|qualif|ausbildung|educati|educat|bildung|studiu)\b/i,
+            /\b(certif|zertifik|certificar|diploma?|abschluss|abschlüsse|IHK|telc|qualif|ausbildung|educati|educat|bildung|studiu)/i,
         ],
         minConfidence: 0.3,
     },
     {
         intent: 'projects',
         patterns: [
-            /\b(projects?|projekte?|proiecte?|portfolio|GDS|GENESIS|ProfitMinds|arbeitet.+an|working.+on|lucrează)\b/i,
+            /\b(projects?|projekte?|proiecte?|portfolio|GDS|GENESIS|ProfitMinds|arbeitet.+an|working.+on|lucrează)/i,
         ],
         minConfidence: 0.3,
     },
@@ -257,13 +264,14 @@ function tokenize(text: string): string[] {
         .filter(t => t.length > 2 && !STOPWORDS.has(t));
 }
 
-function scoreDoc(doc: Doc, queryTokens: string[]): number {
+function scoreDoc(doc: Doc, queryTokens: string[], queryLang?: Lang): number {
     let score = 0;
     const titleLower = doc.title.toLowerCase();
     const sectionLower = (doc.sectionTitle || '').toLowerCase();
     const textLower = doc.text.toLowerCase();
     const fullText = titleLower + ' ' + sectionLower + ' ' + textLower;
 
+    // Core TF-IDF scoring
     for (const token of queryTokens) {
         if (!fullText.includes(token)) continue;
         score += 1;
@@ -273,10 +281,46 @@ function scoreDoc(doc: Doc, queryTokens: string[]): number {
         if (wordBoundary.test(doc.text)) score += 1;
     }
 
+    // FAQ question matching — boost FAQ entries whose title closely matches the query
+    if (doc.metadata?.type === 'faq') {
+        const titleTokens = tokenize(doc.title);
+        const overlap = titleTokens.filter(t => queryTokens.includes(t)).length;
+        if (overlap >= 2) score += 8;
+        else if (overlap >= 1) score += 4;
+    }
+
+    // Metadata keyword matching — boost docs whose keywords intersect with query tokens
+    if (doc.metadata?.keywords) {
+        for (const kw of doc.metadata.keywords) {
+            const kwLower = kw.toLowerCase();
+            if (queryTokens.some(t => kwLower.includes(t) || t.includes(kwLower))) {
+                score += 3;
+            }
+        }
+    }
+
+    // Category matching — boost when query tokens match the doc's category
+    if (doc.metadata?.category) {
+        const catLower = doc.metadata.category.toLowerCase();
+        if (queryTokens.some(t => catLower.includes(t) || t.includes(catLower))) {
+            score += 4;
+        }
+    }
+
+    // Language-aware boost — prefer docs matching the detected query language
+    if (queryLang && doc.metadata?.lang) {
+        if (doc.metadata.lang === queryLang) {
+            score = Math.ceil(score * 1.5);
+        } else if (score > 0) {
+            // Slight penalty for wrong-language docs (but don't zero them out)
+            score = Math.ceil(score * 0.7);
+        }
+    }
+
     return score;
 }
 
-function retrieveDocs(corpus: Doc[], message: string, isJobMatch: boolean): Doc[] {
+function retrieveDocs(corpus: Doc[], message: string, isJobMatch: boolean, lang?: Lang): Doc[] {
     const queryTokens = tokenize(message);
 
     if (queryTokens.length === 0) {
@@ -285,10 +329,10 @@ function retrieveDocs(corpus: Doc[], message: string, isJobMatch: boolean): Doc[
 
     const scoredDocs = corpus.map(doc => ({
         doc,
-        score: scoreDoc(doc, queryTokens)
+        score: scoreDoc(doc, queryTokens, lang)
     }));
 
-    const limit = isJobMatch ? 8 : 5;
+    const limit = isJobMatch ? 10 : 6;
 
     let topDocs = scoredDocs
         .filter(d => d.score > 0)
@@ -296,18 +340,26 @@ function retrieveDocs(corpus: Doc[], message: string, isJobMatch: boolean): Doc[
         .slice(0, limit)
         .map(d => d.doc);
 
-    // For job match: always include profile + current experience
+    // For job match: always include profile + current experience + value proposition
     if (isJobMatch) {
+        const targetLang = lang || 'en';
         const existingIds = new Set(topDocs.map(d => d.id));
-        const profileDoc = corpus.find(d => d.metadata?.type === 'profile' && d.metadata?.lang === 'en');
+        const profileDoc = corpus.find(d => d.metadata?.type === 'profile' && d.metadata?.lang === targetLang);
         if (profileDoc && !existingIds.has(profileDoc.id)) {
             topDocs.unshift(profileDoc);
         }
         const recentExp = corpus.find(d =>
-            d.metadata?.type === 'experience' && d.metadata?.lang === 'en' && d.text.includes('present')
+            d.metadata?.type === 'experience' && d.metadata?.lang === targetLang && d.text.includes('present')
         );
         if (recentExp && !existingIds.has(recentExp.id)) {
             topDocs.splice(1, 0, recentExp);
+        }
+        // Include unique-blend value proposition for job matches
+        const valueProp = corpus.find(d =>
+            d.metadata?.type === 'value_proposition' && d.metadata?.lang === targetLang && d.metadata?.category === 'unique-blend'
+        );
+        if (valueProp && !existingIds.has(valueProp.id)) {
+            topDocs.push(valueProp);
         }
     }
 
@@ -392,10 +444,11 @@ export const onRequestPost = async (context: any) => {
     limitData.count++;
 
     try {
-        const body = await request.json() as { message: unknown; lang?: string; tab?: string };
+        const body = await request.json() as { message: unknown; lang?: string; tab?: string; intent?: string };
         const message = body.message;
         const uiLang = body.lang as string | undefined;
         const tab = body.tab as string | undefined;
+        const explicitIntent = body.intent as string | undefined;
 
         // 2. Input Validation
         if (!message || typeof message !== 'string' || message.trim().length === 0) {
@@ -415,7 +468,8 @@ export const onRequestPost = async (context: any) => {
 
         // 4. Intent Routing (only for chat tab, not JD analysis)
         if (tab !== 'jd') {
-            const intent = matchIntent(message as string);
+            // Use explicit intent from chip clicks, or detect via regex
+            const intent = (explicitIntent as Intent) || matchIntent(message as string);
             if (intent) {
                 // Load facts if needed
                 if (!cachedFacts) {
@@ -490,7 +544,7 @@ export const onRequestPost = async (context: any) => {
 
         // 6. Detect query type and retrieve
         const isJobMatch = tab === 'jd' || isJobMatchQuery(message as string);
-        const topDocs = retrieveDocs(cachedCorpus, message as string, isJobMatch);
+        const topDocs = retrieveDocs(cachedCorpus, message as string, isJobMatch, lang);
 
         // 7. Build prompt
         const langLabel = LANG_NAMES[lang] || 'English';
@@ -503,34 +557,138 @@ export const onRequestPost = async (context: any) => {
             ? `MIHAI'S PORTFOLIO EVIDENCE:\n${contextText}\n\nRECRUITER'S INPUT:\n${message}`
             : `EVIDENCE:\n${contextText}\n\nQUESTION: ${message}`;
 
-        const messages = [
-            { role: "system", content: systemPrompt },
+        const input = [
+            { role: "developer", content: systemPrompt },
             { role: "user", content: userMessage }
         ];
 
-        // 8. Call OpenAI
-        const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        // 8. Call OpenAI Responses API
+        const useStreaming = !isJobMatch; // Stream for chat, not for JD (JD needs full JSON)
+
+        const openAIResponse = await fetch('https://api.openai.com/v1/responses', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${env.OPENAI_API_KEY}`
             },
             body: JSON.stringify({
-                model: 'gpt-4o-mini',
-                messages: messages,
+                model: 'gpt-4.1-mini',
+                input: input,
                 temperature: isJobMatch ? 0.4 : 0.3,
-                max_tokens: isJobMatch ? 1500 : 600
+                max_output_tokens: isJobMatch ? 1500 : 600,
+                ...(useStreaming ? { stream: true } : {}),
             })
         });
 
         if (!openAIResponse.ok) {
-            const err = await openAIResponse.text();
-            console.error('OpenAI Error:', openAIResponse.status, err);
-            return new Response(JSON.stringify({ error: 'AI service temporarily unavailable.', code: 'OPENAI_UPSTREAM_ERROR' }), { status: 502, headers: { 'Content-Type': 'application/json' } });
+            const errText = await openAIResponse.text();
+            const status = openAIResponse.status;
+            console.error('OpenAI Error:', status, errText);
+
+            // Granular error mapping
+            if (status === 402) {
+                return new Response(JSON.stringify({
+                    error: 'AI assistant is temporarily on a break. Please try again later.',
+                    code: 'AI_BILLING_EXHAUSTED',
+                    recoverable: false,
+                }), { status: 503, headers: { 'Content-Type': 'application/json' } });
+            }
+
+            if (status === 429) {
+                const isQuota = errText.includes('quota') || errText.includes('billing');
+                return new Response(JSON.stringify({
+                    error: isQuota
+                        ? 'AI assistant has reached its daily limit. Please try again tomorrow.'
+                        : 'Too many requests — please wait a moment and retry.',
+                    code: isQuota ? 'AI_QUOTA_EXCEEDED' : 'AI_RATE_LIMITED',
+                    recoverable: !isQuota,
+                }), { status: 429, headers: { 'Content-Type': 'application/json' } });
+            }
+
+            // 500, 502, 503, etc.
+            return new Response(JSON.stringify({
+                error: 'AI assistant is temporarily unavailable. Please try again shortly.',
+                code: 'AI_SERVICE_DOWN',
+                recoverable: true,
+            }), { status: 502, headers: { 'Content-Type': 'application/json' } });
         }
 
+        // ── Streaming path (regular chat) ──────────────────────────
+        if (useStreaming && openAIResponse.body) {
+            const encoder = new TextEncoder();
+            const decoder = new TextDecoder();
+
+            const meta = JSON.stringify({
+                sources: topDocs.map(d => ({ title: d.title, url: d.url })),
+                mode: 'qa',
+                lang: lang,
+                quota: { q: quota.q, jd: quota.jd, maxQ: MAX_CHAT_QUESTIONS, maxJd: MAX_JD_ANALYSES },
+            });
+
+            const { readable, writable } = new TransformStream();
+            const writer = writable.getWriter();
+
+            // Process the SSE stream from OpenAI in the background
+            (async () => {
+                try {
+                    // Send metadata first
+                    await writer.write(encoder.encode(`event: meta\ndata: ${meta}\n\n`));
+
+                    const reader = openAIResponse.body!.getReader();
+                    let buffer = '';
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop() || ''; // Keep incomplete line
+
+                        for (const line of lines) {
+                            if (!line.startsWith('data: ')) continue;
+                            const payload = line.slice(6).trim();
+                            if (!payload || payload === '[DONE]') continue;
+
+                            try {
+                                const event = JSON.parse(payload);
+                                // Extract text deltas from Responses API events
+                                if (event.type === 'response.output_text.delta' && event.delta) {
+                                    const deltaData = JSON.stringify({ text: event.delta });
+                                    await writer.write(encoder.encode(`event: delta\ndata: ${deltaData}\n\n`));
+                                }
+                            } catch {
+                                // Skip malformed events
+                            }
+                        }
+                    }
+
+                    await writer.write(encoder.encode(`event: done\ndata: {}\n\n`));
+                } catch (err) {
+                    console.error('Stream processing error:', err);
+                    const errData = JSON.stringify({ error: 'Stream interrupted' });
+                    await writer.write(encoder.encode(`event: error\ndata: ${errData}\n\n`));
+                } finally {
+                    await writer.close();
+                }
+            })();
+
+            const responseHeaders = new Headers({
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+                'Set-Cookie': buildQuotaCookie(quota),
+            });
+
+            return new Response(readable, { headers: responseHeaders });
+        }
+
+        // ── Non-streaming path (JD analysis) ───────────────────────
         const data: any = await openAIResponse.json();
-        const answer = data.choices[0].message.content;
+        // Responses API: extract text from output array
+        const answer = data.output?.find((o: any) => o.type === 'message')?.content?.find((c: any) => c.type === 'output_text')?.text
+            || data.output?.[0]?.content?.[0]?.text
+            || 'No response generated.';
 
         // 10. Return Response with quota cookie
         const responseHeaders = new Headers({
@@ -550,6 +708,16 @@ export const onRequestPost = async (context: any) => {
 
     } catch (err: any) {
         console.error('Chat API Error:', err);
-        return new Response(JSON.stringify({ error: 'An unexpected error occurred.', code: 'INTERNAL_ERROR' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+
+        // Network-level failure (e.g., DNS, timeout)
+        const isNetwork = err.message?.includes('fetch') || err.message?.includes('network');
+        return new Response(JSON.stringify({
+            error: isNetwork
+                ? 'Unable to reach the AI service. Please check back later.'
+                : 'An unexpected error occurred.',
+            code: isNetwork ? 'AI_UNREACHABLE' : 'INTERNAL_ERROR',
+            recoverable: true,
+        }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
 };
+

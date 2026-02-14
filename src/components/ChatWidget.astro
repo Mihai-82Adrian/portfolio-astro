@@ -20,8 +20,8 @@ interface Props {
 const {
   class: className = '',
   id = 'ai-chat-widget',
-  title = 'Portfolio Copilot',
-  subtitle = 'AI-powered career insights',
+  title = 'Ask Mihai \u00b7 AI',
+  subtitle = 'Powered by GPT-4.1',
 } = Astro.props;
 ---
 
@@ -327,11 +327,6 @@ const {
       const displayText = chipLabels[chipType] || chipType;
       this.appendMessage(displayText, true);
 
-      // Hide chips after first use
-      if (this.chipsContainer) {
-        this.chipsContainer.style.display = 'none';
-      }
-
       this.showLoading();
 
       try {
@@ -339,7 +334,7 @@ const {
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: displayText, lang, tab: 'chat' })
+          body: JSON.stringify({ message: displayText, lang, tab: 'chat', intent: chipType })
         });
 
         this.removeLoading();
@@ -348,9 +343,15 @@ const {
           throw new Error(await this.parseError(res));
         }
 
-        const data = await res.json();
-        this.appendMessage(data.answer, false, data.sources);
-        this.updateQuota(data.quota);
+        const contentType = res.headers.get('Content-Type') || '';
+        if (contentType.includes('text/event-stream')) {
+          await this.consumeStream(res);
+        } else {
+          // Non-streaming (fact responses)
+          const data = await res.json();
+          this.appendMessage(data.answer, false, data.sources);
+          this.updateQuota(data.quota);
+        }
 
       } catch (err: any) {
         this.removeLoading();
@@ -391,9 +392,15 @@ const {
           throw new Error(await this.parseError(res));
         }
 
-        const data = await res.json();
-        this.appendMessage(data.answer, false, data.sources);
-        this.updateQuota(data.quota);
+        const contentType = res.headers.get('Content-Type') || '';
+        if (contentType.includes('text/event-stream')) {
+          await this.consumeStream(res);
+        } else {
+          // Fallback for non-streaming responses
+          const data = await res.json();
+          this.appendMessage(data.answer, false, data.sources);
+          this.updateQuota(data.quota);
+        }
 
       } catch (err: any) {
         this.removeLoading();
@@ -785,14 +792,106 @@ const {
       this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
     }
 
+    // ─── SSE Stream Consumer ─────────────────────────────────────
+
+    async consumeStream(res: Response) {
+      if (!res.body) {
+        this.appendMessage('Stream unavailable.', false);
+        return;
+      }
+
+      // Create the AI message bubble with empty text span
+      const bubble = document.createElement('div');
+      bubble.className = 'message ai bg-white dark:bg-dark-elevated p-3 rounded-lg rounded-tl-none shadow-subtle text-sm dark:text-gray-200 border border-gray-100 dark:border-dark-border mr-auto max-w-[85%] mb-3 animate-fade-in';
+      const textSpan = document.createElement('span');
+      textSpan.className = 'whitespace-pre-wrap';
+      bubble.appendChild(textSpan);
+      this.messagesEl.appendChild(bubble);
+      this.scrollToBottom();
+
+      let sources: any[] = [];
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const segments = buffer.split('\n\n');
+        buffer = segments.pop() || ''; // Keep incomplete segment
+
+        for (const segment of segments) {
+          if (!segment.trim()) continue;
+
+          let eventType = '';
+          let eventData = '';
+
+          for (const line of segment.split('\n')) {
+            if (line.startsWith('event: ')) eventType = line.slice(7).trim();
+            else if (line.startsWith('data: ')) eventData = line.slice(6).trim();
+          }
+
+          if (!eventData) continue;
+
+          try {
+            const parsed = JSON.parse(eventData);
+
+            if (eventType === 'meta') {
+              sources = parsed.sources || [];
+              this.updateQuota(parsed.quota);
+            } else if (eventType === 'delta' && parsed.text) {
+              textSpan.textContent += parsed.text;
+              this.scrollToBottom();
+            } else if (eventType === 'error') {
+              textSpan.textContent += '\n⚠️ ' + (parsed.error || 'Stream error');
+            }
+          } catch {
+            // Skip malformed events
+          }
+        }
+      }
+
+      // Append sources after streaming completes
+      if (sources.length > 0) {
+        const sourceDiv = document.createElement('div');
+        sourceDiv.className = 'mt-2 pt-2 border-t border-gray-100 dark:border-dark-border';
+
+        const srcLabel = document.createElement('p');
+        srcLabel.className = 'text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-1';
+        srcLabel.textContent = 'Sources';
+        sourceDiv.appendChild(srcLabel);
+
+        const srcList = document.createElement('div');
+        srcList.className = 'flex flex-wrap gap-1';
+        sources.forEach((src: any) => {
+          const badge = document.createElement('a');
+          badge.href = src.url;
+          badge.target = '_blank';
+          badge.rel = 'noopener noreferrer';
+          badge.className = 'inline-block text-[10px] bg-eucalyptus-50 dark:bg-eucalyptus-950 text-eucalyptus-700 dark:text-eucalyptus-300 px-2 py-0.5 rounded-full hover:bg-eucalyptus-100 transition-colors';
+          badge.textContent = src.title || 'Source';
+          srcList.appendChild(badge);
+        });
+        sourceDiv.appendChild(srcList);
+        bubble.appendChild(sourceDiv);
+      }
+    }
+
     async parseError(res: Response): Promise<string> {
       const codeMessages: Record<string, string> = {
-        'RATE_LIMIT': 'Too many requests — please wait a moment.',
+        'RATE_LIMIT': 'Too many requests \u2014 please wait a moment.',
         'INPUT_EMPTY': 'Please type a message first.',
         'INPUT_TOO_LONG': 'Message is too long.',
         'CORPUS_LOAD_FAILED': 'Knowledge base unavailable. Try again later.',
         'OPENAI_KEY_MISSING': 'AI service is not configured.',
         'OPENAI_UPSTREAM_ERROR': 'AI service temporarily unavailable.',
+        'AI_BILLING_EXHAUSTED': '\ud83d\udd27 AI assistant is temporarily on a break. The deterministic answers (Contact, Certs, Role, Projects) still work!',
+        'AI_QUOTA_EXCEEDED': '\ud83d\udcca AI assistant has reached its daily limit. Please try again tomorrow.',
+        'AI_RATE_LIMITED': '\u23f3 Too many requests \u2014 please wait a moment and retry.',
+        'AI_SERVICE_DOWN': '\u26a0\ufe0f AI assistant is temporarily unavailable. Please try again shortly.',
+        'AI_UNREACHABLE': '\ud83d\udd0c Unable to reach the AI service. Please check back later.',
       };
       try {
         const errData = await res.json();

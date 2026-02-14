@@ -1,4 +1,4 @@
-# AI Copilot V2
+# Ask Mihai · AI (V2)
 
 > **Status**: Production-ready
 > **Type**: RAG-based Chatbot + Job Description Analyzer
@@ -6,7 +6,7 @@
 
 ## Overview
 
-The AI Copilot is a recruiter-optimized assistant that lets visitors query the portfolio using natural language **and** analyze job descriptions for candidate-fit. It features:
+The Ask Mihai · AI assistant is a recruiter-optimized chatbot that lets visitors query the portfolio using natural language **and** analyze job descriptions for candidate-fit. It features:
 
 - **Tabbed Interface**: 💬 Chat + 📄 JD Analysis
 - **Intent Router**: 5 deterministic intents (zero API cost) with trilingual facts store
@@ -21,7 +21,7 @@ The AI Copilot is a recruiter-optimized assistant that lets visitors query the p
 - **Components**:
   - `ChatWidget.astro`: Tabbed interface (Chat + JD Analysis) with language selector, quick action chips, quota badge, and structured JD result renderer.
   - `ChatDrawer.astro`: Global accessible overlay (`role="dialog"`) wrapping `ChatWidget`.
-  - `Header.astro`: "AI Copilot" trigger button.
+  - `Header.astro`: "Ask Mihai" floating widget trigger with rotating nudge tooltip.
 - **Pages**: `/ai` — Showcase page with embedded chat.
 - **Styling**: Tailwind CSS (Eucalyptus palette), Dark mode compatible.
 - **Accessibility**: WAI-ARIA Dialog, focus management, `aria-live` regions.
