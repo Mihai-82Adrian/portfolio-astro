@@ -5,7 +5,7 @@
 - pe pagina Projects, sa documentez si afisez si proiectul meu cel mai nou, in creativitate, MindHafen (canal de Youtube si Cont Spotify Artist + Instagram si Tiktok pe care lansez melodii de mai multe feluri: Youtube - playlist-uri de Deep Focus/Work si Deep Sleep documentate stiintific; Spotify - melodii (stil stoic-motivational) create in colaborare human+AI (Eu creez versurile si structura muzicala apoi produc prin prompturi cu Suno V5 Pro melodiile pe care le distribui apoi prin Distrokid)
 - vreau sa adaug o pagina prin care sa "promovez" anumite servicii pe care as putea sa le prestez: 1. Financiar-Contabil: intocmire plan de afaceri; analiza business si intocmire plan de redresare/dezvoltare (dupa caz) + diverse servicii pe care le pot presta legal cu claificarile mele actuale (IHK - Fachkraft für Buchführung/Finanzbuchhalter)
 
-2. Creare portofoliu online exact ca al meu - construire site de portofoliu personal, promovare Linkedin, etc
+1. Creare portofoliu online exact ca al meu - construire site de portofoliu personal, promovare Linkedin, etc
 2. Diverse sarcini "artistice" - design imprimeuri pe haine de tip "merchendise" (vezi proiectul ProfitMinds); creare instrumentale pentru content online in functie de tema data
 
 - diverse alte mici "polish-uri" de UI/UX pe site + propuneri si sugestii venite din partea ta cu scopul de a creste calitatea la nivel world class SoTA (ce merita sa mai adaug, ce ar trebui sa scot, etc)
@@ -16,14 +16,14 @@ Adăugarea acestor noi direcții transformă site-ul dintr-un simplu "CV interac
 
 Uite cum văd eu integrarea și optimizarea acestor idei, structurate pe punctele tale:
 
-### 1. Proiectul "MindHafen" (Creativitate, Muzică & AI)
+## 1. Proiectul "MindHafen" (Creativitate, Muzică & AI)
 
 Acest proiect adaugă o dimensiune fantastică profilului tău. În timp ce GENESIS și GDS demonstrează abilități tehnice "hardcore" (Julia, Rust, Vectori), **MindHafen** demonstrează creativitate, abilități de marketing digital (YouTube, TikTok, Spotify) și "Prompt Engineering" aplicat în lumea reală (Suno V5 Pro).
 
 - **Cum să-l integrăm (World-Class UI):** * Creează un card de proiect diferit de cele tehnice. Adaugă un mini-player audio integrat pe cardul proiectului (Spotify embed) pentru ca vizitatorii să poată asculta o melodie chiar de pe pagina de proiecte, fără a părăsi site-ul.
 - **Unghiul narativ (Storytelling):** Subliniază clar workflow-ul: *Human + AI Collaboration*. Arată că tu gândești structura, versurile și tematica (ex: motivațional-stoic, deep focus) și folosești AI-ul ca pe un instrument de producție, nu ca pe un înlocuitor al creativității. Aceasta dovedește o înțelegere matură a AI-ului.
 
-### 2. Noua pagină de "Servicii" (Freelancing / Consultanță)
+## 2. Noua pagină de "Servicii" (Freelancing / Consultanță)
 
 Aceasta este o schimbare majoră de paradigmă. Site-ul tău devine o platformă de generare de lead-uri (clienți). Pagina ar trebui să aibă un design de tip "Pricing / Services Tier", dar foarte elegant.
 
@@ -32,28 +32,28 @@ Aceasta este o schimbare majoră de paradigmă. Site-ul tău devine o platformă
 - **2. Creare Portofoliu AI:** Asta se va vinde singură! Vizitatorul deja interacționează cu chatbot-ul tău avansat. Când va vedea că oferi acest serviciu ("Vrei un site care să îți aducă interviuri/clienți la fel ca acesta?"), conversia va fi naturală. O poți numi *AI-Powered Personal Branding*.
 - 1. Sarcini Artistice & Merch: Aici integrezi perfect experiența ta din proiectul ProfitMinds, care este axat pe merchandise print-on-demand. Subliniază designul de îmbrăcăminte și crearea de instrumentale audio.
 
-### 3. Polish UI/UX și Sugestii "World-Class SoTA" (State of the Art)
+## 3. Polish UI/UX și Sugestii "World-Class SoTA" (State of the Art)
 
 Dacă vrem să ducem site-ul (Astro + Tailwind) la un nivel absolut premium, iată ce îți sugerez să adăugăm/modificăm (elemente de finețe):
 
-**A. Experiența de navigare (View Transitions)**
+**A. Experiența de navigare (View Transitions):**
 
 - **Sugestie:** Astro 5.x are suport nativ excelent pentru **View Transitions API**. Dacă nu l-ai activat deja, activează-l! Asta va face ca navigarea între pagini (ex: de pe Homepage pe pagina de Servicii) să se facă fluid, ca într-o aplicație mobilă (Single Page Application), fără acel "flash" alb de reîncărcare a paginii. Este o modificare de 2 linii de cod în Astro, dar efectul vizual este de site de 10.000€.
 
-**B. Chatbot-ul "Ask Mihai · AI" (Micro-interacțiuni)**
+**B. Chatbot-ul "Ask Mihai · AI" (Micro-interacțiuni):**
 
 - **Streaming UI Polish:** Când AI-ul "gândește" și scrie textul (Streaming SSE), asigură-te că există un cursor interactiv la capătul textului (un cursor care clipește, ca în terminal).
 - **Prompt-uri sugestive ("Icebreakers"):** Pe pagina de Servicii, chatbot-ul ar trebui să aibă butoane rapide (chips) predefinite contextual: *"Întreabă-l pe Mihai despre crearea unui site"* sau *"Cât costă o analiză de business?"*.
 
-**C. Design-ul paginii "Servicii" (Bento Grid Layout)**
+**C. Design-ul paginii "Servicii" (Bento Grid Layout):**
 
 - **Sugestie:** Pentru secțiunea de servicii, folosește un design de tip **Bento Grid** (foarte la modă acum, folosit de Apple). Este o grilă asimetrică de carduri elegante (pe culorile tale Eucalyptus) unde fiecare card reprezintă un serviciu, având pictograme minimaliste și o frază de impact. E mult mai atrăgător decât o listă verticală clasică.
 
-**D. Curățenia repoului (Din Audit)**
+**D. Curățenia repoului (Din Audit):**
 
 - Mută toate acele fișiere `.md` și rezultate Lighthouse `.json` din rădăcina proiectului într-un folder separat (ex: `docs/planning/` și `docs/performance/`). Un repo curat te ajută psihologic să te concentrezi doar pe cod (folderul `src/`).
 
-**E. Formularul de Contact Avansat**
+**E. Formularul de Contact Avansat:**
 
 - Din moment ce vinzi servicii, formularul de contact (care înțeleg că are doar UI momentan) trebuie să fie foarte bine pus la punct. Poți adăuga un câmp dropdown de tipul *"Cu ce te pot ajuta?"* (Recrutare / Servicii Financiare / Servicii Web / Colaborare Artistică).
 
@@ -274,3 +274,9 @@ Acest proiect are acum o separare stricta intre dezvoltare si publicare, pentru 
   - `timeout 20s npm run preview` -> server starts
 - Freeze integrity check:
   - `sha256sum public/corpus.jsonl public/corpus-jsonl.txt` -> hashes identice
+
+### Continuare ultima sesiune Codex
+
+To continue this session, run codex resume 019c5d4d-df86-7fa3-be14-b0a57890697a
+
+---
