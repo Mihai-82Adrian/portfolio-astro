@@ -41,7 +41,7 @@ const tabs = [
   </div>
 
   {items.length > 0 ? (
-    <div class="media-gallery-grid">
+    <div class="media-gallery-grid" data-pagefind-ignore="all">
       {items.map((item) => (
         <MediaCard item={item} lang={lang} />
       ))}
