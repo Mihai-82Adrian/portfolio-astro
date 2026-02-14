@@ -1,0 +1,121 @@
+---
+import MediaCard from './MediaCard.astro';
+import { getMediaItems, type MediaLang } from '../../data/media';
+
+interface Props {
+  projectId: string;
+  lang?: MediaLang;
+}
+
+const { projectId, lang = 'en' } = Astro.props;
+const items = getMediaItems(projectId).filter((item) => Boolean(item.embedUrl));
+const galleryId = `media-gallery-${projectId}`;
+
+const tabs = [
+  { id: 'featured', label: 'Featured' },
+  { id: 'spotify', label: 'Spotify' },
+  { id: 'youtube', label: 'YouTube (Deep Work)' },
+  { id: 'promo-shorts', label: 'Promo Shorts' },
+];
+---
+
+<section class="section media-gallery" id={galleryId} data-media-gallery>
+  <h2 class="section-title">Media Gallery</h2>
+  <p class="mb-5 max-w-3xl text-sm text-text-secondary-light dark:text-text-secondary-dark">
+    Production-ready media surface for Spotify + YouTube. The YouTube playlist is managed as
+    unlisted media so new Shorts promos appear automatically without per-upload SEO overhead.
+  </p>
+
+  <div class="mb-5 flex flex-wrap gap-2" role="tablist" aria-label="Media gallery filters">
+    {tabs.map((tab, index) => (
+      <button
+        type="button"
+        role="tab"
+        class={`media-filter-btn rounded-full border px-3 py-1.5 text-sm font-medium transition ${index === 0 ? 'is-active' : ''}`}
+        data-media-filter={tab.id}
+        aria-selected={index === 0 ? 'true' : 'false'}
+      >
+        {tab.label}
+      </button>
+    ))}
+  </div>
+
+  {items.length > 0 ? (
+    <div class="grid gap-6 md:grid-cols-2">
+      {items.map((item) => (
+        <MediaCard item={item} lang={lang} />
+      ))}
+    </div>
+  ) : (
+    <p class="rounded-xl border border-dashed border-warning/60 bg-warning/10 p-4 text-sm text-warning">
+      No media embeds configured yet.
+    </p>
+  )}
+
+  <script is:inline define:vars={{ galleryId }}>
+    (() => {
+      const gallery = document.getElementById(galleryId);
+      if (!gallery) return;
+
+      const buttons = Array.from(gallery.querySelectorAll('[data-media-filter]'));
+      const cards = Array.from(gallery.querySelectorAll('[data-media-card]'));
+
+      const applyFilter = (filter) => {
+        cards.forEach((card) => {
+          const isFeatured = card.getAttribute('data-featured') === 'true';
+          const platform = card.getAttribute('data-platform');
+          const tags = (card.getAttribute('data-tags') || '').split(',').map((t) => t.trim());
+
+          const matches =
+            filter === 'featured'
+              ? isFeatured
+              : filter === 'spotify'
+                ? platform === 'spotify'
+                : filter === 'youtube'
+                  ? platform === 'youtube' && tags.includes('deep-work')
+                  : filter === 'promo-shorts'
+                    ? tags.includes('promo-shorts')
+                    : true;
+
+          card.classList.toggle('hidden', !matches);
+        });
+
+        buttons.forEach((btn) => {
+          const active = btn.getAttribute('data-media-filter') === filter;
+          btn.classList.toggle('is-active', active);
+          btn.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+      };
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const filter = btn.getAttribute('data-media-filter') || 'featured';
+          applyFilter(filter);
+        });
+      });
+
+      applyFilter('featured');
+    })();
+  </script>
+</section>
+
+<style>
+  .media-filter-btn {
+    border-color: color-mix(in srgb, var(--color-eucalyptus-500) 35%, transparent);
+    background: transparent;
+    color: var(--color-text-secondary);
+  }
+
+  .media-filter-btn:hover,
+  .media-filter-btn:focus-visible {
+    border-color: var(--color-eucalyptus-600);
+    color: var(--color-text-primary);
+    outline: none;
+  }
+
+  .media-filter-btn.is-active {
+    background: color-mix(in srgb, var(--color-eucalyptus-500) 20%, transparent);
+    border-color: var(--color-eucalyptus-600);
+    color: var(--color-text-primary);
+  }
+</style>

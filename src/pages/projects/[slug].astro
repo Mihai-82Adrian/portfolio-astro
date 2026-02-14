@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import StatusIndicator from '../../components/projects/StatusIndicator.astro';
 import TechStackBadge from '../../components/projects/TechStackBadge.astro';
 import ProjectMetrics from '../../components/projects/ProjectMetrics.astro';
+import MediaGallery from '../../components/media/MediaGallery.astro';
 import projectsData from '../../data/projects.json';
 
 export async function getStaticPaths() {
@@ -25,10 +26,6 @@ const relatedProjects = projects
 const currentIndex = projects.findIndex(p => p.id === project.id);
 const prevProject = currentIndex > 0 ? projects[currentIndex - 1] : null;
 const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex + 1] : null;
-const YOUTUBE_MINDHAFEN_PLAYLIST_ID = 'PLwwUxXP19bWjvvHOKFs4PX3TGak9tbM6O';
-const mindhafenYoutubeEmbedUrl = YOUTUBE_MINDHAFEN_PLAYLIST_ID
-  ? `https://www.youtube.com/embed/videoseries?list=${YOUTUBE_MINDHAFEN_PLAYLIST_ID}`
-  : '';
 ---
 
 <BaseLayout 
@@ -82,36 +79,7 @@ const mindhafenYoutubeEmbedUrl = YOUTUBE_MINDHAFEN_PLAYLIST_ID
       </section>
 
       {project.id === 'mindhafen' && (
-        <section class="section listen-section">
-          <h2 class="section-title">Latest Releases</h2>
-          <div class="media-grid">
-            <div class="spotify-embed">
-              <iframe
-                style="border:0; border-radius:12px"
-                src="https://open.spotify.com/embed/artist/5E7D3GVsqcPDaWSyxCQHFg?utm_source=generator&theme=0"
-                width="100%"
-                height="352"
-                allowfullscreen
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="lazy"
-              ></iframe>
-            </div>
-            {mindhafenYoutubeEmbedUrl && (
-              <div class="youtube-embed">
-                <iframe
-                  width="100%"
-                  height="352"
-                  style="border:0; border-radius:12px"
-                  src={mindhafenYoutubeEmbedUrl}
-                  title="MindHafen YouTube Deep Work Playlist"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowfullscreen
-                  loading="lazy"
-                ></iframe>
-              </div>
-            )}
-          </div>
-        </section>
+        <MediaGallery projectId="mindhafen" lang="en" />
       )}
 
       <!-- Metrics Grid -->
