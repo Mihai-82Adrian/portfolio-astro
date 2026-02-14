@@ -156,15 +156,15 @@ const tabs = [
       align-items: start;
     }
 
-    .media-gallery-grid[data-active-filter='featured'] .media-card[data-slot='spotify-featured'] {
+    .media-gallery-grid[data-active-filter='featured'] :global(.media-card[data-slot='spotify-featured']) {
       grid-area: spotify;
     }
 
-    .media-gallery-grid[data-active-filter='featured'] .media-card[data-slot='youtube-deep-work'] {
+    .media-gallery-grid[data-active-filter='featured'] :global(.media-card[data-slot='youtube-deep-work']) {
       grid-area: deepwork;
     }
 
-    .media-gallery-grid[data-active-filter='featured'] .media-card[data-slot='promo-shorts'] {
+    .media-gallery-grid[data-active-filter='featured'] :global(.media-card[data-slot='promo-shorts']) {
       grid-area: promo;
       align-self: start;
     }
@@ -174,7 +174,7 @@ const tabs = [
     grid-template-columns: 1fr;
   }
 
-  .media-gallery-grid[data-active-filter='promo-shorts'] .media-card[data-layout='portrait'] {
+  .media-gallery-grid[data-active-filter='promo-shorts'] :global(.media-card[data-layout='portrait']) {
     max-width: 360px;
     margin-inline: auto;
   }
