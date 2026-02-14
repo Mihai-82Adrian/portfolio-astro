@@ -45,12 +45,15 @@ npm run lint:content -- --strict
 npm run lint:content -- --format=json
 ```
 
-### Corpus Export
+### Corpus Policy (Freeze)
 
-Generate `dist/corpus.jsonl` for RAG:
+`public/corpus.jsonl` is frozen and must stay identical to `public/corpus-jsonl.txt`.
+Automatic corpus export is disabled by policy and must not be reintroduced in CI/build hooks.
+
+For corpus updates, edit the frozen source file intentionally and verify equality:
 
 ```bash
-npm run export:corpus
+sha256sum public/corpus.jsonl public/corpus-jsonl.txt
 ```
 
 Output Format (JSONL):
