@@ -88,7 +88,7 @@ import ChatWidget from './ChatWidget.astro';
     // Focus Management
     setTimeout(() => {
         // Find the input inside the chat widget to focus immediately for utility
-        const input = drawer?.querySelector('input') as HTMLInputElement;
+        const input = drawer?.querySelector('textarea.chat-input') as HTMLTextAreaElement;
         if (input) input.focus();
         else closeBtn?.focus();
     }, 100);

@@ -1,10 +1,12 @@
 
 ---
 /**
- * ChatWidget Component
+ * ChatWidget Component — V2
  *
- * Reusable AI Chat interface.
- * Can be embedded in a page or placed in a drawer.
+ * Tabbed AI Chat interface with:
+ * - 💬 Chat tab (intent router + quick action chips)
+ * - 📄 JD Analysis tab (structured fit analysis)
+ * - 🌐 Language selector (Auto | DE | EN | RO)
  *
  * @component
  */
@@ -18,127 +20,732 @@ interface Props {
 const {
   class: className = '',
   id = 'ai-chat-widget',
-  title = 'Portfolio Assistant',
-  subtitle = 'Ask about my skills & experience',
+  title = 'Portfolio Copilot',
+  subtitle = 'AI-powered career insights',
 } = Astro.props;
 ---
 
-<div id={id} class:list={["chat-widget flex flex-col bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 overflow-hidden w-full h-full", className]} data-chat-widget>
+<div id={id} class:list={["chat-widget flex flex-col bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border overflow-hidden w-full h-full", className]} data-chat-widget>
   <!-- Header -->
   <div class="bg-eucalyptus-600 p-4 text-white flex justify-between items-center shrink-0">
-    <div>
-      <h3 class="font-bold text-lg">{title}</h3>
-      <p class="text-xs opacity-80">{subtitle}</p>
+    <div class="flex items-center gap-2">
+      <span class="text-lg" aria-hidden="true">🤖</span>
+      <div>
+        <h3 class="font-bold text-lg leading-tight">{title}</h3>
+        <p class="text-xs opacity-80">{subtitle}</p>
+      </div>
     </div>
-    <!-- Close button is optional and handled by parent if needed (e.g. Drawer) -->
-    <slot name="header-actions" />
+    <div class="flex items-center gap-2">
+      <!-- Language Selector -->
+      <select
+        class="chat-lang-select bg-eucalyptus-700 text-white text-xs rounded-lg px-2 py-1 border border-eucalyptus-500 focus:outline-none focus:ring-2 focus:ring-white cursor-pointer"
+        aria-label="Response language"
+      >
+        <option value="auto">🌐 Auto</option>
+        <option value="de">🇩🇪 DE</option>
+        <option value="en">🇬🇧 EN</option>
+        <option value="ro">🇷🇴 RO</option>
+      </select>
+      <slot name="header-actions" />
+    </div>
   </div>
 
-  <!-- Messages Area -->
-  <div class="chat-messages flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900" aria-live="polite" aria-atomic="false">
-    <div class="message ai bg-white dark:bg-gray-800 p-3 rounded-lg rounded-tl-none shadow-sm text-sm dark:text-gray-200 border border-gray-100 dark:border-gray-700 max-w-[85%]">
-      Hi! I'm an AI assistant. I can answer questions about Mihai's skills, experience, certifications, and projects.
-      <br><span class="text-[11px] text-eucalyptus-700 dark:text-eucalyptus-300 mt-1 block">💡 Tip: Paste a job posting and ask "Does Mihai fit this role?" for a detailed match analysis.</span>
-      <br><span class="text-[10px] text-gray-400 mt-1 block">⚠️ Answers are generated and may contain errors.</span>
-    </div>
-  </div>
-
-  <!-- Input Area -->
-  <form class="chat-form p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex gap-2 items-end shrink-0">
-    <textarea
-      placeholder="Ask a question or paste a job posting..."
-      aria-label="Chat Message"
-      rows="1"
-      class="chat-input flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-eucalyptus-500 dark:bg-gray-700 dark:text-white text-sm resize-none overflow-hidden max-h-32"
-      required
-    ></textarea>
+  <!-- Tab Bar -->
+  <div class="chat-tab-bar flex border-b border-gray-200 dark:border-dark-border bg-white dark:bg-dark-surface shrink-0" role="tablist">
     <button
-      type="submit"
-      aria-label="Send Message"
-      class="bg-eucalyptus-600 hover:bg-eucalyptus-700 text-white p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+      class="chat-tab flex-1 px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus-500"
+      role="tab"
+      aria-selected="true"
+      aria-controls="chat-panel-chat"
+      data-tab="chat"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 rotate-90" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-      </svg>
+      💬 Chat
     </button>
-  </form>
+    <button
+      class="chat-tab flex-1 px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus-500"
+      role="tab"
+      aria-selected="false"
+      aria-controls="chat-panel-jd"
+      data-tab="jd"
+    >
+      📄 JD Analysis
+    </button>
+  </div>
+
+  <!-- ═══ Chat Tab Panel ═══ -->
+  <div id="chat-panel-chat" class="chat-panel flex flex-col flex-1 overflow-hidden" role="tabpanel" data-panel="chat">
+    <!-- Messages Area -->
+    <div class="chat-messages flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 dark:bg-dark-bg" aria-live="polite" aria-atomic="false">
+      <!-- Welcome Message -->
+      <div class="message ai bg-white dark:bg-dark-elevated p-3 rounded-lg rounded-tl-none shadow-subtle text-sm dark:text-gray-200 border border-gray-100 dark:border-dark-border max-w-[85%]">
+        <p>Hi! I'm Mihai's AI assistant. I can answer questions about his skills, experience, certifications, and projects.</p>
+        <span class="text-[10px] text-gray-400 dark:text-gray-500 mt-2 block">⚠️ Answers may be generated and could contain errors.</span>
+      </div>
+
+      <!-- Quick Action Chips -->
+      <div class="quick-chips flex flex-wrap gap-2 mt-1">
+        <button class="chip-btn" data-chip="contact" type="button">📋 Contact</button>
+        <button class="chip-btn" data-chip="current_role" type="button">💼 Current Role</button>
+        <button class="chip-btn" data-chip="certifications" type="button">🎓 Certifications</button>
+        <button class="chip-btn" data-chip="projects" type="button">🚀 Projects</button>
+      </div>
+    </div>
+
+    <!-- Chat Input -->
+    <form class="chat-form p-3 bg-white dark:bg-dark-surface border-t border-gray-200 dark:border-dark-border flex gap-2 items-end shrink-0">
+      <textarea
+        placeholder="Ask a question..."
+        aria-label="Chat Message"
+        rows="1"
+        maxlength="4000"
+        class="chat-input flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-eucalyptus-500 dark:bg-dark-elevated dark:text-white text-sm resize-none overflow-hidden max-h-32"
+        required
+      ></textarea>
+      <button
+        type="submit"
+        aria-label="Send Message"
+        class="chat-send-btn bg-eucalyptus-600 hover:bg-eucalyptus-700 text-white p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 rotate-90" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+        </svg>
+      </button>
+    </form>
+    <!-- Quota Badge -->
+    <div class="quota-badge px-3 py-1.5 text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-3 border-t border-gray-100 dark:border-dark-border bg-white dark:bg-dark-surface shrink-0">
+      <span class="quota-chat-text">💬 4/4 questions</span>
+      <span class="text-gray-300 dark:text-gray-600">|</span>
+      <span class="quota-jd-text">📄 1/1 JD analysis</span>
+    </div>
+  </div>
+
+  <!-- ═══ JD Analysis Tab Panel ═══ -->
+  <div id="chat-panel-jd" class="chat-panel flex flex-col flex-1 overflow-hidden hidden" role="tabpanel" data-panel="jd">
+    <!-- JD Content -->
+    <div class="flex-1 overflow-y-auto p-4 bg-gray-50 dark:bg-dark-bg">
+      <!-- JD Hero -->
+      <div class="text-center mb-4">
+        <div class="inline-flex items-center gap-2 bg-eucalyptus-50 dark:bg-eucalyptus-950 text-eucalyptus-700 dark:text-eucalyptus-300 px-3 py-1.5 rounded-full text-xs font-medium mb-2">
+          <span aria-hidden="true">📊</span> Professional Fit Analysis
+        </div>
+        <p class="text-sm text-gray-600 dark:text-gray-400">Paste a job description to receive a detailed match analysis with scores and recommendations.</p>
+      </div>
+
+      <!-- Structure Guide (collapsible) -->
+      <details class="jd-guide mb-3 bg-white dark:bg-dark-elevated rounded-lg border border-gray-200 dark:border-dark-border">
+        <summary class="px-3 py-2 text-xs font-medium text-gray-600 dark:text-gray-400 cursor-pointer hover:text-eucalyptus-600 transition-colors select-none">
+          📋 Tips for best results
+        </summary>
+        <div class="px-3 pb-3 text-xs text-gray-500 dark:text-gray-400 space-y-1">
+          <p>For the most accurate analysis, include:</p>
+          <ul class="list-disc pl-4 space-y-0.5">
+            <li>Job Title & Company name</li>
+            <li>Required Qualifications & Experience</li>
+            <li>Key Responsibilities</li>
+            <li>Nice-to-haves & Bonus skills</li>
+            <li>Location & Work model (remote/hybrid/onsite)</li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- JD Textarea -->
+      <textarea
+        class="jd-input w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus-500 dark:bg-dark-elevated dark:text-white text-sm resize-none"
+        placeholder="Paste the full job description here..."
+        rows="10"
+        maxlength="6000"
+        aria-label="Job Description Input"
+      ></textarea>
+
+      <!-- Character Counter -->
+      <div class="flex justify-between items-center mt-2">
+        <span class="jd-char-count text-xs text-gray-400">0 / 6,000</span>
+        <button
+          type="button"
+          class="jd-analyze-btn bg-eucalyptus-600 hover:bg-eucalyptus-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-subtle hover:shadow-elevated"
+          disabled
+        >
+          <span aria-hidden="true">🔍</span> Analyze Fit
+        </button>
+      </div>
+
+      <!-- JD Results Container -->
+      <div class="jd-results mt-4 hidden"></div>
+    </div>
+  </div>
 </div>
 
 <script>
   class ChatWidget {
     container: HTMLElement;
+    // Chat tab elements
     form: HTMLFormElement;
     input: HTMLTextAreaElement;
     messagesEl: HTMLElement;
     submitBtn: HTMLButtonElement | null;
+    chipsContainer: HTMLElement | null;
+    // JD tab elements
+    jdInput: HTMLTextAreaElement | null;
+    jdAnalyzeBtn: HTMLButtonElement | null;
+    jdCharCount: HTMLElement | null;
+    jdResults: HTMLElement | null;
+    // Tab & language
+    tabs: NodeListOf<HTMLButtonElement>;
+    panels: NodeListOf<HTMLElement>;
+    langSelect: HTMLSelectElement | null;
+    // Quota elements
+    quotaBadge: HTMLElement | null;
+    quotaChatText: HTMLElement | null;
+    quotaJdText: HTMLElement | null;
+    activeTab: string = 'chat';
 
     constructor(el: HTMLElement) {
       this.container = el;
       this.form = el.querySelector('.chat-form') as HTMLFormElement;
       this.input = el.querySelector('.chat-input') as HTMLTextAreaElement;
       this.messagesEl = el.querySelector('.chat-messages') as HTMLElement;
-      this.submitBtn = this.form.querySelector('button[type="submit"]');
+      this.submitBtn = this.form.querySelector('.chat-send-btn');
+      this.chipsContainer = el.querySelector('.quick-chips');
+
+      this.jdInput = el.querySelector('.jd-input');
+      this.jdAnalyzeBtn = el.querySelector('.jd-analyze-btn');
+      this.jdCharCount = el.querySelector('.jd-char-count');
+      this.jdResults = el.querySelector('.jd-results');
+
+      this.tabs = el.querySelectorAll('.chat-tab');
+      this.panels = el.querySelectorAll('.chat-panel');
+      this.langSelect = el.querySelector('.chat-lang-select');
+
+      this.quotaBadge = el.querySelector('.quota-badge');
+      this.quotaChatText = el.querySelector('.quota-chat-text');
+      this.quotaJdText = el.querySelector('.quota-jd-text');
 
       this.init();
     }
 
     init() {
-      this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+      // Tab switching
+      this.tabs.forEach(tab => {
+        tab.addEventListener('click', () => this.switchTab(tab.dataset.tab || 'chat'));
+      });
 
-      // Auto-resize textarea as user types
+      // Chat form
+      this.form.addEventListener('submit', (e) => this.handleChatSubmit(e));
+
+      // Auto-resize textarea
       this.input.addEventListener('input', () => {
         this.input.style.height = 'auto';
         this.input.style.height = Math.min(this.input.scrollHeight, 128) + 'px';
       });
 
-      // Enter sends message, Shift+Enter adds newline
+      // Enter to send, Shift+Enter for newline
       this.input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
           this.form.requestSubmit();
         }
       });
+
+      // Quick action chips
+      this.chipsContainer?.querySelectorAll('.chip-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const chip = (btn as HTMLElement).dataset.chip || '';
+          this.handleChipClick(chip);
+        });
+      });
+
+      // JD Analysis
+      if (this.jdInput) {
+        this.jdInput.addEventListener('input', () => this.updateJdCharCount());
+      }
+      if (this.jdAnalyzeBtn) {
+        this.jdAnalyzeBtn.addEventListener('click', () => this.handleJdAnalyze());
+      }
     }
 
+    // ─── Helpers ─────────────────────────────────────────────────
+
+    clearElement(el: HTMLElement) {
+      while (el.firstChild) {
+        el.removeChild(el.firstChild);
+      }
+    }
+
+    updateQuota(quotaData: { q: number; jd: number; maxQ: number; maxJd: number } | undefined) {
+      if (!quotaData || !this.quotaChatText || !this.quotaJdText) return;
+
+      const chatRemaining = quotaData.maxQ - quotaData.q;
+      const jdRemaining = quotaData.maxJd - quotaData.jd;
+
+      this.quotaChatText.textContent = `\u{1F4AC} ${chatRemaining}/${quotaData.maxQ} questions`;
+      this.quotaJdText.textContent = `\u{1F4C4} ${jdRemaining}/${quotaData.maxJd} JD analysis`;
+
+      // Color coding
+      const chatColor = chatRemaining === 0 ? 'text-error' : chatRemaining === 1 ? 'text-warning' : 'text-gray-400 dark:text-gray-500';
+      const jdColor = jdRemaining === 0 ? 'text-error' : 'text-gray-400 dark:text-gray-500';
+
+      this.quotaChatText.className = `quota-chat-text ${chatColor}`;
+      this.quotaJdText.className = `quota-jd-text ${jdColor}`;
+
+      // Disable inputs if exhausted
+      if (chatRemaining === 0 && this.activeTab === 'chat') {
+        this.input.disabled = true;
+        this.input.placeholder = 'Session limit reached. Come back tomorrow!';
+        if (this.submitBtn) this.submitBtn.disabled = true;
+      }
+      if (jdRemaining === 0 && this.jdAnalyzeBtn) {
+        this.jdAnalyzeBtn.disabled = true;
+      }
+    }
+
+    // ─── Tab Management ─────────────────────────────────────────
+
+    switchTab(tabId: string) {
+      this.activeTab = tabId;
+      this.tabs.forEach(tab => {
+        const isActive = tab.dataset.tab === tabId;
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        tab.classList.toggle('tab-active', isActive);
+        tab.classList.toggle('tab-inactive', !isActive);
+      });
+      this.panels.forEach(panel => {
+        const isActive = panel.dataset.panel === tabId;
+        panel.classList.toggle('hidden', !isActive);
+      });
+    }
+
+    // ─── Quick Action Chips ─────────────────────────────────────
+
+    async handleChipClick(chipType: string) {
+      const chipLabels: Record<string, string> = {
+        contact: '📋 Show contact info',
+        current_role: '💼 What is the current role?',
+        certifications: '🎓 List certifications',
+        projects: '🚀 What are the current projects?',
+      };
+
+      const displayText = chipLabels[chipType] || chipType;
+      this.appendMessage(displayText, true);
+
+      // Hide chips after first use
+      if (this.chipsContainer) {
+        this.chipsContainer.style.display = 'none';
+      }
+
+      this.showLoading();
+
+      try {
+        const lang = this.langSelect?.value || 'auto';
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: displayText, lang, tab: 'chat' })
+        });
+
+        this.removeLoading();
+
+        if (!res.ok) {
+          throw new Error(await this.parseError(res));
+        }
+
+        const data = await res.json();
+        this.appendMessage(data.answer, false, data.sources);
+        this.updateQuota(data.quota);
+
+      } catch (err: any) {
+        this.removeLoading();
+        this.appendMessage(err.message || 'Something went wrong.', false);
+      }
+    }
+
+    // ─── Chat Submission ────────────────────────────────────────
+
+    async handleChatSubmit(e: Event) {
+      e.preventDefault();
+      const text = this.input.value.trim();
+      if (!text) return;
+
+      this.appendMessage(text, true);
+      this.input.value = '';
+      this.input.style.height = 'auto';
+      if (this.submitBtn) this.submitBtn.disabled = true;
+
+      // Hide chips
+      if (this.chipsContainer) {
+        this.chipsContainer.style.display = 'none';
+      }
+
+      this.showLoading();
+
+      try {
+        const lang = this.langSelect?.value || 'auto';
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, lang, tab: 'chat' })
+        });
+
+        this.removeLoading();
+
+        if (!res.ok) {
+          throw new Error(await this.parseError(res));
+        }
+
+        const data = await res.json();
+        this.appendMessage(data.answer, false, data.sources);
+        this.updateQuota(data.quota);
+
+      } catch (err: any) {
+        this.removeLoading();
+        this.appendMessage(err.message || 'Something went wrong.', false);
+      } finally {
+        if (this.submitBtn) this.submitBtn.disabled = false;
+        this.input.focus();
+      }
+    }
+
+    // ─── JD Analysis ────────────────────────────────────────────
+
+    updateJdCharCount() {
+      if (!this.jdInput || !this.jdCharCount || !this.jdAnalyzeBtn) return;
+      const len = this.jdInput.value.length;
+      const formatted = len.toLocaleString();
+      this.jdCharCount.textContent = `${formatted} / 6,000`;
+
+      // Enable analyze button if there's enough text
+      this.jdAnalyzeBtn.disabled = len < 50;
+
+      // Color the counter
+      if (len > 5500) {
+        this.jdCharCount.className = 'jd-char-count text-xs text-error';
+      } else if (len > 4500) {
+        this.jdCharCount.className = 'jd-char-count text-xs text-warning';
+      } else {
+        this.jdCharCount.className = 'jd-char-count text-xs text-gray-400';
+      }
+    }
+
+    async handleJdAnalyze() {
+      if (!this.jdInput || !this.jdAnalyzeBtn || !this.jdResults) return;
+
+      const text = this.jdInput.value.trim();
+      if (text.length < 50) return;
+
+      this.jdAnalyzeBtn.disabled = true;
+      this.jdAnalyzeBtn.textContent = '⏳ Analyzing...';
+      this.clearElement(this.jdResults);
+      this.jdResults.classList.remove('hidden');
+
+      // Show loading in results area
+      const loadingEl = document.createElement('div');
+      loadingEl.className = 'flex items-center justify-center py-8';
+      const dotsContainer = document.createElement('div');
+      dotsContainer.className = 'flex space-x-1';
+      ['', 'delay-75', 'delay-150'].forEach(delay => {
+        const dot = document.createElement('div');
+        dot.className = `w-2 h-2 bg-eucalyptus-400 rounded-full animate-bounce ${delay}`;
+        dotsContainer.appendChild(dot);
+      });
+      loadingEl.appendChild(dotsContainer);
+      this.jdResults.appendChild(loadingEl);
+
+      try {
+        const lang = this.langSelect?.value || 'auto';
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, lang, tab: 'jd' })
+        });
+
+        if (!res.ok) {
+          throw new Error(await this.parseError(res));
+        }
+
+        const data = await res.json();
+        this.clearElement(this.jdResults);
+        this.renderJdResult(data.answer, data.sources);
+        this.updateQuota(data.quota);
+
+      } catch (err: any) {
+        this.clearElement(this.jdResults);
+        this.renderJdError(err.message || 'Analysis failed. Please try again.');
+      } finally {
+        this.jdAnalyzeBtn.disabled = false;
+        this.clearElement(this.jdAnalyzeBtn);
+        const icon = document.createElement('span');
+        icon.setAttribute('aria-hidden', 'true');
+        icon.textContent = '🔍';
+        this.jdAnalyzeBtn.appendChild(icon);
+        this.jdAnalyzeBtn.appendChild(document.createTextNode(' Analyze Fit'));
+      }
+    }
+
+    renderJdResult(answer: string, sources: any[] = []) {
+      if (!this.jdResults) return;
+
+      // Try to parse structured JSON
+      let parsed: any = null;
+      try {
+        // Strip markdown fences if present
+        const cleaned = answer.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+        parsed = JSON.parse(cleaned);
+      } catch {
+        // Fallback: render as plain text
+        this.renderJdResultFallback(answer, sources);
+        return;
+      }
+
+      const container = document.createElement('div');
+      container.className = 'jd-result-card space-y-4 animate-fade-in';
+
+      // ── Score Header ─────────────────────────────────────────
+      const scoreSection = document.createElement('div');
+      scoreSection.className = 'bg-white dark:bg-dark-elevated rounded-xl border border-gray-200 dark:border-dark-border shadow-subtle p-4';
+
+      // Verdict + Score row
+      const topRow = document.createElement('div');
+      topRow.className = 'flex items-center justify-between mb-3';
+
+      const verdictBadge = document.createElement('span');
+      const score = parsed.score || 0;
+      const verdict = parsed.verdict || 'Unknown';
+      const verdictColors: Record<string, string> = {
+        'Strong Match': 'bg-eucalyptus-100 dark:bg-eucalyptus-900 text-eucalyptus-800 dark:text-eucalyptus-200 border-eucalyptus-300 dark:border-eucalyptus-700',
+        'Good Match': 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700',
+        'Partial Match': 'bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 border-amber-300 dark:border-amber-700',
+        'Not Aligned': 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border-red-300 dark:border-red-700',
+      };
+      verdictBadge.className = `px-3 py-1 rounded-full text-xs font-bold border ${verdictColors[verdict] || verdictColors['Partial Match']}`;
+      verdictBadge.textContent = verdict;
+      topRow.appendChild(verdictBadge);
+
+      const scoreLabel = document.createElement('span');
+      scoreLabel.className = 'text-2xl font-bold text-gray-800 dark:text-gray-200';
+      scoreLabel.textContent = `${score}%`;
+      topRow.appendChild(scoreLabel);
+      scoreSection.appendChild(topRow);
+
+      // Progress bar
+      const barBg = document.createElement('div');
+      barBg.className = 'w-full h-2.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden mb-3';
+      const barFill = document.createElement('div');
+      const barColor = score >= 80 ? 'bg-eucalyptus-500' : score >= 60 ? 'bg-blue-500' : score >= 40 ? 'bg-amber-500' : 'bg-red-500';
+      barFill.className = `h-full ${barColor} rounded-full transition-all duration-1000 ease-out`;
+      barFill.style.width = '0%';
+      barBg.appendChild(barFill);
+      scoreSection.appendChild(barBg);
+      // Animate bar
+      requestAnimationFrame(() => { requestAnimationFrame(() => { barFill.style.width = `${score}%`; }); });
+
+      // Summary
+      if (parsed.summary) {
+        const summary = document.createElement('p');
+        summary.className = 'text-sm text-gray-600 dark:text-gray-400 leading-relaxed';
+        summary.textContent = parsed.summary;
+        scoreSection.appendChild(summary);
+      }
+      container.appendChild(scoreSection);
+
+      // ── Match Sections ────────────────────────────────────────
+      const sections: Array<{ title: string; icon: string; items: any[]; type: 'match' | 'transfer' | 'gap' }> = [
+        { title: 'Matching Qualifications', icon: '\u2705', items: parsed.matches || [], type: 'match' },
+        { title: 'Transferable Skills', icon: '\ud83d\udd04', items: parsed.transferable || [], type: 'transfer' },
+        { title: 'Gaps / Differences', icon: '\u26a0\ufe0f', items: parsed.gaps || [], type: 'gap' },
+      ];
+
+      for (const section of sections) {
+        if (section.items.length === 0) continue;
+
+        const sectionEl = document.createElement('div');
+        sectionEl.className = 'bg-white dark:bg-dark-elevated rounded-xl border border-gray-200 dark:border-dark-border shadow-subtle';
+
+        const sectionHeader = document.createElement('div');
+        sectionHeader.className = 'flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 dark:border-dark-border';
+        const icon = document.createElement('span');
+        icon.textContent = section.icon;
+        sectionHeader.appendChild(icon);
+        const title = document.createElement('h5');
+        title.className = 'text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider';
+        title.textContent = section.title;
+        sectionHeader.appendChild(title);
+        const count = document.createElement('span');
+        count.className = 'ml-auto text-[10px] bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded-full';
+        count.textContent = String(section.items.length);
+        sectionHeader.appendChild(count);
+        sectionEl.appendChild(sectionHeader);
+
+        const list = document.createElement('div');
+        list.className = 'divide-y divide-gray-50 dark:divide-dark-border';
+
+        for (const item of section.items) {
+          const row = document.createElement('div');
+          row.className = 'px-4 py-2.5';
+
+          const skillName = document.createElement('div');
+          skillName.className = 'text-sm font-semibold text-gray-800 dark:text-gray-200 mb-0.5';
+          skillName.textContent = item.skill || item.requirement || '';
+          row.appendChild(skillName);
+
+          const detail = document.createElement('div');
+          detail.className = 'text-xs text-gray-500 dark:text-gray-400 leading-relaxed';
+          detail.textContent = item.detail || '';
+          row.appendChild(detail);
+
+          if (item.source && section.type === 'match') {
+            const srcLink = document.createElement('a');
+            srcLink.href = item.source;
+            srcLink.target = '_blank';
+            srcLink.rel = 'noopener noreferrer';
+            srcLink.className = 'inline-block mt-1 text-[10px] text-eucalyptus-600 dark:text-eucalyptus-400 hover:underline';
+            srcLink.textContent = '\u{1F517} Source';
+            row.appendChild(srcLink);
+          }
+          list.appendChild(row);
+        }
+        sectionEl.appendChild(list);
+        container.appendChild(sectionEl);
+      }
+
+      // ── Recommendation ─────────────────────────────────────────
+      if (parsed.recommendation) {
+        const recSection = document.createElement('div');
+        recSection.className = 'bg-eucalyptus-50 dark:bg-eucalyptus-950 rounded-xl border border-eucalyptus-200 dark:border-eucalyptus-800 p-4';
+        const recHeader = document.createElement('div');
+        recHeader.className = 'flex items-center gap-2 mb-2';
+        const recIcon = document.createElement('span');
+        recIcon.textContent = '\ud83d\udca1';
+        recHeader.appendChild(recIcon);
+        const recTitle = document.createElement('h5');
+        recTitle.className = 'text-xs font-bold text-eucalyptus-800 dark:text-eucalyptus-200 uppercase tracking-wider';
+        recTitle.textContent = 'Recommendation';
+        recHeader.appendChild(recTitle);
+        recSection.appendChild(recHeader);
+        const recText = document.createElement('p');
+        recText.className = 'text-sm text-eucalyptus-700 dark:text-eucalyptus-300 leading-relaxed';
+        recText.textContent = parsed.recommendation;
+        recSection.appendChild(recText);
+        container.appendChild(recSection);
+      }
+
+      // ── Sources ──────────────────────────────────────────────
+      if (sources && sources.length > 0) {
+        const srcDiv = document.createElement('div');
+        srcDiv.className = 'px-1';
+        const srcLabel = document.createElement('p');
+        srcLabel.className = 'text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-1';
+        srcLabel.textContent = 'Portfolio Sources';
+        srcDiv.appendChild(srcLabel);
+        const srcList = document.createElement('div');
+        srcList.className = 'flex flex-wrap gap-1';
+        sources.forEach(src => {
+          const badge = document.createElement('a');
+          badge.href = src.url;
+          badge.target = '_blank';
+          badge.rel = 'noopener noreferrer';
+          badge.className = 'inline-block text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors';
+          badge.textContent = src.title || 'Source';
+          srcList.appendChild(badge);
+        });
+        srcDiv.appendChild(srcList);
+        container.appendChild(srcDiv);
+      }
+
+      this.jdResults.appendChild(container);
+    }
+
+    renderJdResultFallback(answer: string, sources: any[] = []) {
+      if (!this.jdResults) return;
+
+      const container = document.createElement('div');
+      container.className = 'jd-result-card bg-white dark:bg-dark-elevated rounded-xl border border-gray-200 dark:border-dark-border shadow-subtle p-4 space-y-3 animate-fade-in';
+
+      const header = document.createElement('div');
+      header.className = 'flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-dark-border';
+      const headerIcon = document.createElement('span');
+      headerIcon.className = 'text-lg';
+      headerIcon.textContent = '\ud83d\udcca';
+      header.appendChild(headerIcon);
+      const headerTitle = document.createElement('h4');
+      headerTitle.className = 'font-bold text-sm text-gray-800 dark:text-gray-200';
+      headerTitle.textContent = 'Fit Analysis Result';
+      header.appendChild(headerTitle);
+      container.appendChild(header);
+
+      const content = document.createElement('div');
+      content.className = 'text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed';
+      content.textContent = answer;
+      container.appendChild(content);
+
+      if (sources && sources.length > 0) {
+        const srcDiv = document.createElement('div');
+        srcDiv.className = 'pt-2 border-t border-gray-100 dark:border-dark-border';
+        const srcLabel = document.createElement('p');
+        srcLabel.className = 'text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-1';
+        srcLabel.textContent = 'Sources';
+        srcDiv.appendChild(srcLabel);
+        const srcList = document.createElement('div');
+        srcList.className = 'flex flex-wrap gap-1';
+        sources.forEach(src => {
+          const badge = document.createElement('a');
+          badge.href = src.url;
+          badge.target = '_blank';
+          badge.rel = 'noopener noreferrer';
+          badge.className = 'inline-block text-[10px] bg-eucalyptus-50 dark:bg-eucalyptus-950 text-eucalyptus-700 dark:text-eucalyptus-300 px-2 py-0.5 rounded-full hover:bg-eucalyptus-100 transition-colors';
+          badge.textContent = src.title || 'Source';
+          srcList.appendChild(badge);
+        });
+        srcDiv.appendChild(srcList);
+        container.appendChild(srcDiv);
+      }
+
+      this.jdResults.appendChild(container);
+    }
+
+    renderJdError(message: string) {
+      if (!this.jdResults) return;
+      const errorEl = document.createElement('div');
+      errorEl.className = 'bg-error-light dark:bg-red-900/20 text-error dark:text-red-400 p-3 rounded-lg text-sm animate-fade-in';
+      errorEl.textContent = message;
+      this.jdResults.appendChild(errorEl);
+    }
+
+    // ─── Message Rendering ──────────────────────────────────────
 
     createMessageElement(text: string, isUser: boolean, sources: any[] = []) {
       const div = document.createElement('div');
 
       if (isUser) {
-        div.className = "message user bg-eucalyptus-600 text-white p-3 rounded-lg rounded-tr-none shadow-sm text-sm ml-auto max-w-[85%] self-end mb-4 animate-fade-in";
+        div.className = 'message user bg-eucalyptus-600 text-white p-3 rounded-lg rounded-tr-none shadow-sm text-sm ml-auto max-w-[85%] self-end mb-3 animate-fade-in';
         div.textContent = text;
       } else {
-        div.className = "message ai bg-white dark:bg-gray-800 p-3 rounded-lg rounded-tl-none shadow-sm text-sm dark:text-gray-200 border border-gray-100 dark:border-gray-700 mr-auto max-w-[85%] mb-4 animate-fade-in";
+        div.className = 'message ai bg-white dark:bg-dark-elevated p-3 rounded-lg rounded-tl-none shadow-subtle text-sm dark:text-gray-200 border border-gray-100 dark:border-dark-border mr-auto max-w-[85%] mb-3 animate-fade-in';
 
         const textSpan = document.createElement('span');
-        textSpan.className = "whitespace-pre-wrap";
+        textSpan.className = 'whitespace-pre-wrap';
         textSpan.textContent = text;
         div.appendChild(textSpan);
 
         if (sources && sources.length > 0) {
           const sourceDiv = document.createElement('div');
-          sourceDiv.className = "mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 text-xs";
+          sourceDiv.className = 'mt-2 pt-2 border-t border-gray-100 dark:border-dark-border';
 
-          const strong = document.createElement('strong');
-          strong.className = "text-gray-500 uppercase tracking-wider block mb-1";
-          strong.textContent = "Sources:";
-          sourceDiv.appendChild(strong);
+          const srcLabel = document.createElement('p');
+          srcLabel.className = 'text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-1';
+          srcLabel.textContent = 'Sources';
+          sourceDiv.appendChild(srcLabel);
 
-          const ul = document.createElement('ul');
-          ul.className = "list-disc pl-4 space-y-1";
-
+          const srcList = document.createElement('div');
+          srcList.className = 'flex flex-wrap gap-1';
           sources.forEach(src => {
-            const li = document.createElement('li');
-            const a = document.createElement('a');
-            a.href = src.url;
-            a.target = "_blank";
-            a.rel = "noopener noreferrer";
-            a.className = "text-eucalyptus-600 hover:underline truncate block";
-            a.textContent = src.title || "Source";
-            li.appendChild(a);
-            ul.appendChild(li);
+            const badge = document.createElement('a');
+            badge.href = src.url;
+            badge.target = '_blank';
+            badge.rel = 'noopener noreferrer';
+            badge.className = 'inline-block text-[10px] bg-eucalyptus-50 dark:bg-eucalyptus-950 text-eucalyptus-700 dark:text-eucalyptus-300 px-2 py-0.5 rounded-full hover:bg-eucalyptus-100 transition-colors';
+            badge.textContent = src.title || 'Source';
+            srcList.appendChild(badge);
           });
-          sourceDiv.appendChild(ul);
+          sourceDiv.appendChild(srcList);
           div.appendChild(sourceDiv);
         }
       }
@@ -153,19 +760,16 @@ const {
 
     showLoading() {
       const div = document.createElement('div');
-      div.className = "loading-indicator message ai bg-white dark:bg-gray-800 p-3 rounded-lg rounded-tl-none shadow-sm text-sm w-16 mb-4 animate-fade-in";
-
-      const createDot = (delayClass: string) => {
-        const dot = document.createElement('div');
-        dot.className = `w-2 h-2 bg-gray-400 rounded-full animate-bounce ${delayClass}`;
-        return dot;
-      };
+      div.className = 'loading-indicator message ai bg-white dark:bg-dark-elevated p-3 rounded-lg rounded-tl-none shadow-subtle text-sm w-16 mb-3 animate-fade-in';
 
       const container = document.createElement('div');
-      container.className = "flex space-x-1 justify-center";
-      container.appendChild(createDot(''));
-      container.appendChild(createDot('delay-75'));
-      container.appendChild(createDot('delay-150'));
+      container.className = 'flex space-x-1 justify-center';
+
+      ['', 'delay-75', 'delay-150'].forEach(delay => {
+        const dot = document.createElement('div');
+        dot.className = `w-2 h-2 bg-eucalyptus-400 rounded-full animate-bounce ${delay}`;
+        container.appendChild(dot);
+      });
 
       div.appendChild(container);
       this.messagesEl.appendChild(div);
@@ -181,63 +785,25 @@ const {
       this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
     }
 
-    async handleSubmit(e: Event) {
-      e.preventDefault();
-      const text = this.input.value.trim();
-      if (!text) return;
-
-      this.appendMessage(text, true);
-      this.input.value = '';
-      this.input.style.height = 'auto';
-      if (this.submitBtn) this.submitBtn.disabled = true;
-
-      this.showLoading();
-
+    async parseError(res: Response): Promise<string> {
+      const codeMessages: Record<string, string> = {
+        'RATE_LIMIT': 'Too many requests — please wait a moment.',
+        'INPUT_EMPTY': 'Please type a message first.',
+        'INPUT_TOO_LONG': 'Message is too long.',
+        'CORPUS_LOAD_FAILED': 'Knowledge base unavailable. Try again later.',
+        'OPENAI_KEY_MISSING': 'AI service is not configured.',
+        'OPENAI_UPSTREAM_ERROR': 'AI service temporarily unavailable.',
+      };
       try {
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, lang: document.documentElement.lang })
-        });
-
-        this.removeLoading();
-
-        if (!res.ok) {
-          let errorMsg = 'Something went wrong. Please try again.';
-          let errorCode = 'UNKNOWN';
-          try {
-            const errData = await res.json();
-            errorCode = errData.code || 'UNKNOWN';
-            // User-friendly messages based on error code
-            const codeMessages: Record<string, string> = {
-              'RATE_LIMIT': 'Too many requests — please wait a moment.',
-              'INPUT_EMPTY': 'Please type a message first.',
-              'INPUT_TOO_LONG': 'Message is too long (max 4000 chars).',
-              'CORPUS_LOAD_FAILED': 'Knowledge base unavailable. Try again later.',
-              'OPENAI_KEY_MISSING': 'AI service is not configured. See docs/chat.md.',
-              'OPENAI_UPSTREAM_ERROR': 'AI service is temporarily unavailable.',
-            };
-            errorMsg = codeMessages[errorCode] || errData.error || errorMsg;
-          } catch { /* response wasn't JSON */ }
-          console.warn(`[Chat] API error ${res.status} (${errorCode})`);
-          throw new Error(errorMsg);
-        }
-
-        const data = await res.json();
-        this.appendMessage(data.answer, false, data.sources);
-
-      } catch (err: any) {
-        this.removeLoading();
-        this.appendMessage(err.message || "Sorry, something went wrong.", false);
-      } finally {
-        if (this.submitBtn) this.submitBtn.disabled = false;
-        this.input.focus();
+        const errData = await res.json();
+        return codeMessages[errData.code] || errData.error || 'Something went wrong.';
+      } catch {
+        return 'Something went wrong.';
       }
-
     }
   }
 
-  // Initialize all chat widgets on the page
+  // Initialize
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-chat-widget]').forEach(el => {
       new ChatWidget(el as HTMLElement);
@@ -246,13 +812,99 @@ const {
 </script>
 
 <style>
+  /* Tab styling */
+  .chat-tab {
+    position: relative;
+    color: var(--text-secondary, #5A5A5A);
+  }
+
+  .chat-tab.tab-active {
+    color: var(--eucalyptus-600, #557159);
+    font-weight: 600;
+  }
+
+  .chat-tab.tab-active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 1rem;
+    right: 1rem;
+    height: 2px;
+    background: var(--eucalyptus-600, #557159);
+    border-radius: 1px;
+  }
+
+  .chat-tab.tab-inactive {
+    color: var(--text-secondary, #5A5A5A);
+  }
+
+  .chat-tab.tab-inactive:hover {
+    color: var(--text-primary, #2C2C2C);
+    background: var(--gray-50, #F9FAFB);
+  }
+
+  :global(.dark) .chat-tab.tab-active {
+    color: var(--eucalyptus-300, #9FBFA8);
+  }
+
+  :global(.dark) .chat-tab.tab-active::after {
+    background: var(--eucalyptus-400, #7BA888);
+  }
+
+  :global(.dark) .chat-tab.tab-inactive:hover {
+    color: var(--gray-200, #E5E7EB);
+    background: var(--dark-elevated, #252320);
+  }
+
+  /* Quick Action Chips */
+  .chip-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--eucalyptus-700, #4A6451);
+    background: var(--eucalyptus-50, #F0F4F1);
+    border: 1px solid var(--eucalyptus-200, #C3D7C9);
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .chip-btn:hover {
+    background: var(--eucalyptus-100, #E1EBE4);
+    border-color: var(--eucalyptus-400, #7BA888);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  .chip-btn:active {
+    transform: translateY(0);
+  }
+
+  :global(.dark) .chip-btn {
+    color: var(--eucalyptus-300, #9FBFA8);
+    background: var(--eucalyptus-950, #1A211D);
+    border-color: var(--eucalyptus-800, #3A4E41);
+  }
+
+  :global(.dark) .chip-btn:hover {
+    background: var(--eucalyptus-900, #2C3832);
+    border-color: var(--eucalyptus-600, #557159);
+  }
+
+  /* Animations */
   .animate-fade-in {
     animation: fadeIn 0.3s ease-out forwards;
   }
-  
+
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(5px); }
     to { opacity: 1; transform: translateY(0); }
   }
-</style>
 
+  .delay-75 { animation-delay: 75ms; }
+  .delay-150 { animation-delay: 150ms; }
+</style>

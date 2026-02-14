@@ -1,128 +1,145 @@
-# AI Chat PoC (Hardened)
+# AI Copilot V2
 
-> **Status**: Proof of Concept (PoC)
-> **Type**: RAG-based Chatbot
+> **Status**: Production-ready
+> **Type**: RAG-based Chatbot + Job Description Analyzer
 > **Endpoint**: `/api/chat` (Cloudflare Pages Function)
 
 ## Overview
 
-The AI Chat is an experimental "Copilot" feature that allows visitors to query the portfolio content using natural language. It uses Retrieval-Augmented Generation (RAG) to provide grounded answers based on the site's content.
+The AI Copilot is a recruiter-optimized assistant that lets visitors query the portfolio using natural language **and** analyze job descriptions for candidate-fit. It features:
+
+- **Tabbed Interface**: 💬 Chat + 📄 JD Analysis
+- **Intent Router**: 5 deterministic intents (zero API cost) with trilingual facts store
+- **Language Detection**: Multi-priority (UI selector → text patterns → Accept-Language → page lang)
+- **Session Quotas**: Cookie-based (4 chat + 1 JD per 24h)
+- **Structured JD Output**: JSON schema → premium rendered UI with score, progress bar, verdict badge
 
 ## Architecture
 
 ### Frontend
 
 - **Components**:
-  - `ChatWidget.astro`: Reusable, instance-aware chat interface. Container-agnostic (can be embedded or placed in a drawer).
-  - `ChatDrawer.astro`: Global accessible overlay/modal (`role="dialog"`) that wraps `ChatWidget`.
-  - `Header.astro`: Contains the "AI Copilot" trigger button (icon-only on mobile, full label on desktop).
-- **Pages**:
-  - `/ai`: Dedicated showcase page with embedded chat and capabilities overview.
+  - `ChatWidget.astro`: Tabbed interface (Chat + JD Analysis) with language selector, quick action chips, quota badge, and structured JD result renderer.
+  - `ChatDrawer.astro`: Global accessible overlay (`role="dialog"`) wrapping `ChatWidget`.
+  - `Header.astro`: "AI Copilot" trigger button.
+- **Pages**: `/ai` — Showcase page with embedded chat.
 - **Styling**: Tailwind CSS (Eucalyptus palette), Dark mode compatible.
-- **Accessibility**:
-  - WAI-ARIA Dialog pattern for Drawer.
-  - "Label in Name" compliance.
-  - `aria-live` regions for messages.
-  - Focus management (Focus Trap, Return Focus).
-- **Error Handling**:
-  - Structured error codes from backend (`RATE_LIMIT`, `CORPUS_LOAD_FAILED`, `OPENAI_KEY_MISSING`, etc.)
-  - User-friendly messages in the chat bubble (no internal details leaked).
-  - Debug code logged to `console.warn` for developers.
+- **Accessibility**: WAI-ARIA Dialog, focus management, `aria-live` regions.
+- **Error Handling**: Structured error codes, user-friendly messages, debug codes in console.
 
 ### Backend
 
 - **Platform**: Cloudflare Pages Functions
 - **File**: `functions/api/chat.ts`
 - **Logic**:
-  1. Validates input (Rate detection, Length limits).
-  2. Loads corpus from `/corpus.jsonl` (with warm-start caching).
-  3. Performs BM25-like text retrieval (top 3 docs).
-  4. Calls OpenAI `gpt-4o-mini`.
-  5. Returns JSON response with `answer` and `sources`.
+  1. Rate limiting (IP-based, 10 req/min).
+  2. Input validation (length limits: 4000 chat, 6000 JD).
+  3. Language detection (3-priority system).
+  4. **Intent router** → serves from `facts.json` (zero LLM cost).
+  5. **Session quota check** (cookie-based, 4 chat + 1 JD per 24h).
+  6. Corpus loading from `/corpus.jsonl` (warm-start caching).
+  7. BM25-like text retrieval (top 5 docs, 8 for job match).
+  8. OpenAI `gpt-4o-mini` call with tab-aware prompts.
+  9. Response with quota cookie (`Set-Cookie`).
 
-### Corpus
+### Intent Router
 
-The knowledge base is a JSONL file generated from blog content.
+| Intent | Trigger Examples | Response Source |
+|--------|-----------------|----------------|
+| `contact_phone` | "phone number", "Telefonnummer" | `facts.json` (privacy-gated) |
+| `contact` | "contact", "email", "Kontakt" | `facts.json` |
+| `current_role` | "current role", "aktuelle Stelle" | `facts.json` |
+| `certifications` | "certifications", "Zertifizierungen" | `facts.json` |
+| `projects` | "projects", "Projekte" | `facts.json` |
 
-```bash
-# Regenerate the corpus from src/content/blog/
-npm run export:corpus
-# Output: public/corpus.jsonl (auto-copied to dist/ on build)
+### Facts Store
+
+`public/facts.json` — trilingual (DE/EN/RO) curated responses. Phone number is privacy-gated (only revealed on explicit `contact_phone` intent).
+
+### Session Quotas
+
+- **Limits**: 4 chat questions + 1 JD analysis per 24-hour session
+- **Storage**: `chat_session` cookie (JSON: `{q, jd, ts}`)
+- **Enforcement**: Backend validates before LLM call; returns `429` with quota data
+- **UI**: Color-coded badge (green → amber → red) with remaining counts
+
+### JD Analysis Output
+
+JSON schema prompt → structured response:
+
+```json
+{
+  "verdict": "Strong Match | Good Match | Partial Match | Not Aligned",
+  "score": 0-100,
+  "summary": "...",
+  "matches": [{ "skill": "...", "detail": "...", "source": "..." }],
+  "transferable": [{ "skill": "...", "detail": "..." }],
+  "gaps": [{ "requirement": "...", "detail": "..." }],
+  "recommendation": "..."
+}
 ```
+
+Frontend renders: progress bar (animated), verdict badge, match/transferable/gaps sections, recommendation card.
 
 ## Local Development
 
-> **Important**: `astro dev` (port 4321) does NOT serve Cloudflare Pages Functions.
-> You must use `wrangler pages dev` to test the chat API locally.
-
-### Quick Start (recommended)
+> `astro dev` does NOT serve Cloudflare Pages Functions.
+> Use `wrangler pages dev` for the chat API.
 
 ```bash
 # One command: export corpus → build → serve with Wrangler
 npm run dev:copilot
 ```
 
-This opens `http://localhost:8788` with both the site AND the `/api/chat` endpoint working.
-
-### Manual Steps
-
-```bash
-npm run export:corpus        # Generate corpus
-npm run build                # Build site + Pagefind
-npm run dev:chat             # Serve dist/ with Wrangler Pages
-```
+Opens `http://localhost:8788` with site AND `/api/chat`.
 
 ### API Key Setup
 
-Create a `.dev.vars` file in the project root (already in `.gitignore`):
-
 ```bash
-# .dev.vars
+# .dev.vars (in project root, gitignored)
 OPENAI_API_KEY="sk-..."
 ```
 
-Wrangler reads this file automatically and injects the key as `env.OPENAI_API_KEY`.
-
 ## Security Features
 
-1. **Strict DOM Rendering**: No `innerHTML` usage. Messages are built using `document.createElement`.
-2. **XSS Protection**: Links are rendered with `rel="noopener noreferrer"`.
-3. **Input Validation**: Max length 2000 chars, empty check.
-4. **Rate Limiting**: Server-side IP-based limiting (10 req/min).
-5. **Error Isolation**: Backend never leaks stack traces or internal error messages.
+1. **Strict DOM Rendering**: No `innerHTML` — all DOM built with `createElement`/`textContent`.
+2. **XSS Protection**: Links use `rel="noopener noreferrer"`.
+3. **Input Validation**: Max 4000 (chat) / 6000 (JD) chars.
+4. **Rate Limiting**: IP-based (10 req/min) + session quotas (4+1 per 24h).
+5. **Prompt Hardening**: EVIDENCE delimiters prevent prompt injection.
+6. **Privacy by Default**: Phone only revealed on explicit request.
 
 ## Error Codes
 
 | Code | HTTP | Meaning |
 |------|------|---------|
-| `OPENAI_KEY_MISSING` | 500 | `.dev.vars` is missing `OPENAI_API_KEY` |
-| `CORPUS_LOAD_FAILED` | 503 | `/corpus.jsonl` not found or unreachable |
-| `OPENAI_UPSTREAM_ERROR` | 502 | OpenAI API returned an error |
-| `RATE_LIMIT` | 429 | Too many requests from this IP |
-| `INPUT_EMPTY` | 400 | Empty message submitted |
-| `INPUT_TOO_LONG` | 400 | Message exceeds 2000 chars |
-| `INTERNAL_ERROR` | 500 | Unexpected server error |
+| `OPENAI_KEY_MISSING` | 500 | `.dev.vars` missing `OPENAI_API_KEY` |
+| `CORPUS_LOAD_FAILED` | 503 | `/corpus.jsonl` not found |
+| `OPENAI_UPSTREAM_ERROR` | 502 | OpenAI API error |
+| `RATE_LIMIT` | 429 | IP rate limit exceeded |
+| `QUOTA_CHAT_EXCEEDED` | 429 | Session chat limit reached |
+| `QUOTA_JD_EXCEEDED` | 429 | Session JD limit reached |
+| `INPUT_EMPTY` | 400 | Empty message |
+| `INPUT_TOO_LONG` | 400 | Message exceeds char limit |
 
 ## Quality Gates
 
 ```bash
-# Check for forbidden patterns (like innerHTML)
-npm run lint:chat
-
-# Strict accessibility check
-npm run lint:a11y:strict
+npm run lint:chat       # Security check (no innerHTML, etc.)
+npm run lint:a11y:strict # Accessibility check
 ```
 
 ## Smoke Test
 
-After `npm run dev:copilot` is running:
-
 ```bash
-# 1. Verify corpus is served
-curl -I http://localhost:8788/corpus.jsonl
-
-# 2. Test the API
+# 1. Test intent router (zero cost)
 curl -s -X POST http://localhost:8788/api/chat \
   -H "content-type: application/json" \
-  --data '{"message":"What are Mihai'\''s skills?"}' | head
+  --data '{"message":"What are Mihai'\''s certifications?","tab":"chat"}' | jq .mode
+# Expected: "fact"
+
+# 2. Test JD analysis
+curl -s -X POST http://localhost:8788/api/chat \
+  -H "content-type: application/json" \
+  --data '{"message":"Senior Full-Stack Developer, 5+ years experience...","tab":"jd"}' | jq .answer
 ```
