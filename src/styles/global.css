@@ -6,9 +6,8 @@
  * Dark/Light Mode: Class-based with localStorage persistence
  */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../../tailwind.config.mjs";
 
 /**
  * Font Face Declarations with font-display: swap
@@ -301,9 +300,19 @@
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
   }
 
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline,
+  .btn-ghost {
+    @apply inline-flex items-center justify-center;
+    @apply px-6 py-3 rounded-lg;
+    @apply font-medium text-base;
+    @apply transition-all duration-200;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+  }
+
   /* Primary button (eucalyptus green) */
   .btn-primary {
-    @apply btn;
     @apply bg-eucalyptus-600;
     color: white !important;
     /* Force white text - WCAG AAA 7.5:1 contrast */
@@ -325,7 +334,6 @@
 
   /* Secondary button (solid taupe) */
   .btn-secondary {
-    @apply btn;
     @apply bg-taupe-200 text-taupe-900;
     @apply hover:bg-taupe-300;
     @apply focus-visible:ring-taupe-500;
@@ -335,7 +343,6 @@
 
   /* Outline button (eucalyptus border) */
   .btn-outline {
-    @apply btn;
     @apply border-2 border-eucalyptus-600 text-eucalyptus-700 bg-transparent;
     @apply hover:bg-eucalyptus-50;
     @apply focus-visible:ring-eucalyptus-500;
@@ -345,7 +352,6 @@
 
   /* Ghost button (text only) */
   .btn-ghost {
-    @apply btn;
     @apply text-eucalyptus-700 hover:bg-eucalyptus-50;
     @apply focus-visible:ring-eucalyptus-500;
     @apply dark:text-eucalyptus-300 dark:hover:bg-dark-elevated;

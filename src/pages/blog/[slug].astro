@@ -196,16 +196,17 @@ const blogPostingSchema = generateBlogPostingSchema(post, Astro.url.toString());
 </BaseLayout>
 
 <style is:global>
+@reference "../../styles/global.css";
   /* Custom prose styling for code blocks with Shiki */
   .prose pre {
     @apply border rounded-lg p-4 overflow-x-auto;
-    background-color: theme('colors.light.surface') !important;
-    border-color: theme('colors.light.border') !important;
+    background-color: var(--color-light-surface) !important;
+    border-color: var(--color-light-border) !important;
   }
 
   .dark .prose pre {
-    background-color: theme('colors.dark.surface') !important;
-    border-color: theme('colors.dark.border') !important;
+    background-color: var(--color-dark-surface) !important;
+    border-color: var(--color-dark-border) !important;
   }
 
   .prose code {
@@ -221,13 +222,13 @@ const blogPostingSchema = generateBlogPostingSchema(post, Astro.url.toString());
   .prose pre,
   .prose pre code,
   .prose pre code span {
-    color: theme('colors.text.primary.light') !important;
+    color: var(--color-text-primary-light) !important;
   }
 
   .dark .prose pre,
   .dark .prose pre code,
   .dark .prose pre code span {
-    color: theme('colors.text.primary.dark') !important;
+    color: var(--color-text-primary-dark) !important;
   }
 
   /* Smooth scroll for TOC links */

@@ -316,15 +316,15 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
   }
 
   .btn-primary {
-    background: var(--theme-color, theme('colors.eucalyptus.600'));
+    background: var(--theme-color, var(--color-eucalyptus-600));
     color: white !important;
-    border: 2px solid var(--theme-color, theme('colors.eucalyptus.600'));
+    border: 2px solid var(--theme-color, var(--color-eucalyptus-600));
   }
 
   .btn-primary:hover {
-    background: var(--theme-color, theme('colors.eucalyptus.700'));
+    background: var(--theme-color, var(--color-eucalyptus-700));
     color: white !important;
-    box-shadow: 0 0 20px var(--theme-color, theme('colors.eucalyptus.600'));
+    box-shadow: 0 0 20px var(--theme-color, var(--color-eucalyptus-600));
   }
 
   .btn-secondary {
@@ -464,11 +464,11 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
   }
 
   .timeline-item.completed .timeline-marker {
-    background: theme('colors.success.DEFAULT');
+    background: var(--color-success-DEFAULT);
   }
 
   .timeline-item.in-progress .timeline-marker {
-    background: theme('colors.warning.DEFAULT');
+    background: var(--color-warning-DEFAULT);
     animation: pulse 2s infinite;
   }
 

@@ -1,8 +1,8 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-import tailwind from '@astrojs/tailwind';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
+import tailwindcss from '@tailwindcss/vite';
 
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -40,10 +40,6 @@ export default defineConfig({
   },
 
   integrations: [
-    tailwind({
-      applyBaseStyles: false,
-    }),
-
     // MDX inherits the `markdown` config (remark/rehype, gfm, etc.) by default
     mdx(),
 
@@ -154,6 +150,7 @@ export default defineConfig({
   compressHTML: true,
 
   vite: {
+    plugins: [tailwindcss()],
     build: {
       cssCodeSplit: true,
       minify: 'terser',

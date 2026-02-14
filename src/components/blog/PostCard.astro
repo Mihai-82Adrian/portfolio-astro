@@ -138,6 +138,7 @@ const formattedDate = pubDate.toLocaleDateString('en-US', {
 </article>
 
 <style>
+@reference "../../styles/global.css";
   .post-card {
     @apply rounded-lg overflow-hidden;
     @apply bg-light-surface dark:bg-dark-surface;
@@ -153,7 +154,7 @@ const formattedDate = pubDate.toLocaleDateString('en-US', {
 
   .post-card-link {
     @apply block  rounded-lg;
-    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+    &:focus-visible { outline: none; ring: 2px solid; ring-color: var(--color-eucalyptus-500); ring-offset: 2px; }
     text-decoration: none;
   }
 

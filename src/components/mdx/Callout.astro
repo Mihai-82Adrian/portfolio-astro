@@ -187,6 +187,7 @@ const displayTitle = title || config.defaultTitle;
 </script>
 
 <style>
+@reference "../../styles/global.css";
   .callout {
     @apply rounded-lg my-6 overflow-hidden;
     @apply border-l-4;
@@ -222,7 +223,7 @@ const displayTitle = title || config.defaultTitle;
   .callout-toggle {
     @apply w-full flex items-center justify-between;
     @apply  rounded-t-lg;
-    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+    &:focus-visible { outline: none; ring: 2px solid; ring-color: var(--color-eucalyptus-500); ring-offset: 2px; }
   }
 
   .callout-title-wrapper {

@@ -232,6 +232,7 @@ const languages = [
 </footer>
 
 <style>
+@reference "../../styles/global.css";
   .footer-link {
     @apply text-eucalyptus-800 dark:text-eucalyptus-200;
     @apply underline decoration-eucalyptus-600/50 dark:decoration-eucalyptus-400/50;
@@ -239,7 +240,7 @@ const languages = [
     @apply hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300;
     @apply transition-colors duration-150;
     @apply rounded;
-    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+    &:focus-visible { outline: none; ring: 2px solid; ring-color: var(--color-eucalyptus-500); ring-offset: 2px; }
   }
 
   .social-link {

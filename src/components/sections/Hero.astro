@@ -152,6 +152,7 @@ const {
 </section>
 
 <style>
+@reference "../../styles/global.css";
   .hero-section {
     @apply relative overflow-hidden;
     @apply bg-light-bg dark:bg-dark-bg;
@@ -217,9 +218,9 @@ const {
     @apply rounded-full;
     background: linear-gradient(
       90deg,
-      theme('colors.eucalyptus.500') 0%,
-      theme('colors.eucalyptus.600') 50%,
-      theme('colors.eucalyptus.700') 100%
+      var(--color-eucalyptus-500) 0%,
+      var(--color-eucalyptus-600) 50%,
+      var(--color-eucalyptus-700) 100%
     );
     animation: expandLine 0.8s ease-out 0.3s both;
   }
@@ -238,9 +239,9 @@ const {
   .dark .hero-accent-line {
     background: linear-gradient(
       90deg,
-      theme('colors.eucalyptus.400') 0%,
-      theme('colors.eucalyptus.500') 50%,
-      theme('colors.eucalyptus.600') 100%
+      var(--color-eucalyptus-400) 0%,
+      var(--color-eucalyptus-500) 50%,
+      var(--color-eucalyptus-600) 100%
     );
   }
 
@@ -346,18 +347,18 @@ const {
     @apply bg-clip-text text-transparent;
     background-image: linear-gradient(
       135deg,
-      theme('colors.eucalyptus.600') 0%,
-      theme('colors.eucalyptus.700') 50%,
-      theme('colors.eucalyptus.800') 100%
+      var(--color-eucalyptus-600) 0%,
+      var(--color-eucalyptus-700) 50%,
+      var(--color-eucalyptus-800) 100%
     );
   }
 
   .dark .text-gradient {
     background-image: linear-gradient(
       135deg,
-      theme('colors.eucalyptus.300') 0%,
-      theme('colors.eucalyptus.400') 50%,
-      theme('colors.eucalyptus.500') 100%
+      var(--color-eucalyptus-300) 0%,
+      var(--color-eucalyptus-400) 50%,
+      var(--color-eucalyptus-500) 100%
     );
   }
 
