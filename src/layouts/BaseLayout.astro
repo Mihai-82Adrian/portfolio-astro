@@ -51,6 +51,14 @@ const siteUrl =
   (Astro.site?.href?.replace(/\/$/, '') ?? 'https://me-mateescu.de');
 
 const currentPath = Astro.url.pathname;
+const isServicesRoute = new Set([
+  '/services',
+  '/services/',
+  '/en/services',
+  '/en/services/',
+  '/ro/services',
+  '/ro/services/',
+]).has(currentPath);
 
 // Your rule: Blog is EN-only (even though it lives at /blog without /en prefix)
 const isBlog = currentPath === '/blog' || currentPath.startsWith('/blog/');
@@ -219,8 +227,8 @@ const defaultStructuredData = {
     <div data-pagefind-ignore>
       <Footer lang={lang} />
     </div>
-    <!-- AI Chat Drawer (Global) -->
-    <ChatDrawer />
+    <!-- AI Chat Drawer (Global, excluded on Services routes) -->
+    {!isServicesRoute && <ChatDrawer />}
     <CookieConsent />
   </body>
 </html>
