@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" style="background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 40%, #a855f7 80%, #c084fc 100%);">
+    <!-- MindHafen: Music + AI + Stoicism -->
+    <defs>
+        <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <linearGradient id="wave-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#c084fc;stop-opacity:0.3"/>
+            <stop offset="50%" style="stop-color:#e9d5ff;stop-opacity:0.5"/>
+            <stop offset="100%" style="stop-color:#c084fc;stop-opacity:0.3"/>
+        </linearGradient>
+    </defs>
+
+    <!-- Sound Waves -->
+    <g opacity="0.4">
+        <path d="M0,315 Q150,250 300,315 Q450,380 600,315 Q750,250 900,315 Q1050,380 1200,315" fill="none" stroke="url(#wave-grad)" stroke-width="2"/>
+        <path d="M0,315 Q150,220 300,315 Q450,410 600,315 Q750,220 900,315 Q1050,410 1200,315" fill="none" stroke="url(#wave-grad)" stroke-width="1.5"/>
+        <path d="M0,315 Q150,280 300,315 Q450,350 600,315 Q750,280 900,315 Q1050,350 1200,315" fill="none" stroke="url(#wave-grad)" stroke-width="3"/>
+    </g>
+
+    <!-- Audio Bars -->
+    <g transform="translate(200, 200)" opacity="0.25">
+        <rect x="0" y="80" width="12" height="60" rx="6" fill="#e9d5ff"/>
+        <rect x="25" y="50" width="12" height="120" rx="6" fill="#e9d5ff"/>
+        <rect x="50" y="30" width="12" height="160" rx="6" fill="#e9d5ff"/>
+        <rect x="75" y="60" width="12" height="100" rx="6" fill="#e9d5ff"/>
+        <rect x="100" y="90" width="12" height="40" rx="6" fill="#e9d5ff"/>
+    </g>
+
+    <g transform="translate(880, 200)" opacity="0.25">
+        <rect x="0" y="90" width="12" height="40" rx="6" fill="#e9d5ff"/>
+        <rect x="25" y="60" width="12" height="100" rx="6" fill="#e9d5ff"/>
+        <rect x="50" y="30" width="12" height="160" rx="6" fill="#e9d5ff"/>
+        <rect x="75" y="50" width="12" height="120" rx="6" fill="#e9d5ff"/>
+        <rect x="100" y="80" width="12" height="60" rx="6" fill="#e9d5ff"/>
+    </g>
+
+    <!-- Musical Note -->
+    <g transform="translate(560, 180)" filter="url(#glow)">
+        <circle cx="10" cy="100" r="14" fill="#e9d5ff" opacity="0.8"/>
+        <circle cx="50" cy="90" r="14" fill="#e9d5ff" opacity="0.8"/>
+        <rect x="22" y="10" width="4" height="90" fill="#e9d5ff" opacity="0.8"/>
+        <rect x="62" y="0" width="4" height="90" fill="#e9d5ff" opacity="0.8"/>
+        <rect x="22" y="10" width="44" height="6" rx="3" fill="#e9d5ff" opacity="0.8"/>
+    </g>
+
+    <!-- Title Text -->
+    <text x="600" y="380" text-anchor="middle" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="56" font-weight="700" letter-spacing="4" filter="url(#glow)">MindHafen</text>
+    <text x="600" y="420" text-anchor="middle" fill="#e9d5ff" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="400" letter-spacing="6" opacity="0.8">HUMAN + AI MUSIC</text>
+
+    <!-- Stoic Pillars (subtle) -->
+    <g opacity="0.12">
+        <rect x="100" y="450" width="16" height="100" rx="3" fill="#e9d5ff"/>
+        <rect x="130" y="470" width="16" height="80" rx="3" fill="#e9d5ff"/>
+        <rect x="1054" y="450" width="16" height="100" rx="3" fill="#e9d5ff"/>
+        <rect x="1084" y="470" width="16" height="80" rx="3" fill="#e9d5ff"/>
+    </g>
+
+    <!-- Subtitle -->
+    <text x="600" y="560" text-anchor="middle" fill="#c084fc" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="500" letter-spacing="3" opacity="0.7">FOCUS · SLEEP · MOTIVATION</text>
+</svg>

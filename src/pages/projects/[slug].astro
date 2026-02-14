@@ -77,6 +77,20 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
         <p class="project-description">{project.description}</p>
       </section>
 
+      {project.id === 'mindhafen' && (
+        <section class="section listen-section">
+          <h2 class="section-title">Latest Releases</h2>
+          <div class="media-grid">
+            <div class="spotify-embed">
+              <iframe style="border-radius:12px" src="https://open.spotify.com/embed/artist/5E7D3GVsqcPDaWSyxCQHFg?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            </div>
+            <div class="youtube-embed">
+               <iframe width="100%" height="352" style="border-radius:12px" src="https://www.youtube.com/embed/videoseries?list=PLExampleListID" title="MindHafen YouTube" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+          </div>
+        </section>
+      )}
+
       <!-- Metrics Grid -->
       <section class="section metrics-section">
         <h2 class="section-title">Key Metrics</h2>

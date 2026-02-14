@@ -68,7 +68,7 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
               data-category={project.category}
               role="listitem"
             >
-              <ProjectCard project={project as any} />
+              <ProjectCard project={project as any} featured={project.category === 'creative'} />
             </div>
           ))}
         </div>
@@ -102,9 +102,9 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
             <div class="stat-label">GFLOPS Performance</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon" aria-hidden="true">🌐</div>
-            <div class="stat-value">330K+</div>
-            <div class="stat-label">Integrated Lexemes</div>
+            <div class="stat-icon" aria-hidden="true">🌍</div>
+            <div class="stat-value">150+</div>
+            <div class="stat-label">Streaming Platforms</div>
           </div>
         </div>
       </div>

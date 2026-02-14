@@ -8,6 +8,7 @@
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@components/sections/Hero.astro';
+import BentoGrid from '@components/sections/BentoGrid.astro';
 import Container from '@components/ui/Container.astro';
 import Card from '@components/ui/Card.astro';
 import Button from '@components/ui/Button.astro';
@@ -49,6 +50,9 @@ const structuredData = [personSchema, websiteSchema];
       </Button>
     </div>
   </Hero>
+
+  <!-- Hub Navigation: Bento Grid -->
+  <BentoGrid lang={lang} />
 
   <!-- Contact Information -->
   <Container>

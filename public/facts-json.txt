@@ -1,0 +1,36 @@
+{
+    "contact": {
+        "de": {
+            "default": "📧 E-Mail: mihai.mateescu@web.de\n🔗 LinkedIn: linkedin.com/in/mateescu-mihai-adrian-922b3169\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (bei Hamburg), Deutschland",
+            "withPhone": "📧 E-Mail: mihai.mateescu@web.de\n📞 Telefon: +49 170 474 0121\n🔗 LinkedIn: linkedin.com/in/mateescu-mihai-adrian-922b3169\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (bei Hamburg), Deutschland"
+        },
+        "en": {
+            "default": "📧 Email: mihai.mateescu@web.de\n🔗 LinkedIn: linkedin.com/in/mateescu-mihai-adrian-922b3169\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (near Hamburg), Germany",
+            "withPhone": "📧 Email: mihai.mateescu@web.de\n📞 Phone: +49 170 474 0121\n🔗 LinkedIn: linkedin.com/in/mateescu-mihai-adrian-922b3169\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (near Hamburg), Germany"
+        },
+        "ro": {
+            "default": "📧 Email: mihai.mateescu@web.de\n🔗 LinkedIn: linkedin.com/in/mateescu-mihai-adrian-922b3169\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (lângă Hamburg), Germania",
+            "withPhone": "📧 Email: mihai.mateescu@web.de\n📞 Telefon: +49 170 474 0121\n🔗 LinkedIn: linkedin.com/in/mateescu-mihai-adrian-922b3169\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (lângă Hamburg), Germania"
+        }
+    },
+    "current_role": {
+        "de": "💼 Aktuelle Position: Finanzbuchhalter bei modal3 Logistik GmbH (seit Mai 2025)\n📍 Hamburg, Deutschland (Hybrid)\n\nAufgaben: Vollständige Finanzbuchhaltung (Debitoren, Kreditoren, Sachkonten), Umsatzsteuervoranmeldung, BWA-Erstellung, Abstimmung mit Steuerberater.\nTools: SelectLine, Modality, ELO.\n\n📜 Parallel: IHK-Zertifizierung zur Fachkraft für Buchführung (Prüfung: März 2026).",
+        "en": "💼 Current Position: Financial Accountant at modal3 Logistik GmbH (since May 2025)\n📍 Hamburg, Germany (Hybrid)\n\nResponsibilities: Complete financial accounting (AR, AP, General Ledger), VAT reporting, BWA preparation, coordination with tax advisor.\nTools: SelectLine, Modality, ELO.\n\n📜 Parallel: IHK Certified Bookkeeping Specialist certification (exam: March 2026).",
+        "ro": "💼 Poziția actuală: Contabil Financiar la modal3 Logistik GmbH (din mai 2025)\n📍 Hamburg, Germania (Hibrid)\n\nResponsabilități: Contabilitate financiară completă (creanțe, datorii, registru general), declarații TVA, pregătire BWA, coordonare cu consilierul fiscal.\nInstrumente: SelectLine, Modality, ELO.\n\n📜 Paralel: Certificare IHK Specialist Contabilitate (examen: martie 2026)."
+    },
+    "certifications": {
+        "de": "🎓 Zertifizierungen & Abschlüsse:\n\n• IHK – Fachkraft für Buchführung (in Ausbildung, Prüfung März 2026)\n• IHK – Finanzbuchführung (Modul 1+2, bestanden)\n• IHK – Lohn- und Gehaltsabrechnung (Modul 1+2, bestanden)\n• telc Deutsch B2 – Sprachzertifikat\n• Arbeitszeugnisse von Dr. Endriss, Hermann Direkt, Quadriga Logistics, modal3\n\n📎 Mehr Details auf: me-mateescu.de/certifications",
+        "en": "🎓 Certifications & Qualifications:\n\n• IHK – Certified Bookkeeping Specialist (in training, exam March 2026)\n• IHK – Financial Accounting (Modules 1+2, passed)\n• IHK – Payroll Accounting (Modules 1+2, passed)\n• telc German B2 – Language Certificate\n• Employment References from Dr. Endriss, Hermann Direkt, Quadriga Logistics, modal3\n\n📎 More details at: me-mateescu.de/en/certifications",
+        "ro": "🎓 Certificări & Calificări:\n\n• IHK – Specialist Contabilitate (în formare, examen martie 2026)\n• IHK – Contabilitate Financiară (Modulele 1+2, promovat)\n• IHK – Salarizare (Modulele 1+2, promovat)\n• telc Germană B2 – Certificat Lingvistic\n• Referințe de la Dr. Endriss, Hermann Direkt, Quadriga Logistics, modal3\n\n📎 Mai multe detalii: me-mateescu.de/ro/certifications"
+    },
+    "skills": {
+        "de": "🛠️ Kompetenzen (Überblick):\n\n💰 Finanzbuchhaltung: Debitoren/Kreditoren, Sachkonten, Umsatzsteuer, BWA, DATEV, SelectLine\n🛒 E-Commerce: Amazon FBA, eBay, Shopify, Compliance, Produktlistung\n🤖 AI/ML: Python, RAG-Systeme, LLM-Integration, Vektorsuche (experimentell)\n💻 Entwicklung: TypeScript, Astro, Go, Kotlin, REST APIs\n🌍 Sprachen: Deutsch (B2), Englisch (sehr gut), Rumänisch (Muttersprache)\n🤝 Soft Skills: Teamführung, interkulturelle Kommunikation, ERP-Integration",
+        "en": "🛠️ Skills Overview:\n\n💰 Financial Accounting: AR/AP, General Ledger, VAT, BWA, DATEV, SelectLine\n🛒 E-Commerce: Amazon FBA, eBay, Shopify, Compliance, Product Listing\n🤖 AI/ML: Python, RAG Systems, LLM Integration, Vector Search (experimental)\n💻 Development: TypeScript, Astro, Go, Kotlin, REST APIs\n🌍 Languages: German (B2), English (very good), Romanian (native)\n🤝 Soft Skills: Team Leadership, Cross-cultural Communication, ERP Integration",
+        "ro": "🛠️ Competențe (Rezumat):\n\n💰 Contabilitate Financiară: Creanțe/Datorii, Registru General, TVA, BWA, DATEV, SelectLine\n🛒 E-Commerce: Amazon FBA, eBay, Shopify, Conformitate, Listare Produse\n🤖 AI/ML: Python, Sisteme RAG, Integrare LLM, Căutare Vectorială (experimental)\n💻 Dezvoltare: TypeScript, Astro, Go, Kotlin, REST APIs\n🌍 Limbi: Germană (B2), Engleză (foarte bine), Română (nativă)\n🤝 Soft Skills: Leadership, Comunicare Interculturală, Integrare ERP"
+    },
+    "projects": {
+        "de": "🚀 Aktuelle Projekte:\n\n1️⃣ GDS – Geometrodynamic Semantics\nEin experimentelles Forschungsprojekt, das geometrische Algebra mit semantischen Räumen verbindet (Julia, Python).\n\n2️⃣ GENESIS – Cognitive Computing Platform\nEin Multi-Agenten-System für forensische Buchhaltung und automatisierte Compliance-Prüfung (Go, Kotlin, Python).\n\n3️⃣ ProfitMinds – E-Commerce-Marke\nAmazon FBA & eBay-Handel mit Fokus auf Produktrecherche, Compliance und Skalierung.\n\n📎 Details: me-mateescu.de/projects",
+        "en": "🚀 Current Projects:\n\n1️⃣ GDS – Geometrodynamic Semantics\nAn experimental research project connecting geometric algebra with semantic spaces (Julia, Python).\n\n2️⃣ GENESIS – Cognitive Computing Platform\nA multi-agent system for forensic accounting and automated compliance auditing (Go, Kotlin, Python).\n\n3️⃣ ProfitMinds – E-Commerce Brand\nAmazon FBA & eBay commerce focused on product research, compliance, and scaling.\n\n📎 Details: me-mateescu.de/en/projects",
+        "ro": "🚀 Proiecte Curente:\n\n1️⃣ GDS – Geometrodynamic Semantics\nUn proiect experimental de cercetare ce conectează algebra geometrică cu spații semantice (Julia, Python).\n\n2️⃣ GENESIS – Cognitive Computing Platform\nUn sistem multi-agent pentru contabilitate forensică și audit automat de conformitate (Go, Kotlin, Python).\n\n3️⃣ ProfitMinds – Brand E-Commerce\nComerț Amazon FBA & eBay cu focus pe cercetare de produs, conformitate și scalare.\n\n📎 Detalii: me-mateescu.de/ro/projects"
+    }
+}
