@@ -20,6 +20,13 @@ const typeLabelMap: Record<MediaItem['type'], string> = {
 const typeLabel = typeLabelMap[item.type];
 const isPromoShorts = item.tags.includes('promo-shorts');
 const layout = isPromoShorts ? 'portrait' : 'landscape';
+const slot = isPromoShorts
+  ? 'promo-shorts'
+  : item.type.startsWith('spotify') && item.featured
+    ? 'spotify-featured'
+    : item.type === 'youtube_playlist' && item.tags.includes('deep-work')
+      ? 'youtube-deep-work'
+      : 'default';
 ---
 
 <article
@@ -29,6 +36,7 @@ const layout = isPromoShorts ? 'portrait' : 'landscape';
   data-platform={item.type.startsWith('spotify') ? 'spotify' : 'youtube'}
   data-tags={item.tags.join(',')}
   data-layout={layout}
+  data-slot={slot}
 >
   <MediaEmbed embedUrl={item.embedUrl} title={displayTitle} orientation={layout} />
   <header class="space-y-1">

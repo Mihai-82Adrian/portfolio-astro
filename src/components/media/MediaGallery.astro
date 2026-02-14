@@ -150,16 +150,22 @@ const tabs = [
 
     .media-gallery-grid[data-active-filter='featured'] {
       grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+      grid-template-areas:
+        'spotify promo'
+        'deepwork promo';
       align-items: start;
     }
 
-    .media-gallery-grid[data-active-filter='featured'] .media-card[data-layout='landscape'] {
-      grid-column: 1;
+    .media-gallery-grid[data-active-filter='featured'] .media-card[data-slot='spotify-featured'] {
+      grid-area: spotify;
     }
 
-    .media-gallery-grid[data-active-filter='featured'] .media-card[data-layout='portrait'] {
-      grid-column: 2;
-      grid-row: 1 / span 2;
+    .media-gallery-grid[data-active-filter='featured'] .media-card[data-slot='youtube-deep-work'] {
+      grid-area: deepwork;
+    }
+
+    .media-gallery-grid[data-active-filter='featured'] .media-card[data-slot='promo-shorts'] {
+      grid-area: promo;
       align-self: start;
     }
   }
