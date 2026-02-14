@@ -59,9 +59,10 @@ The Ask Mihai · AI assistant is a recruiter-optimized chatbot that lets visitor
 ### Session Quotas
 
 - **Limits**: 4 chat questions + 1 JD analysis per 24-hour session
-- **Storage**: `chat_session` cookie (JSON: `{q, jd, ts}`)
+- **Storage**: `chat_session` cookie (JSON: `{q, jd, ts}`) only when consent is granted
 - **Enforcement**: Backend validates before LLM call; returns `429` with quota data
 - **UI**: Color-coded badge (green → amber → red) with remaining counts
+- **Consent behavior**: If consent is denied/not set, API does not read or set `chat_session`
 
 ### JD Analysis Output
 
@@ -108,6 +109,10 @@ OPENAI_API_KEY="sk-..."
 4. **Rate Limiting**: IP-based (10 req/min) + session quotas (4+1 per 24h).
 5. **Prompt Hardening**: EVIDENCE delimiters prevent prompt injection.
 6. **Privacy by Default**: Phone only revealed on explicit request.
+7. **Cookie Consent Gating**:
+   - Essential: language/theme preferences (local storage), technical functionality.
+   - Non-essential: `chat_session` quota persistence cookie.
+   - `chat_session` is read/set only when client sends `X-Cookie-Consent: granted`.
 
 ## Error Codes
 

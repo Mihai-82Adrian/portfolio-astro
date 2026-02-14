@@ -271,6 +271,22 @@ const {
       }
     }
 
+    getCookieConsentHeader(): string {
+      try {
+        const consent = localStorage.getItem('cookie-consent');
+        return consent === 'true' || consent === 'granted' ? 'granted' : 'denied';
+      } catch {
+        return 'denied';
+      }
+    }
+
+    getApiHeaders(): Record<string, string> {
+      return {
+        'Content-Type': 'application/json',
+        'X-Cookie-Consent': this.getCookieConsentHeader(),
+      };
+    }
+
     updateQuota(quotaData: { q: number; jd: number; maxQ: number; maxJd: number } | undefined) {
       if (!quotaData || !this.quotaChatText || !this.quotaJdText) return;
 
@@ -333,7 +349,7 @@ const {
         const lang = this.langSelect?.value || 'auto';
         const res = await fetch('/api/chat', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: this.getApiHeaders(),
           body: JSON.stringify({ message: displayText, lang, tab: 'chat', intent: chipType })
         });
 
@@ -382,7 +398,7 @@ const {
         const lang = this.langSelect?.value || 'auto';
         const res = await fetch('/api/chat', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: this.getApiHeaders(),
           body: JSON.stringify({ message: text, lang, tab: 'chat' })
         });
 
@@ -460,7 +476,7 @@ const {
         const lang = this.langSelect?.value || 'auto';
         const res = await fetch('/api/chat', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: this.getApiHeaders(),
           body: JSON.stringify({ message: text, lang, tab: 'jd' })
         });
 

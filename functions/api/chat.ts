@@ -463,8 +463,11 @@ export const onRequestPost = async (context: any) => {
         const acceptLang = request.headers.get('accept-language') || '';
         const lang = detectLanguage(message as string, uiLang, acceptLang);
 
-        // 3b. Parse Quota (needed for both fact and LLM responses)
-        const quota = parseQuotaCookie(request.headers.get('cookie'));
+        // 3b. Parse Quota only when cookie consent is granted
+        const hasCookieConsent = request.headers.get('x-cookie-consent') === 'granted';
+        const quota = hasCookieConsent
+            ? parseQuotaCookie(request.headers.get('cookie'))
+            : { q: 0, jd: 0, ts: Date.now() };
 
         // 4. Intent Routing (only for chat tab, not JD analysis)
         if (tab !== 'jd') {
@@ -677,8 +680,10 @@ export const onRequestPost = async (context: any) => {
                 'Content-Type': 'text/event-stream',
                 'Cache-Control': 'no-cache',
                 'Connection': 'keep-alive',
-                'Set-Cookie': buildQuotaCookie(quota),
             });
+            if (hasCookieConsent) {
+                responseHeaders.set('Set-Cookie', buildQuotaCookie(quota));
+            }
 
             return new Response(readable, { headers: responseHeaders });
         }
@@ -693,8 +698,10 @@ export const onRequestPost = async (context: any) => {
         // 10. Return Response with quota cookie
         const responseHeaders = new Headers({
             'Content-Type': 'application/json',
-            'Set-Cookie': buildQuotaCookie(quota),
         });
+        if (hasCookieConsent) {
+            responseHeaders.set('Set-Cookie', buildQuotaCookie(quota));
+        }
 
         return new Response(JSON.stringify({
             answer,
@@ -720,4 +727,3 @@ export const onRequestPost = async (context: any) => {
         }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
 };
-
