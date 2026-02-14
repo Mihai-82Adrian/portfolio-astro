@@ -678,8 +678,9 @@ export const onRequestPost = async (context: any) => {
 
             const responseHeaders = new Headers({
                 'Content-Type': 'text/event-stream',
-                'Cache-Control': 'no-cache',
+                'Cache-Control': 'no-store, no-cache, must-revalidate',
                 'Connection': 'keep-alive',
+                'Vary': 'Cookie, X-Cookie-Consent',
             });
             if (hasCookieConsent) {
                 responseHeaders.set('Set-Cookie', buildQuotaCookie(quota));
@@ -698,6 +699,8 @@ export const onRequestPost = async (context: any) => {
         // 10. Return Response with quota cookie
         const responseHeaders = new Headers({
             'Content-Type': 'application/json',
+            'Cache-Control': 'no-store, no-cache, must-revalidate',
+            'Vary': 'Cookie, X-Cookie-Consent',
         });
         if (hasCookieConsent) {
             responseHeaders.set('Set-Cookie', buildQuotaCookie(quota));

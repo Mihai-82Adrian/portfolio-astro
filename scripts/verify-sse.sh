@@ -28,6 +28,20 @@ if ! rg -qi '^content-type:\s*text/event-stream' "$HEADERS_FILE"; then
   exit 1
 fi
 
+if ! rg -qi '^cache-control:.*no-store' "$HEADERS_FILE"; then
+  echo 'FAIL: Cache-Control does not include no-store'
+  echo '--- headers ---'
+  cat "$HEADERS_FILE"
+  exit 1
+fi
+
+if ! rg -qi '^vary:.*x-cookie-consent' "$HEADERS_FILE"; then
+  echo 'FAIL: Vary header does not include X-Cookie-Consent'
+  echo '--- headers ---'
+  cat "$HEADERS_FILE"
+  exit 1
+fi
+
 if ! rg -q 'event: meta' "$BODY_FILE"; then
   echo 'FAIL: missing event: meta marker'
   exit 1
