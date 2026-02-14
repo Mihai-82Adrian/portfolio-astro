@@ -19,7 +19,7 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
   <main class="projects-page">
     <!-- Hero Section -->
     <section class="hero">
-      <div class="container">
+      <div class="container-custom">
         <div class="hero-content">
           <h1 class="hero-title">{pageTitle}</h1>
           <p class="hero-description">
@@ -59,7 +59,7 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
 
     <!-- Projects Grid -->
     <section class="projects-section">
-      <div class="container">
+      <div class="container-custom">
         <h2 class="sr-only">Project List</h2>
         <div class="projects-grid" role="list">
           {projects.map((project) => (
@@ -84,7 +84,7 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
 
     <!-- Stats Section -->
     <section class="stats-section">
-      <div class="container">
+      <div class="container-custom">
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon" aria-hidden="true">🧠</div>
@@ -112,7 +112,7 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
 
     <!-- GitHub Widget -->
     <section class="github-section">
-      <div class="container">
+      <div class="container-custom">
         <GitHubWidget />
       </div>
     </section>
@@ -121,7 +121,12 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
 
 <script>
   // Client-side filtering functionality with animations
-  document.addEventListener('DOMContentLoaded', () => {
+  const initProjectsPage = () => {
+    const page = document.querySelector<HTMLElement>('.projects-page');
+    if (!page || page.dataset.projectsReady === 'true') return;
+    page.dataset.projectsReady = 'true';
+    page.classList.add('js-ready');
+
     const filterButtons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
     const projectItems = document.querySelectorAll<HTMLElement>('.project-item');
     const emptyState = document.querySelector<HTMLElement>('.empty-state');
@@ -217,7 +222,14 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
         }
       }
     }
-  });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initProjectsPage, { once: true });
+  } else {
+    initProjectsPage();
+  }
+  document.addEventListener('astro:page-load', initProjectsPage);
 </script>
 
 <style>
@@ -319,7 +331,7 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
 
   .projects-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 2rem;
     max-width: 1400px;
     margin: 0 auto;
@@ -455,13 +467,18 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
   
   /* Scroll-triggered fade-in animation */
   .project-item {
+    opacity: 1;
+    transform: none;
+  }
+
+  .projects-page.js-ready .project-item {
     opacity: 0;
     transform: translateY(30px);
     transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
                 transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .project-item.animate-in {
+  .projects-page.js-ready .project-item.animate-in {
     opacity: 1;
     transform: translateY(0);
   }

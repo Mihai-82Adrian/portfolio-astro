@@ -92,7 +92,7 @@ const mediaItems: MediaItem[] = [
     url: `https://www.youtube.com/playlist?list=${MINDHAFEN_PROMO_CLIPS_PLAYLIST_ID}&pp=sAgC`,
     embedUrl: `https://www.youtube.com/embed/videoseries?list=${MINDHAFEN_PROMO_CLIPS_PLAYLIST_ID}`,
     tags: ['youtube', 'promo-shorts'],
-    featured: false,
+    featured: true,
     date: '2026-02-14',
   },
 ];
