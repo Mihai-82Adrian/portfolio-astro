@@ -54,48 +54,60 @@ const tabs = [
 
   <script is:inline>
     (() => {
-      const scriptEl = document.currentScript;
-      const gallery = scriptEl?.closest('[data-media-gallery]');
-      if (!gallery) return;
+      const initGallery = (gallery) => {
+        if (!(gallery instanceof HTMLElement) || gallery.dataset.mediaGalleryReady === 'true') return;
+        gallery.dataset.mediaGalleryReady = 'true';
 
-      const buttons = Array.from(gallery.querySelectorAll('[data-media-filter]'));
-      const cards = Array.from(gallery.querySelectorAll('[data-media-card]'));
+        const buttons = Array.from(gallery.querySelectorAll('[data-media-filter]'));
+        const cards = Array.from(gallery.querySelectorAll('[data-media-card]'));
 
-      const applyFilter = (filter) => {
-        cards.forEach((card) => {
-          const isFeatured = card.getAttribute('data-featured') === 'true';
-          const platform = card.getAttribute('data-platform');
-          const tags = (card.getAttribute('data-tags') || '').split(',').map((t) => t.trim());
+        const applyFilter = (filter) => {
+          cards.forEach((card) => {
+            const isFeatured = card.getAttribute('data-featured') === 'true';
+            const platform = card.getAttribute('data-platform');
+            const tags = (card.getAttribute('data-tags') || '').split(',').map((t) => t.trim());
 
-          const matches =
-            filter === 'featured'
-              ? isFeatured
-              : filter === 'spotify'
-                ? platform === 'spotify'
-                : filter === 'youtube'
-                  ? platform === 'youtube' && tags.includes('deep-work')
-                  : filter === 'promo-shorts'
-                    ? tags.includes('promo-shorts')
-                    : true;
+            const matches =
+              filter === 'featured'
+                ? isFeatured
+                : filter === 'spotify'
+                  ? platform === 'spotify'
+                  : filter === 'youtube'
+                    ? platform === 'youtube' && tags.includes('deep-work')
+                    : filter === 'promo-shorts'
+                      ? tags.includes('promo-shorts')
+                      : true;
 
-          card.classList.toggle('hidden', !matches);
-        });
+            card.classList.toggle('hidden', !matches);
+          });
+
+          buttons.forEach((btn) => {
+            const active = btn.getAttribute('data-media-filter') === filter;
+            btn.classList.toggle('is-active', active);
+            btn.setAttribute('aria-selected', active ? 'true' : 'false');
+          });
+        };
 
         buttons.forEach((btn) => {
-          const active = btn.getAttribute('data-media-filter') === filter;
-          btn.classList.toggle('is-active', active);
-          btn.setAttribute('aria-selected', active ? 'true' : 'false');
+          btn.addEventListener('click', () => {
+            const filter = btn.getAttribute('data-media-filter') || 'featured';
+            applyFilter(filter);
+          });
         });
+
+        applyFilter('featured');
       };
 
-      buttons.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const filter = btn.getAttribute('data-media-filter') || 'featured';
-          applyFilter(filter);
-        });
-      });
+      const initAllGalleries = () => {
+        document.querySelectorAll('[data-media-gallery]').forEach((gallery) => initGallery(gallery));
+      };
 
-      applyFilter('featured');
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAllGalleries, { once: true });
+      } else {
+        initAllGalleries();
+      }
+      document.addEventListener('astro:page-load', initAllGalleries);
     })();
   </script>
 </section>

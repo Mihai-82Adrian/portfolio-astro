@@ -10,8 +10,7 @@ const { embedUrl, title, allow } = Astro.props;
 const isSafeEmbed =
   embedUrl.startsWith('https://open.spotify.com/embed/') ||
   embedUrl.startsWith('https://www.youtube.com/embed/');
-const isSpotifyEmbed = embedUrl.startsWith('https://open.spotify.com/embed/');
-const frameWrapperClass = isSpotifyEmbed ? 'h-[352px] w-full' : 'aspect-video w-full';
+const frameWrapperClass = 'h-[320px] w-full sm:h-[352px]';
 
 const frameAllow =
   allow ??
