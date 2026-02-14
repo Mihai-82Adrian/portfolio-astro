@@ -264,7 +264,7 @@ const t = content[lang] || content.de;
     overflow: hidden;
   }
 
-  .dark .bento-card {
+  :global(.dark) .bento-card {
     background: linear-gradient(
       135deg,
       rgba(30, 41, 59, 0.8) 0%,
@@ -320,7 +320,7 @@ const t = content[lang] || content.de;
     );
   }
 
-  .dark .bento-card--large .bento-card__glow {
+  :global(.dark) .bento-card--large .bento-card__glow {
     background: radial-gradient(
       600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
       rgba(76, 175, 80, 0.12),
@@ -328,7 +328,7 @@ const t = content[lang] || content.de;
     );
   }
 
-  .dark .bento-card--services .bento-card__glow {
+  :global(.dark) .bento-card--services .bento-card__glow {
     background: radial-gradient(
       400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
       rgba(59, 130, 246, 0.12),
@@ -336,7 +336,7 @@ const t = content[lang] || content.de;
     );
   }
 
-  .dark .bento-card--creative .bento-card__glow {
+  :global(.dark) .bento-card--creative .bento-card__glow {
     background: radial-gradient(
       400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
       rgba(168, 85, 247, 0.12),
