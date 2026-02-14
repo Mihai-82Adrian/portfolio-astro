@@ -205,3 +205,34 @@ Faptul că site-ul live rulează o versiune stabilă, în timp ce tu ai acele 30
 Fișierele atașate mi-au confirmat că nu trebuie să schimbăm nimic din raportul pe care l-am generat anterior (`2026-02-14-portfolio-v2-design.md`). Planul este "bulletproof".
 
 **Ești pregătit să deschizi IDE-ul, să îi oferi documentul de design agentului Antigravity și să îi dai comanda de a începe cu Phase 1 (Curățenia Repo-ului)?** Dacă apar orice fel de blocaje pe parcursul implementării cu el, te poți întoarce aici și le rezolvăm pas cu pas!
+
+---
+
+## Operational Decisions (2026-02-14) - Git Workflow + Corpus Freeze
+
+Acest proiect are acum o separare stricta intre dezvoltare si publicare, pentru a evita deploy accidental in productie.
+
+### 1) Branching Strategy (state curent aprobat)
+
+- `master` = branch de productie (live). Nu se foloseste pentru lucru activ.
+- `staging/prelive-v2` = branch de integrare pentru toate schimbarile V2 validate local.
+- branch-urile de lucru pornesc din `staging/prelive-v2` (ex: `fix/*`, `feat/*`, `chore/*`) si se reintegreaza tot in `staging/prelive-v2`.
+- merge in `master` doar cand exista aprobare explicita pentru publicare.
+
+### 2) Freeze Policy - `public/corpus.jsonl`
+
+- `public/corpus.jsonl` este inghetat la varianta finala curenta.
+- `public/corpus.jsonl` trebuie sa ramana identic cu `public/corpus-jsonl.txt`.
+- este interzisa orice rescriere automata a `public/corpus.jsonl` prin scripturi de extractie/export.
+- pipeline-ul de auto-export corpus a fost eliminat; nu se reintroduce fara decizie explicita.
+
+### 3) Operational Guardrails
+
+- inainte de orice PR important: `npm ci`, `npm run check`, `npm run build`, `timeout 20s npm run preview`.
+- chat UI/UX "Ask Mihai AI" ramane nemodificat vizual; sunt permise doar fixuri interne strict necesare.
+- strategia i18n ramane fixa: DE default fara prefix, EN/RO cu prefix.
+
+### 4) Release Gate (cand va fi cazul)
+
+- release-ul catre `master` se face doar dupa smoke test pe rutele critice: `/`, `/services`, `/projects/*`, `/blog/*`, chat, legal pages.
+- daca exista dubii, se continua iteratia pe `staging/prelive-v2` fara merge in `master`.
