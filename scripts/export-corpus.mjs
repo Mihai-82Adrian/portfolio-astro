@@ -419,6 +419,129 @@ async function indexBlog() {
     console.log(`  📝 Blog: ${sectionCount} sections from ${files.length} files`);
 }
 
+// ─── 7. Services + FAQ (Hub V2 enrichment) ─────────────────────────
+
+async function indexServicesAndFaq() {
+    const services = {
+        de: [
+            {
+                id: 'financial',
+                title: 'Finanz- und Strategieberatung',
+                text: 'Dienstleistungen: Businessplan-Erstellung, Business-Analyse und Redressment-Plan, laufende Buchhaltung mit Fokus auf DATEV, USt und Finanzbuchhaltung nach deutschen Standards.',
+            },
+            {
+                id: 'web-ai',
+                title: 'AI & Personal Branding Web',
+                text: 'Dienstleistungen: Portfolio-Websites mit Astro/Tailwind, LinkedIn-Optimierung, Integration eines AI-Assistenten für Recruiter- und Kundenanfragen.',
+            },
+            {
+                id: 'creative',
+                title: 'Kreative Produktion',
+                text: 'Dienstleistungen: Merch-Design, instrumentale Musikproduktion für Content, thematische Audio-Produktion (Focus/Sleep/Motivation).',
+            },
+        ],
+        en: [
+            {
+                id: 'financial',
+                title: 'Financial & Strategy Consulting',
+                text: 'Services: business plan drafting, business analysis and turnaround planning, ongoing bookkeeping with DATEV, VAT, and German financial accounting workflows.',
+            },
+            {
+                id: 'web-ai',
+                title: 'AI & Personal Branding Web',
+                text: 'Services: portfolio websites built with Astro/Tailwind, LinkedIn optimization, and AI assistant integration for recruiter/client communication.',
+            },
+            {
+                id: 'creative',
+                title: 'Creative Production',
+                text: 'Services: merchandise design, custom instrumentals for online content, and theme-based audio production (focus/sleep/motivation).',
+            },
+        ],
+        ro: [
+            {
+                id: 'financial',
+                title: 'Consultanță Financiară și Strategie',
+                text: 'Servicii: realizare planuri de afaceri, analiză de business și planuri de redresare, contabilitate curentă cu focus pe DATEV, TVA și fluxuri contabile germane.',
+            },
+            {
+                id: 'web-ai',
+                title: 'AI & Branding Personal Web',
+                text: 'Servicii: site-uri de portofoliu construite cu Astro/Tailwind, optimizare LinkedIn și integrare asistent AI pentru recrutori și clienți.',
+            },
+            {
+                id: 'creative',
+                title: 'Producție Creativă',
+                text: 'Servicii: design de merch, producție de instrumentale custom pentru content online și producție audio tematică (focus/somn/motivație).',
+            },
+        ],
+    };
+
+    const faq = {
+        de: [
+            {
+                id: 'services-contact',
+                q: 'Wie kann ich Mihais Dienstleistungen anfragen?',
+                a: 'Nutzen Sie die Services-Seite (/services) mit dem Kontaktformular oder schreiben Sie direkt an mihai.mateescu@web.de.',
+            },
+            {
+                id: 'mindhafen-media',
+                q: 'Was ist MindHafen?',
+                a: 'MindHafen ist ein Human+AI Musikprojekt mit Distribution über Spotify/YouTube. Die Media Gallery bündelt Deep-Work- und Promo-Inhalte.',
+            },
+        ],
+        en: [
+            {
+                id: 'services-contact',
+                q: 'How can I request Mihai services?',
+                a: 'Use the services page (/services) contact form or email mihai.mateescu@web.de directly.',
+            },
+            {
+                id: 'mindhafen-media',
+                q: 'What is MindHafen?',
+                a: 'MindHafen is a Human+AI music initiative distributed across Spotify/YouTube. The Media Gallery consolidates deep-work and promo content.',
+            },
+        ],
+        ro: [
+            {
+                id: 'services-contact',
+                q: 'Cum pot solicita serviciile lui Mihai?',
+                a: 'Folosește formularul de pe pagina de servicii (/services) sau scrie direct la mihai.mateescu@web.de.',
+            },
+            {
+                id: 'mindhafen-media',
+                q: 'Ce este MindHafen?',
+                a: 'MindHafen este un proiect muzical Human+AI distribuit pe Spotify/YouTube. Media Gallery centralizează conținutul de deep-work și promo.',
+            },
+        ],
+    };
+
+    for (const lang of LANGS) {
+        for (const service of services[lang]) {
+            push(
+                `service:${lang}:${service.id}`,
+                pageUrl(lang, '/services'),
+                service.title,
+                'Services',
+                service.text,
+                { type: 'service', lang, category: service.id }
+            );
+        }
+
+        for (const entry of faq[lang]) {
+            push(
+                `faq:${lang}:${entry.id}:services`,
+                pageUrl(lang, '/services'),
+                entry.q,
+                'FAQ – Services',
+                `Q: ${entry.q}\nA: ${entry.a}`,
+                { type: 'faq', lang, category: 'services' }
+            );
+        }
+    }
+
+    console.log(`  🧩 Services/FAQ: ${LANGS.length * 5} entries`);
+}
+
 // ─── Main ──────────────────────────────────────────────────────────
 
 async function main() {
@@ -430,6 +553,7 @@ async function main() {
     await indexCertifications();
     await indexProjects();
     await indexBlog();
+    await indexServicesAndFaq();
 
     // Write JSONL
     const jsonl = docs.map(d => JSON.stringify(d)).join('\n') + '\n';

@@ -147,4 +147,7 @@ curl -s -X POST http://localhost:8788/api/chat \
 curl -s -X POST http://localhost:8788/api/chat \
   -H "content-type: application/json" \
   --data '{"message":"Senior Full-Stack Developer, 5+ years experience...","tab":"jd"}' | jq .answer
+
+# 3. Verify SSE contract (headers + event markers)
+bash scripts/verify-sse.sh http://localhost:8788
 ```

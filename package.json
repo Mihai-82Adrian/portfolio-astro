@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "npm run export:corpus",
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "check": "astro check",
