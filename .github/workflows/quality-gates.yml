@@ -30,11 +30,30 @@ jobs:
       - name: Content Audit
         run: npm run lint:content -- --strict
 
-      - name: Export Corpus
-        run: npm run export:corpus
-
       - name: Type Check
         run: npm run check
 
       - name: Build Project
         run: npm run build
+
+      - name: Start local Pages runtime for SSE verify
+        if: ${{ secrets.OPENAI_API_KEY != '' }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          npx wrangler pages dev dist --compatibility-date=2024-01-01 --port 8788 > /tmp/wrangler-pages.log 2>&1 &
+          echo $! > /tmp/wrangler-pages.pid
+          sleep 10
+
+      - name: Verify SSE contract
+        if: ${{ secrets.OPENAI_API_KEY != '' }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: ./scripts/verify-sse.sh http://localhost:8788
+
+      - name: Stop local Pages runtime
+        if: ${{ always() && secrets.OPENAI_API_KEY != '' }}
+        run: |
+          if [ -f /tmp/wrangler-pages.pid ]; then
+            kill "$(cat /tmp/wrangler-pages.pid)" || true
+          fi
