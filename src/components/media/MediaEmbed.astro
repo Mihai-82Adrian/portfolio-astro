@@ -3,14 +3,18 @@ interface Props {
   embedUrl: string;
   title: string;
   allow?: string;
+  orientation?: 'landscape' | 'portrait';
 }
 
-const { embedUrl, title, allow } = Astro.props;
+const { embedUrl, title, allow, orientation = 'landscape' } = Astro.props;
 
 const isSafeEmbed =
   embedUrl.startsWith('https://open.spotify.com/embed/') ||
   embedUrl.startsWith('https://www.youtube.com/embed/');
-const frameWrapperClass = 'h-[320px] w-full sm:h-[352px]';
+const frameWrapperClass =
+  orientation === 'portrait'
+    ? 'mx-auto aspect-[9/16] w-full max-w-[320px]'
+    : 'h-[320px] w-full sm:h-[352px]';
 
 const frameAllow =
   allow ??

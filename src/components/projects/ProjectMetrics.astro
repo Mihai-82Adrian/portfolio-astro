@@ -85,15 +85,15 @@ const { metrics, columns = 4, theme = 'light' } = Astro.props;
     align-items: center;
     text-align: center;
     padding: 1.5rem 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: color-mix(in srgb, var(--color-text-primary) 4%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent);
     border-radius: 0.75rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: default;
   }
 
   .metric-card:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: color-mix(in srgb, var(--color-text-primary) 8%, transparent);
     border-color: var(--color-primary);
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -149,12 +149,12 @@ const { metrics, columns = 4, theme = 'light' } = Astro.props;
 
   /* Dark theme adjustments */
   [data-theme="dark"] .metric-card {
-    background: rgba(0, 0, 0, 0.3);
-    border-color: rgba(255, 255, 255, 0.15);
+    background: color-mix(in srgb, var(--color-text-primary) 7%, transparent);
+    border-color: color-mix(in srgb, var(--color-text-primary) 16%, transparent);
   }
 
   [data-theme="dark"] .metric-card:hover {
-    background: rgba(0, 0, 0, 0.5);
+    background: color-mix(in srgb, var(--color-text-primary) 12%, transparent);
     border-color: var(--color-primary);
   }
 

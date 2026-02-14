@@ -18,10 +18,19 @@ const typeLabelMap: Record<MediaItem['type'], string> = {
   spotify_track: 'Spotify Track',
 };
 const typeLabel = typeLabelMap[item.type];
+const isPromoShorts = item.tags.includes('promo-shorts');
+const layout = isPromoShorts ? 'portrait' : 'landscape';
 ---
 
-<article class="media-card space-y-3" data-media-card data-featured={item.featured ? 'true' : 'false'} data-platform={item.type.startsWith('spotify') ? 'spotify' : 'youtube'} data-tags={item.tags.join(',')}>
-  <MediaEmbed embedUrl={item.embedUrl} title={displayTitle} />
+<article
+  class="media-card space-y-3"
+  data-media-card
+  data-featured={item.featured ? 'true' : 'false'}
+  data-platform={item.type.startsWith('spotify') ? 'spotify' : 'youtube'}
+  data-tags={item.tags.join(',')}
+  data-layout={layout}
+>
+  <MediaEmbed embedUrl={item.embedUrl} title={displayTitle} orientation={layout} />
   <header class="space-y-1">
     <div class="flex items-center gap-2 text-xs">
       <span class="rounded-full bg-eucalyptus-100 px-2 py-1 font-medium text-eucalyptus-800 dark:bg-eucalyptus-900 dark:text-eucalyptus-200">{typeLabel}</span>
