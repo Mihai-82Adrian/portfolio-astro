@@ -20,7 +20,7 @@
     "lint:content": "node .agent/skills/content-architect/scripts/audit-content.mjs",
     "export:corpus": "node scripts/export-corpus.mjs",
     "dev:chat": "npx wrangler pages dev dist --compatibility-date=2024-01-01 --live-reload",
-    "dev:copilot": "npm run export:corpus && npm run build && npm run dev:chat",
+    "dev:copilot": "npm run build && npm run dev:chat",
     "astro": "astro"
   },
   "dependencies": {

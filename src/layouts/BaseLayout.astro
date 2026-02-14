@@ -22,6 +22,7 @@ import { getAlternateUrls } from '@utils/i18n';
 import '@/styles/global.css';
 import tokens from '@/data/design-tokens.json';
 import ChatDrawer from '@components/ChatDrawer.astro';
+import CookieConsent from '@components/common/CookieConsent.astro';
 
 interface Props {
   title?: string;
@@ -220,5 +221,6 @@ const defaultStructuredData = {
     </div>
     <!-- AI Chat Drawer (Global) -->
     <ChatDrawer />
+    <CookieConsent />
   </body>
 </html>
