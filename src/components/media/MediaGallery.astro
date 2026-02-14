@@ -52,9 +52,10 @@ const tabs = [
     </p>
   )}
 
-  <script is:inline define:vars={{ galleryId }}>
+  <script is:inline>
     (() => {
-      const gallery = document.getElementById(galleryId);
+      const scriptEl = document.currentScript;
+      const gallery = scriptEl?.closest('[data-media-gallery]');
       if (!gallery) return;
 
       const buttons = Array.from(gallery.querySelectorAll('[data-media-filter]'));

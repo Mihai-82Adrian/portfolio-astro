@@ -22,6 +22,7 @@ export interface MediaItem {
 }
 
 export const MINDHAFEN_YOUTUBE_PLAYLIST_ID = 'PLwwUxXP19bWjvvHOKFs4PX3TGak9tbM6O';
+export const MINDHAFEN_PROMO_CLIPS_PLAYLIST_ID = 'PLwwUxXP19bWhwyfxXOhL6apjp2o0QWvZa';
 
 const mediaItems: MediaItem[] = [
   {
@@ -70,11 +71,28 @@ const mediaItems: MediaItem[] = [
       en: 'Deep Work / Focus Media Gallery',
       ro: 'Deep Work / Focus Media Gallery',
     },
-    description: 'Unlisted playlist used for deep-work and promo shorts rotation.',
+    description: 'Unlisted playlist used for deep-work sessions.',
     url: `https://www.youtube.com/playlist?list=${MINDHAFEN_YOUTUBE_PLAYLIST_ID}`,
     embedUrl: `https://www.youtube.com/embed/videoseries?list=${MINDHAFEN_YOUTUBE_PLAYLIST_ID}`,
-    tags: ['youtube', 'deep-work', 'promo-shorts', 'featured'],
+    tags: ['youtube', 'deep-work', 'featured'],
     featured: true,
+    date: '2026-02-14',
+  },
+  {
+    id: 'mindhafen-youtube-promo-clips',
+    projectId: 'mindhafen',
+    type: 'youtube_playlist',
+    title: 'Promo Clips Media Gallery',
+    localeLabels: {
+      de: 'Promo Clips Media Gallery',
+      en: 'Promo Clips Media Gallery',
+      ro: 'Promo Clips Media Gallery',
+    },
+    description: 'Unlisted playlist for promo Shorts and teaser clips.',
+    url: `https://www.youtube.com/playlist?list=${MINDHAFEN_PROMO_CLIPS_PLAYLIST_ID}&pp=sAgC`,
+    embedUrl: `https://www.youtube.com/embed/videoseries?list=${MINDHAFEN_PROMO_CLIPS_PLAYLIST_ID}`,
+    tags: ['youtube', 'promo-shorts'],
+    featured: false,
     date: '2026-02-14',
   },
 ];
