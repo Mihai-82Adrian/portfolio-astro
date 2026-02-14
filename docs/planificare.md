@@ -236,3 +236,41 @@ Acest proiect are acum o separare stricta intre dezvoltare si publicare, pentru 
 
 - release-ul catre `master` se face doar dupa smoke test pe rutele critice: `/`, `/services`, `/projects/*`, `/blog/*`, chat, legal pages.
 - daca exista dubii, se continua iteratia pe `staging/prelive-v2` fara merge in `master`.
+
+---
+
+## Status Snapshot (2026-02-14, EOD)
+
+### Closed in current staging baseline
+
+- Runtime hardening finalizat (SSE + router + CI):
+  - `Cache-Control: no-store` + `Vary: Cookie, X-Cookie-Consent` in `functions/api/chat.ts`
+  - `scripts/verify-sse.sh` extins pentru validare headere + event markers
+  - integrare verificare SSE in `.github/workflows/quality-gates.yml` (conditional pe `OPENAI_API_KEY`)
+  - `ViewTransitions` migrat la `ClientRouter` in `src/layouts/BaseLayout.astro`
+- Search/index noise redus:
+  - `data-pagefind-ignore=\"all\"` pe zona de embeds din `src/components/media/MediaGallery.astro`
+- Corpus freeze alignment:
+  - documentatia actualizata in `docs/content-architect.md` (fara auto-export)
+  - `public/corpus.jsonl` si `public/corpus-jsonl.txt` raman sincronizate prin update manual
+- Corpus enrichment (freeze-safe) finalizat:
+  - entry-uri noi `service` (DE/EN/RO), `project:mindhafen` (DE/EN/RO), `faq` comerciale (DE/EN/RO)
+  - polish textual DE aplicat pentru consistenta profesionala
+
+### Integration state
+
+- Branch de integrare activa: `staging/prelive-v2`
+- Merge-uri recente in staging:
+  - `5704dbe` runtime hardening
+  - `3c31670` docs + pagefind alignment
+  - `62b8af8` corpus enrichment
+  - `e98a649` corpus content polish
+
+### Validation state
+
+- Ultimul baseline local este green:
+  - `npm run check` -> 0 errors
+  - `npm run build` -> success
+  - `timeout 20s npm run preview` -> server starts
+- Freeze integrity check:
+  - `sha256sum public/corpus.jsonl public/corpus-jsonl.txt` -> hashes identice
