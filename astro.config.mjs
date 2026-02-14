@@ -9,6 +9,7 @@ import rehypeKatex from 'rehype-katex';
 
 // Shared Markdown pipeline (MDX will extend this by default)
 const remarkPlugins = [remarkMath];
+/** @type {NonNullable<import('astro').AstroUserConfig['markdown']>['rehypePlugins']} */
 const rehypePlugins = [
   [
     rehypeKatex,
