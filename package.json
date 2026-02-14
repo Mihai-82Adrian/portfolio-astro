@@ -4,7 +4,6 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "npm run export:corpus",
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "check": "astro check",
@@ -19,7 +18,6 @@
     "ci:a11y": "npm run build && npm run lint:a11y:strict",
     "ci:quality": "npm run lint:design-system && npm run lint:chat && npm run check && npm run build",
     "lint:content": "node .agent/skills/content-architect/scripts/audit-content.mjs",
-    "export:corpus": "node scripts/export-corpus.mjs",
     "dev:chat": "npx wrangler pages dev dist --compatibility-date=2024-01-01 --live-reload",
     "dev:copilot": "npm run build && npm run dev:chat",
     "astro": "astro"
