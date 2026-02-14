@@ -25,6 +25,10 @@ const relatedProjects = projects
 const currentIndex = projects.findIndex(p => p.id === project.id);
 const prevProject = currentIndex > 0 ? projects[currentIndex - 1] : null;
 const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex + 1] : null;
+const YOUTUBE_MINDHAFEN_PLAYLIST_ID = 'PLwwUxXP19bWjvvHOKFs4PX3TGak9tbM6O';
+const mindhafenYoutubeEmbedUrl = YOUTUBE_MINDHAFEN_PLAYLIST_ID
+  ? `https://www.youtube.com/embed/videoseries?list=${YOUTUBE_MINDHAFEN_PLAYLIST_ID}`
+  : '';
 ---
 
 <BaseLayout 
@@ -92,17 +96,20 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
                 loading="lazy"
               ></iframe>
             </div>
-            <div class="youtube-embed">
-               <iframe
-                 width="100%"
-                 height="352"
-                 style="border:0; border-radius:12px"
-                 src="https://www.youtube.com/embed/videoseries?list=PLExampleListID"
-                 title="MindHafen YouTube"
-                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                 allowfullscreen
-               ></iframe>
-            </div>
+            {mindhafenYoutubeEmbedUrl && (
+              <div class="youtube-embed">
+                <iframe
+                  width="100%"
+                  height="352"
+                  style="border:0; border-radius:12px"
+                  src={mindhafenYoutubeEmbedUrl}
+                  title="MindHafen YouTube Deep Work Playlist"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowfullscreen
+                  loading="lazy"
+                ></iframe>
+              </div>
+            )}
           </div>
         </section>
       )}
