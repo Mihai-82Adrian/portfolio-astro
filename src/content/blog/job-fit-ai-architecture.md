@@ -17,7 +17,6 @@ lang: 'en'
 * **Action**: OpenAI's Structured Outputs API with JSON Schema + Zod validation enforces schema adherence at the inference layer, eliminating post-processing retries
 * **Result**: 100% reliability in schema matching (vs. <40% with prompt-based JSON mode), eliminating validation failures and enabling predictable frontend integration
 
-
 ## The Challenge: Unstructured HR Text Meets Type-Safe Frontends
 
 Job descriptions arrive as unstructured prose: "3+ years React experience", "strong communication skills", "familiarity with cloud platforms". Extracting discrete, machine-readable attributes—`required_skills: string[]`, `experience_years: number`, `seniority: enum`—from this freeform text requires LLMs.
@@ -57,29 +56,27 @@ graph TD;
 * **Validation**: Zod 3.23+ - TypeScript-first schema validation with static type inference
 * **Converter**: `zod-to-json-schema` - Bridges Zod schemas to OpenAI's JSON Schema format
 
-
 ### Structured Outputs vs. JSON Mode: The Technical Difference
 
 **JSON Mode** (`response_format: { type: "json_object" }`):
 
-- Guarantees **syntactically valid JSON** (proper brackets, commas, quotes)
-- **No schema enforcement**: Model can invent keys, skip required fields, use wrong types
-- Relies on prompt engineering: "Return JSON with keys: name, skills, experience"
-- Failure mode: Valid JSON, wrong structure → validation errors downstream
+* Guarantees **syntactically valid JSON** (proper brackets, commas, quotes)
+* **No schema enforcement**: Model can invent keys, skip required fields, use wrong types
+* Relies on prompt engineering: "Return JSON with keys: name, skills, experience"
+* Failure mode: Valid JSON, wrong structure → validation errors downstream
 
 **Structured Outputs** (`response_format: { type: "json_schema" }`):
 
-- Guarantees **schema-adherent JSON** (exact match to supplied JSON Schema)
-- Uses **constrained decoding**: At each token generation step, inference engine masks tokens that would violate schema
-- Technical mechanism: Converts JSON Schema to Context-Free Grammar (CFG), dynamically determines valid next tokens
-- Failure mode: Explicit `refusal` field (safety rejection) or `max_tokens` truncation—never silent corruption
+* Guarantees **schema-adherent JSON** (exact match to supplied JSON Schema)
+* Uses **constrained decoding**: At each token generation step, inference engine masks tokens that would violate schema
+* Technical mechanism: Converts JSON Schema to Context-Free Grammar (CFG), dynamically determines valid next tokens
+* Failure mode: Explicit `refusal` field (safety rejection) or `max_tokens` truncation—never silent corruption
 
 **Why CFG over FSM/Regex?**
 
-- Context-Free Grammars support **recursive structures** (nested objects, arrays of objects)
-- Finite State Machines cannot match recursive parentheses/braces in deeply nested JSON
-- Example: `"children": [{ "children": [{ "children": [...] }] }]` requires CFG
-
+* Context-Free Grammars support **recursive structures** (nested objects, arrays of objects)
+* Finite State Machines cannot match recursive parentheses/braces in deeply nested JSON
+* Example: `"children": [{ "children": [{ "children": [...] }] }]` requires CFG
 
 ### Code Highlight: Zod Schema → OpenAI Structured Outputs
 
@@ -141,16 +138,15 @@ async function assessJobFit(jobDescription: string, resumeText: string): Promise
 
 **Key mechanisms:**
 
-- `strict: true` enables constrained decoding
-- `zodToJsonSchema()` handles complex Zod types (unions, refinements, transforms)
-- `.parse()` throws descriptive errors if LLM output somehow violates schema (edge case: truncation)
-
+* `strict: true` enables constrained decoding
+* `zodToJsonSchema()` handles complex Zod types (unions, refinements, transforms)
+* `.parse()` throws descriptive errors if LLM output somehow violates schema (edge case: truncation)
 
 ### Prompt Engineering for HR Text Extraction
 
 **Anti-pattern** (pre-Structured Outputs):
 
-```
+```text
 "Return JSON with keys: skills, experience. Make sure it's valid JSON!"
 ```
 
@@ -190,6 +186,7 @@ No. Three edge cases require Zod:
 1. **Safety refusals**: Model returns `{ refusal: "Cannot assess this candidate" }` instead of schema
 2. **Token limit truncation**: Response cuts off mid-JSON (rare, but handle gracefully)
 3. **Semantic validation**: Schema enforces `number` type, but you need business logic (e.g., `match_score` must be 0-100)
+
 ```typescript
 // Extended Zod schema with custom refinements
 const JobFitSchemaWithRefinements = JobFitSchema.refine(
@@ -227,7 +224,6 @@ try {
 }
 ```
 
-
 ## Critical Analysis
 
 ### What Went Well
@@ -236,34 +232,32 @@ try {
 * **Type safety cascade**: Zod's `.infer<>` generates TypeScript types automatically—no manual interface definitions, no type drift between schema and code.
 * **CFG handles recursion**: Job descriptions with nested requirements (e.g., "Must have React AND (Redux OR MobX)") map to recursive schemas without FSM limitations.
 
-
 ### Challenges \& Bottlenecks
 
 * **First-request latency**: Initial call with new schema incurs 3-8s preprocessing (CFG generation). **Solution**: Pre-warm schemas at deployment by making dummy requests.
 * **Schema size limits**: Max 5,000 object properties, 10 nesting levels. For complex multi-role assessments, split into multiple smaller schemas.
 * **Cost**: `gpt-4o-2024-08-06` costs \$2.50/1M input tokens (50% cheaper than `gpt-4o-2024-05-13`), but Structured Outputs adds ~5% token overhead due to stricter constraints. **ROI**: Saved 150 hours/month in manual retry handling justifies cost.
 
-
 ## Future Roadmap
 
 **Short-term (Q1 2026)**:
 
-- Multi-turn refinement: After initial extraction, ask model to verify ambiguous fields ("Is 'cloud platforms' AWS/Azure/GCP?")
-- Confidence scoring: Add `confidence: number` field to schema, correlate with actual match quality over time
+* Multi-turn refinement: After initial extraction, ask model to verify ambiguous fields ("Is 'cloud platforms' AWS/Azure/GCP?")
+* Confidence scoring: Add `confidence: number` field to schema, correlate with actual match quality over time
 
 **Long-term**:
 
-- Fine-tune `gpt-4o-mini` on validated job fit assessments (10K examples) → 70% cost reduction while maintaining schema adherence
-- Extend to multi-language job descriptions (German, French) with locale-specific skill taxonomies
+* Fine-tune `gpt-4o-mini` on validated job fit assessments (10K examples) → 70% cost reduction while maintaining schema adherence
+* Extend to multi-language job descriptions (German, French) with locale-specific skill taxonomies
 
 ***
 
 **References:**
 
-OpenAI. (2024). *Introducing Structured Outputs in the API*. https://openai.com/index/introducing-structured-outputs-in-the-api
+OpenAI. (2024). *Introducing Structured Outputs in the API*. <https://openai.com/index/introducing-structured-outputs-in-the-api>
 
 Chen, L., et al. (2025). *JSONSchemaBench: A Rigorous Benchmark of Structured Outputs for Language Models*. arXiv:2501.10868
 
 Wu, T., et al. (2025). *Learning to Generate Structured Output with Schema Reinforcement Learning*. arXiv:2502.18878
 
-OpenAI Platform Documentation. (2024). *Structured Outputs - JSON Mode*. https://platform.openai.com/docs/guides/structured-outputs/#json-mode
+OpenAI Platform Documentation. (2024). *Structured Outputs - JSON Mode*. <https://platform.openai.com/docs/guides/structured-outputs/#json-mode>
