@@ -167,149 +167,123 @@ const basePath = currentLang === 'de' ? '' : `/${currentLang}`;
 </header>
 
 <script>
-  // Mobile menu toggle functionality
-  const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-  const mobileMenu = document.getElementById('mobile-menu');
-  const menuIcon = document.getElementById('menu-icon');
-  const closeIcon = document.getElementById('close-icon');
+  const initHeaderInteractions = () => {
+    const header = document.getElementById('site-header');
+    if (!header || header.dataset.bound === 'true') return;
+    header.dataset.bound = 'true';
 
-  // ─── Ask Mihai Trigger ─────────────────────────────────────
-  const askTrigger = document.getElementById('ask-mihai-trigger');
-  askTrigger?.addEventListener('click', () => {
-    // Stop nudges on interaction
-    stopNudges();
-    window.dispatchEvent(new CustomEvent('chat:toggle', {
-      detail: { trigger: askTrigger }
-    }));
-  });
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuIcon = document.getElementById('menu-icon');
+    const closeIcon = document.getElementById('close-icon');
+    const askTrigger = document.getElementById('ask-mihai-trigger');
+    const nudgeEl = document.getElementById('ask-mihai-nudge');
+    const nudgeText = document.getElementById('ask-mihai-nudge-text');
 
-  // ─── Rotating Nudge Messages ───────────────────────────────
-  const nudgeEl = document.getElementById('ask-mihai-nudge');
-  const nudgeText = document.getElementById('ask-mihai-nudge-text');
+    const nudgeMessages = [
+      '💬 Curious about my skills? Just ask →',
+      '📄 Got a JD? Let’s check the fit →',
+      '🎯 Skills · Certs · Experience — all in one place',
+      '⚡ Faster than reading my whole CV 😉',
+    ];
 
-  const nudgeMessages = [
-    '\ud83d\udcac Curious about my skills? Just ask \u2192',
-    '\ud83d\udcc4 Got a JD? Let\u2019s check the fit \u2192',
-    '\ud83c\udfaf Skills \u00b7 Certs \u00b7 Experience \u2014 all in one place',
-    '\u26a1 Faster than reading my whole CV \ud83d\ude09',
-  ];
+    let nudgeIndex = 0;
+    let nudgeShows = 0;
+    const MAX_NUDGE_SHOWS = 8;
+    let nudgeTimer: number | null = null;
+    let nudgeCycleTimer: number | null = null;
+    let nudgeStopped = false;
 
-  let nudgeIndex = 0;
-  let nudgeShows = 0;
-  const MAX_NUDGE_SHOWS = 8; // Stop after 8 complete cycles
-  let nudgeTimer: ReturnType<typeof setTimeout> | null = null;
-  let nudgeCycleTimer: ReturnType<typeof setInterval> | null = null;
-  let nudgeStopped = false;
+    const hideNudge = () => {
+      if (!nudgeEl) return;
+      nudgeEl.classList.remove('opacity-100', 'translate-y-0');
+      nudgeEl.classList.add('opacity-0', 'translate-y-1');
+      window.setTimeout(() => nudgeEl.classList.add('hidden'), 500);
+    };
 
-  function showNudge() {
-    if (nudgeStopped || nudgeShows >= MAX_NUDGE_SHOWS || !nudgeEl || !nudgeText) return;
+    const stopNudges = () => {
+      nudgeStopped = true;
+      if (nudgeTimer) clearTimeout(nudgeTimer);
+      if (nudgeCycleTimer) clearInterval(nudgeCycleTimer);
+      hideNudge();
+    };
 
-    nudgeText.textContent = nudgeMessages[nudgeIndex];
-    nudgeEl.classList.remove('hidden');
+    const showNudge = () => {
+      if (nudgeStopped || nudgeShows >= MAX_NUDGE_SHOWS || !nudgeEl || !nudgeText) return;
+      nudgeText.textContent = nudgeMessages[nudgeIndex];
+      nudgeEl.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        nudgeEl.classList.remove('opacity-0', 'translate-y-1');
+        nudgeEl.classList.add('opacity-100', 'translate-y-0');
+      });
+      nudgeTimer = window.setTimeout(() => {
+        hideNudge();
+        nudgeIndex = (nudgeIndex + 1) % nudgeMessages.length;
+        nudgeShows++;
+      }, 5000);
+    };
 
-    // Trigger animation
-    requestAnimationFrame(() => {
-      nudgeEl.classList.remove('opacity-0', 'translate-y-1');
-      nudgeEl.classList.add('opacity-100', 'translate-y-0');
+    askTrigger?.addEventListener('click', () => {
+      stopNudges();
+      window.dispatchEvent(new CustomEvent('chat:toggle', { detail: { trigger: askTrigger } }));
     });
 
-    // Auto-dismiss after 5s
-    nudgeTimer = setTimeout(() => {
-      hideNudge();
-      nudgeIndex = (nudgeIndex + 1) % nudgeMessages.length;
-      nudgeShows++;
-    }, 5000);
-  }
-
-  function hideNudge() {
-    if (!nudgeEl) return;
-    nudgeEl.classList.remove('opacity-100', 'translate-y-0');
-    nudgeEl.classList.add('opacity-0', 'translate-y-1');
-    setTimeout(() => nudgeEl.classList.add('hidden'), 500);
-  }
-
-  function stopNudges() {
-    nudgeStopped = true;
-    if (nudgeTimer) clearTimeout(nudgeTimer);
-    if (nudgeCycleTimer) clearInterval(nudgeCycleTimer);
-    hideNudge();
-  }
-
-  // Start nudges after 5s delay, then cycle every 12s
-  setTimeout(() => {
-    if (nudgeStopped) return;
-    showNudge();
-    nudgeCycleTimer = setInterval(() => {
+    window.setTimeout(() => {
       if (nudgeStopped) return;
       showNudge();
-    }, 12000);
-  }, 5000);
+      nudgeCycleTimer = window.setInterval(() => {
+        if (nudgeStopped) return;
+        showNudge();
+      }, 12000);
+    }, 5000);
 
-  // Stop nudges when chat opens
-  window.addEventListener('chat:open', stopNudges);
-  window.addEventListener('chat:toggle', stopNudges);
+    window.addEventListener('chat:open', stopNudges);
+    window.addEventListener('chat:toggle', stopNudges);
 
-  if (mobileMenuToggle && mobileMenu && menuIcon && closeIcon) {
-    mobileMenuToggle.addEventListener('click', () => {
-      const isExpanded = mobileMenuToggle.getAttribute('aria-expanded') === 'true';
+    if (mobileMenuToggle && mobileMenu && menuIcon && closeIcon) {
+      mobileMenuToggle.addEventListener('click', () => {
+        const isExpanded = mobileMenuToggle.getAttribute('aria-expanded') === 'true';
+        mobileMenu.classList.toggle('hidden');
+        menuIcon.classList.toggle('hidden');
+        closeIcon.classList.toggle('hidden');
+        mobileMenuToggle.setAttribute('aria-expanded', String(!isExpanded));
+        document.body.style.overflow = isExpanded ? '' : 'hidden';
+      });
 
-      // Toggle menu visibility
-      mobileMenu.classList.toggle('hidden');
+      document.addEventListener('click', (event) => {
+        const target = event.target as HTMLElement;
+        if (!mobileMenuToggle.contains(target) && !mobileMenu.contains(target)) {
+          mobileMenu.classList.add('hidden');
+          menuIcon.classList.remove('hidden');
+          closeIcon.classList.add('hidden');
+          mobileMenuToggle.setAttribute('aria-expanded', 'false');
+          document.body.style.overflow = '';
+        }
+      });
 
-      // Toggle icons
-      menuIcon.classList.toggle('hidden');
-      closeIcon.classList.toggle('hidden');
-
-      // Update ARIA attribute
-      mobileMenuToggle.setAttribute('aria-expanded', String(!isExpanded));
-
-      // Prevent body scroll when menu is open
-      document.body.style.overflow = isExpanded ? '' : 'hidden';
-    });
-
-    // Close menu when clicking outside
-    document.addEventListener('click', (event) => {
-      const target = event.target as HTMLElement;
-      if (!mobileMenuToggle.contains(target) && !mobileMenu.contains(target)) {
-        mobileMenu.classList.add('hidden');
-        menuIcon.classList.remove('hidden');
-        closeIcon.classList.add('hidden');
-        mobileMenuToggle.setAttribute('aria-expanded', 'false');
-        document.body.style.overflow = '';
-      }
-    });
-
-    // Close menu on escape key
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && !mobileMenu.classList.contains('hidden')) {
-        mobileMenu.classList.add('hidden');
-        menuIcon.classList.remove('hidden');
-        closeIcon.classList.add('hidden');
-        mobileMenuToggle.setAttribute('aria-expanded', 'false');
-        document.body.style.overflow = '';
-        mobileMenuToggle.focus();
-      }
-    });
-  }
-
-  // Add scroll behavior to header
-  let lastScrollY = window.scrollY;
-  const header = document.getElementById('site-header');
-
-  window.addEventListener('scroll', () => {
-    if (!header) return;
-
-    const currentScrollY = window.scrollY;
-
-    // Add shadow on scroll
-    if (currentScrollY > 10) {
-      header.classList.add('shadow-subtle');
-    } else {
-      header.classList.remove('shadow-subtle');
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !mobileMenu.classList.contains('hidden')) {
+          mobileMenu.classList.add('hidden');
+          menuIcon.classList.remove('hidden');
+          closeIcon.classList.add('hidden');
+          mobileMenuToggle.setAttribute('aria-expanded', 'false');
+          document.body.style.overflow = '';
+          mobileMenuToggle.focus();
+        }
+      });
     }
 
-    lastScrollY = currentScrollY;
-  });
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 10) {
+        header.classList.add('shadow-subtle');
+      } else {
+        header.classList.remove('shadow-subtle');
+      }
+    });
+  };
+
+  initHeaderInteractions();
+  document.addEventListener('astro:page-load', initHeaderInteractions);
 </script>
 
 <style>
