@@ -159,85 +159,6 @@ type Intent =
     | 'projects'
     | null;
 
-interface IntentPattern {
-    intent: Intent;
-    patterns: RegExp[];
-    /** Minimum confidence threshold (0-1). Higher = more terms must match */
-    minConfidence: number;
-}
-
-const INTENT_PATTERNS: IntentPattern[] = [
-    {
-        intent: 'contact_phone',
-        patterns: [
-            /\b(phone|telefon|nummer|anrufen|rufnummer|handy|mobil|call|ring)/i,
-        ],
-        minConfidence: 0.5,
-    },
-    {
-        intent: 'contact',
-        patterns: [
-            /\b(contact|kontakt|contacta|email|e-mail|mail|reach|erreichen|linkedin|write|schreiben|adresa|adresse|address)/i,
-        ],
-        minConfidence: 0.5,
-    },
-    {
-        intent: 'tools',
-        patterns: [
-            /\b(tool|tools|software|programs?|app(?:lication)?s?|suite|erp)\b/i,
-            /\b(program|programe|aplica(?:t|ț)i(?:i|e)?|instrumente|soft(?:uri)?|programmi|software)\b/i,
-            /\b(contabil(?:e|ă|itate)?|buchhalt(?:ung|ungs)?|account(?:ing)?)\b/i,
-        ],
-        minConfidence: 0.33,
-    },
-    {
-        intent: 'current_role',
-        patterns: [
-            /\b(current|aktuell|actual|position|rolle|rol|job|stelle|arbeitet|works?|employer|arbeitgeber|angajator|title|titel|titlu)/i,
-        ],
-        minConfidence: 0.3,
-    },
-    {
-        intent: 'skills',
-        patterns: [
-            /\b(skills?|fähigkeit|kompetenz|competenț|technologies|technologie|tools?|stack|können|qualifikation|qualification|what.+can|was.+kann)/i,
-        ],
-        minConfidence: 0.3,
-    },
-    {
-        intent: 'certifications',
-        patterns: [
-            /\b(certif|zertifik|certificar|diploma?|abschluss|abschlüsse|IHK|telc|qualif|ausbildung|educati|educat|bildung|studiu)/i,
-        ],
-        minConfidence: 0.3,
-    },
-    {
-        intent: 'projects',
-        patterns: [
-            /\b(projects?|projekte?|proiecte?|portfolio|GDS|GENESIS|ProfitMinds|arbeitet.+an|working.+on|lucrează)/i,
-        ],
-        minConfidence: 0.3,
-    },
-];
-
-function matchIntent(message: string): Intent {
-    const lower = message.toLowerCase();
-
-    // Don't match intents for very long messages (likely JD or complex queries)
-    if (message.length > 200) return null;
-
-    for (const { intent, patterns, minConfidence } of INTENT_PATTERNS) {
-        let matchCount = 0;
-        for (const pattern of patterns) {
-            if (pattern.test(lower)) matchCount++;
-        }
-        const confidence = matchCount / patterns.length;
-        if (confidence >= minConfidence) return intent;
-    }
-
-    return null;
-}
-
 function buildFactResponse(intent: Intent, facts: FactsData, lang: Lang): string {
     switch (intent) {
         case 'contact_phone':
@@ -493,8 +414,9 @@ export const onRequestPost = async (context: any) => {
 
         // 4. Intent Routing (only for chat tab, not JD analysis)
         if (tab !== 'jd') {
-            // Use explicit intent from chip clicks, or detect via regex
-            const intent = (explicitIntent as Intent) || matchIntent(message as string);
+            // Facts shortcuts are only used for explicit chip intents.
+            // Free-text questions should go through retrieval + LLM.
+            const intent = explicitIntent ? (explicitIntent as Intent) : null;
             if (intent) {
                 // Load facts if needed
                 if (!cachedFacts) {
