@@ -250,7 +250,7 @@ const t = content[lang] || content.de;
     @apply relative;
     @apply rounded-2xl;
     @apply p-6 sm:p-7 md:p-8;
-    @apply transition-all duration-300 ease-out;
+    @apply transition-transform duration-300 ease-out;
     @apply no-underline;
     @apply border border-gray-200 dark:border-gray-700/50;
     @apply cursor-pointer;
@@ -433,7 +433,7 @@ const t = content[lang] || content.de;
   .bento-card__arrow {
     @apply absolute top-6 right-6 sm:top-7 sm:right-7 md:top-8 md:right-8;
     @apply text-text-tertiary-light dark:text-text-tertiary-dark;
-    @apply transition-all duration-300;
+    @apply transition-[opacity,transform,color] duration-300;
     @apply opacity-50;
   }
 
