@@ -230,5 +230,21 @@ const defaultStructuredData = {
     <!-- AI Chat Drawer (Global, excluded on Services routes) -->
     {!isServicesRoute && <ChatDrawer />}
     <CookieConsent />
+
+    <!-- Re-apply persisted theme after client-side route transitions -->
+    <script is:inline>
+      (() => {
+        const applyStoredTheme = () => {
+          const storedTheme = localStorage.getItem('theme');
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const shouldBeDark = storedTheme === 'dark' || (!storedTheme && prefersDark);
+          document.documentElement.classList.toggle('dark', shouldBeDark);
+        };
+
+        applyStoredTheme();
+        document.addEventListener('astro:after-swap', applyStoredTheme);
+        document.addEventListener('astro:page-load', applyStoredTheme);
+      })();
+    </script>
   </body>
 </html>
