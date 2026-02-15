@@ -44,9 +44,9 @@ const slot = isPromoShorts
       <span class="rounded-full bg-eucalyptus-100 px-2 py-1 font-medium text-eucalyptus-800 dark:bg-eucalyptus-900 dark:text-eucalyptus-200">{typeLabel}</span>
       {item.featured && <span class="rounded-full bg-info/15 px-2 py-1 font-medium text-info">Featured</span>}
     </div>
-    <h3 class="text-base font-semibold text-text-primary-light dark:text-text-primary-dark">{displayTitle}</h3>
+    <h3 class="text-base font-semibold text-text-primary-light dark:text-text-primary-dark text-balance">{displayTitle}</h3>
     {item.description && (
-      <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">{item.description}</p>
+      <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark text-pretty">{item.description}</p>
     )}
     <a href={item.url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-sm font-medium text-eucalyptus-700 underline-offset-2 hover:underline dark:text-eucalyptus-300" aria-label={`Open source for ${displayTitle}`}>
       Open source link

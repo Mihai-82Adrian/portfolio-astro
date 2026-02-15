@@ -20,8 +20,8 @@ const tabs = [
 ---
 
 <section class="section media-gallery" id={galleryId} data-media-gallery>
-  <h2 class="section-title">Media Gallery</h2>
-  <p class="mb-5 max-w-3xl text-sm text-text-secondary-light dark:text-text-secondary-dark">
+  <h2 class="section-title text-balance">Media Gallery</h2>
+  <p class="mb-5 max-w-3xl text-sm text-text-secondary-light dark:text-text-secondary-dark text-pretty">
     Production-ready media surface for Spotify + YouTube. The YouTube playlist is managed as
     unlisted media so new Shorts promos appear automatically without per-upload SEO overhead.
   </p>
@@ -31,7 +31,7 @@ const tabs = [
       <button
         type="button"
         role="tab"
-        class={`media-filter-btn rounded-full border px-3 py-1.5 text-sm font-medium transition ${index === 0 ? 'is-active' : ''}`}
+        class={`media-filter-btn rounded-full border px-3 py-1.5 text-sm font-medium motion-safe:transition-[transform,background-color,color,border-color,box-shadow] motion-safe:duration-200 ${index === 0 ? 'is-active' : ''}`}
         data-media-filter={tab.id}
         aria-selected={index === 0 ? 'true' : 'false'}
       >
@@ -119,22 +119,33 @@ const tabs = [
 
 <style>
   .media-filter-btn {
-    border-color: color-mix(in srgb, var(--color-eucalyptus-500) 35%, transparent);
-    background: transparent;
+    border-color: color-mix(in srgb, var(--color-eucalyptus-500) 30%, transparent);
+    background: color-mix(in srgb, var(--bg-elevated) 70%, transparent);
     color: var(--color-text-secondary);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   }
 
   .media-filter-btn:hover,
   .media-filter-btn:focus-visible {
-    border-color: var(--color-eucalyptus-600);
+    border-color: color-mix(in srgb, var(--color-eucalyptus-600) 80%, transparent);
     color: var(--color-text-primary);
-    outline: none;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.10);
+  }
+
+  :global(.dark) .media-filter-btn {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: color-mix(in srgb, var(--bg-elevated) 58%, transparent);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.24);
   }
 
   .media-filter-btn.is-active {
-    background: color-mix(in srgb, var(--color-eucalyptus-500) 20%, transparent);
+    background: color-mix(in srgb, var(--color-eucalyptus-500) 24%, transparent);
     border-color: var(--color-eucalyptus-600);
     color: var(--color-text-primary);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-eucalyptus-500) 55%, transparent);
   }
 
   .media-gallery-grid {

@@ -52,8 +52,8 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
           <a href="/projects">← Back to Projects</a>
         </div>
         <StatusIndicator status={project.status as any} size="lg" />
-        <h1 class="project-title">{project.title}</h1>
-        <p class="project-tagline">{project.tagline}</p>
+        <h1 class="project-title text-balance">{project.title}</h1>
+        <p class="project-tagline text-pretty">{project.tagline}</p>
         <div class="hero-actions">
           {project.links.map((link) => (
             link.url !== '#' && (
@@ -75,7 +75,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
     <div class="container content-wrapper">
       <!-- Overview Section -->
       <section class="section overview">
-        <h2 class="section-title">Project Overview</h2>
+        <h2 class="section-title text-balance">Project Overview</h2>
         <p class="project-description">{project.description}</p>
       </section>
 
@@ -85,13 +85,13 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
 
       <!-- Metrics Grid -->
       <section class="section metrics-section">
-        <h2 class="section-title">Key Metrics</h2>
+        <h2 class="section-title text-balance">Key Metrics</h2>
         <ProjectMetrics metrics={project.metrics} columns={4} />
       </section>
 
       <!-- Tech Stack Grid -->
       <section class="section tech-section">
-        <h2 class="section-title">Technology Stack</h2>
+        <h2 class="section-title text-balance">Technology Stack</h2>
         <div class="tech-grid">
           {project.techStack.map((tech) => (
             <TechStackBadge tech={tech as any} size="lg" />
@@ -101,7 +101,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
 
       <!-- Features List -->
       <section class="section features-section">
-        <h2 class="section-title">Key Features</h2>
+        <h2 class="section-title text-balance">Key Features</h2>
         <ul class="features-list">
           {project.features.map((feature) => (
             <li class="feature-item">
@@ -115,7 +115,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
       <!-- Timeline -->
       {project.timeline && (
         <section class="section timeline-section">
-          <h2 class="section-title">Project Timeline</h2>
+          <h2 class="section-title text-balance">Project Timeline</h2>
           <div class="timeline-info">
             <div class="timeline-meta">
               <span><strong>Started:</strong> {project.timeline.started}</span>
@@ -140,7 +140,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
       <!-- Technical Details -->
       {project.technicalDetails && (
         <section class="section technical-section">
-          <h2 class="section-title">Technical Details</h2>
+          <h2 class="section-title text-balance">Technical Details</h2>
           <dl class="technical-details">
             {Object.entries(project.technicalDetails).map(([key, value]) => (
               <div class="detail-item">
@@ -155,7 +155,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
       <!-- Related Projects -->
       {relatedProjects.length > 0 && (
         <section class="section related-section">
-          <h2 class="section-title">Related Projects</h2>
+          <h2 class="section-title text-balance">Related Projects</h2>
           <div class="related-grid">
             {relatedProjects.map((related) => (
               <a href={`/projects/${related.slug}`} class="related-card">
