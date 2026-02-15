@@ -918,12 +918,18 @@ const {
     }
   }
 
-  // Initialize
-  document.addEventListener('DOMContentLoaded', () => {
+  function initChatWidgets() {
     document.querySelectorAll('[data-chat-widget]').forEach(el => {
-      new ChatWidget(el as HTMLElement);
+      const widgetEl = el as HTMLElement & { __mamChatWidgetInit?: boolean };
+      if (widgetEl.__mamChatWidgetInit) return;
+      widgetEl.__mamChatWidgetInit = true;
+      new ChatWidget(widgetEl);
     });
-  });
+  }
+
+  // Initialize once on first load + again after client-side route transitions.
+  document.addEventListener('DOMContentLoaded', initChatWidgets);
+  document.addEventListener('astro:page-load', initChatWidgets);
 </script>
 
 <style>
