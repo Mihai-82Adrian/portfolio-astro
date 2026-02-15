@@ -266,4 +266,4 @@ Chen, L., et al. (2025). *JSONSchemaBench: A Rigorous Benchmark of Structured Ou
 
 Wu, T., et al. (2025). *Learning to Generate Structured Output with Schema Reinforcement Learning*. arXiv:2502.18878
 
-OpenAI Platform Documentation. (2024). *Structured Outputs - JSON Mode*. https://platform.openai.com/docs/guides/structured-outputs/json-mode
+OpenAI Platform Documentation. (2024). *Structured Outputs - JSON Mode*. https://platform.openai.com/docs/guides/structured-outputs/#json-mode
