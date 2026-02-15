@@ -108,12 +108,14 @@ const LANG_PATTERNS: Record<Lang, RegExp[]> = {
 };
 
 function detectLanguage(message: string, uiLang?: string, acceptLang?: string): Lang {
-    // Priority 1: Explicit UI language setting (if user selected in dropdown)
-    if (uiLang && uiLang !== 'auto' && ['de', 'en', 'ro'].includes(uiLang)) {
-        return uiLang as Lang;
-    }
+    const preferredUiLang =
+        uiLang && uiLang !== 'auto' && ['de', 'en', 'ro'].includes(uiLang)
+            ? (uiLang as Lang)
+            : null;
 
-    // Priority 2: Detect from message text
+    // Priority 1: Detect from message text.
+    // If message language is clearly identifiable, use it even when a fixed UI language is selected.
+    // This handles mixed-language conversations without requiring users to switch the dropdown constantly.
     const lower = message.toLowerCase();
     const scores: Record<Lang, number> = { de: 0, en: 0, ro: 0 };
 
@@ -131,15 +133,15 @@ function detectLanguage(message: string, uiLang?: string, acceptLang?: string): 
         if (scores.en === maxScore) return 'en';
     }
 
+    // Priority 2: Explicit UI language setting (fallback when message language is ambiguous)
+    if (preferredUiLang) {
+        return preferredUiLang;
+    }
+
     // Priority 3: Accept-Language header
     if (acceptLang) {
         if (acceptLang.startsWith('de')) return 'de';
         if (acceptLang.startsWith('ro')) return 'ro';
-    }
-
-    // Priority 4: UI page language (document.documentElement.lang)
-    if (uiLang && ['de', 'en', 'ro'].includes(uiLang)) {
-        return uiLang as Lang;
     }
 
     return 'en'; // Ultimate fallback
