@@ -12,6 +12,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Container from '@components/ui/Container.astro';
 import Card from '@components/ui/Card.astro';
 import Button from '@components/ui/Button.astro';
+import Icon from '@components/ui/Icon.astro';
 import { generateBreadcrumbSchema } from '@utils/structuredData';
 
 const lang = 'en';
@@ -26,7 +27,7 @@ const breadcrumbSchema = generateBreadcrumbSchema([
 
 const services = [
   {
-    icon: '💼',
+    icon: 'briefcase',
     badge: 'Finance',
     badgeColor: 'blue',
     title: 'Financial & Strategy Consulting',
@@ -41,7 +42,7 @@ const services = [
     certifications: ['Bookkeeping Specialist (IHK)', 'Financial Accountant (IHK)']
   },
   {
-    icon: '🤖',
+    icon: 'sparkles',
     badge: 'Tech & AI',
     badgeColor: 'eucalyptus',
     title: 'AI & Personal Branding Web',
@@ -56,7 +57,7 @@ const services = [
     certifications: []
   },
   {
-    icon: '🎵',
+    icon: 'music',
     badge: 'Creative',
     badgeColor: 'purple',
     title: 'Creative Production',
@@ -121,7 +122,9 @@ const formLabels = {
         {services.map((service, index) => (
           <div class:list={['service-card', `service-card--${service.badgeColor}`]}>
             <div class="service-card__header">
-              <span class="service-card__icon" aria-hidden="true">{service.icon}</span>
+              <span class="service-card__icon" aria-hidden="true">
+                <Icon name={service.icon} class="h-6 w-6" />
+              </span>
               <span class:list={['service-card__badge', `service-card__badge--${service.badgeColor}`]}>
                 {service.badge}
               </span>
@@ -132,7 +135,9 @@ const formLabels = {
             <ul class="service-card__features">
               {service.features.map((feature) => (
                 <li>
-                  <span class="service-card__check" aria-hidden="true">✓</span>
+                  <span class="service-card__check" aria-hidden="true">
+                    <Icon name="check-circle" class="h-4 w-4" />
+                  </span>
                   {feature}
                 </li>
               ))}
@@ -362,7 +367,7 @@ const formLabels = {
   }
 
   .service-card__icon {
-    @apply text-3xl;
+    @apply inline-flex items-center justify-center text-eucalyptus-600 dark:text-eucalyptus-400;
   }
 
   .service-card__badge {
@@ -409,8 +414,7 @@ const formLabels = {
   }
 
   .service-card__check {
-    @apply text-eucalyptus-600 dark:text-eucalyptus-400;
-    @apply font-bold shrink-0;
+    @apply inline-flex items-center justify-center shrink-0 text-eucalyptus-600 dark:text-eucalyptus-400;
     @apply mt-0.5;
   }
 

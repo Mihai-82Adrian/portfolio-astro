@@ -12,6 +12,7 @@
  */
 
 import Container from '@components/ui/Container.astro';
+import Icon from '@components/ui/Icon.astro';
 
 interface Props {
   lang?: 'de' | 'en' | 'ro';
@@ -29,7 +30,7 @@ const content = {
       {
         title: 'Tech & AI Portfolio',
         description: 'Projekte an der Schnittstelle von künstlicher Intelligenz, kognitiver Berechnung und Web-Technologien. Von GDS-Forschung bis hin zu AI-gestützten Chatbots.',
-        icon: '🧠',
+        icon: 'brain',
         badge: 'Tech',
         href: '/projects',
         stats: [
@@ -41,7 +42,7 @@ const content = {
       {
         title: 'Dienstleistungen',
         description: 'Finanzberatung mit IHK-Zertifizierung, AI-gestützte Webentwicklung und kreative Produktion — alles aus einer Hand.',
-        icon: '💼',
+        icon: 'briefcase',
         badge: 'Services',
         href: `${basePath}/services`,
         stats: [
@@ -52,7 +53,7 @@ const content = {
       {
         title: 'MindHafen',
         description: 'Mensch + AI Musikproduktion. Stoisch-motivationale Songs, Deep Focus & Sleep Playlists — verteilt auf Spotify, YouTube & mehr.',
-        icon: '🎵',
+        icon: 'music',
         badge: 'Kreativ',
         href: '/projects/mindhafen',
         stats: [
@@ -69,7 +70,7 @@ const content = {
       {
         title: 'Tech & AI Portfolio',
         description: 'Projects at the intersection of artificial intelligence, cognitive computing, and web technologies. From GDS research to AI-powered chatbots.',
-        icon: '🧠',
+        icon: 'brain',
         badge: 'Tech',
         href: '/projects',
         stats: [
@@ -81,7 +82,7 @@ const content = {
       {
         title: 'Services',
         description: 'Financial consulting with IHK certification, AI-powered web development, and creative production — all from one hub.',
-        icon: '💼',
+        icon: 'briefcase',
         badge: 'Services',
         href: `${basePath}/services`,
         stats: [
@@ -92,7 +93,7 @@ const content = {
       {
         title: 'MindHafen',
         description: 'Human + AI music production. Stoic-motivational songs, Deep Focus & Sleep playlists — distributed on Spotify, YouTube & more.',
-        icon: '🎵',
+        icon: 'music',
         badge: 'Creative',
         href: '/projects/mindhafen',
         stats: [
@@ -109,7 +110,7 @@ const content = {
       {
         title: 'Portofoliu Tech & AI',
         description: 'Proiecte la intersecția inteligenței artificiale, computației cognitive și tehnologiilor web. De la cercetare GDS la chatboți AI.',
-        icon: '🧠',
+        icon: 'brain',
         badge: 'Tech',
         href: '/projects',
         stats: [
@@ -121,7 +122,7 @@ const content = {
       {
         title: 'Servicii',
         description: 'Consultanță financiară cu certificare IHK, dezvoltare web cu AI și producție creativă — totul dintr-un singur loc.',
-        icon: '💼',
+        icon: 'briefcase',
         badge: 'Servicii',
         href: `${basePath}/services`,
         stats: [
@@ -132,7 +133,7 @@ const content = {
       {
         title: 'MindHafen',
         description: 'Producție muzicală Om + AI. Cântece stoic-motivaționale, playlisturi Deep Focus & Sleep — distribuite pe Spotify, YouTube și altele.',
-        icon: '🎵',
+        icon: 'music',
         badge: 'Creativ',
         href: '/projects/mindhafen',
         stats: [
@@ -173,7 +174,9 @@ const t = content[lang] || content.de;
           <div class="bento-card__content">
             <!-- Badge -->
             <div class="bento-card__badge">
-              <span class="bento-card__icon" aria-hidden="true">{card.icon}</span>
+              <span class="bento-card__icon" aria-hidden="true">
+                <Icon name={card.icon} class="h-4 w-4" />
+              </span>
               <span>{card.badge}</span>
             </div>
 
@@ -376,7 +379,7 @@ const t = content[lang] || content.de;
   }
 
   .bento-card__icon {
-    @apply text-base sm:text-lg;
+    @apply inline-flex items-center justify-center;
   }
 
   /* Title */

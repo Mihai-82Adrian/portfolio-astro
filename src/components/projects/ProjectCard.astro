@@ -2,6 +2,7 @@
 import StatusIndicator from './StatusIndicator.astro';
 import TechStackBadge from './TechStackBadge.astro';
 import ProjectMetrics from './ProjectMetrics.astro';
+import Icon from '@components/ui/Icon.astro';
 import { Image } from 'astro:assets';
 
 interface Props {
@@ -122,7 +123,9 @@ const detailLink = `/projects/${project.slug}`;
           rel={primaryLink.type === 'external' ? 'noopener noreferrer' : undefined}
           aria-label={`${primaryLink.label} for ${project.title}${primaryLink.type === 'external' ? ' (opens in new tab)' : ''}`}
         >
-          <span aria-hidden="true">{primaryLink.icon}</span>
+          <span aria-hidden="true">
+            <Icon name={primaryLink.icon} class="h-4 w-4" />
+          </span>
           <span>{primaryLink.label}</span>
           {primaryLink.type === 'external' && (
             <span class="sr-only">(opens in new tab)</span>

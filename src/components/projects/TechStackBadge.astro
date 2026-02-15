@@ -1,4 +1,6 @@
 ---
+import Icon from '@components/ui/Icon.astro';
+
 interface Props {
   tech: {
     name: string;
@@ -63,7 +65,9 @@ const config = categoryConfig[tech.category || 'platform'];
   data-category={tech.category}
   title={`${tech.name}${tech.category ? ` (${tech.category})` : ''}`}
 >
-  <span class="tech-icon" aria-hidden="true">{tech.icon}</span>
+  <span class="tech-icon" aria-hidden="true">
+    <Icon name={tech.icon} class="h-3.5 w-3.5" />
+  </span>
   <span class="tech-name">{tech.name}</span>
 </span>
 

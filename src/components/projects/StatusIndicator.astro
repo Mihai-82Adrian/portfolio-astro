@@ -1,4 +1,6 @@
 ---
+import Icon from '@components/ui/Icon.astro';
+
 interface Props {
   status: {
     label: string;
@@ -15,31 +17,31 @@ import tokens from '../../data/design-tokens.json';
 
 const statusConfig = {
   active: {
-    icon: '🟢',
+    icon: 'circle',
     color: tokens.colors.success.DEFAULT,
     bgColor: tokens.colors.success.light,
     label: status.label,
   },
   production: {
-    icon: '🚀',
+    icon: 'rocket',
     color: tokens.colors.eucalyptus[500],
     bgColor: tokens.colors.eucalyptus[100],
     label: status.label,
   },
   live: {
-    icon: '✅',
+    icon: 'check-circle',
     color: tokens.colors.success.dark,
     bgColor: tokens.colors.success.light,
     label: status.label,
   },
   development: {
-    icon: '🚧',
+    icon: 'construction',
     color: tokens.colors.warning.DEFAULT,
     bgColor: tokens.colors.warning.light,
     label: status.label,
   },
   research: {
-    icon: '🔬',
+    icon: 'flask',
     color: tokens.colors.info.DEFAULT,
     bgColor: tokens.colors.info.light,
     label: status.label,
@@ -51,7 +53,9 @@ const config = statusConfig[status.indicator];
 
 <div class={`status-indicator status-${size}`} data-status={status.indicator}>
   <div class="status-content">
-    <span class="status-icon" aria-hidden="true">{config.icon}</span>
+    <span class="status-icon" aria-hidden="true">
+      <Icon name={config.icon} class="h-4 w-4" />
+    </span>
     <span class="status-label">{config.label}</span>
   </div>
   
@@ -118,8 +122,10 @@ const config = statusConfig[status.indicator];
   }
 
   .status-icon {
-    font-size: 1em;
-    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--statusColor);
   }
 
   .status-label {

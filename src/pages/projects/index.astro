@@ -2,12 +2,19 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectCard from '../../components/projects/ProjectCard.astro';
 import GitHubWidget from '../../components/projects/GitHubWidget.astro';
+import Icon from '../../components/ui/Icon.astro';
 import projectsData from '../../data/projects.json';
 
 const { projects, categories } = projectsData;
 
 const pageTitle = 'Projects - Mihai Adrian Mateescu';
 const pageDescription = 'Explore cutting-edge AI research projects and innovative e-commerce solutions. From physics-inspired semantic reasoning to quantum-enhanced cognitive computing platforms.';
+
+const categoryIconMap: Record<string, string> = {
+  'ai-research': 'brain',
+  commerce: 'briefcase',
+  creative: 'music'
+};
 ---
 
 <BaseLayout 
@@ -35,7 +42,9 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
             data-filter="all"
             aria-pressed="true"
           >
-            <span class="filter-icon" aria-hidden="true">🔍</span>
+            <span class="filter-icon" aria-hidden="true">
+              <Icon name="search" class="h-4 w-4" />
+            </span>
             <span>All Projects</span>
             <span class="filter-count">{projects.length}</span>
           </button>
@@ -47,7 +56,9 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
                 data-filter={category.id}
                 aria-pressed="false"
               >
-                <span class="filter-icon" aria-hidden="true">{category.icon}</span>
+                <span class="filter-icon" aria-hidden="true">
+                  <Icon name={categoryIconMap[category.id] ?? 'search'} class="h-4 w-4" />
+                </span>
                 <span>{category.label}</span>
                 <span class="filter-count">{count}</span>
               </button>
@@ -75,7 +86,9 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
 
         <!-- Empty State -->
         <div class="empty-state" hidden>
-          <div class="empty-icon" aria-hidden="true">🔍</div>
+          <div class="empty-icon" aria-hidden="true">
+            <Icon name="search" class="h-8 w-8" />
+          </div>
           <h2 class="empty-title">No projects found</h2>
           <p class="empty-description">Try selecting a different category filter.</p>
         </div>
@@ -87,22 +100,22 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
       <div class="container-custom">
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="stat-icon" aria-hidden="true">🧠</div>
+            <div class="stat-icon" aria-hidden="true"><Icon name="brain" class="h-6 w-6" /></div>
             <div class="stat-value">{projects.filter(p => p.category === 'ai-research').length}</div>
             <div class="stat-label">AI Research Projects</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon" aria-hidden="true">🚀</div>
+            <div class="stat-icon" aria-hidden="true"><Icon name="rocket" class="h-6 w-6" /></div>
             <div class="stat-value">{projects.filter(p => p.status.indicator === 'production' || p.status.indicator === 'live').length}</div>
             <div class="stat-label">Production Systems</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon" aria-hidden="true">⚡</div>
+            <div class="stat-icon" aria-hidden="true"><Icon name="zap" class="h-6 w-6" /></div>
             <div class="stat-value">23+</div>
             <div class="stat-label">GFLOPS Performance</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon" aria-hidden="true">🌍</div>
+            <div class="stat-icon" aria-hidden="true"><Icon name="globe" class="h-6 w-6" /></div>
             <div class="stat-value">150+</div>
             <div class="stat-label">Streaming Platforms</div>
           </div>
@@ -311,8 +324,9 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
   }
 
   .filter-icon {
-    font-size: 1.125em;
-    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .filter-count {
@@ -361,9 +375,12 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
   }
 
   .empty-icon {
-    font-size: 4rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 1rem;
     opacity: 0.5;
+    color: var(--color-text-secondary);
   }
 
   .empty-title {
@@ -414,7 +431,10 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
   }
 
   .stat-icon {
-    font-size: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
     margin-bottom: 1rem;
   }
 

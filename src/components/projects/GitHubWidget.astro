@@ -3,11 +3,14 @@
  * GitHubWidget Component
  * Displays GitHub statistics including repos, languages, and recent activity
  */
+import Icon from '@components/ui/Icon.astro';
 ---
 
 <div class="github-widget">
   <div class="widget-header">
-    <div class="header-icon" aria-hidden="true">💻</div>
+    <div class="header-icon" aria-hidden="true">
+      <Icon name="code" class="h-7 w-7" />
+    </div>
     <h3 class="header-title">GitHub Activity</h3>
     <a 
       href="https://github.com/Mihai-82Adrian" 
@@ -76,7 +79,7 @@
     <h4 class="section-title">Recent Activity</h4>
     <div class="activity-list" data-github-activity>
       <div class="activity-empty">
-        <span class="activity-icon">📊</span>
+        <span class="activity-icon" aria-hidden="true"><Icon name="bar-chart-3" class="h-5 w-5" /></span>
         <p>Activity data will load shortly...</p>
       </div>
     </div>
@@ -140,7 +143,7 @@
       } else {
         activityContainer.innerHTML = `
           <div class="activity-empty">
-            <span class="activity-icon">🔒</span>
+            <span class="activity-icon">Private</span>
             <p>Recent activity is private</p>
           </div>
         `;
