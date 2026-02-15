@@ -280,3 +280,58 @@ Acest proiect are acum o separare stricta intre dezvoltare si publicare, pentru 
 To continue this session, run codex resume 019c5d4d-df86-7fa3-be14-b0a57890697a
 
 ---
+
+## Prelive Hardening + Soft Launch Decision (2026-02-15)
+
+### Decizie de lansare
+
+- strategie aleasa: **Prelive hardening first**, apoi **soft launch**.
+- fara anunt public general la lansare.
+- comunicare externa limitata la o postare LinkedIn despre articolul nou de blog legat de functionalitatea AI chat.
+
+### Scope PR: `chore/prelive-hardening`
+
+- obiectiv: validare finala tehnica + operationala fara feature-uri noi.
+- fara modificari de UX pentru Ask Mihai AI.
+- i18n neschimbat: DE default fara prefix; EN/RO cu prefix.
+
+### Gate-uri executate (re-run in acest context)
+
+- `npm ci` -> succes
+- `npm run check` -> 0 errors
+- `npm run build` -> succes (Astro build + Pagefind index)
+- `timeout 20s npm run preview` -> server starts
+
+### Smoke checklist validat (release-critical)
+
+- chat route gating:
+  - `src/layouts/BaseLayout.astro` confirma excluderea `ChatDrawer` pe:
+    - `/services`, `/en/services`, `/ro/services` (cu variante trailing slash)
+- legal localized routes:
+  - pagini existente: `src/pages/en/impressum.astro`, `src/pages/en/datenschutz.astro`, `src/pages/ro/impressum.astro`, `src/pages/ro/datenschutz.astro`
+  - artefacte build prezente:
+    - `dist/en/impressum/index.html`
+    - `dist/en/datenschutz/index.html`
+    - `dist/ro/impressum/index.html`
+    - `dist/ro/datenschutz/index.html`
+  - H1-uri confirmate in build:
+    - EN Impressum: `Legal Notice (Impressum)`
+    - EN Datenschutz: `Privacy Policy`
+    - RO Impressum: `Informatii legale (Impressum)`
+    - RO Datenschutz: `Politica de confidentialitate`
+
+### Freeze integrity (corpus)
+
+- politica freeze ramane activa:
+  - `public/corpus.jsonl` trebuie sa ramana identic cu `public/corpus-jsonl.txt`
+  - fara rescriere automata prin export scripts / CI hooks
+- verificare hash:
+  - `sha256sum public/corpus.jsonl public/corpus-jsonl.txt`
+  - rezultat: hash identic (`375f5eef...572358`) pentru ambele fisiere
+
+### Operational next step (cand se decide publish)
+
+1. merge `chore/prelive-hardening` in `staging/prelive-v2`
+2. smoke test final scurt pe runtime local
+3. merge controlat in `master` doar cu aprobare explicita
+4. monitorizare 24-48h post soft launch
