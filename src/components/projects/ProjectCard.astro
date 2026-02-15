@@ -2,6 +2,7 @@
 import StatusIndicator from './StatusIndicator.astro';
 import TechStackBadge from './TechStackBadge.astro';
 import ProjectMetrics from './ProjectMetrics.astro';
+import { Image } from 'astro:assets';
 
 interface Props {
   project: {
@@ -56,7 +57,7 @@ const detailLink = `/projects/${project.slug}`;
   <!-- Hero Image -->
   <div class="card-image">
     <a href={detailLink} aria-label={`View ${project.title} details`}>
-      <img 
+      <Image 
         src={project.heroImage}
         alt={`${project.title} - ${project.tagline}`}
         loading="lazy"
