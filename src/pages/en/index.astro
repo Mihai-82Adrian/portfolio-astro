@@ -8,9 +8,11 @@
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@components/sections/Hero.astro';
+import BentoGrid from '@components/sections/BentoGrid.astro';
 import Container from '@components/ui/Container.astro';
 import Card from '@components/ui/Card.astro';
 import Button from '@components/ui/Button.astro';
+import Icon from '@components/ui/Icon.astro';
 import { translations } from '@data/translations';
 import { generatePersonSchema, generateWebSiteSchema } from '@utils/structuredData';
 
@@ -49,6 +51,9 @@ const structuredData = [personSchema, websiteSchema];
       </Button>
     </div>
   </Hero>
+
+  <!-- Hub Navigation: Bento Grid -->
+  <BentoGrid lang={lang} />
 
   <!-- Contact Information -->
   <Container>
@@ -150,7 +155,9 @@ const structuredData = [personSchema, websiteSchema];
         <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-text-secondary-light dark:text-text-secondary-dark">
           {t.home.skills.items.map((skill) => (
             <li class="flex items-start">
-              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2">✓</span>
+              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2 inline-flex pt-0.5" aria-hidden="true">
+                <Icon name="check-circle" class="h-4 w-4" />
+              </span>
               <span>{skill}</span>
             </li>
           ))}
@@ -167,7 +174,9 @@ const structuredData = [personSchema, websiteSchema];
         <ul class="space-y-3 text-text-secondary-light dark:text-text-secondary-dark">
           {t.home.leadership.items.map((item) => (
             <li class="flex items-start">
-              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2">•</span>
+              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2 inline-flex pt-1" aria-hidden="true">
+                <Icon name="circle" class="h-2.5 w-2.5" />
+              </span>
               <span>{item}</span>
             </li>
           ))}

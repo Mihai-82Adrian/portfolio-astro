@@ -6,9 +6,8 @@
  * Dark/Light Mode: Class-based with localStorage persistence
  */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../../tailwind.config.mjs";
 
 /**
  * Font Face Declarations with font-display: swap
@@ -38,29 +37,45 @@
  */
 :root {
   /* Light Mode Colors (Default) */
-  --bg-primary: #FDFBF8;       /* Warm cream background */
-  --bg-surface: #F5F3F0;       /* Card backgrounds */
-  --bg-elevated: #FFFFFF;      /* Elevated surfaces */
+  --bg-primary: #FDFBF8;
+  /* Warm cream background */
+  --bg-surface: #F5F3F0;
+  /* Card backgrounds */
+  --bg-elevated: #FFFFFF;
+  /* Elevated surfaces */
   --bg-overlay: rgba(0, 0, 0, 0.5);
 
-  --text-primary: #2C2C2C;     /* Main text color */
-  --text-secondary: #6B6B6B;   /* Secondary text */
-  --text-tertiary: #9E9E9E;    /* Tertiary text */
-  --text-inverse: #E8E6E1;     /* Inverse text (on dark backgrounds) */
+  --text-primary: #2C2C2C;
+  /* Main text color */
+  --text-secondary: #6B6B6B;
+  /* Secondary text */
+  --text-tertiary: #9E9E9E;
+  /* Tertiary text */
+  --text-inverse: #E8E6E1;
+  /* Inverse text (on dark backgrounds) */
 
-  --border-color: #E8E4DD;     /* Default borders */
-  
+  --border-color: #E8E4DD;
+  /* Default borders */
+
   /* Primary brand color - Eucalyptus */
-  --color-primary: #4A6B4E;    /* eucalyptus-700 for light mode (darker for better contrast) */
-  --border-subtle: #F5F3F0;    /* Subtle borders */
+  --color-primary: #4A6B4E;
+  /* eucalyptus-700 for light mode (darker for better contrast) */
+  --border-subtle: #F5F3F0;
+  /* Subtle borders */
 
-  --accent-primary: #6B8E6F;   /* Eucalyptus green */
-  --accent-hover: #5A7961;     /* Hover state */
-  --accent-active: #4A6451;    /* Active state */
+  --accent-primary: #6B8E6F;
+  /* Eucalyptus green */
+  --accent-hover: #5A7961;
+  /* Hover state */
+  --accent-active: #4A6451;
+  /* Active state */
 
-  --link-color: #4A6451;       /* Link color (darker for AAA) */
-  --link-hover: #5A7961;       /* Link hover */
-  --link-visited: #8B7355;     /* Visited link (taupe) */
+  --link-color: #4A6451;
+  /* Link color (darker for AAA) */
+  --link-hover: #5A7961;
+  /* Link hover */
+  --link-visited: #8B7355;
+  /* Visited link (taupe) */
 
   /* Semantic Colors */
   --success: #7BA888;
@@ -84,29 +99,45 @@
  * Activated via .dark class on <html> element
  */
 .dark {
-  --bg-primary: #0F0F0F;       /* Near-black background (not pure black) */
-  --bg-surface: #1A1916;       /* Card backgrounds */
-  --bg-elevated: #252320;      /* Elevated surfaces */
+  --bg-primary: #0F0F0F;
+  /* Near-black background (not pure black) */
+  --bg-surface: #1A1916;
+  /* Card backgrounds */
+  --bg-elevated: #252320;
+  /* Elevated surfaces */
   --bg-overlay: rgba(0, 0, 0, 0.8);
 
-  --text-primary: #E8E6E1;     /* Off-white text */
-  --text-secondary: #A99E94;   /* Muted taupe */
-  --text-tertiary: #7A7169;    /* Tertiary text */
-  --text-inverse: #2C2C2C;     /* Inverse text (on light backgrounds) */
+  --text-primary: #E8E6E1;
+  /* Off-white text */
+  --text-secondary: #A99E94;
+  /* Muted taupe */
+  --text-tertiary: #7A7169;
+  /* Tertiary text */
+  --text-inverse: #2C2C2C;
+  /* Inverse text (on light backgrounds) */
 
-  --border-color: #3A3530;     /* Borders */
-  --border-subtle: #252320;    /* Subtle borders */
+  --border-color: #3A3530;
+  /* Borders */
+  --border-subtle: #252320;
+  /* Subtle borders */
 
-  --accent-primary: #8BC299;   /* Lightened eucalyptus for dark mode */
-  --accent-hover: #9FCBA7;     /* Hover state */
-  --accent-active: #7BA888;    /* Active state */
+  --accent-primary: #8BC299;
+  /* Lightened eucalyptus for dark mode */
+  --accent-hover: #9FCBA7;
+  /* Hover state */
+  --accent-active: #7BA888;
+  /* Active state */
 
-  --link-color: #9FBFA8;       /* Link color (lighter for dark mode AAA) */
-  --link-hover: #8BC299;       /* Link hover */
-  --link-visited: #C9B89B;     /* Visited link (warm gold) */
+  --link-color: #9FBFA8;
+  /* Link color (lighter for dark mode AAA) */
+  --link-hover: #8BC299;
+  /* Link hover */
+  --link-visited: #C9B89B;
+  /* Visited link (warm gold) */
 
   /* Primary brand color - Eucalyptus (lighter for dark mode) */
-  --color-primary: #8BC299;    /* eucalyptus-300 for dark mode (lighter for better visibility) */
+  --color-primary: #8BC299;
+  /* eucalyptus-300 for dark mode (lighter for better visibility) */
 
   /* Semantic Colors (adjusted for dark mode) */
   --success: #8BC299;
@@ -124,6 +155,7 @@
  * Base Styles
  */
 @layer base {
+
   /* Smooth scrolling for anchor links */
   html {
     scroll-behavior: smooth;
@@ -142,7 +174,12 @@
   }
 
   /* Typography Hierarchy */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-sans font-semibold text-text-primary-light dark:text-text-primary-dark;
     color: var(--text-primary);
     line-height: 1.2;
@@ -235,6 +272,7 @@
  * Component Utilities
  */
 @layer components {
+
   /* Container with max-width and padding */
   .container-custom {
     @apply max-w-container mx-auto px-4 sm:px-6 lg:px-8;
@@ -262,11 +300,22 @@
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
   }
 
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline,
+  .btn-ghost {
+    @apply inline-flex items-center justify-center;
+    @apply px-6 py-3 rounded-lg;
+    @apply font-medium text-base;
+    @apply transition-all duration-200;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+  }
+
   /* Primary button (eucalyptus green) */
   .btn-primary {
-    @apply btn;
     @apply bg-eucalyptus-600;
-    color: white !important; /* Force white text - WCAG AAA 7.5:1 contrast */
+    color: white !important;
+    /* Force white text - WCAG AAA 7.5:1 contrast */
     @apply hover:bg-eucalyptus-700;
     @apply focus-visible:ring-eucalyptus-500;
     @apply dark:bg-eucalyptus-400 dark:text-eucalyptus-950;
@@ -277,14 +326,14 @@
        Dark mode: eucalyptus-950 text on eucalyptus-400 (#7BA888) = 8.2:1 ✓
     */
   }
-  
+
   .btn-primary:hover {
-    color: white !important; /* Force white text on hover too */
+    color: white !important;
+    /* Force white text on hover too */
   }
 
   /* Secondary button (solid taupe) */
   .btn-secondary {
-    @apply btn;
     @apply bg-taupe-200 text-taupe-900;
     @apply hover:bg-taupe-300;
     @apply focus-visible:ring-taupe-500;
@@ -294,7 +343,6 @@
 
   /* Outline button (eucalyptus border) */
   .btn-outline {
-    @apply btn;
     @apply border-2 border-eucalyptus-600 text-eucalyptus-700 bg-transparent;
     @apply hover:bg-eucalyptus-50;
     @apply focus-visible:ring-eucalyptus-500;
@@ -304,7 +352,6 @@
 
   /* Ghost button (text only) */
   .btn-ghost {
-    @apply btn;
     @apply text-eucalyptus-700 hover:bg-eucalyptus-50;
     @apply focus-visible:ring-eucalyptus-500;
     @apply dark:text-eucalyptus-300 dark:hover:bg-dark-elevated;
@@ -340,6 +387,7 @@
  * Utility Classes
  */
 @layer utilities {
+
   /* Text gradient effect */
   .text-gradient {
     @apply bg-gradient-to-r from-eucalyptus-600 to-eucalyptus-400;
@@ -371,6 +419,19 @@
   }
 }
 
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 /**
  * Animation Keyframes
  */
@@ -379,6 +440,7 @@
     opacity: 0;
     transform: translateY(1rem);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

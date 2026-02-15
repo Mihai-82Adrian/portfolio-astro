@@ -143,6 +143,7 @@ const displayProjects = projects.length > 0 ? projects : defaultProjects;
 </section>
 
 <style>
+@reference "../../styles/global.css";
   .project-showcase {
     @apply bg-light-bg dark:bg-dark-bg;
   }
@@ -205,7 +206,7 @@ const displayProjects = projects.length > 0 ? projects : defaultProjects;
     @apply hover:text-eucalyptus-600 dark:hover:text-eucalyptus-200;
     @apply transition-colors duration-150;
     @apply  rounded;
-    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+    &:focus-visible { outline: none; ring: 2px solid; ring-color: var(--color-eucalyptus-500); ring-offset: 2px; }
   }
 
   /* Section CTA */

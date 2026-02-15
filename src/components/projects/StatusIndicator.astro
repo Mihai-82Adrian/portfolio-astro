@@ -1,4 +1,6 @@
 ---
+import Icon from '@components/ui/Icon.astro';
+
 interface Props {
   status: {
     label: string;
@@ -11,35 +13,37 @@ interface Props {
 
 const { status, size = 'md' } = Astro.props;
 
+import tokens from '../../data/design-tokens.json';
+
 const statusConfig = {
   active: {
-    icon: '🟢',
-    color: '#4ADE80',
-    bgColor: 'rgba(74, 222, 128, 0.1)',
+    icon: 'circle',
+    color: tokens.colors.success.DEFAULT,
+    bgColor: tokens.colors.success.light,
     label: status.label,
   },
   production: {
-    icon: '🚀',
-    color: '#3B82F6',
-    bgColor: 'rgba(59, 130, 246, 0.1)',
+    icon: 'rocket',
+    color: tokens.colors.eucalyptus[500],
+    bgColor: tokens.colors.eucalyptus[100],
     label: status.label,
   },
   live: {
-    icon: '✅',
-    color: '#10B981',
-    bgColor: 'rgba(16, 185, 129, 0.1)',
+    icon: 'check-circle',
+    color: tokens.colors.success.dark,
+    bgColor: tokens.colors.success.light,
     label: status.label,
   },
   development: {
-    icon: '🚧',
-    color: '#F59E0B',
-    bgColor: 'rgba(245, 158, 11, 0.1)',
+    icon: 'construction',
+    color: tokens.colors.warning.DEFAULT,
+    bgColor: tokens.colors.warning.light,
     label: status.label,
   },
   research: {
-    icon: '🔬',
-    color: '#A855F7',
-    bgColor: 'rgba(168, 85, 247, 0.1)',
+    icon: 'flask',
+    color: tokens.colors.info.DEFAULT,
+    bgColor: tokens.colors.info.light,
     label: status.label,
   },
 };
@@ -49,7 +53,9 @@ const config = statusConfig[status.indicator];
 
 <div class={`status-indicator status-${size}`} data-status={status.indicator}>
   <div class="status-content">
-    <span class="status-icon" aria-hidden="true">{config.icon}</span>
+    <span class="status-icon" aria-hidden="true">
+      <Icon name={config.icon} class="h-4 w-4" />
+    </span>
     <span class="status-label">{config.label}</span>
   </div>
   
@@ -116,8 +122,10 @@ const config = statusConfig[status.indicator];
   }
 
   .status-icon {
-    font-size: 1em;
-    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--statusColor);
   }
 
   .status-label {
@@ -161,15 +169,13 @@ const config = statusConfig[status.indicator];
     line-height: 1.4;
   }
 
-  /* Dark mode support */
-  @media (prefers-color-scheme: dark) {
-    .status-indicator {
-      background: rgba(0, 0, 0, 0.3);
-    }
-    
-    .progress-container {
-      background: rgba(255, 255, 255, 0.05);
-    }
+  /* Dark mode support (class-based, aligned with site theme toggle) */
+  :global(.dark) .status-indicator {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  :global(.dark) .progress-container {
+    background: rgba(255, 255, 255, 0.05);
   }
 
   /* Responsive adjustments */

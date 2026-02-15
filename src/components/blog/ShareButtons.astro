@@ -153,6 +153,7 @@ const iconSizes = {
 </div>
 
 <style>
+@reference "../../styles/global.css";
   .share-buttons {
     @apply flex items-center;
   }
@@ -169,8 +170,8 @@ const iconSizes = {
   .share-button {
     @apply inline-flex items-center justify-center;
     @apply rounded-lg;
-    @apply transition-all duration-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-eucalyptus-500 focus:ring-offset-2;
+    @apply transition-[transform,color,background-color,border-color,box-shadow] duration-200;
+    @apply focus:ring-2 focus:ring-eucalyptus-500 focus:ring-offset-2;
     @apply text-gray-600 dark:text-gray-400;
     @apply hover:text-gray-900 dark:hover:text-gray-100;
     @apply bg-white dark:bg-gray-800;
@@ -185,11 +186,11 @@ const iconSizes = {
 
   /* Platform-specific colors on hover */
   .share-button-twitter:hover {
-    @apply bg-[#1DA1F2] text-white border-[#1DA1F2];
+    @apply bg-info text-white border-info;
   }
 
   .share-button-linkedin:hover {
-    @apply bg-[#0A66C2] text-white border-[#0A66C2];
+    @apply bg-info-dark text-white border-info-dark;
   }
 
   .share-button-email:hover {

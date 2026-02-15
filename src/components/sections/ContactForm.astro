@@ -301,6 +301,7 @@ const {
 </script>
 
 <style>
+@reference "../../styles/global.css";
   .contact-section {
     @apply bg-light-bg dark:bg-dark-bg;
   }
@@ -352,8 +353,8 @@ const {
     @apply border border-light-border dark:border-dark-border;
     @apply text-text-primary-light dark:text-text-primary-dark;
     @apply placeholder-text-tertiary-light dark:placeholder-text-tertiary-dark;
-    @apply transition-all duration-150;
-    @apply focus:outline-none focus:ring-2 focus:ring-eucalyptus-500 focus:border-transparent;
+    @apply transition-colors duration-150;
+    @apply focus:ring-2 focus:ring-eucalyptus-500 focus:border-transparent;
   }
 
   .form-input.error {
@@ -368,7 +369,7 @@ const {
   .form-error {
     @apply text-sm text-error;
     @apply opacity-0;
-    @apply transition-all duration-150;
+    @apply transition-opacity duration-150;
     visibility: hidden;
   }
 

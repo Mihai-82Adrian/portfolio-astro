@@ -136,6 +136,7 @@ const sortedTechnologies = [...technologies].sort();
 </div>
 
 <style>
+@reference "../../styles/global.css";
   /* Filter Container */
   .timeline-filters {
     @apply bg-light-surface dark:bg-dark-surface;
@@ -239,7 +240,7 @@ const sortedTechnologies = [...technologies].sort();
   /* Badge Filter Options */
   .filter-option-badge {
     @apply cursor-pointer;
-    @apply transition-all duration-150;
+    @apply transition-colors duration-150;
   }
 
   .filter-checkbox-hidden {
@@ -257,7 +258,7 @@ const sortedTechnologies = [...technologies].sort();
   }
 
   .filter-badge {
-    @apply transition-all duration-150;
+    @apply transition-colors duration-150;
   }
 
   /* Year Range Sliders */
@@ -286,7 +287,7 @@ const sortedTechnologies = [...technologies].sort();
   }
 
   .filter-slider:focus {
-    @apply outline-none ring-2 ring-eucalyptus-500 ring-offset-2;
+    @apply ring-2 ring-eucalyptus-500 ring-offset-2;
   }
 </style>
 

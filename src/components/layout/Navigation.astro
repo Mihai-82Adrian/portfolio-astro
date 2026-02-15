@@ -23,6 +23,7 @@ const navigationLinks = [
   { href: `${basePath}/about`, label: 'About' },
   { href: `${basePath}/experience`, label: 'Experience' },
   { href: `/projects`, label: 'Projects' }, // Always main version
+  { href: `${basePath}/services`, label: 'Services' }, // i18n-aware (DE/EN/RO)
   { href: `/blog`, label: 'Blog' }, // Always main version
   { href: `/now`, label: 'Now' }, // Always main version
   // Contact info is inline on homepage at #contact
@@ -71,13 +72,14 @@ const isActive = (href: string): boolean => {
 </nav>
 
 <style>
+@reference "../../styles/global.css";
   /* Base navigation link styles */
   .nav-link {
     position: relative;
     font-weight: 500;
     transition: color var(--transition-fast) ease-in-out;
     @apply  rounded-lg;
-    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+    &:focus-visible { outline: none; ring: 2px solid; ring-color: var(--color-eucalyptus-500); ring-offset: 2px; }
   }
 
   /* Desktop navigation links */

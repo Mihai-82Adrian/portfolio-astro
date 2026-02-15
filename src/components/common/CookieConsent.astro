@@ -1,0 +1,182 @@
+---
+import Icon from '@components/ui/Icon.astro';
+import tokens from '../../data/design-tokens.json';
+
+// Props (optional customization)
+interface Props {
+  privacyPolicyUrl?: string;
+}
+
+const { privacyPolicyUrl = '/datenschutz' } = Astro.props;
+---
+
+<div id="cookie-consent-banner" class="cookie-banner" hidden>
+  <div class="cookie-content">
+    <div class="cookie-icon" aria-hidden="true">
+      <Icon name="cookie" class="h-6 w-6" />
+    </div>
+    <div class="cookie-text">
+      <p class="cookie-title">Cookie Consent</p>
+      <p class="cookie-description">
+        I use local storage to save your preferences (like theme and language).
+        No third-party tracking cookies are used.
+        <a href={privacyPolicyUrl} class="cookie-link">Learn more</a>
+      </p>
+    </div>
+  </div>
+  <div class="cookie-actions">
+    <button id="accept-cookies" class="btn-accept">
+      Got it
+    </button>
+  </div>
+</div>
+
+<script>
+  // Check for existing consent
+  const CONSENT_KEY = 'cookie-consent';
+  const banner = document.getElementById('cookie-consent-banner');
+  const acceptBtn = document.getElementById('accept-cookies');
+
+  if (banner && !localStorage.getItem(CONSENT_KEY)) {
+    // Show banner with a slight delay for animation
+    setTimeout(() => {
+      banner.hidden = false;
+      // Force reflow to trigger transition
+      void banner.offsetWidth;
+      banner.classList.add('visible');
+    }, 1000);
+  }
+
+  if (acceptBtn) {
+    acceptBtn.addEventListener('click', () => {
+      localStorage.setItem(CONSENT_KEY, 'true');
+      if (banner) {
+        banner.classList.remove('visible');
+        // Wait for animation to finish before hiding
+        setTimeout(() => {
+          banner.hidden = true;
+        }, 400);
+      }
+    });
+  }
+</script>
+
+<style define:vars={{
+    colorBg: tokens.colors.light.bg,
+    colorText: tokens.colors.text.primary.light,
+    colorTextSec: tokens.colors.text.secondary.light,
+    colorAccent: tokens.colors.eucalyptus[500],
+    colorAccentHover: tokens.colors.eucalyptus[600]
+  }}>
+  .cookie-banner {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: min(calc(100% - 4rem), 400px);
+    background: rgba(var(--color-bg-rgb), 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .cookie-banner.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  /* Specific dark mode adjustments for the glass effect */
+  :global(.dark) .cookie-banner {
+    background: rgba(20, 20, 20, 0.6);
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .cookie-content {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .cookie-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--colorAccent);
+    margin-top: 0.25rem;
+  }
+
+  .cookie-text {
+    flex: 1;
+  }
+
+  .cookie-title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 0 0 0.25rem;
+    color: var(--colorText);
+  }
+
+  .cookie-description {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0;
+    color: var(--colorTextSec);
+  }
+
+  .cookie-link {
+    color: var(--colorAccent);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+
+  .cookie-link:hover {
+    border-color: currentColor;
+  }
+
+  .cookie-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .btn-accept {
+    background: var(--colorAccent);
+    color: white;
+    border: none;
+    padding: 0.625rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-accept:hover {
+    background: var(--colorAccentHover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(var(--color-accent-rgb), 0.3);
+  }
+
+  .btn-accept:active {
+    transform: translateY(0);
+  }
+
+  @media (max-width: 640px) {
+    .cookie-banner {
+      bottom: 1rem;
+      right: 1rem;
+      left: 1rem;
+      width: auto;
+    }
+  }
+</style>

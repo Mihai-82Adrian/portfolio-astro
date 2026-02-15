@@ -9,27 +9,43 @@
     "check": "astro check",
     "check:contrast": "node scripts/check-contrast.js",
     "check:all": "npm run check && npm run check:contrast",
+    "lint:design-system": "node .agent/skills/design-system-guardian/scripts/audit-styles.js",
+    "lint:design-system:strict": "node .agent/skills/design-system-guardian/scripts/audit-styles.js --strict",
+    "lint:design-system:json": "node .agent/skills/design-system-guardian/scripts/audit-styles.js --json",
+    "lint:a11y": "node .agent/skills/a11y-auditor/scripts/scan-structure.mjs && node .agent/skills/a11y-auditor/scripts/scan-dist.mjs",
+    "lint:a11y:strict": "node .agent/skills/a11y-auditor/scripts/scan-structure.mjs --strict && node .agent/skills/a11y-auditor/scripts/scan-dist.mjs --strict",
+    "lint:chat": "node scripts/lint-chat.js",
+    "ci:a11y": "npm run build && npm run lint:a11y:strict",
+    "ci:quality": "npm run lint:design-system && npm run lint:chat && npm run check && npm run build",
+    "lint:content": "node .agent/skills/content-architect/scripts/audit-content.mjs",
+    "dev:chat": "npx wrangler pages dev dist --compatibility-date=2024-01-01 --live-reload",
+    "dev:copilot": "npm run build && npm run dev:chat",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.10",
     "@astrojs/rss": "^4.0.13",
     "@astrojs/sitemap": "^3.6.0",
+    "@lucide/astro": "^0.564.0",
     "astro": "^5.15.4",
-    "katex": "^0.16.25",
-    "rehype-katex": "^7.0.1",
-    "remark-math": "^6.0.0"
+    "katex": "^0.16.25"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.5",
-    "@astrojs/tailwind": "^5.1.5",
+    "@astrojs/check": "^0.9.2",
     "@tailwindcss/typography": "^0.5.19",
+    "@tailwindcss/vite": "^4.1.18",
     "@types/node": "^24.10.0",
-    "autoprefixer": "^10.4.21",
+    "baseline-browser-mapping": "^2.9.19",
+    "glob": "^13.0.3",
+    "gray-matter": "^4.0.3",
+    "node-html-parser": "^7.0.2",
     "pagefind": "^1.4.0",
     "patch-package": "^8.0.1",
-    "tailwindcss": "^3.4.18",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
+    "tailwindcss": "^4.1.18",
     "terser": "^5.44.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wrangler": "^4.65.0"
   }
 }

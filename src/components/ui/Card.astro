@@ -83,6 +83,7 @@ const variantClasses = {
 </Tag>
 
 <style>
+@reference "../../styles/global.css";
   /* Base card styles are in global.css */
 
   /* Card variants */
@@ -101,7 +102,7 @@ const variantClasses = {
 
   /* Hover effect */
   .card-hover {
-    @apply transition-all duration-200;
+    @apply transition-transform duration-200;
   }
 
   .card-hover:hover {
@@ -112,7 +113,7 @@ const variantClasses = {
   /* Clickable card link styles */
   .card-link {
     @apply cursor-pointer ;
-    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+    &:focus-visible { outline: none; ring: 2px solid; ring-color: var(--color-eucalyptus-500); ring-offset: 2px; }
     text-decoration: none;
   }
 
@@ -135,6 +136,6 @@ const variantClasses = {
 
   /* Smooth transitions */
   .card {
-    transition: all var(--transition-base) ease-in-out;
+    transition: transform var(--transition-base) ease-in-out;
   }
 </style>

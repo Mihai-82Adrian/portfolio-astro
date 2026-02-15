@@ -2,12 +2,19 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectCard from '../../components/projects/ProjectCard.astro';
 import GitHubWidget from '../../components/projects/GitHubWidget.astro';
+import Icon from '../../components/ui/Icon.astro';
 import projectsData from '../../data/projects.json';
 
 const { projects, categories } = projectsData;
 
 const pageTitle = 'Projects - Mihai Adrian Mateescu';
 const pageDescription = 'Explore cutting-edge AI research projects and innovative e-commerce solutions. From physics-inspired semantic reasoning to quantum-enhanced cognitive computing platforms.';
+
+const categoryIconMap: Record<string, string> = {
+  'ai-research': 'brain',
+  commerce: 'briefcase',
+  creative: 'music'
+};
 ---
 
 <BaseLayout 
@@ -19,10 +26,10 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
   <main class="projects-page">
     <!-- Hero Section -->
     <section class="hero">
-      <div class="container">
+      <div class="container-custom">
         <div class="hero-content">
-          <h1 class="hero-title">{pageTitle}</h1>
-          <p class="hero-description">
+          <h1 class="hero-title text-balance">{pageTitle}</h1>
+          <p class="hero-description text-pretty">
             Pioneering innovations at the intersection of artificial intelligence, cognitive computing, and digital commerce.
             Explore research breakthroughs and practical applications that push technological boundaries.
           </p>
@@ -35,7 +42,9 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
             data-filter="all"
             aria-pressed="true"
           >
-            <span class="filter-icon" aria-hidden="true">🔍</span>
+            <span class="filter-icon" aria-hidden="true">
+              <Icon name="search" class="h-4 w-4" />
+            </span>
             <span>All Projects</span>
             <span class="filter-count">{projects.length}</span>
           </button>
@@ -47,7 +56,9 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
                 data-filter={category.id}
                 aria-pressed="false"
               >
-                <span class="filter-icon" aria-hidden="true">{category.icon}</span>
+                <span class="filter-icon" aria-hidden="true">
+                  <Icon name={categoryIconMap[category.id] ?? 'search'} class="h-4 w-4" />
+                </span>
                 <span>{category.label}</span>
                 <span class="filter-count">{count}</span>
               </button>
@@ -59,7 +70,8 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
 
     <!-- Projects Grid -->
     <section class="projects-section">
-      <div class="container">
+      <div class="container-custom">
+        <h2 class="sr-only">Project List</h2>
         <div class="projects-grid" role="list">
           {projects.map((project) => (
             <div 
@@ -67,14 +79,16 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
               data-category={project.category}
               role="listitem"
             >
-              <ProjectCard project={project as any} />
+              <ProjectCard project={project as any} featured={project.category === 'creative'} />
             </div>
           ))}
         </div>
 
         <!-- Empty State -->
         <div class="empty-state" hidden>
-          <div class="empty-icon" aria-hidden="true">🔍</div>
+          <div class="empty-icon" aria-hidden="true">
+            <Icon name="search" class="h-8 w-8" />
+          </div>
           <h2 class="empty-title">No projects found</h2>
           <p class="empty-description">Try selecting a different category filter.</p>
         </div>
@@ -83,27 +97,27 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
 
     <!-- Stats Section -->
     <section class="stats-section">
-      <div class="container">
+      <div class="container-custom">
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="stat-icon" aria-hidden="true">🧠</div>
+            <div class="stat-icon" aria-hidden="true"><Icon name="brain" class="h-6 w-6" /></div>
             <div class="stat-value">{projects.filter(p => p.category === 'ai-research').length}</div>
             <div class="stat-label">AI Research Projects</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon" aria-hidden="true">🚀</div>
+            <div class="stat-icon" aria-hidden="true"><Icon name="rocket" class="h-6 w-6" /></div>
             <div class="stat-value">{projects.filter(p => p.status.indicator === 'production' || p.status.indicator === 'live').length}</div>
             <div class="stat-label">Production Systems</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon" aria-hidden="true">⚡</div>
+            <div class="stat-icon" aria-hidden="true"><Icon name="zap" class="h-6 w-6" /></div>
             <div class="stat-value">23+</div>
             <div class="stat-label">GFLOPS Performance</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon" aria-hidden="true">🌐</div>
-            <div class="stat-value">330K+</div>
-            <div class="stat-label">Integrated Lexemes</div>
+            <div class="stat-icon" aria-hidden="true"><Icon name="globe" class="h-6 w-6" /></div>
+            <div class="stat-value">150+</div>
+            <div class="stat-label">Streaming Platforms</div>
           </div>
         </div>
       </div>
@@ -111,7 +125,7 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
 
     <!-- GitHub Widget -->
     <section class="github-section">
-      <div class="container">
+      <div class="container-custom">
         <GitHubWidget />
       </div>
     </section>
@@ -120,30 +134,42 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
 
 <script>
   // Client-side filtering functionality with animations
-  document.addEventListener('DOMContentLoaded', () => {
+  const initProjectsPage = () => {
+    const page = document.querySelector<HTMLElement>('.projects-page');
+    if (!page || page.dataset.projectsReady === 'true') return;
+    page.dataset.projectsReady = 'true';
+    page.classList.add('js-ready');
+
     const filterButtons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
     const projectItems = document.querySelectorAll<HTMLElement>('.project-item');
     const emptyState = document.querySelector<HTMLElement>('.empty-state');
     
-    // Intersection Observer for scroll animations
-    const observerOptions = {
-      threshold: 0.15,
-      rootMargin: '0px 0px -50px 0px'
-    };
-    
-    const scrollObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate-in');
-          scrollObserver.unobserve(entry.target);
-        }
+    // Intersection Observer for scroll animations (with fail-safe visibility)
+    if ('IntersectionObserver' in window) {
+      const observerOptions = {
+        threshold: 0.15,
+        rootMargin: '0px 0px -50px 0px'
+      };
+
+      const scrollObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+            scrollObserver.unobserve(entry.target);
+          }
+        });
+      }, observerOptions);
+
+      projectItems.forEach((item) => {
+        scrollObserver.observe(item);
       });
-    }, observerOptions);
-    
-    // Observe all project items for scroll animation
-    projectItems.forEach((item) => {
-      scrollObserver.observe(item);
-    });
+
+      window.setTimeout(() => {
+        projectItems.forEach((item) => item.classList.add('animate-in'));
+      }, 500);
+    } else {
+      projectItems.forEach((item) => item.classList.add('animate-in'));
+    }
     
     // Get initial filter from URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -216,7 +242,14 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
         }
       }
     }
-  });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initProjectsPage, { once: true });
+  } else {
+    initProjectsPage();
+  }
+  document.addEventListener('astro:page-load', initProjectsPage);
 </script>
 
 <style>
@@ -291,8 +324,9 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
   }
 
   .filter-icon {
-    font-size: 1.125em;
-    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .filter-count {
@@ -318,7 +352,7 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
 
   .projects-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 2rem;
     max-width: 1400px;
     margin: 0 auto;
@@ -341,9 +375,12 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
   }
 
   .empty-icon {
-    font-size: 4rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 1rem;
     opacity: 0.5;
+    color: var(--color-text-secondary);
   }
 
   .empty-title {
@@ -394,7 +431,10 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
   }
 
   .stat-icon {
-    font-size: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
     margin-bottom: 1rem;
   }
 
@@ -454,13 +494,18 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
   
   /* Scroll-triggered fade-in animation */
   .project-item {
+    opacity: 1;
+    transform: none;
+  }
+
+  .projects-page.js-ready .project-item {
     opacity: 0;
     transform: translateY(30px);
     transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
                 transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .project-item.animate-in {
+  .projects-page.js-ready .project-item.animate-in {
     opacity: 1;
     transform: translateY(0);
   }
@@ -564,4 +609,3 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
     }
   }
 </style>
-</BaseLayout>

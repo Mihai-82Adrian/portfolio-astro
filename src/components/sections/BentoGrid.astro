@@ -1,0 +1,495 @@
+---
+/**
+ * BentoGrid Component — Hub Navigation
+ *
+ * Asymmetric responsive grid showcasing the 3 professional pillars:
+ * 1. Portfolio & AI (large card, spanning 2 cols on desktop)
+ * 2. Services (medium card)
+ * 3. MindHafen / Creative (medium card)
+ *
+ * Uses Eucalyptus design tokens. Glassmorphism hover effects.
+ * @component
+ */
+
+import Container from '@components/ui/Container.astro';
+import Icon from '@components/ui/Icon.astro';
+
+interface Props {
+  lang?: 'de' | 'en' | 'ro';
+}
+
+const { lang = 'de' } = Astro.props;
+
+const basePath = lang === 'de' ? '' : `/${lang}`;
+
+const content = {
+  de: {
+    sectionTitle: 'Was ich mache',
+    sectionSubtitle: 'Drei Bereiche. Ein Hub.',
+    cards: [
+      {
+        title: 'Tech & AI Portfolio',
+        description: 'Projekte an der Schnittstelle von künstlicher Intelligenz, kognitiver Berechnung und Web-Technologien. Von GDS-Forschung bis hin zu AI-gestützten Chatbots.',
+        icon: 'brain',
+        badge: 'Tech',
+        href: '/projects',
+        stats: [
+          { label: 'Projekte', value: '3+' },
+          { label: 'Modelle', value: 'AI/ML' },
+          { label: 'Stack', value: 'Rust · Python · Astro' }
+        ]
+      },
+      {
+        title: 'Dienstleistungen',
+        description: 'Finanzberatung mit IHK-Zertifizierung, AI-gestützte Webentwicklung und kreative Produktion — alles aus einer Hand.',
+        icon: 'briefcase',
+        badge: 'Services',
+        href: `${basePath}/services`,
+        stats: [
+          { label: 'Beratung', value: 'IHK' },
+          { label: 'Web & AI', value: 'Full-Stack' }
+        ]
+      },
+      {
+        title: 'MindHafen',
+        description: 'Mensch + AI Musikproduktion. Stoisch-motivationale Songs, Deep Focus & Sleep Playlists — verteilt auf Spotify, YouTube & mehr.',
+        icon: 'music',
+        badge: 'Kreativ',
+        href: '/projects/mindhafen',
+        stats: [
+          { label: 'Plattformen', value: 'Spotify · YouTube' },
+          { label: 'Produktion', value: 'Suno V5 Pro' }
+        ]
+      }
+    ]
+  },
+  en: {
+    sectionTitle: 'What I Do',
+    sectionSubtitle: 'Three pillars. One hub.',
+    cards: [
+      {
+        title: 'Tech & AI Portfolio',
+        description: 'Projects at the intersection of artificial intelligence, cognitive computing, and web technologies. From GDS research to AI-powered chatbots.',
+        icon: 'brain',
+        badge: 'Tech',
+        href: '/projects',
+        stats: [
+          { label: 'Projects', value: '3+' },
+          { label: 'Models', value: 'AI/ML' },
+          { label: 'Stack', value: 'Rust · Python · Astro' }
+        ]
+      },
+      {
+        title: 'Services',
+        description: 'Financial consulting with IHK certification, AI-powered web development, and creative production — all from one hub.',
+        icon: 'briefcase',
+        badge: 'Services',
+        href: `${basePath}/services`,
+        stats: [
+          { label: 'Consulting', value: 'IHK' },
+          { label: 'Web & AI', value: 'Full-Stack' }
+        ]
+      },
+      {
+        title: 'MindHafen',
+        description: 'Human + AI music production. Stoic-motivational songs, Deep Focus & Sleep playlists — distributed on Spotify, YouTube & more.',
+        icon: 'music',
+        badge: 'Creative',
+        href: '/projects/mindhafen',
+        stats: [
+          { label: 'Platforms', value: 'Spotify · YouTube' },
+          { label: 'Production', value: 'Suno V5 Pro' }
+        ]
+      }
+    ]
+  },
+  ro: {
+    sectionTitle: 'Ce fac',
+    sectionSubtitle: 'Trei piloni. Un hub.',
+    cards: [
+      {
+        title: 'Portofoliu Tech & AI',
+        description: 'Proiecte la intersecția inteligenței artificiale, computației cognitive și tehnologiilor web. De la cercetare GDS la chatboți AI.',
+        icon: 'brain',
+        badge: 'Tech',
+        href: '/projects',
+        stats: [
+          { label: 'Proiecte', value: '3+' },
+          { label: 'Modele', value: 'AI/ML' },
+          { label: 'Stack', value: 'Rust · Python · Astro' }
+        ]
+      },
+      {
+        title: 'Servicii',
+        description: 'Consultanță financiară cu certificare IHK, dezvoltare web cu AI și producție creativă — totul dintr-un singur loc.',
+        icon: 'briefcase',
+        badge: 'Servicii',
+        href: `${basePath}/services`,
+        stats: [
+          { label: 'Consultanță', value: 'IHK' },
+          { label: 'Web & AI', value: 'Full-Stack' }
+        ]
+      },
+      {
+        title: 'MindHafen',
+        description: 'Producție muzicală Om + AI. Cântece stoic-motivaționale, playlisturi Deep Focus & Sleep — distribuite pe Spotify, YouTube și altele.',
+        icon: 'music',
+        badge: 'Creativ',
+        href: '/projects/mindhafen',
+        stats: [
+          { label: 'Platforme', value: 'Spotify · YouTube' },
+          { label: 'Producție', value: 'Suno V5 Pro' }
+        ]
+      }
+    ]
+  }
+};
+
+const t = content[lang] || content.de;
+---
+
+<section class="bento-section" aria-labelledby="bento-heading">
+  <Container maxWidth="lg" paddingY="xl">
+    <!-- Section Header -->
+    <div class="bento-header">
+      <h2 id="bento-heading" class="bento-title text-balance">{t.sectionTitle}</h2>
+      <p class="bento-subtitle text-pretty">{t.sectionSubtitle}</p>
+    </div>
+
+    <!-- Bento Grid -->
+    <div class="bento-grid">
+      {t.cards.map((card, index) => (
+        <a
+          href={card.href}
+          class:list={[
+            'bento-card',
+            `bento-card--${index === 0 ? 'large' : index === 1 ? 'services' : 'creative'}`
+          ]}
+          aria-label={card.title}
+        >
+          <!-- Card Glow Effect -->
+          <div class="bento-card__glow" aria-hidden="true"></div>
+
+          <!-- Card Content -->
+          <div class="bento-card__content">
+            <!-- Badge -->
+            <div class="bento-card__badge">
+              <span class="bento-card__icon" aria-hidden="true">
+                <Icon name={card.icon} class="h-4 w-4" />
+              </span>
+              <span>{card.badge}</span>
+            </div>
+
+            <!-- Title -->
+            <h3 class="bento-card__title text-balance">{card.title}</h3>
+
+            <!-- Description -->
+            <p class="bento-card__description text-pretty">{card.description}</p>
+
+            <!-- Stats -->
+            <div class="bento-card__stats">
+              {card.stats.map((stat) => (
+                <div class="bento-card__stat">
+                  <span class="bento-card__stat-value">{stat.value}</span>
+                  <span class="bento-card__stat-label">{stat.label}</span>
+                </div>
+              ))}
+            </div>
+
+            <!-- Arrow Indicator -->
+            <div class="bento-card__arrow" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 17L17 7M17 7H7M17 7V17" />
+              </svg>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </Container>
+</section>
+
+<style>
+@reference "../../styles/global.css";
+  /* Section */
+  .bento-section {
+    @apply relative overflow-hidden;
+    @apply bg-light-bg dark:bg-dark-bg;
+  }
+
+  .bento-header {
+    @apply text-center mb-12;
+    animation: fadeUp 0.5s ease-out;
+  }
+
+  .bento-title {
+    @apply text-3xl sm:text-4xl md:text-5xl font-bold;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+    @apply mb-3 tracking-tight;
+  }
+
+  .bento-subtitle {
+    @apply text-lg sm:text-xl;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+    @apply font-medium;
+    @apply mb-10;
+  }
+
+  /* Grid Layout: 2-column asymmetric */
+  .bento-grid {
+    @apply grid gap-4 sm:gap-5 md:gap-6;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  @media (min-width: 768px) {
+    .bento-grid {
+      grid-template-columns: 1.2fr 1fr;
+      grid-template-rows: auto auto;
+    }
+  }
+
+  /* Cards: shared */
+  .bento-card {
+    @apply relative;
+    @apply rounded-2xl;
+    @apply p-6 sm:p-7 md:p-8;
+    @apply transition-[transform,border-color,box-shadow,background-color] duration-300 ease-out;
+    @apply no-underline;
+    @apply border;
+    @apply cursor-pointer;
+    border-color: color-mix(in srgb, var(--border-color) 85%, transparent);
+    background: color-mix(in srgb, var(--bg-elevated) 78%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    overflow: hidden;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+  }
+
+  :global(.dark) .bento-card {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: color-mix(in srgb, var(--bg-elevated) 58%, transparent);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
+  }
+
+  .bento-card:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--color-eucalyptus-500) 55%, transparent);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.14);
+  }
+
+  :global(.dark) .bento-card:hover {
+    box-shadow: 0 24px 56px rgba(0, 0, 0, 0.40);
+  }
+
+  /* Card Glow */
+  .bento-card__glow {
+    @apply absolute inset-0 rounded-2xl opacity-0;
+    @apply transition-opacity duration-300;
+    pointer-events: none;
+  }
+
+  .bento-card:hover .bento-card__glow {
+    @apply opacity-100;
+  }
+
+  /* Large card (Tech/AI) - spans 2 rows on desktop */
+  .bento-card--large {
+    @apply md:row-span-2;
+  }
+
+  .bento-card--large .bento-card__glow {
+    background: radial-gradient(
+      520px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(76, 175, 80, 0.08),
+      transparent 42%
+    );
+  }
+
+  /* Services card */
+  .bento-card--services .bento-card__glow {
+    background: radial-gradient(
+      400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(59, 130, 246, 0.08),
+      transparent 40%
+    );
+  }
+
+  /* Creative card */
+  .bento-card--creative .bento-card__glow {
+    background: radial-gradient(
+      400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(168, 85, 247, 0.08),
+      transparent 40%
+    );
+  }
+
+  :global(.dark) .bento-card--large .bento-card__glow {
+    background: radial-gradient(
+      520px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(139, 194, 153, 0.1),
+      transparent 45%
+    );
+  }
+
+  :global(.dark) .bento-card--services .bento-card__glow {
+    background: radial-gradient(
+      400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(59, 130, 246, 0.12),
+      transparent 40%
+    );
+  }
+
+  :global(.dark) .bento-card--creative .bento-card__glow {
+    background: radial-gradient(
+      400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(168, 85, 247, 0.12),
+      transparent 40%
+    );
+  }
+
+  /* Card Content */
+  .bento-card__content {
+    @apply relative z-10;
+    @apply flex flex-col h-full;
+  }
+
+  /* Badge */
+  .bento-card__badge {
+    @apply inline-flex items-center gap-1.5;
+    @apply self-start;
+    @apply px-3 py-1 rounded-full;
+    @apply text-xs sm:text-sm font-semibold uppercase tracking-wider;
+    @apply mb-4;
+  }
+
+  .bento-card--large .bento-card__badge {
+    @apply bg-eucalyptus-100 dark:bg-eucalyptus-900/60;
+    @apply text-eucalyptus-800 dark:text-eucalyptus-300;
+  }
+
+  .bento-card--services .bento-card__badge {
+    @apply bg-blue-100 dark:bg-blue-900/60;
+    @apply text-blue-800 dark:text-blue-300;
+  }
+
+  .bento-card--creative .bento-card__badge {
+    @apply bg-purple-100 dark:bg-purple-900/60;
+    @apply text-purple-800 dark:text-purple-300;
+  }
+
+  .bento-card__icon {
+    @apply inline-flex items-center justify-center;
+  }
+
+  /* Title */
+  .bento-card__title {
+    @apply text-xl sm:text-2xl font-bold;
+    @apply text-text-primary-light dark:text-text-primary-dark;
+    @apply mb-3;
+    @apply transition-colors duration-200;
+  }
+
+  .bento-card--large .bento-card__title {
+    @apply md:text-3xl;
+  }
+
+  .bento-card:hover .bento-card__title {
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+  }
+
+  /* Description */
+  .bento-card__description {
+    @apply text-sm sm:text-base;
+    @apply text-text-secondary-light dark:text-text-secondary-dark;
+    @apply leading-relaxed;
+    @apply mb-6;
+    @apply flex-grow;
+  }
+
+  .bento-card--large .bento-card__description {
+    @apply md:text-lg;
+  }
+
+  /* Stats */
+  .bento-card__stats {
+    @apply flex flex-wrap gap-4 sm:gap-6;
+    @apply pt-4;
+    @apply border-t border-gray-200/60 dark:border-gray-700/40;
+  }
+
+  .bento-card__stat {
+    @apply flex flex-col;
+  }
+
+  .bento-card__stat-value {
+    @apply text-sm sm:text-base font-bold;
+    @apply text-eucalyptus-700 dark:text-eucalyptus-400;
+  }
+
+  .bento-card__stat-label {
+    @apply text-xs;
+    @apply text-text-tertiary-light dark:text-text-tertiary-dark;
+    @apply uppercase tracking-wide;
+  }
+
+  /* Arrow */
+  .bento-card__arrow {
+    @apply absolute top-6 right-6 sm:top-7 sm:right-7 md:top-8 md:right-8;
+    @apply text-text-tertiary-light dark:text-text-tertiary-dark;
+    @apply transition-[opacity,transform,color] duration-300;
+    @apply opacity-50;
+  }
+
+  .bento-card:hover .bento-card__arrow {
+    @apply text-eucalyptus-600 dark:text-eucalyptus-400;
+    @apply opacity-100;
+    transform: translate(3px, -3px);
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .bento-card {
+    animation: fadeUp 0.5s ease-out both;
+  }
+
+  .bento-card:nth-child(1) { animation-delay: 0.1s; }
+  .bento-card:nth-child(2) { animation-delay: 0.2s; }
+  .bento-card:nth-child(3) { animation-delay: 0.3s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bento-card,
+    .bento-card__glow,
+    .bento-card__arrow {
+      animation: none !important;
+      transition: none !important;
+    }
+
+    .bento-card:hover {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  // Interactive glow effect that follows the mouse cursor on cards
+  document.querySelectorAll('.bento-card').forEach((card) => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = (card as HTMLElement).getBoundingClientRect();
+      const x = ((e as MouseEvent).clientX - rect.left) / rect.width * 100;
+      const y = ((e as MouseEvent).clientY - rect.top) / rect.height * 100;
+      (card as HTMLElement).style.setProperty('--mouse-x', `${x}%`);
+      (card as HTMLElement).style.setProperty('--mouse-y', `${y}%`);
+    });
+  });
+</script>

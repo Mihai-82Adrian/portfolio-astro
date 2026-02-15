@@ -138,11 +138,12 @@ const formattedDate = pubDate.toLocaleDateString('en-US', {
 </article>
 
 <style>
+@reference "../../styles/global.css";
   .post-card {
     @apply rounded-lg overflow-hidden;
     @apply bg-light-surface dark:bg-dark-surface;
     @apply border border-light-border dark:border-dark-border;
-    @apply transition-all duration-300;
+    @apply transition-transform duration-300;
     box-shadow: var(--shadow-card);
   }
 
@@ -153,7 +154,7 @@ const formattedDate = pubDate.toLocaleDateString('en-US', {
 
   .post-card-link {
     @apply block  rounded-lg;
-    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+    &:focus-visible { outline: none; ring: 2px solid; ring-color: var(--color-eucalyptus-500); ring-offset: 2px; }
     text-decoration: none;
   }
 
@@ -235,7 +236,7 @@ const formattedDate = pubDate.toLocaleDateString('en-US', {
     @apply inline-flex items-center gap-2;
     @apply text-eucalyptus-700 dark:text-eucalyptus-300;
     @apply font-medium;
-    @apply transition-all duration-150;
+    @apply transition-colors duration-150;
   }
 
   .post-card:hover .post-card-cta-text {

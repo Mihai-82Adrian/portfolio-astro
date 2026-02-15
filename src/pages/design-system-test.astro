@@ -13,6 +13,7 @@
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ThemeToggle from '@/components/ui/ThemeToggle.astro';
+import tokens from '@/data/design-tokens.json';
 ---
 
 <BaseLayout
@@ -35,32 +36,19 @@ import ThemeToggle from '@/components/ui/ThemeToggle.astro';
       <section class="section">
         <h2 class="text-4xl font-bold mb-8">Eucalyptus Green Color Palette</h2>
         <p class="text-lg text-text-secondary-light dark:text-text-secondary-dark mb-8">
-          Primary brand color: #6B8E6F (eucalyptus-500) with full 11-color scale (50-950)
+          Primary brand color: <span class="font-mono text-eucalyptus-500">eucalyptus-500</span> with full 11-color scale (50-950)
         </p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[
-            { name: 'eucalyptus-50', hex: '#F0F4F1', text: 'dark' },
-            { name: 'eucalyptus-100', hex: '#E1EBE4', text: 'dark' },
-            { name: 'eucalyptus-200', hex: '#C3D7C9', text: 'dark' },
-            { name: 'eucalyptus-300', hex: '#9FBFA8', text: 'dark' },
-            { name: 'eucalyptus-400', hex: '#7BA888', text: 'light' },
-            { name: 'eucalyptus-500', hex: '#6B8E6F', text: 'light' },
-            { name: 'eucalyptus-600', hex: '#5A7961', text: 'light' },
-            { name: 'eucalyptus-700', hex: '#4A6451', text: 'light' },
-            { name: 'eucalyptus-800', hex: '#3A4E41', text: 'light' },
-            { name: 'eucalyptus-900', hex: '#2C3832', text: 'light' },
-            { name: 'eucalyptus-950', hex: '#1A211D', text: 'light' },
-          ].map((color) => (
+          {Object.entries(tokens.colors.eucalyptus).map(([key, value]) => (
             <div class="card flex items-center space-x-4">
               <div
-                class={`w-16 h-16 rounded-lg bg-${color.name} flex-shrink-0`}
-                style={`background-color: ${color.hex}`}
+                class={`w-16 h-16 rounded-lg bg-eucalyptus-${key} flex-shrink-0 border border-light-border dark:border-dark-border`}
               />
               <div>
-                <p class="font-mono text-sm font-semibold">{color.name}</p>
-                <p class="font-mono text-xs text-text-secondary-light dark:text-text-secondary-dark">
-                  {color.hex}
+                <p class="font-mono text-sm font-semibold">eucalyptus-{key}</p>
+                <p class="font-mono text-xs text-text-secondary-light dark:text-text-secondary-dark lowercase">
+                  {value}
                 </p>
               </div>
             </div>
@@ -376,7 +364,7 @@ import ThemeToggle from '@/components/ui/ThemeToggle.astro';
     <!-- Footer -->
     <footer class="border-t border-light-border dark:border-dark-border mt-16">
       <div class="container-custom py-8 text-center text-sm text-text-secondary-light dark:text-text-secondary-dark">
-        <p>Design System Test Page - Eucalyptus Green (#6B8E6F)</p>
+        <p>Design System Test Page - Eucalyptus Green (Brand)</p>
         <p class="mt-2">WCAG 2.2 AAA Compliant | Dark/Light Mode Support</p>
       </div>
     </footer>

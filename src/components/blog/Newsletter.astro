@@ -1,4 +1,6 @@
 ---
+import Icon from '@components/ui/Icon.astro';
+
 /**
  * Newsletter Signup Component
  * 
@@ -35,7 +37,10 @@ const {
   <div class="newsletter-content">
     {variant === 'inline' && (
       <>
-        <h3 class="newsletter-title">📬 Stay Updated</h3>
+        <h3 class="newsletter-title flex items-center gap-2">
+          <Icon name="mail" class="h-5 w-5 text-eucalyptus-600 dark:text-eucalyptus-400" />
+          <span>Stay Updated</span>
+        </h3>
         <p class="newsletter-description">
           Get notified when I publish new articles about finance automation, machine learning, 
           and data science. No spam, unsubscribe anytime.
@@ -230,6 +235,7 @@ const {
 </script>
 
 <style>
+@reference "../../styles/global.css";
   .newsletter-signup {
     @apply w-full;
   }
@@ -293,7 +299,7 @@ const {
     @apply text-gray-900 dark:text-gray-100;
     @apply placeholder-gray-400 dark:placeholder-gray-500;
     @apply transition-colors duration-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-eucalyptus-500 dark:focus:ring-eucalyptus-400;
+    @apply focus:ring-2 focus:ring-eucalyptus-500 dark:focus:ring-eucalyptus-400;
     @apply focus:border-transparent;
   }
   
@@ -337,9 +343,9 @@ const {
     @apply font-medium text-base;
     @apply bg-eucalyptus-600 dark:bg-eucalyptus-500;
     @apply text-white;
-    @apply transition-all duration-200;
+    @apply transition-colors duration-200;
     @apply hover:bg-eucalyptus-700 dark:hover:bg-eucalyptus-600;
-    @apply focus:outline-none focus:ring-2 focus:ring-eucalyptus-500 dark:focus:ring-eucalyptus-400 focus:ring-offset-2;
+    @apply focus:ring-2 focus:ring-eucalyptus-500 dark:focus:ring-eucalyptus-400 focus:ring-offset-2;
     @apply disabled:opacity-50 disabled:cursor-not-allowed;
     @apply relative overflow-hidden;
   }

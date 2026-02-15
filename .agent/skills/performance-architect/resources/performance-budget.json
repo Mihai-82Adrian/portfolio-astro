@@ -1,0 +1,28 @@
+{
+    "global": {
+        "js_bundle_gzip": "50kb",
+        "image_max_size": "100kb",
+        "font_max_size": "50kb"
+    },
+    "per_page": {
+        "js_initial_load": "25kb",
+        "css_initial_load": "15kb"
+    },
+    "lighthouse": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+    },
+    "hydration": {
+        "allowed_directives": [
+            "client:visible",
+            "client:idle",
+            "client:media",
+            "client:only"
+        ],
+        "warn_on": [
+            "client:load"
+        ]
+    }
+}

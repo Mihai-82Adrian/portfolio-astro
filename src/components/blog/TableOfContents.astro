@@ -230,6 +230,7 @@ const filteredHeadings = headings.filter((h) => h.depth <= 3);
 </script>
 
 <style>
+@reference "../../styles/global.css";
   .toc-wrapper {
     @apply mb-8 md:mb-0;
   }
@@ -249,7 +250,7 @@ const filteredHeadings = headings.filter((h) => h.depth <= 3);
   }
   
   .toc-toggle:focus-visible {
-    @apply outline-none ring-2 ring-eucalyptus-500 ring-offset-2;
+    @apply ring-2 ring-eucalyptus-500 ring-offset-2;
   }
 
   .toc-title {
@@ -307,7 +308,7 @@ const filteredHeadings = headings.filter((h) => h.depth <= 3);
   }
   
   .toc-link:focus-visible {
-    @apply outline-none ring-2 ring-eucalyptus-500 ring-offset-2;
+    @apply ring-2 ring-eucalyptus-500 ring-offset-2;
   }
 
   /* Active link indicator */

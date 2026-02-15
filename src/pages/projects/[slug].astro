@@ -3,6 +3,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import StatusIndicator from '../../components/projects/StatusIndicator.astro';
 import TechStackBadge from '../../components/projects/TechStackBadge.astro';
 import ProjectMetrics from '../../components/projects/ProjectMetrics.astro';
+import MediaGallery from '../../components/media/MediaGallery.astro';
+import Icon from '../../components/ui/Icon.astro';
+import { Image } from 'astro:assets';
 import projectsData from '../../data/projects.json';
 
 export async function getStaticPaths() {
@@ -37,7 +40,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
     <!-- Hero Section -->
     <section class="hero" style={`--theme-color: ${project.themeColor}`}>
       <div class="hero-image">
-        <img 
+        <Image 
           src={project.heroImage}
           alt={`${project.title} - ${project.tagline}`}
           width="1200"
@@ -50,8 +53,8 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
           <a href="/projects">← Back to Projects</a>
         </div>
         <StatusIndicator status={project.status as any} size="lg" />
-        <h1 class="project-title">{project.title}</h1>
-        <p class="project-tagline">{project.tagline}</p>
+        <h1 class="project-title text-balance">{project.title}</h1>
+        <p class="project-tagline text-pretty">{project.tagline}</p>
         <div class="hero-actions">
           {project.links.map((link) => (
             link.url !== '#' && (
@@ -61,7 +64,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
                 target={link.type === 'external' ? '_blank' : undefined}
                 rel={link.type === 'external' ? 'noopener noreferrer' : undefined}
               >
-                <span aria-hidden="true">{link.icon}</span>
+                <span aria-hidden="true"><Icon name={link.icon} class="h-4 w-4" /></span>
                 <span>{link.label}</span>
               </a>
             )
@@ -73,19 +76,23 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
     <div class="container content-wrapper">
       <!-- Overview Section -->
       <section class="section overview">
-        <h2 class="section-title">Project Overview</h2>
+        <h2 class="section-title text-balance">Project Overview</h2>
         <p class="project-description">{project.description}</p>
       </section>
 
+      {project.id === 'mindhafen' && (
+        <MediaGallery projectId="mindhafen" lang="en" />
+      )}
+
       <!-- Metrics Grid -->
       <section class="section metrics-section">
-        <h2 class="section-title">Key Metrics</h2>
+        <h2 class="section-title text-balance">Key Metrics</h2>
         <ProjectMetrics metrics={project.metrics} columns={4} />
       </section>
 
       <!-- Tech Stack Grid -->
       <section class="section tech-section">
-        <h2 class="section-title">Technology Stack</h2>
+        <h2 class="section-title text-balance">Technology Stack</h2>
         <div class="tech-grid">
           {project.techStack.map((tech) => (
             <TechStackBadge tech={tech as any} size="lg" />
@@ -95,11 +102,11 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
 
       <!-- Features List -->
       <section class="section features-section">
-        <h2 class="section-title">Key Features</h2>
+        <h2 class="section-title text-balance">Key Features</h2>
         <ul class="features-list">
           {project.features.map((feature) => (
             <li class="feature-item">
-              <span class="feature-icon" aria-hidden="true">✓</span>
+              <span class="feature-icon" aria-hidden="true"><Icon name="check-circle" class="h-4 w-4" /></span>
               <span>{feature}</span>
             </li>
           ))}
@@ -109,7 +116,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
       <!-- Timeline -->
       {project.timeline && (
         <section class="section timeline-section">
-          <h2 class="section-title">Project Timeline</h2>
+          <h2 class="section-title text-balance">Project Timeline</h2>
           <div class="timeline-info">
             <div class="timeline-meta">
               <span><strong>Started:</strong> {project.timeline.started}</span>
@@ -134,7 +141,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
       <!-- Technical Details -->
       {project.technicalDetails && (
         <section class="section technical-section">
-          <h2 class="section-title">Technical Details</h2>
+          <h2 class="section-title text-balance">Technical Details</h2>
           <dl class="technical-details">
             {Object.entries(project.technicalDetails).map(([key, value]) => (
               <div class="detail-item">
@@ -149,11 +156,16 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
       <!-- Related Projects -->
       {relatedProjects.length > 0 && (
         <section class="section related-section">
-          <h2 class="section-title">Related Projects</h2>
+          <h2 class="section-title text-balance">Related Projects</h2>
           <div class="related-grid">
             {relatedProjects.map((related) => (
               <a href={`/projects/${related.slug}`} class="related-card">
-                <img src={related.heroImage} alt={related.title} />
+                <Image
+                  src={related.heroImage}
+                  alt={related.title}
+                  width="800"
+                  height="420"
+                />
                 <div class="related-content">
                   <h3>{related.title}</h3>
                   <p>{related.tagline}</p>
@@ -286,15 +298,15 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
   }
 
   .btn-primary {
-    background: var(--theme-color, #5A7961);
+    background: var(--theme-color, var(--color-eucalyptus-600));
     color: white !important;
-    border: 2px solid var(--theme-color, #5A7961);
+    border: 2px solid var(--theme-color, var(--color-eucalyptus-600));
   }
 
   .btn-primary:hover {
-    background: var(--theme-color, #4A6451);
+    background: var(--theme-color, var(--color-eucalyptus-700));
     color: white !important;
-    box-shadow: 0 0 20px var(--theme-color, #5A7961);
+    box-shadow: 0 0 20px var(--theme-color, var(--color-eucalyptus-600));
   }
 
   .btn-secondary {
@@ -434,11 +446,11 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
   }
 
   .timeline-item.completed .timeline-marker {
-    background: #10B981;
+    background: var(--color-success-DEFAULT);
   }
 
   .timeline-item.in-progress .timeline-marker {
-    background: #F59E0B;
+    background: var(--color-warning-DEFAULT);
     animation: pulse 2s infinite;
   }
 

@@ -28,7 +28,7 @@ const basePath = currentLang === 'de' ? '' : `/${currentLang}`;
 
 <header
   id="site-header"
-  class="sticky top-0 z-50 w-full border-b transition-all duration-300"
+  class="sticky top-0 z-50 w-full border-b transition-colors duration-300"
   class:list={[
     'bg-light-bg/80 border-light-border backdrop-blur-md',
     'dark:bg-dark-bg/80 dark:border-dark-border',
@@ -56,7 +56,56 @@ const basePath = currentLang === 'de' ? '' : `/${currentLang}`;
       </div>
 
       <!-- Right Section: Theme Toggle & Mobile Menu -->
-      <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-3 md:space-x-4">
+        
+        <!-- Ask Mihai · AI Widget -->
+        <div class="relative" id="ask-mihai-container">
+          <button
+            id="ask-mihai-trigger"
+            type="button"
+            class="flex items-center gap-2.5 px-3 py-2 md:px-4 rounded-xl
+                   bg-white/80 dark:bg-gray-800/80 backdrop-blur-md
+                   border border-eucalyptus-200/60 dark:border-eucalyptus-700/40
+                   shadow-[0_2px_12px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2)]
+                   hover:shadow-[0_4px_20px_rgba(76,148,108,0.15)] dark:hover:shadow-[0_4px_20px_rgba(76,148,108,0.1)]
+                   hover:border-eucalyptus-300 dark:hover:border-eucalyptus-600
+                   transition-[border-color,box-shadow,transform,background-color] duration-300 ease-out
+                   text-sm font-medium text-gray-700 dark:text-gray-200
+                   focus-ring group"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            aria-controls="chat-drawer"
+            aria-label="Ask Mihai · AI – Open chat assistant"
+          >
+            <!-- Pulsing status dot -->
+            <span class="relative flex h-2 w-2 shrink-0">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-eucalyptus-400 opacity-60"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-eucalyptus-500"></span>
+            </span>
+            <span class="hidden md:inline font-semibold tracking-tight">Ask Mihai</span>
+            <span class="hidden md:inline text-[10px] text-eucalyptus-600 dark:text-eucalyptus-400 font-medium opacity-70">AI</span>
+          </button>
+
+          <!-- Nudge Tooltip -->
+          <div
+            id="ask-mihai-nudge"
+            class="absolute right-0 top-full mt-2 w-64 pointer-events-none opacity-0 translate-y-1
+                   transition-[opacity,transform] duration-500 ease-out z-50 hidden"
+            role="status"
+            aria-live="polite"
+          >
+            <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-2xl
+                        border border-gray-100 dark:border-gray-700
+                        px-4 py-3 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+              <!-- Arrow -->
+              <div class="absolute -top-1.5 right-6 w-3 h-3 bg-white dark:bg-gray-800
+                          border-l border-t border-gray-100 dark:border-gray-700
+                          transform rotate-45"></div>
+              <span id="ask-mihai-nudge-text"></span>
+            </div>
+          </div>
+        </div>
+
         <!-- Theme Toggle -->
         <ThemeToggle />
 
@@ -118,73 +167,123 @@ const basePath = currentLang === 'de' ? '' : `/${currentLang}`;
 </header>
 
 <script>
-  // Mobile menu toggle functionality
-  const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-  const mobileMenu = document.getElementById('mobile-menu');
-  const menuIcon = document.getElementById('menu-icon');
-  const closeIcon = document.getElementById('close-icon');
+  const initHeaderInteractions = () => {
+    const header = document.getElementById('site-header');
+    if (!header || header.dataset.bound === 'true') return;
+    header.dataset.bound = 'true';
 
-  if (mobileMenuToggle && mobileMenu && menuIcon && closeIcon) {
-    mobileMenuToggle.addEventListener('click', () => {
-      const isExpanded = mobileMenuToggle.getAttribute('aria-expanded') === 'true';
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuIcon = document.getElementById('menu-icon');
+    const closeIcon = document.getElementById('close-icon');
+    const askTrigger = document.getElementById('ask-mihai-trigger');
+    const nudgeEl = document.getElementById('ask-mihai-nudge');
+    const nudgeText = document.getElementById('ask-mihai-nudge-text');
 
-      // Toggle menu visibility
-      mobileMenu.classList.toggle('hidden');
+    const nudgeMessages = [
+      '💬 Curious about my skills? Just ask →',
+      '📄 Got a JD? Let’s check the fit →',
+      '🎯 Skills · Certs · Experience — all in one place',
+      '⚡ Faster than reading my whole CV 😉',
+    ];
 
-      // Toggle icons
-      menuIcon.classList.toggle('hidden');
-      closeIcon.classList.toggle('hidden');
+    let nudgeIndex = 0;
+    let nudgeShows = 0;
+    const MAX_NUDGE_SHOWS = 8;
+    let nudgeTimer: number | null = null;
+    let nudgeCycleTimer: number | null = null;
+    let nudgeStopped = false;
 
-      // Update ARIA attribute
-      mobileMenuToggle.setAttribute('aria-expanded', String(!isExpanded));
+    const hideNudge = () => {
+      if (!nudgeEl) return;
+      nudgeEl.classList.remove('opacity-100', 'translate-y-0');
+      nudgeEl.classList.add('opacity-0', 'translate-y-1');
+      window.setTimeout(() => nudgeEl.classList.add('hidden'), 500);
+    };
 
-      // Prevent body scroll when menu is open
-      document.body.style.overflow = isExpanded ? '' : 'hidden';
+    const stopNudges = () => {
+      nudgeStopped = true;
+      if (nudgeTimer) clearTimeout(nudgeTimer);
+      if (nudgeCycleTimer) clearInterval(nudgeCycleTimer);
+      hideNudge();
+    };
+
+    const showNudge = () => {
+      if (nudgeStopped || nudgeShows >= MAX_NUDGE_SHOWS || !nudgeEl || !nudgeText) return;
+      nudgeText.textContent = nudgeMessages[nudgeIndex];
+      nudgeEl.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        nudgeEl.classList.remove('opacity-0', 'translate-y-1');
+        nudgeEl.classList.add('opacity-100', 'translate-y-0');
+      });
+      nudgeTimer = window.setTimeout(() => {
+        hideNudge();
+        nudgeIndex = (nudgeIndex + 1) % nudgeMessages.length;
+        nudgeShows++;
+      }, 5000);
+    };
+
+    askTrigger?.addEventListener('click', () => {
+      stopNudges();
+      window.dispatchEvent(new CustomEvent('chat:toggle', { detail: { trigger: askTrigger } }));
     });
 
-    // Close menu when clicking outside
-    document.addEventListener('click', (event) => {
-      const target = event.target as HTMLElement;
-      if (!mobileMenuToggle.contains(target) && !mobileMenu.contains(target)) {
-        mobileMenu.classList.add('hidden');
-        menuIcon.classList.remove('hidden');
-        closeIcon.classList.add('hidden');
-        mobileMenuToggle.setAttribute('aria-expanded', 'false');
-        document.body.style.overflow = '';
-      }
-    });
+    window.setTimeout(() => {
+      if (nudgeStopped) return;
+      showNudge();
+      nudgeCycleTimer = window.setInterval(() => {
+        if (nudgeStopped) return;
+        showNudge();
+      }, 12000);
+    }, 5000);
 
-    // Close menu on escape key
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && !mobileMenu.classList.contains('hidden')) {
-        mobileMenu.classList.add('hidden');
-        menuIcon.classList.remove('hidden');
-        closeIcon.classList.add('hidden');
-        mobileMenuToggle.setAttribute('aria-expanded', 'false');
-        document.body.style.overflow = '';
-        mobileMenuToggle.focus();
-      }
-    });
-  }
+    window.addEventListener('chat:open', stopNudges);
+    window.addEventListener('chat:toggle', stopNudges);
 
-  // Add scroll behavior to header
-  let lastScrollY = window.scrollY;
-  const header = document.getElementById('site-header');
+    if (mobileMenuToggle && mobileMenu && menuIcon && closeIcon) {
+      mobileMenuToggle.addEventListener('click', () => {
+        const isExpanded = mobileMenuToggle.getAttribute('aria-expanded') === 'true';
+        mobileMenu.classList.toggle('hidden');
+        menuIcon.classList.toggle('hidden');
+        closeIcon.classList.toggle('hidden');
+        mobileMenuToggle.setAttribute('aria-expanded', String(!isExpanded));
+        document.body.style.overflow = isExpanded ? '' : 'hidden';
+      });
 
-  window.addEventListener('scroll', () => {
-    if (!header) return;
+      document.addEventListener('click', (event) => {
+        const target = event.target as HTMLElement;
+        if (!mobileMenuToggle.contains(target) && !mobileMenu.contains(target)) {
+          mobileMenu.classList.add('hidden');
+          menuIcon.classList.remove('hidden');
+          closeIcon.classList.add('hidden');
+          mobileMenuToggle.setAttribute('aria-expanded', 'false');
+          document.body.style.overflow = '';
+        }
+      });
 
-    const currentScrollY = window.scrollY;
-
-    // Add shadow on scroll
-    if (currentScrollY > 10) {
-      header.classList.add('shadow-subtle');
-    } else {
-      header.classList.remove('shadow-subtle');
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !mobileMenu.classList.contains('hidden')) {
+          mobileMenu.classList.add('hidden');
+          menuIcon.classList.remove('hidden');
+          closeIcon.classList.add('hidden');
+          mobileMenuToggle.setAttribute('aria-expanded', 'false');
+          document.body.style.overflow = '';
+          mobileMenuToggle.focus();
+        }
+      });
     }
 
-    lastScrollY = currentScrollY;
-  });
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 10) {
+        header.classList.add('shadow-subtle');
+      } else {
+        header.classList.remove('shadow-subtle');
+      }
+    });
+  };
+
+  initHeaderInteractions();
+  document.addEventListener('astro:page-load', initHeaderInteractions);
 </script>
 
 <style>

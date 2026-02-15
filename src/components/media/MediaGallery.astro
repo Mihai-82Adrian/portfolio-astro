@@ -1,0 +1,192 @@
+---
+import MediaCard from './MediaCard.astro';
+import { getMediaItems, type MediaLang } from '../../data/media';
+
+interface Props {
+  projectId: string;
+  lang?: MediaLang;
+}
+
+const { projectId, lang = 'en' } = Astro.props;
+const items = getMediaItems(projectId).filter((item) => Boolean(item.embedUrl));
+const galleryId = `media-gallery-${projectId}`;
+
+const tabs = [
+  { id: 'featured', label: 'Featured' },
+  { id: 'spotify', label: 'Spotify' },
+  { id: 'youtube', label: 'YouTube (Deep Work)' },
+  { id: 'promo-shorts', label: 'Promo Shorts' },
+];
+---
+
+<section class="section media-gallery" id={galleryId} data-media-gallery>
+  <h2 class="section-title text-balance">Media Gallery</h2>
+  <p class="mb-5 max-w-3xl text-sm text-text-secondary-light dark:text-text-secondary-dark text-pretty">
+    Production-ready media surface for Spotify + YouTube. The YouTube playlist is managed as
+    unlisted media so new Shorts promos appear automatically without per-upload SEO overhead.
+  </p>
+
+  <div class="mb-5 flex flex-wrap gap-2" role="tablist" aria-label="Media gallery filters">
+    {tabs.map((tab, index) => (
+      <button
+        type="button"
+        role="tab"
+        class={`media-filter-btn rounded-full border px-3 py-1.5 text-sm font-medium motion-safe:transition-[transform,background-color,color,border-color,box-shadow] motion-safe:duration-200 ${index === 0 ? 'is-active' : ''}`}
+        data-media-filter={tab.id}
+        aria-selected={index === 0 ? 'true' : 'false'}
+      >
+        {tab.label}
+      </button>
+    ))}
+  </div>
+
+  {items.length > 0 ? (
+    <div class="media-gallery-grid" data-pagefind-ignore="all">
+      {items.map((item) => (
+        <MediaCard item={item} lang={lang} />
+      ))}
+    </div>
+  ) : (
+    <p class="rounded-xl border border-dashed border-warning/60 bg-warning/10 p-4 text-sm text-warning">
+      No media embeds configured yet.
+    </p>
+  )}
+
+  <script is:inline>
+    (() => {
+      const initGallery = (gallery) => {
+        if (!(gallery instanceof HTMLElement) || gallery.dataset.mediaGalleryReady === 'true') return;
+        gallery.dataset.mediaGalleryReady = 'true';
+
+        const buttons = Array.from(gallery.querySelectorAll('[data-media-filter]'));
+        const cards = Array.from(gallery.querySelectorAll('[data-media-card]'));
+
+        const applyFilter = (filter) => {
+          const cardsWrap = gallery.querySelector('.media-gallery-grid');
+          if (cardsWrap instanceof HTMLElement) {
+            cardsWrap.setAttribute('data-active-filter', filter);
+          }
+
+          cards.forEach((card) => {
+            const isFeatured = card.getAttribute('data-featured') === 'true';
+            const platform = card.getAttribute('data-platform');
+            const tags = (card.getAttribute('data-tags') || '').split(',').map((t) => t.trim());
+
+            const matches =
+              filter === 'featured'
+                ? isFeatured
+                : filter === 'spotify'
+                  ? platform === 'spotify'
+                  : filter === 'youtube'
+                    ? platform === 'youtube' && tags.includes('deep-work')
+                    : filter === 'promo-shorts'
+                      ? tags.includes('promo-shorts')
+                      : true;
+
+            card.classList.toggle('hidden', !matches);
+          });
+
+          buttons.forEach((btn) => {
+            const active = btn.getAttribute('data-media-filter') === filter;
+            btn.classList.toggle('is-active', active);
+            btn.setAttribute('aria-selected', active ? 'true' : 'false');
+          });
+        };
+
+        buttons.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const filter = btn.getAttribute('data-media-filter') || 'featured';
+            applyFilter(filter);
+          });
+        });
+
+        applyFilter('featured');
+      };
+
+      const initAllGalleries = () => {
+        document.querySelectorAll('[data-media-gallery]').forEach((gallery) => initGallery(gallery));
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAllGalleries, { once: true });
+      } else {
+        initAllGalleries();
+      }
+      document.addEventListener('astro:page-load', initAllGalleries);
+    })();
+  </script>
+</section>
+
+<style>
+  .media-filter-btn {
+    border-color: color-mix(in srgb, var(--color-eucalyptus-500) 30%, transparent);
+    background: color-mix(in srgb, var(--bg-elevated) 70%, transparent);
+    color: var(--color-text-secondary);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  }
+
+  .media-filter-btn:hover,
+  .media-filter-btn:focus-visible {
+    border-color: color-mix(in srgb, var(--color-eucalyptus-600) 80%, transparent);
+    color: var(--color-text-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.10);
+  }
+
+  :global(.dark) .media-filter-btn {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: color-mix(in srgb, var(--bg-elevated) 58%, transparent);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.24);
+  }
+
+  .media-filter-btn.is-active {
+    background: color-mix(in srgb, var(--color-eucalyptus-500) 24%, transparent);
+    border-color: var(--color-eucalyptus-600);
+    color: var(--color-text-primary);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-eucalyptus-500) 55%, transparent);
+  }
+
+  .media-gallery-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 768px) {
+    .media-gallery-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .media-gallery-grid[data-active-filter='featured'] {
+      grid-template-columns: minmax(0, 1fr) minmax(390px, 470px);
+      grid-template-areas:
+        'spotify promo'
+        'deepwork promo';
+      align-items: start;
+    }
+
+    .media-gallery-grid[data-active-filter='featured'] :global(.media-card[data-slot='spotify-featured']) {
+      grid-area: spotify;
+    }
+
+    .media-gallery-grid[data-active-filter='featured'] :global(.media-card[data-slot='youtube-deep-work']) {
+      grid-area: deepwork;
+    }
+
+    .media-gallery-grid[data-active-filter='featured'] :global(.media-card[data-slot='promo-shorts']) {
+      grid-area: promo;
+      align-self: start;
+    }
+  }
+
+  .media-gallery-grid[data-active-filter='promo-shorts'] {
+    grid-template-columns: 1fr;
+  }
+
+  .media-gallery-grid[data-active-filter='promo-shorts'] :global(.media-card[data-layout='portrait']) {
+    max-width: 360px;
+    margin-inline: auto;
+  }
+</style>

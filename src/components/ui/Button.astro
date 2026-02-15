@@ -129,6 +129,7 @@ const linkRel = target === '_blank' ? (rel || 'noopener noreferrer') : rel;
 </Tag>
 
 <style>
+@reference "../../styles/global.css";
   /* Link variant - text button */
   .btn-link {
     @apply inline-flex items-center;
@@ -140,7 +141,7 @@ const linkRel = target === '_blank' ? (rel || 'noopener noreferrer') : rel;
 
   /* Ensure proper focus states */
   .btn:focus-visible {
-    @apply outline-none ring-2 ring-offset-2;
+    @apply ring-2 ring-offset-2;
   }
 
   .btn-primary:focus-visible {

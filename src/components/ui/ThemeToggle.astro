@@ -13,7 +13,7 @@
 <button
   id="theme-toggle"
   type="button"
-  class="relative p-3 rounded-lg transition-colors duration-200 hover:bg-eucalyptus-100 dark:hover:bg-dark-elevated focus-ring min-w-[44px] min-h-[44px] flex items-center justify-center"
+  class="relative p-3 rounded-lg transition-colors duration-200 hover:bg-eucalyptus-100 dark:hover:bg-dark-elevated focus-ring min-w-11 min-h-11 flex items-center justify-center"
   aria-label="Toggle dark mode"
   title="Toggle dark mode"
 >
@@ -53,9 +53,11 @@
 <script>
   import { toggleTheme } from '@/utils/theme';
 
-  const button = document.getElementById('theme-toggle');
+  const initThemeToggle = () => {
+    const button = document.getElementById('theme-toggle');
+    if (!button || button.dataset.bound === 'true') return;
+    button.dataset.bound = 'true';
 
-  if (button) {
     button.addEventListener('click', () => {
       toggleTheme();
     });
@@ -76,5 +78,8 @@
     // Listen for theme changes
     window.addEventListener('themechange', updateAriaLabel);
     updateAriaLabel(); // Set initial label
-  }
+  };
+
+  initThemeToggle();
+  document.addEventListener('astro:page-load', initThemeToggle);
 </script>

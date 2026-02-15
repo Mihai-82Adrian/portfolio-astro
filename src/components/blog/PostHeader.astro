@@ -101,6 +101,7 @@ const {
 </header>
 
 <style>
+@reference "../../styles/global.css";
   .post-header {
     @apply py-8 md:py-12;
   }
@@ -120,7 +121,7 @@ const {
     @apply hover:text-eucalyptus-600 dark:hover:text-eucalyptus-200;
     @apply transition-colors duration-150;
     @apply  rounded;
-    &:focus-visible { outline: none; ring: 2px solid; ring-color: theme('colors.eucalyptus.500'); ring-offset: 2px; }
+    &:focus-visible { outline: none; ring: 2px solid; ring-color: var(--color-eucalyptus-500); ring-offset: 2px; }
   }
 
   .breadcrumb-separator {

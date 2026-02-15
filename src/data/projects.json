@@ -477,6 +477,144 @@
         "scalability": "Unlimited product variety without upfront investment",
         "sustainability": "Environmentally friendly on-demand production"
       }
+    },
+    {
+      "id": "mindhafen",
+      "slug": "mindhafen",
+      "title": "MindHafen — Human + AI Music",
+      "tagline": "Stoic-Motivational Soundscapes for Focus, Sleep & Growth",
+      "description": "AI-assisted music production blending stoic philosophy with modern soundscapes. Deep Focus instrumentals, Sleep playlists, and motivational tracks — distributed across Spotify, YouTube, and major streaming platforms via DistroKid.",
+      "category": "creative",
+      "status": {
+        "label": "Live & Distributing",
+        "indicator": "live",
+        "progress": 100,
+        "detail": "Active on Spotify, YouTube & 150+ platforms"
+      },
+      "heroImage": "/images/projects/mindhafen-hero.svg",
+      "themeColor": "#A855F7",
+      "techStack": [
+        {
+          "name": "Suno V5 Pro",
+          "icon": "🎵",
+          "category": "framework"
+        },
+        {
+          "name": "DistroKid",
+          "icon": "📡",
+          "category": "service"
+        },
+        {
+          "name": "Spotify",
+          "icon": "🎧",
+          "category": "platform"
+        },
+        {
+          "name": "YouTube",
+          "icon": "▶️",
+          "category": "platform"
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Platforms",
+          "value": "150+",
+          "icon": "🌍",
+          "description": "Global streaming distribution"
+        },
+        {
+          "label": "Production",
+          "value": "Suno V5",
+          "icon": "🤖",
+          "description": "AI-assisted composition"
+        },
+        {
+          "label": "Genres",
+          "value": "Focus · Sleep · Motivation",
+          "icon": "🎶",
+          "description": "Themed playlist categories"
+        },
+        {
+          "label": "Philosophy",
+          "value": "Stoic",
+          "icon": "🏛️",
+          "description": "Marcus Aurelius, Seneca, Epictetus inspired"
+        }
+      ],
+      "features": [
+        "AI-assisted music composition with Suno V5 Pro",
+        "Stoic philosophy-inspired lyrical content",
+        "Deep Focus instrumentals for productive work sessions",
+        "Sleep & relaxation soundscapes for wellness",
+        "Motivational tracks for personal growth",
+        "Professional mastering and distribution via DistroKid",
+        "Available on Spotify, Apple Music, YouTube & 150+ platforms",
+        "Human creative direction with AI execution"
+      ],
+      "links": [
+        {
+          "label": "Spotify",
+          "url": "https://open.spotify.com/artist/5E7D3GVsqcPDaWSyxCQHFg?si=xi6rD4xsQuiGG8PW8DqJTw",
+          "type": "external",
+          "icon": "🎧"
+        },
+        {
+          "label": "Instagram",
+          "url": "https://www.instagram.com/mindhafen.music",
+          "type": "external",
+          "icon": "📸"
+        },
+        {
+          "label": "YouTube",
+          "url": "http://www.youtube.com/@mindhafen",
+          "type": "external",
+          "icon": "▶️"
+        }
+      ],
+      "timeline": {
+        "started": "2025-01",
+        "lastUpdated": "2026-02-14",
+        "milestones": [
+          {
+            "phase": "Concept & Brand Identity",
+            "date": "2025-01",
+            "status": "completed",
+            "description": "MindHafen brand, stoic philosophy direction"
+          },
+          {
+            "phase": "First Tracks Production",
+            "date": "2025-02 - 2025-04",
+            "status": "completed",
+            "description": "Initial catalog with Suno V4/V5"
+          },
+          {
+            "phase": "Distribution Setup",
+            "date": "2025-05",
+            "status": "completed",
+            "description": "DistroKid integration for 150+ platforms"
+          },
+          {
+            "phase": "Spotify & YouTube Launch",
+            "date": "2025-06",
+            "status": "completed",
+            "description": "Public launch on major streaming platforms"
+          },
+          {
+            "phase": "Ongoing Production",
+            "date": "2025-06 - Present",
+            "status": "in-progress",
+            "description": "Regular releases across Focus, Sleep & Motivation themes"
+          }
+        ]
+      },
+      "technicalDetails": {
+        "production": "Suno V5 Pro for AI-assisted composition",
+        "distribution": "DistroKid for global platform delivery",
+        "platforms": "Spotify, Apple Music, YouTube, Amazon Music, 150+ total",
+        "genres": "Ambient, Lo-Fi, Instrumental, Motivational",
+        "philosophy": "Stoicism — Marcus Aurelius, Seneca, Epictetus",
+        "workflow": "Human creative direction + AI composition + professional mastering"
+      }
     }
   ],
   "categories": [
@@ -491,13 +629,19 @@
       "label": "E-commerce",
       "icon": "🛒",
       "description": "Online business platforms and digital commerce solutions"
+    },
+    {
+      "id": "creative",
+      "label": "Creative Production",
+      "icon": "🎵",
+      "description": "Music production, content creation, and creative technology"
     }
   ],
   "metadata": {
-    "lastUpdated": "2025-11-09",
-    "version": "1.0",
-    "totalProjects": 3,
-    "activeProjects": 2,
+    "lastUpdated": "2026-02-14",
+    "version": "2.0",
+    "totalProjects": 4,
+    "activeProjects": 3,
     "completedProjects": 1
   }
 }

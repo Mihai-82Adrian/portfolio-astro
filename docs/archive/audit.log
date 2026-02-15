@@ -1,0 +1,75 @@
+
+> portfolio-astro@0.0.1 lint:content
+> node .agent/skills/content-architect/scripts/audit-content.mjs
+
+Found 29 files to audit.
+Auditing src/pages/now.astro
+Audited src/pages/now.astro
+Auditing src/pages/index.astro
+Audited src/pages/index.astro
+Auditing src/pages/impressum.astro
+Audited src/pages/impressum.astro
+Auditing src/pages/experience.astro
+Audited src/pages/experience.astro
+Auditing src/pages/education.astro
+Audited src/pages/education.astro
+Auditing src/pages/datenschutz.astro
+Audited src/pages/datenschutz.astro
+Auditing src/pages/certifications.astro
+Audited src/pages/certifications.astro
+Auditing src/pages/about.astro
+Audited src/pages/about.astro
+Auditing src/content/blog/rust-lifetimes-guide.md
+Audited src/content/blog/rust-lifetimes-guide.md
+  Issues in src/content/blog/rust-lifetimes-guide.md:
+    [ERROR] Content must start with an executive summary / BLUF (Bottom Line Up Front).
+Auditing src/content/blog/portfolio-tech-stack.md
+Audited src/content/blog/portfolio-tech-stack.md
+Auditing src/content/blog/machine-learning-in-accounting.md
+Audited src/content/blog/machine-learning-in-accounting.md
+  Issues in src/content/blog/machine-learning-in-accounting.md:
+    [ERROR] Content must start with an executive summary / BLUF (Bottom Line Up Front).
+    [WARN]  Found banned word: 'leverage'
+    [WARN]  Found banned word: 'paradigm shift'
+Auditing src/content/blog/julia-performance-optimization.md
+Audited src/content/blog/julia-performance-optimization.md
+  Issues in src/content/blog/julia-performance-optimization.md:
+    [ERROR] Content must start with an executive summary / BLUF (Bottom Line Up Front).
+Auditing src/content/blog/bridging-finance-ai.md
+Audited src/content/blog/bridging-finance-ai.md
+  Issues in src/content/blog/bridging-finance-ai.md:
+    [ERROR] Content must start with an executive summary / BLUF (Bottom Line Up Front).
+Auditing src/pages/ro/index.astro
+Audited src/pages/ro/index.astro
+Auditing src/pages/ro/experience.astro
+Audited src/pages/ro/experience.astro
+Auditing src/pages/ro/education.astro
+Audited src/pages/ro/education.astro
+Auditing src/pages/ro/certifications.astro
+Audited src/pages/ro/certifications.astro
+Auditing src/pages/ro/about.astro
+Audited src/pages/ro/about.astro
+Auditing src/pages/projects/index.astro
+Audited src/pages/projects/index.astro
+Auditing src/pages/projects/[slug].astro
+Audited src/pages/projects/[slug].astro
+Auditing src/pages/en/index.astro
+Audited src/pages/en/index.astro
+Auditing src/pages/en/experience.astro
+Audited src/pages/en/experience.astro
+Auditing src/pages/en/education.astro
+Audited src/pages/en/education.astro
+Auditing src/pages/en/certifications.astro
+Audited src/pages/en/certifications.astro
+Auditing src/pages/en/about.astro
+Audited src/pages/en/about.astro
+Auditing src/pages/blog/index.astro
+Audited src/pages/blog/index.astro
+Auditing src/pages/blog/[slug].astro
+Audited src/pages/blog/[slug].astro
+Auditing src/pages/blog/tag/[tag].astro
+Audited src/pages/blog/tag/[tag].astro
+Auditing src/pages/blog/category/[category].astro
+Audited src/pages/blog/category/[category].astro
+
+Audit failed with 4 errors.

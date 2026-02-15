@@ -156,6 +156,7 @@ const displayLang = languageLabels[lang] || lang.toUpperCase();
 </script>
 
 <style>
+@reference "../../styles/global.css";
   .code-block-wrapper {
     @apply rounded-lg overflow-hidden my-6;
     @apply border border-light-border dark:border-dark-border;
@@ -190,7 +191,7 @@ const displayLang = languageLabels[lang] || lang.toUpperCase();
     @apply text-text-secondary-light dark:text-text-secondary-dark;
     @apply hover:text-eucalyptus-700 dark:hover:text-eucalyptus-300;
     @apply hover:bg-eucalyptus-50 dark:hover:bg-dark-elevated;
-    @apply transition-all duration-150;
+    @apply transition-colors duration-150;
   }
 
   .code-block-copy-icon,

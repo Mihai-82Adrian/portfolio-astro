@@ -7,7 +7,10 @@ tags: ['rust', 'lifetimes', 'memory-safety', 'ownership', 'best-practices']
 heroImage: '/images/blog/rust-lifetimes.webp'
 draft: false
 featured: true
+lang: 'en'
 ---
+
+## Executive Summary
 
 Rust's lifetime system is both its most powerful feature and its steepest learning curve. After studying production-grade Rust projects, community guidance from the official Rust Book[13][15][28], and the formal elision rules defined in RFC 141[13], the value of lifetimes becomes clear: they prevent entire categories of memory bugs at compile time, with zero runtime overhead.
 
@@ -60,6 +63,7 @@ fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
 ```
 
 Reading this signature:
+
 - `'a` is a **lifetime parameter**, analogous to a generic type parameter[15]
 - Both `x` and `y` must live at least as long as `'a`
 - The return value also lives as long as `'a`
@@ -89,13 +93,13 @@ The compiler doesn't know if the return value's lifetime should match `x`, `y`, 
 To reduce boilerplate, Rust applies **lifetime elision rules** in common patterns[13][19][25]. The compiler automatically infers lifetimes using three deterministic rules:
 
 > **Elision Rules at a Glance**
-> 
+>
 > 1. **Each elided lifetime in input position becomes a distinct lifetime parameter.** If a function has `fn foo(x: &i32, y: &i32)`, it's expanded to `fn foo<'a, 'b>(x: &'a i32, y: &'b i32)`[13][19].
-> 
+>
 > 2. **If there is exactly one input lifetime (elided or not), that lifetime is assigned to all elided output lifetimes.** `fn foo(x: &i32) -> &i32` becomes `fn foo<'a>(x: &'a i32) -> &'a i32`[13][19][25].
-> 
+>
 > 3. **If there are multiple input lifetimes, but one is `&self` or `&mut self`, the lifetime of `self` is assigned to all elided output lifetimes.** This covers most method signatures[13][28].
-> 
+>
 > If these rules don't fully determine all lifetimes, you must write them explicitly[13][19].
 
 ### Examples: Elided vs. Explicit
@@ -409,8 +413,8 @@ fn return_leaked() -> &'static str {
 **Common mistake**: Trying to silence the borrow checker with `where 'a: 'static`. This constraint means `'a` **must** be `'static`, which is almost never what you want[14][20][36]. It doesn't "extend" a lifetime—it requires it to already be `'static`.
 
 > **When to Return Owned vs. Borrowed Data**
-> 
-> - **Return `&str`** when the data already exists and you're returning a slice of it (config parser, substring extraction)[13][15]
+>
+> - **Return `&str`** when the data already exists and you're returning a slice of it [config parser, substring extraction][13](15)
 > - **Return `String`** when you're creating new data, transforming input, or the lifetime relationships are complex[35][38]
 > - **Return `Cow<'a, str>`** when you sometimes borrow, sometimes own, and want the caller to handle both uniformly[35][38][41]
 > - **Return `Option<&str>`** when the data might not exist, avoiding mixing borrowed and `'static` lifetimes implicitly
@@ -554,7 +558,7 @@ The learning curve is steep, but the payoff is memory safety without garbage col
 
 ### Primary Sources
 
-- **The Rust Programming Language (official book)**: Lifetimes chapter (10.3)[15][27][28]
+- **The Rust Programming Language (official book)**: Lifetimes chapter [10.3][15](27)[28]
 - **The Rust Reference**: Lifetime elision[19][25], subtyping and variance[14][29]
 - **RFC 141 (Lifetime Elision)**: Formal specification of elision rules[13]
 
@@ -574,7 +578,7 @@ No `unsafe` blocks were used. All slicing operations use bounds-checked methods 
 ### Additional Reading
 
 - Earthly.dev: "Rust Lifetimes: A Complete Guide"[16]
-- Near.org: "Understanding Rust Lifetimes" (subtyping)[17]
+- Near.org: "Understanding Rust Lifetimes" [subtyping](17)
 - The Rustonomicon: Advanced lifetime topics[21][22][23]
 - Easy Rust: Cow explained with examples[35]
 
