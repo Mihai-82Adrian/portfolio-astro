@@ -49,10 +49,12 @@
 # Sitemap - cache for 1 day
 /sitemap*.xml
   Cache-Control: public, max-age=86400
+  Content-Type: application/xml; charset=utf-8
 
 # Robots.txt - cache for 1 day
 /robots.txt
   Cache-Control: public, max-age=86400
+  Content-Type: text/plain; charset=utf-8
 
 # Security headers for all pages
 /*

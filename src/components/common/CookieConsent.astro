@@ -20,7 +20,13 @@ const { privacyPolicyUrl = '/datenschutz' } = Astro.props;
       <p class="cookie-description">
         I use local storage to save your preferences (like theme and language).
         No third-party tracking cookies are used.
-        <a href={privacyPolicyUrl} class="cookie-link">Learn more</a>
+        <a
+          href={privacyPolicyUrl}
+          class="cookie-link"
+          aria-label="Learn more about data privacy and cookie usage"
+        >
+          Learn more about data privacy
+        </a>
       </p>
     </div>
   </div>
