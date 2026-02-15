@@ -131,17 +131,15 @@ const config = categoryConfig[tech.category || 'platform'];
     outline-offset: 2px;
   }
 
-  /* Dark mode adjustments */
-  @media (prefers-color-scheme: dark) {
-    .tech-badge {
-      background: rgba(0, 0, 0, 0.3);
-      border-color: var(--badgeColor);
-    }
+  /* Dark mode adjustments (class-based, aligned with site theme toggle) */
+  :global(.dark) .tech-badge {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: var(--badgeColor);
+  }
 
-    .tech-badge:hover {
-      background: var(--badgeColor);
-      color: white;
-    }
+  :global(.dark) .tech-badge:hover {
+    background: var(--badgeColor);
+    color: white;
   }
 
   /* Print styles */

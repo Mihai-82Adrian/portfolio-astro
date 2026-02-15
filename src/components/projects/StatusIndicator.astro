@@ -163,15 +163,13 @@ const config = statusConfig[status.indicator];
     line-height: 1.4;
   }
 
-  /* Dark mode support */
-  @media (prefers-color-scheme: dark) {
-    .status-indicator {
-      background: rgba(0, 0, 0, 0.3);
-    }
-    
-    .progress-container {
-      background: rgba(255, 255, 255, 0.05);
-    }
+  /* Dark mode support (class-based, aligned with site theme toggle) */
+  :global(.dark) .status-indicator {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  :global(.dark) .progress-container {
+    background: rgba(255, 255, 255, 0.05);
   }
 
   /* Responsive adjustments */

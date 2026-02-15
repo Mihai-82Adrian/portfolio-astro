@@ -144,6 +144,15 @@ const detailLink = `/projects/${project.slug}`;
     height: 100%;
   }
 
+  :global(.dark) .project-card {
+    background: linear-gradient(
+      135deg,
+      rgba(30, 41, 59, 0.82) 0%,
+      rgba(15, 23, 42, 0.72) 100%
+    );
+    border-color: rgba(148, 163, 184, 0.22);
+  }
+
   .project-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2),
@@ -258,8 +267,8 @@ const detailLink = `/projects/${project.slug}`;
   }
 
   .card-metrics :global(.metric-card) {
-    padding: 0.75rem 0.5rem;
-    min-height: 92px;
+    padding: 0.625rem 0.5rem;
+    min-height: 88px;
   }
 
   .card-metrics :global(.metric-icon) {
@@ -281,7 +290,7 @@ const detailLink = `/projects/${project.slug}`;
   .card-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem;
+    gap: 0.625rem;
     margin-top: auto;
     padding-top: 0.5rem;
     align-items: stretch;
@@ -292,9 +301,9 @@ const detailLink = `/projects/${project.slug}`;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.625rem 0.75rem;
+    padding: 0.5625rem 0.625rem;
     font-family: var(--font-body);
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     font-weight: 600;
     line-height: 1.2;
     border-radius: 0.5rem;

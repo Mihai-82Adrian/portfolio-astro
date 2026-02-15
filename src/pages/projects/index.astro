@@ -131,25 +131,32 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
     const projectItems = document.querySelectorAll<HTMLElement>('.project-item');
     const emptyState = document.querySelector<HTMLElement>('.empty-state');
     
-    // Intersection Observer for scroll animations
-    const observerOptions = {
-      threshold: 0.15,
-      rootMargin: '0px 0px -50px 0px'
-    };
-    
-    const scrollObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate-in');
-          scrollObserver.unobserve(entry.target);
-        }
+    // Intersection Observer for scroll animations (with fail-safe visibility)
+    if ('IntersectionObserver' in window) {
+      const observerOptions = {
+        threshold: 0.15,
+        rootMargin: '0px 0px -50px 0px'
+      };
+
+      const scrollObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+            scrollObserver.unobserve(entry.target);
+          }
+        });
+      }, observerOptions);
+
+      projectItems.forEach((item) => {
+        scrollObserver.observe(item);
       });
-    }, observerOptions);
-    
-    // Observe all project items for scroll animation
-    projectItems.forEach((item) => {
-      scrollObserver.observe(item);
-    });
+
+      window.setTimeout(() => {
+        projectItems.forEach((item) => item.classList.add('animate-in'));
+      }, 500);
+    } else {
+      projectItems.forEach((item) => item.classList.add('animate-in'));
+    }
     
     // Get initial filter from URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -582,4 +589,3 @@ const pageDescription = 'Explore cutting-edge AI research projects and innovativ
     }
   }
 </style>
-</BaseLayout>
