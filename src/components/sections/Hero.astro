@@ -55,98 +55,100 @@ const {
 
 <section class="hero-section">
   <Container maxWidth="lg" paddingY="xl">
-    <!-- Hero Banner Image (Wide) -->
-    {imageSrc && (
-      <div class="hero-banner-wrapper">
-        <Image 
-          src={heroImage} 
-          alt={imageAlt} 
-          width={1200}
-          height={400}
-          format="avif"
-          quality={80}
-          class="hero-banner"
-          loading="eager"
-        />
-      </div>
-    )}
+    <div class="hero-shell">
+      <!-- Hero Banner Image (Wide) -->
+      {imageSrc && (
+        <div class="hero-banner-wrapper">
+          <Image 
+            src={heroImage} 
+            alt={imageAlt} 
+            width={1200}
+            height={400}
+            format="avif"
+            quality={80}
+            class="hero-banner"
+            loading="eager"
+          />
+        </div>
+      )}
 
-    <div class="hero-content">
-      <!-- Animated Badge -->
-      <div class="hero-badge">
-        <span class="hero-badge-dot"></span>
-        <span class="hero-badge-text">Available for consulting</span>
-      </div>
+      <div class="hero-content">
+        <!-- Animated Badge -->
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          <span class="hero-badge-text">Available for consulting</span>
+        </div>
 
-      <!-- Main Title with Accent -->
-      <h1 class="hero-title">
-        {title}
-      </h1>
+        <!-- Main Title with Accent -->
+        <h1 class="hero-title text-balance">
+          {title}
+        </h1>
 
-      <!-- Accent Line -->
-      <div class="hero-accent-line"></div>
+        <!-- Accent Line -->
+        <div class="hero-accent-line"></div>
 
-      <!-- Subtitle with Gradient -->
-      <p class="hero-subtitle">
-        <span class="text-gradient">{subtitle}</span>
-      </p>
+        <!-- Subtitle with Gradient -->
+        <p class="hero-subtitle text-pretty">
+          <span class="text-gradient">{subtitle}</span>
+        </p>
 
-      <!-- Description -->
-      <p class="hero-description">
-        {description}
-      </p>
+        <!-- Description -->
+        <p class="hero-description text-pretty">
+          {description}
+        </p>
 
-      <!-- CTA Buttons -->
-      <div class="hero-cta-group">
-        <Button
-          variant="primary"
-          size="lg"
-          href={primaryHref}
-        >
-          {primaryCta}
-          <svg
-            class="ml-2 -mr-1 w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
+        <!-- CTA Buttons -->
+        <div class="hero-cta-group">
+          <Button
+            variant="primary"
+            size="lg"
+            href={primaryHref}
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M17 8l4 4m0 0l-4 4m4-4H3"
-            />
-          </svg>
-        </Button>
+            {primaryCta}
+            <svg
+              class="ml-2 -mr-1 w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 8l4 4m0 0l-4 4m4-4H3"
+              />
+            </svg>
+          </Button>
 
-        <Button
-          variant="secondary"
-          size="lg"
-          href={secondaryHref}
-        >
-          {secondaryCta}
-        </Button>
-      </div>
+          <Button
+            variant="secondary"
+            size="lg"
+            href={secondaryHref}
+          >
+            {secondaryCta}
+          </Button>
+        </div>
 
-      <!-- Tech Stack Icons (Optional) -->
-      <div class="hero-tech-stack">
-        <p class="hero-tech-label">{skillsLabel}</p>
-        <div class="hero-tech-icons">
-          {skills.map((skill, index) => (
-            <>
-              <span class="hero-tech-item">{skill}</span>
-              {index < skills.length - 1 && <span class="hero-tech-separator">·</span>}
-            </>
-          ))}
+        <!-- Tech Stack Icons (Optional) -->
+        <div class="hero-tech-stack">
+          <p class="hero-tech-label">{skillsLabel}</p>
+          <div class="hero-tech-icons">
+            {skills.map((skill, index) => (
+              <>
+                <span class="hero-tech-item">{skill}</span>
+                {index < skills.length - 1 && <span class="hero-tech-separator">·</span>}
+              </>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Optional: Decorative Elements -->
-    <div class="hero-decoration" aria-hidden="true">
-      <div class="hero-blob hero-blob-1"></div>
-      <div class="hero-blob hero-blob-2"></div>
+      <!-- Optional: Decorative Elements -->
+      <div class="hero-decoration" aria-hidden="true">
+        <div class="hero-blob hero-blob-1"></div>
+        <div class="hero-blob hero-blob-2"></div>
+      </div>
     </div>
   </Container>
 </section>
@@ -154,8 +156,28 @@ const {
 <style>
 @reference "../../styles/global.css";
   .hero-section {
-    @apply relative overflow-hidden;
-    @apply bg-light-bg dark:bg-dark-bg;
+    @apply relative overflow-hidden isolate;
+    background:
+      radial-gradient(
+        1200px 500px at 50% -10%,
+        color-mix(in srgb, var(--color-eucalyptus-500) 12%, transparent),
+        transparent 60%
+      ),
+      linear-gradient(180deg, color-mix(in srgb, var(--bg-primary) 92%, transparent), var(--bg-primary));
+  }
+
+  .hero-shell {
+    @apply relative rounded-2xl border p-8 sm:p-10 md:p-12;
+    @apply backdrop-blur-xl;
+    border-color: color-mix(in srgb, var(--border-color) 80%, transparent);
+    background: color-mix(in srgb, var(--bg-elevated) 72%, transparent);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.10);
+  }
+
+  :global(.dark) .hero-shell {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: color-mix(in srgb, var(--bg-elevated) 62%, transparent);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   }
 
   .hero-content {
@@ -166,13 +188,13 @@ const {
 
   /* Hero Banner (Wide) */
   .hero-banner-wrapper {
-    @apply w-full mb-12;
+    @apply w-full mb-10;
     @apply flex justify-center;
   }
 
   .hero-banner {
     @apply w-full max-w-4xl;
-    @apply rounded-xl;
+    @apply rounded-xl border border-white/10;
     @apply shadow-2xl;
     @apply object-cover;
     animation: fadeIn 0.7s ease-out;
@@ -182,7 +204,7 @@ const {
 
   /* Badge */
   .hero-badge {
-    @apply inline-flex items-center gap-2 mb-6;
+    @apply inline-flex items-center gap-2 mb-5;
     @apply px-4 py-2 rounded-full;
     @apply bg-eucalyptus-100 dark:bg-eucalyptus-900;
     @apply text-eucalyptus-800 dark:text-eucalyptus-200;
@@ -207,14 +229,14 @@ const {
   /* Title */
   .hero-title {
     @apply text-4xl sm:text-5xl md:text-6xl lg:text-7xl;
-    @apply font-bold mb-6;
+    @apply font-bold mb-5 tracking-tight;
     @apply text-text-primary-light dark:text-text-primary-dark;
     line-height: 1.1;
   }
 
   /* Accent Line - Eucalyptus Visual Hierarchy */
   .hero-accent-line {
-    @apply w-24 h-1 mx-auto mb-6;
+    @apply w-24 h-1 mx-auto mb-5;
     @apply rounded-full;
     background: linear-gradient(
       90deg,
@@ -248,14 +270,14 @@ const {
   /* Subtitle */
   .hero-subtitle {
     @apply text-2xl sm:text-3xl md:text-4xl;
-    @apply font-semibold mb-6;
+    @apply font-semibold mb-5;
   }
 
   /* Description */
   .hero-description {
     @apply text-base sm:text-lg md:text-xl;
     @apply text-text-secondary-light dark:text-text-secondary-dark;
-    @apply max-w-3xl mx-auto mb-8 px-4;
+    @apply max-w-3xl mx-auto mb-8 px-4 leading-relaxed;
     line-height: 1.6;
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -301,7 +323,7 @@ const {
   .hero-blob {
     @apply absolute rounded-full;
     @apply bg-gradient-to-br from-eucalyptus-400 to-eucalyptus-600;
-    filter: blur(80px);
+    filter: blur(72px);
     animation: float 20s ease-in-out infinite;
   }
 
@@ -365,5 +387,14 @@ const {
   /* Dark mode adjustments */
   .dark .hero-blob {
     @apply opacity-10;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-badge-dot,
+    .hero-accent-line,
+    .hero-blob,
+    .hero-banner {
+      animation: none !important;
+    }
   }
 </style>
