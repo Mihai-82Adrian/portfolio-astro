@@ -17,7 +17,7 @@ import ChatWidget from './ChatWidget.astro';
 
 <div
   id="chat-drawer-backdrop"
-  class="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300"
+  class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300"
   aria-hidden="true"
 ></div>
 
@@ -26,9 +26,9 @@ import ChatWidget from './ChatWidget.astro';
   role="dialog"
   aria-modal="true"
   aria-labelledby="chat-drawer-title"
-  class="fixed z-[101] bg-white dark:bg-gray-800 shadow-2xl transition-transform duration-300 ease-in-out transform translate-y-full md:translate-y-0 md:translate-x-full
-         bottom-0 left-0 right-0 h-[80vh] rounded-t-2xl
-         md:top-0 md:bottom-0 md:right-0 md:left-auto md:h-full md:w-[450px] md:rounded-l-2xl md:rounded-tr-none
+  class="fixed z-50 bg-white dark:bg-gray-800 shadow-2xl transition-transform duration-300 ease-in-out transform translate-y-full md:translate-y-0 md:translate-x-full
+         bottom-0 left-0 right-0 h-5/6 rounded-t-2xl
+         md:top-0 md:bottom-0 md:right-0 md:left-auto md:h-full md:w-112 md:rounded-l-2xl md:rounded-tr-none
          flex flex-col border-l border-gray-200 dark:border-gray-700 hidden"
 >
   <!-- Screen Reader Title -->

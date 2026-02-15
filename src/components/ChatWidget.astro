@@ -77,9 +77,9 @@ const {
     <!-- Messages Area -->
     <div class="chat-messages flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 dark:bg-dark-bg" aria-live="polite" aria-atomic="false">
       <!-- Welcome Message -->
-      <div class="message ai bg-white dark:bg-dark-elevated p-3 rounded-lg rounded-tl-none shadow-subtle text-sm dark:text-gray-200 border border-gray-100 dark:border-dark-border max-w-[85%]">
+      <div class="message ai bg-white dark:bg-dark-elevated p-3 rounded-lg rounded-tl-none shadow-subtle text-sm dark:text-gray-200 border border-gray-100 dark:border-dark-border max-w-88">
         <p>Hi! I'm Mihai's AI assistant. I can answer questions about his skills, experience, certifications, and projects.</p>
-        <span class="text-[10px] text-gray-400 dark:text-gray-500 mt-2 block">⚠️ Answers may be generated and could contain errors.</span>
+        <span class="text-xs text-gray-400 dark:text-gray-500 mt-2 block">⚠️ Answers may be generated and could contain errors.</span>
       </div>
 
       <!-- Quick Action Chips -->
@@ -112,7 +112,7 @@ const {
       </button>
     </form>
     <!-- Quota Badge -->
-    <div class="quota-badge px-3 py-1.5 text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-3 border-t border-gray-100 dark:border-dark-border bg-white dark:bg-dark-surface shrink-0">
+    <div class="quota-badge px-3 py-1.5 text-xs text-gray-400 dark:text-gray-500 flex items-center gap-3 border-t border-gray-100 dark:border-dark-border bg-white dark:bg-dark-surface shrink-0">
       <span class="quota-chat-text">💬 4/4 questions</span>
       <span class="text-gray-300 dark:text-gray-600">|</span>
       <span class="quota-jd-text">📄 1/1 JD analysis</span>
@@ -592,7 +592,7 @@ const {
         title.textContent = section.title;
         sectionHeader.appendChild(title);
         const count = document.createElement('span');
-        count.className = 'ml-auto text-[10px] bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded-full';
+        count.className = 'ml-auto text-xs bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded-full';
         count.textContent = String(section.items.length);
         sectionHeader.appendChild(count);
         sectionEl.appendChild(sectionHeader);
@@ -619,7 +619,7 @@ const {
             srcLink.href = item.source;
             srcLink.target = '_blank';
             srcLink.rel = 'noopener noreferrer';
-            srcLink.className = 'inline-block mt-1 text-[10px] text-eucalyptus-600 dark:text-eucalyptus-400 hover:underline';
+            srcLink.className = 'inline-block mt-1 text-xs text-eucalyptus-600 dark:text-eucalyptus-400 hover:underline';
             srcLink.textContent = '\u{1F517} Source';
             row.appendChild(srcLink);
           }
@@ -655,7 +655,7 @@ const {
         const srcDiv = document.createElement('div');
         srcDiv.className = 'px-1';
         const srcLabel = document.createElement('p');
-        srcLabel.className = 'text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-1';
+        srcLabel.className = 'text-xs text-gray-400 uppercase tracking-wider font-medium mb-1';
         srcLabel.textContent = 'Portfolio Sources';
         srcDiv.appendChild(srcLabel);
         const srcList = document.createElement('div');
@@ -665,7 +665,7 @@ const {
           badge.href = src.url;
           badge.target = '_blank';
           badge.rel = 'noopener noreferrer';
-          badge.className = 'inline-block text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors';
+          badge.className = 'inline-block text-xs bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors';
           badge.textContent = src.title || 'Source';
           srcList.appendChild(badge);
         });
@@ -703,7 +703,7 @@ const {
         const srcDiv = document.createElement('div');
         srcDiv.className = 'pt-2 border-t border-gray-100 dark:border-dark-border';
         const srcLabel = document.createElement('p');
-        srcLabel.className = 'text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-1';
+        srcLabel.className = 'text-xs text-gray-400 uppercase tracking-wider font-medium mb-1';
         srcLabel.textContent = 'Sources';
         srcDiv.appendChild(srcLabel);
         const srcList = document.createElement('div');
@@ -713,7 +713,7 @@ const {
           badge.href = src.url;
           badge.target = '_blank';
           badge.rel = 'noopener noreferrer';
-          badge.className = 'inline-block text-[10px] bg-eucalyptus-50 dark:bg-eucalyptus-950 text-eucalyptus-700 dark:text-eucalyptus-300 px-2 py-0.5 rounded-full hover:bg-eucalyptus-100 transition-colors';
+          badge.className = 'inline-block text-xs bg-eucalyptus-50 dark:bg-eucalyptus-950 text-eucalyptus-700 dark:text-eucalyptus-300 px-2 py-0.5 rounded-full hover:bg-eucalyptus-100 transition-colors';
           badge.textContent = src.title || 'Source';
           srcList.appendChild(badge);
         });
@@ -738,10 +738,10 @@ const {
       const div = document.createElement('div');
 
       if (isUser) {
-        div.className = 'message user bg-eucalyptus-600 text-white p-3 rounded-lg rounded-tr-none shadow-sm text-sm ml-auto max-w-[85%] self-end mb-3 animate-fade-in';
+        div.className = 'message user bg-eucalyptus-600 text-white p-3 rounded-lg rounded-tr-none shadow-sm text-sm ml-auto max-w-88 self-end mb-3 animate-fade-in';
         div.textContent = text;
       } else {
-        div.className = 'message ai bg-white dark:bg-dark-elevated p-3 rounded-lg rounded-tl-none shadow-subtle text-sm dark:text-gray-200 border border-gray-100 dark:border-dark-border mr-auto max-w-[85%] mb-3 animate-fade-in';
+        div.className = 'message ai bg-white dark:bg-dark-elevated p-3 rounded-lg rounded-tl-none shadow-subtle text-sm dark:text-gray-200 border border-gray-100 dark:border-dark-border mr-auto max-w-88 mb-3 animate-fade-in';
 
         const textSpan = document.createElement('span');
         textSpan.className = 'whitespace-pre-wrap';
@@ -753,7 +753,7 @@ const {
           sourceDiv.className = 'mt-2 pt-2 border-t border-gray-100 dark:border-dark-border';
 
           const srcLabel = document.createElement('p');
-          srcLabel.className = 'text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-1';
+          srcLabel.className = 'text-xs text-gray-400 uppercase tracking-wider font-medium mb-1';
           srcLabel.textContent = 'Sources';
           sourceDiv.appendChild(srcLabel);
 
@@ -764,7 +764,7 @@ const {
             badge.href = src.url;
             badge.target = '_blank';
             badge.rel = 'noopener noreferrer';
-            badge.className = 'inline-block text-[10px] bg-eucalyptus-50 dark:bg-eucalyptus-950 text-eucalyptus-700 dark:text-eucalyptus-300 px-2 py-0.5 rounded-full hover:bg-eucalyptus-100 transition-colors';
+            badge.className = 'inline-block text-xs bg-eucalyptus-50 dark:bg-eucalyptus-950 text-eucalyptus-700 dark:text-eucalyptus-300 px-2 py-0.5 rounded-full hover:bg-eucalyptus-100 transition-colors';
             badge.textContent = src.title || 'Source';
             srcList.appendChild(badge);
           });
@@ -818,7 +818,7 @@ const {
 
       // Create the AI message bubble with empty text span
       const bubble = document.createElement('div');
-      bubble.className = 'message ai bg-white dark:bg-dark-elevated p-3 rounded-lg rounded-tl-none shadow-subtle text-sm dark:text-gray-200 border border-gray-100 dark:border-dark-border mr-auto max-w-[85%] mb-3 animate-fade-in';
+      bubble.className = 'message ai bg-white dark:bg-dark-elevated p-3 rounded-lg rounded-tl-none shadow-subtle text-sm dark:text-gray-200 border border-gray-100 dark:border-dark-border mr-auto max-w-88 mb-3 animate-fade-in';
       const textSpan = document.createElement('span');
       textSpan.className = 'whitespace-pre-wrap';
       bubble.appendChild(textSpan);
@@ -875,7 +875,7 @@ const {
         sourceDiv.className = 'mt-2 pt-2 border-t border-gray-100 dark:border-dark-border';
 
         const srcLabel = document.createElement('p');
-        srcLabel.className = 'text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-1';
+        srcLabel.className = 'text-xs text-gray-400 uppercase tracking-wider font-medium mb-1';
         srcLabel.textContent = 'Sources';
         sourceDiv.appendChild(srcLabel);
 
@@ -886,7 +886,7 @@ const {
           badge.href = src.url;
           badge.target = '_blank';
           badge.rel = 'noopener noreferrer';
-          badge.className = 'inline-block text-[10px] bg-eucalyptus-50 dark:bg-eucalyptus-950 text-eucalyptus-700 dark:text-eucalyptus-300 px-2 py-0.5 rounded-full hover:bg-eucalyptus-100 transition-colors';
+          badge.className = 'inline-block text-xs bg-eucalyptus-50 dark:bg-eucalyptus-950 text-eucalyptus-700 dark:text-eucalyptus-300 px-2 py-0.5 rounded-full hover:bg-eucalyptus-100 transition-colors';
           badge.textContent = src.title || 'Source';
           srcList.appendChild(badge);
         });
@@ -930,11 +930,11 @@ const {
   /* Tab styling */
   .chat-tab {
     position: relative;
-    color: var(--text-secondary, #5A5A5A);
+    color: var(--text-secondary);
   }
 
   .chat-tab.tab-active {
-    color: var(--eucalyptus-600, #557159);
+    color: var(--color-primary);
     font-weight: 600;
   }
 
@@ -945,30 +945,17 @@ const {
     left: 1rem;
     right: 1rem;
     height: 2px;
-    background: var(--eucalyptus-600, #557159);
+    background: var(--color-primary);
     border-radius: 1px;
   }
 
   .chat-tab.tab-inactive {
-    color: var(--text-secondary, #5A5A5A);
+    color: var(--text-secondary);
   }
 
   .chat-tab.tab-inactive:hover {
-    color: var(--text-primary, #2C2C2C);
-    background: var(--gray-50, #F9FAFB);
-  }
-
-  :global(.dark) .chat-tab.tab-active {
-    color: var(--eucalyptus-300, #9FBFA8);
-  }
-
-  :global(.dark) .chat-tab.tab-active::after {
-    background: var(--eucalyptus-400, #7BA888);
-  }
-
-  :global(.dark) .chat-tab.tab-inactive:hover {
-    color: var(--gray-200, #E5E7EB);
-    background: var(--dark-elevated, #252320);
+    color: var(--text-primary);
+    background: var(--bg-surface);
   }
 
   /* Quick Action Chips */
@@ -979,9 +966,9 @@ const {
     padding: 0.375rem 0.75rem;
     font-size: 0.75rem;
     font-weight: 500;
-    color: var(--eucalyptus-700, #4A6451);
-    background: var(--eucalyptus-50, #F0F4F1);
-    border: 1px solid var(--eucalyptus-200, #C3D7C9);
+    color: var(--color-primary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
     border-radius: 9999px;
     cursor: pointer;
     transition: all 0.15s ease;
@@ -989,8 +976,8 @@ const {
   }
 
   .chip-btn:hover {
-    background: var(--eucalyptus-100, #E1EBE4);
-    border-color: var(--eucalyptus-400, #7BA888);
+    background: var(--border-subtle);
+    border-color: var(--accent-active);
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0,0,0,0.06);
   }
@@ -1000,14 +987,14 @@ const {
   }
 
   :global(.dark) .chip-btn {
-    color: var(--eucalyptus-300, #9FBFA8);
-    background: var(--eucalyptus-950, #1A211D);
-    border-color: var(--eucalyptus-800, #3A4E41);
+    color: var(--color-primary);
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
   }
 
   :global(.dark) .chip-btn:hover {
-    background: var(--eucalyptus-900, #2C3832);
-    border-color: var(--eucalyptus-600, #557159);
+    background: var(--bg-surface);
+    border-color: var(--accent-active);
   }
 
   /* Animations */
