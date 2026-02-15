@@ -1,4 +1,6 @@
 ---
+import Icon from '@components/ui/Icon.astro';
+
 /**
  * Newsletter Signup Component
  * 
@@ -35,7 +37,10 @@ const {
   <div class="newsletter-content">
     {variant === 'inline' && (
       <>
-        <h3 class="newsletter-title">📬 Stay Updated</h3>
+        <h3 class="newsletter-title flex items-center gap-2">
+          <Icon name="mail" class="h-5 w-5 text-eucalyptus-600 dark:text-eucalyptus-400" />
+          <span>Stay Updated</span>
+        </h3>
         <p class="newsletter-description">
           Get notified when I publish new articles about finance automation, machine learning, 
           and data science. No spam, unsubscribe anytime.

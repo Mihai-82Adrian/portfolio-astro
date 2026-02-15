@@ -4,6 +4,7 @@ import StatusIndicator from '../../components/projects/StatusIndicator.astro';
 import TechStackBadge from '../../components/projects/TechStackBadge.astro';
 import ProjectMetrics from '../../components/projects/ProjectMetrics.astro';
 import MediaGallery from '../../components/media/MediaGallery.astro';
+import Icon from '../../components/ui/Icon.astro';
 import { Image } from 'astro:assets';
 import projectsData from '../../data/projects.json';
 
@@ -63,7 +64,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
                 target={link.type === 'external' ? '_blank' : undefined}
                 rel={link.type === 'external' ? 'noopener noreferrer' : undefined}
               >
-                <span aria-hidden="true">{link.icon}</span>
+                <span aria-hidden="true"><Icon name={link.icon} class="h-4 w-4" /></span>
                 <span>{link.label}</span>
               </a>
             )
@@ -105,7 +106,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
         <ul class="features-list">
           {project.features.map((feature) => (
             <li class="feature-item">
-              <span class="feature-icon" aria-hidden="true">✓</span>
+              <span class="feature-icon" aria-hidden="true"><Icon name="check-circle" class="h-4 w-4" /></span>
               <span>{feature}</span>
             </li>
           ))}
