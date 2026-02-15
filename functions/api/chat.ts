@@ -147,7 +147,15 @@ function detectLanguage(message: string, uiLang?: string, acceptLang?: string): 
 
 // ─── Intent Router ─────────────────────────────────────────────────
 
-type Intent = 'contact' | 'contact_phone' | 'current_role' | 'skills' | 'certifications' | 'projects' | null;
+type Intent =
+    | 'contact'
+    | 'contact_phone'
+    | 'current_role'
+    | 'tools'
+    | 'skills'
+    | 'certifications'
+    | 'projects'
+    | null;
 
 interface IntentPattern {
     intent: Intent;
@@ -170,6 +178,15 @@ const INTENT_PATTERNS: IntentPattern[] = [
             /\b(contact|kontakt|contacta|email|e-mail|mail|reach|erreichen|linkedin|write|schreiben|adresa|adresse|address)/i,
         ],
         minConfidence: 0.5,
+    },
+    {
+        intent: 'tools',
+        patterns: [
+            /\b(tool|tools|software|programs?|app(?:lication)?s?|suite|erp)\b/i,
+            /\b(program|programe|aplica(?:t|ț)i(?:i|e)?|instrumente|soft(?:uri)?|programmi|software)\b/i,
+            /\b(contabil(?:e|ă|itate)?|buchhalt(?:ung|ungs)?|account(?:ing)?)\b/i,
+        ],
+        minConfidence: 0.33,
     },
     {
         intent: 'current_role',
@@ -226,6 +243,9 @@ function buildFactResponse(intent: Intent, facts: FactsData, lang: Lang): string
         case 'contact':
             return facts.contact[lang]?.default || facts.contact.en.default;
         case 'current_role':
+            return facts.current_role[lang] || facts.current_role.en;
+        case 'tools':
+            // Tools/software details are embedded in the current role fact block.
             return facts.current_role[lang] || facts.current_role.en;
         case 'skills':
             return facts.skills[lang] || facts.skills.en;
