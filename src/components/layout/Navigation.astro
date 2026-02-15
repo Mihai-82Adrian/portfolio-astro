@@ -32,11 +32,20 @@ const navigationLinks = [
 /**
  * Check if a link is active based on current path
  */
+const normalizePath = (path: string): string => {
+  if (!path) return '/';
+  const normalized = path.replace(/\/+$/, '');
+  return normalized === '' ? '/' : normalized;
+};
+
 const isActive = (href: string): boolean => {
-  if (href === '/') {
-    return currentPath === '/' || currentPath === '';
+  const current = normalizePath(currentPath);
+  const target = normalizePath(href);
+
+  if (target === '/') {
+    return current === '/';
   }
-  return currentPath.startsWith(href);
+  return current === target || current.startsWith(`${target}/`);
 };
 ---
 
@@ -55,6 +64,7 @@ const isActive = (href: string): boolean => {
           <li>
             <a
               href={link.href}
+              data-nav-href={link.href}
               class:list={[
                 'nav-link',
                 mobile ? 'nav-link-mobile' : 'nav-link-desktop',
@@ -70,6 +80,37 @@ const isActive = (href: string): boolean => {
     }
   </ul>
 </nav>
+
+<script is:inline>
+  (() => {
+    const normalizePath = (path) => {
+      if (!path) return '/';
+      const normalized = path.replace(/\/+$/, '');
+      return normalized === '' ? '/' : normalized;
+    };
+
+    const matches = (currentPath, href) => {
+      const current = normalizePath(currentPath);
+      const target = normalizePath(href);
+      if (target === '/') return current === '/';
+      return current === target || current.startsWith(`${target}/`);
+    };
+
+    const syncActiveNav = () => {
+      const currentPath = window.location.pathname;
+      document.querySelectorAll('a.nav-link[data-nav-href]').forEach((el) => {
+        const href = el.getAttribute('data-nav-href') || '/';
+        const active = matches(currentPath, href);
+        el.classList.toggle('nav-link-active', active);
+        if (active) el.setAttribute('aria-current', 'page');
+        else el.removeAttribute('aria-current');
+      });
+    };
+
+    syncActiveNav();
+    document.addEventListener('astro:page-load', syncActiveNav);
+  })();
+</script>
 
 <style>
 @reference "../../styles/global.css";
