@@ -1,0 +1,53 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+const title = 'Legal Notice (Impressum) | Mihai Adrian Mateescu';
+const description = 'Legal notice for this website. The authoritative legal text is provided in German.';
+---
+
+<BaseLayout title={title} description={description} lang="en" noindex={true}>
+  <main class="container-custom py-24">
+    <article class="prose-custom max-w-3xl mx-auto">
+      <h1 class="text-4xl font-bold mb-8">Legal Notice (Impressum)</h1>
+
+      <p class="text-lg text-text-secondary-light dark:text-text-secondary-dark mb-8">
+        The legally binding Impressum for this website is published in German, in accordance with German law.
+      </p>
+
+      <p class="text-text-secondary-light dark:text-text-secondary-dark mb-10">
+        Please use the official German version for legal reference:
+        <a href="/impressum" class="link">/impressum</a>
+      </p>
+
+      <section class="mb-10">
+        <h2 class="text-2xl font-semibold mb-4">Contact</h2>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          Mihai Adrian Mateescu<br />
+          Bahnhofstraße 65b<br />
+          21218 Seevetal, Germany<br />
+          Email: <a href="mailto:mihai.mateescu@web.de" class="link">mihai.mateescu@web.de</a>
+        </p>
+      </section>
+
+      <div class="mt-12 pt-8 border-t border-light-border dark:border-dark-border">
+        <a href="/en/" class="link inline-flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          Back to homepage
+        </a>
+      </div>
+    </article>
+  </main>
+</BaseLayout>
+
+<style>
+@reference "../../styles/global.css";
+  .link {
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+    @apply underline decoration-eucalyptus-600/50 dark:decoration-eucalyptus-400/50;
+    @apply hover:text-eucalyptus-900 dark:hover:text-eucalyptus-100;
+    @apply hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300;
+    @apply transition-colors duration-150;
+  }
+</style>
