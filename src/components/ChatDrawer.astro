@@ -49,113 +49,108 @@ import ChatWidget from './ChatWidget.astro';
 </div>
 
 <script>
-  const backdrop = document.getElementById('chat-drawer-backdrop');
-  const drawer = document.getElementById('chat-drawer');
-  const closeBtn = document.getElementById('chat-drawer-close');
-  // First focusable element inside (Close Button is the first logic choice, or the input inside ChatWidget)
-  // We'll focus the Close button first as per standard dialog patterns, or the Input if we prefer.
-  // Standard is usually the first interactive element or the close button.
+  (() => {
+    if ((window as any).__mamChatDrawerInit) return;
+    (window as any).__mamChatDrawerInit = true;
 
-  let isOpen = false;
-  let lastFocusedElement: HTMLElement | null = null;
+    let isOpen = false;
+    let lastFocusedElement: HTMLElement | null = null;
 
-  function openDrawer(triggerElement?: HTMLElement) {
-    if (isOpen) return;
-    isOpen = true;
-    lastFocusedElement = triggerElement || (document.activeElement as HTMLElement);
+    const getEls = () => {
+      const backdrop = document.getElementById('chat-drawer-backdrop');
+      const drawer = document.getElementById('chat-drawer');
+      const closeBtn = document.getElementById('chat-drawer-close');
+      return { backdrop, drawer, closeBtn };
+    };
 
-    // Show elems
-    backdrop?.classList.remove('hidden');
-    drawer?.classList.remove('hidden');
+    function openDrawer(triggerElement?: HTMLElement) {
+      const { backdrop, drawer, closeBtn } = getEls();
+      if (!backdrop || !drawer || isOpen) return;
 
-    // Trigger reflow for animation
-    void drawer?.offsetWidth;
+      isOpen = true;
+      lastFocusedElement = triggerElement || (document.activeElement as HTMLElement);
 
-    // Animate in
-    backdrop?.classList.remove('opacity-0');
-    drawer?.classList.remove('translate-y-full', 'md:translate-x-full');
+      backdrop.classList.remove('hidden');
+      drawer.classList.remove('hidden');
+      void drawer.offsetWidth;
+      backdrop.classList.remove('opacity-0');
+      drawer.classList.remove('translate-y-full', 'md:translate-x-full');
+      document.body.style.overflow = 'hidden';
 
-    // ARIA updates
-    // Optional: lock body scroll
-    document.body.style.overflow = 'hidden';
-
-    // Focus Management
-    setTimeout(() => {
-        // Find the input inside the chat widget to focus immediately for utility
-        const input = drawer?.querySelector('textarea.chat-input') as HTMLTextAreaElement;
+      setTimeout(() => {
+        const input = drawer.querySelector('textarea.chat-input') as HTMLTextAreaElement | null;
         if (input) input.focus();
-        else closeBtn?.focus();
-    }, 100);
-  }
-
-  function closeDrawer() {
-    if (!isOpen) return;
-    isOpen = false;
-
-    // Animate out
-    backdrop?.classList.add('opacity-0');
-    drawer?.classList.add('translate-y-full', 'md:translate-x-full');
-
-    // Wait for transition to finish before hiding
-    setTimeout(() => {
-      backdrop?.classList.add('hidden');
-      drawer?.classList.add('hidden');
-      document.body.style.overflow = '';
-      
-      // Return focus
-      if (lastFocusedElement) {
-        lastFocusedElement.focus();
-        lastFocusedElement = null;
-      }
-    }, 300);
-  }
-
-  // Event Listeners
-  window.addEventListener('chat:toggle', (e: Event) => {
-    const customEvent = e as CustomEvent;
-    const trigger = customEvent.detail?.trigger as HTMLElement;
-    if (isOpen) closeDrawer();
-    else openDrawer(trigger);
-  });
-  
-  window.addEventListener('chat:open', (e: Event) => {
-    const customEvent = e as CustomEvent;
-    openDrawer(customEvent.detail?.trigger);
-  });
-
-  window.addEventListener('chat:close', () => {
-    closeDrawer();
-  });
-
-  closeBtn?.addEventListener('click', closeDrawer);
-  backdrop?.addEventListener('click', closeDrawer);
-
-  // Escape Key & Focus Trap (Basic)
-  document.addEventListener('keydown', (e) => {
-    if (!isOpen) return;
-
-    if (e.key === 'Escape') {
-      closeDrawer();
+        else (closeBtn as HTMLElement | null)?.focus();
+      }, 100);
     }
 
-    if (e.key === 'Tab') {
-      const focusableEls = drawer?.querySelectorAll('a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select');
-      if (!focusableEls || focusableEls.length === 0) return;
+    function closeDrawer() {
+      const { backdrop, drawer } = getEls();
+      if (!backdrop || !drawer || !isOpen) return;
+
+      isOpen = false;
+      backdrop.classList.add('opacity-0');
+      drawer.classList.add('translate-y-full', 'md:translate-x-full');
+
+      setTimeout(() => {
+        backdrop.classList.add('hidden');
+        drawer.classList.add('hidden');
+        document.body.style.overflow = '';
+        if (lastFocusedElement) {
+          lastFocusedElement.focus();
+          lastFocusedElement = null;
+        }
+      }, 300);
+    }
+
+    window.addEventListener('chat:toggle', (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const trigger = customEvent.detail?.trigger as HTMLElement | undefined;
+      if (isOpen) closeDrawer();
+      else openDrawer(trigger);
+    });
+
+    window.addEventListener('chat:open', (e: Event) => {
+      const customEvent = e as CustomEvent;
+      openDrawer(customEvent.detail?.trigger as HTMLElement | undefined);
+    });
+
+    window.addEventListener('chat:close', closeDrawer);
+
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('#chat-drawer-close') || target.id === 'chat-drawer-backdrop') {
+        closeDrawer();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!isOpen) return;
+
+      if (e.key === 'Escape') {
+        closeDrawer();
+        return;
+      }
+
+      if (e.key !== 'Tab') return;
+      const { drawer } = getEls();
+      if (!drawer) return;
+
+      const focusableEls = drawer.querySelectorAll('a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select');
+      if (!focusableEls.length) return;
 
       const firstEl = focusableEls[0] as HTMLElement;
       const lastEl = focusableEls[focusableEls.length - 1] as HTMLElement;
 
-      if (e.shiftKey) { /* shift + tab */
+      if (e.shiftKey) {
         if (document.activeElement === firstEl) {
           lastEl.focus();
           e.preventDefault();
         }
-      } else { /* tab */
-        if (document.activeElement === lastEl) {
-          firstEl.focus();
-          e.preventDefault();
-        }
+      } else if (document.activeElement === lastEl) {
+        firstEl.focus();
+        e.preventDefault();
       }
-    }
-  });
+    });
+  })();
 </script>
