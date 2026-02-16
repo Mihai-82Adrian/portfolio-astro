@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Prevent accidental production deploys from local machine.
+# Allow only explicit override when truly needed:
+#   ALLOW_PROD_PUSH=1 git push origin master
+
+remote_name="${1:-}"
+remote_url="${2:-}"
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  case "$remote_ref" in
+    refs/heads/master|refs/heads/main)
+      if [[ "${ALLOW_PROD_PUSH:-0}" != "1" ]]; then
+        echo ""
+        echo "ERROR: Push to ${remote_ref#refs/heads/} is blocked by local safety guardrails."
+        echo "Remote: ${remote_name} (${remote_url})"
+        echo "Reason: this repository deploys to Cloudflare Pages on main/master pushes."
+        echo ""
+        echo "Use a staging/feature branch instead (recommended), or override explicitly:"
+        echo "  ALLOW_PROD_PUSH=1 git push ${remote_name} ${local_ref#refs/heads/}:${remote_ref#refs/heads/}"
+        echo ""
+        exit 1
+      fi
+      ;;
+  esac
+done
+
+exit 0
