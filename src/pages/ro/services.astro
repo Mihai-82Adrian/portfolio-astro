@@ -1,565 +1,207 @@
 ---
-/**
- * Services Page (RO)
- *
- * Conversion-oriented landing page with 3 service tiers:
- * 1. Consultanță Financiară & Strategie
- * 2. AI & Personal Branding Web
- * 3. Producție Creativă
- */
-
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import Container from '@components/ui/Container.astro';
-import Card from '@components/ui/Card.astro';
-import Button from '@components/ui/Button.astro';
-import Icon from '@components/ui/Icon.astro';
+import {
+  Bot,
+  Calculator,
+  CheckCircle2,
+  Code2,
+  Cog,
+  LineChart,
+  Mail,
+  MessageSquare,
+  Rocket
+} from '@lucide/astro';
 import { generateBreadcrumbSchema } from '@utils/structuredData';
 
-const lang = 'ro';
-
 const title = 'Servicii | Mihai Adrian Mateescu';
-const description = 'Consultanță financiară, dezvoltare web cu AI și producție creativă — servicii profesionale dintr-un singur loc.';
+const description =
+  'CFO meets CTO pentru regiunea DACH: Finance Ops și web engineering cu AI.';
 
 const breadcrumbSchema = generateBreadcrumbSchema([
   { name: 'Acasă', url: 'https://me-mateescu.de/ro' },
   { name: 'Servicii', url: 'https://me-mateescu.de/ro/services' }
 ]);
-
-const services = [
-  {
-    icon: 'briefcase',
-    badge: 'Finanțe',
-    badgeColor: 'blue',
-    title: 'Consultanță Financiară & Strategie',
-    description: 'Servicii financiare profesionale cu certificare IHK. De la crearea planurilor de afaceri la contabilitate curentă — fundamentat, fiabil și practic.',
-    features: [
-      'Elaborare și analiză planuri de afaceri',
-      'Planuri de restructurare și dezvoltare',
-      'Contabilitate curentă (certificat IHK)',
-      'DATEV, TVA, contabilitate financiară',
-      'Situații anuale & pregătire fiscală'
-    ],
-    certifications: ['Specialist Contabilitate (IHK)', 'Contabil Financiar (IHK)']
-  },
-  {
-    icon: 'sparkles',
-    badge: 'Tech & AI',
-    badgeColor: 'eucalyptus',
-    title: 'AI & Personal Branding Web',
-    description: 'Website-uri portfolio moderne, cu AI integrat, și optimizare a prezenței digitale. Aceeași tehnologie care susține acest site — acum disponibilă și pentru tine.',
-    features: [
-      'Website-uri portfolio cu AI (Astro, React)',
-      'Chatbot AI personalizat pentru site-ul tău',
-      'Optimizare LinkedIn & prezență profesională',
-      'SEO & optimizare performanță (100/100 Lighthouse)',
-      'Cloudflare Workers & edge computing'
-    ],
-    certifications: []
-  },
-  {
-    icon: 'music',
-    badge: 'Creativ',
-    badgeColor: 'purple',
-    title: 'Producție Creativă',
-    description: 'Design de merchandise print-on-demand și producție muzicală asistată de AI. Creativitatea întâlnește tehnologia.',
-    features: [
-      'Design merch print-on-demand (experiență ProfitMinds)',
-      'Instrumentale audio personalizate pentru conținut online',
-      'Producție muzicală tematică (Focus/Sleep/Motivație)',
-      'Distribuție conținut Spotify & YouTube',
-      'Strategii creative consistente cu brandul'
-    ],
-    certifications: []
-  }
-];
-
-const formLabels = {
-  heading: 'Contactează-mă',
-  subheading: 'Spune-mi despre proiectul tău — voi reveni în maximum 24 de ore.',
-  name: 'Numele tău',
-  email: 'Adresa de email',
-  service: 'Cum pot ajuta?',
-  serviceOptions: [
-    { value: '', label: 'Te rog selectează...' },
-    { value: 'finance', label: 'Consultanță Financiară & Contabilitate' },
-    { value: 'web-ai', label: 'Dezvoltare Web & AI' },
-    { value: 'creative', label: 'Producție Creativă' },
-    { value: 'other', label: 'Altceva' }
-  ],
-  message: 'Mesajul tău',
-  submit: 'Trimite mesajul',
-  privacy: 'Prin trimitere, ești de acord cu prelucrarea datelor tale conform'
-};
 ---
 
-<BaseLayout title={title} description={description} lang={lang} structuredData={breadcrumbSchema}>
-  <!-- Hero -->
-  <section class="services-hero">
-    <Container maxWidth="lg" paddingY="xl">
-      <div class="services-hero__content">
-        <div class="services-hero__badge">
-          <span class="services-hero__badge-dot"></span>
-          <span>Disponibil pentru proiecte</span>
-        </div>
-        <h1 class="services-hero__title">
-          <span class="text-gradient">Servicii</span> Profesionale
+<BaseLayout title={title} description={description} lang="ro" structuredData={breadcrumbSchema}>
+  <main class="pb-20">
+    <section class="mx-auto w-full max-w-6xl px-4 pt-20 md:px-6 md:pt-24">
+      <div class="mx-auto max-w-3xl text-center">
+        <p class="mb-4 inline-flex items-center rounded-full border border-black/10 bg-[var(--bg-elevated)] px-4 py-1.5 text-xs font-semibold tracking-wide text-eucalyptus-700 dark:border-white/15 dark:text-eucalyptus-300">
+          Servicii
+        </p>
+        <h1 class="text-balance text-4xl font-bold leading-tight text-text-primary-light dark:text-text-primary-dark sm:text-5xl">
+          CFO meets CTO pentru regiunea DACH
         </h1>
-        <p class="services-hero__subtitle">
-          Expertiză Financiară · Tehnologie · Creativitate
-        </p>
-        <p class="services-hero__description">
-          Trei domenii de expertiza, un singur punct de contact. Fie că este vorba de consultanță financiară
-          cu certificare IHK, dezvoltare web cu AI sau producție creativă — aduc soluția potrivită pentru proiectul tău.
+        <p class="mt-4 text-pretty text-base text-text-secondary-light dark:text-text-secondary-dark sm:text-lg">
+          Finance Ops & AI-Powered Web Engineering. Calitate maximă prin orchestrare AI eficientă.
         </p>
       </div>
-    </Container>
-  </section>
+    </section>
 
-  <!-- Service Tiers -->
-  <section class="services-grid" aria-label="Servicii">
-    <Container maxWidth="lg">
-      <div class="services-grid__cards">
-        {services.map((service, index) => (
-          <div class:list={['service-card', `service-card--${service.badgeColor}`]}>
-            <div class="service-card__header">
-              <span class="service-card__icon" aria-hidden="true">
-                <Icon name={service.icon} class="h-6 w-6" />
-              </span>
-              <span class:list={['service-card__badge', `service-card__badge--${service.badgeColor}`]}>
-                {service.badge}
-              </span>
-            </div>
-            <h2 class="service-card__title">{service.title}</h2>
-            <p class="service-card__description">{service.description}</p>
+    <section class="mx-auto mt-12 w-full max-w-6xl px-4 md:px-6">
+      <div class="mb-4">
+        <h2 class="text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">Pilon CFO · Finance Ops & Strategie</h2>
+      </div>
 
-            <ul class="service-card__features">
-              {service.features.map((feature) => (
-                <li>
-                  <span class="service-card__check" aria-hidden="true">
-                    <Icon name="check-circle" class="h-4 w-4" />
-                  </span>
-                  {feature}
-                </li>
-              ))}
-            </ul>
-
-            {service.certifications.length > 0 && (
-              <div class="service-card__certifications">
-                <span class="service-card__cert-label">Certificări:</span>
-                {service.certifications.map((cert) => (
-                  <span class="service-card__cert-badge">{cert}</span>
-                ))}
-              </div>
-            )}
-
-            <a href="#contact-form" class="service-card__cta">
-              Contactează-mă →
-            </a>
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <article class="group rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-eucalyptus-500/50 dark:border-white/10 dark:hover:border-eucalyptus-400/50 lg:col-span-7">
+          <div class="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-black/10 bg-eucalyptus-100 text-eucalyptus-700 dark:border-white/10 dark:bg-eucalyptus-900/35 dark:text-eucalyptus-300">
+            <Calculator class="h-5 w-5" aria-hidden="true" />
           </div>
-        ))}
+          <h3 class="text-balance text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">Finance Ops Core</h3>
+          <p class="mt-3 text-lg font-bold text-eucalyptus-400 dark:text-eucalyptus-300">de la 900 € / lună</p>
+          <ul class="mt-4 space-y-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            <li class="flex items-start gap-3">
+              <CheckCircle2 class="mt-0.5 h-4 w-4 shrink-0 text-eucalyptus-400" aria-hidden="true" />
+              <span>Înregistrarea tranzacțiilor curente</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <CheckCircle2 class="mt-0.5 h-4 w-4 shrink-0 text-eucalyptus-400" aria-hidden="true" />
+              <span>Procesare lunară de salarizare</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <CheckCircle2 class="mt-0.5 h-4 w-4 shrink-0 text-eucalyptus-400" aria-hidden="true" />
+              <span>Fluxuri digitale pentru documente și automatizare</span>
+            </li>
+          </ul>
+          <p class="mt-6 border-t border-black/10 pt-4 text-xs leading-relaxed text-text-muted-light dark:border-white/10 dark:text-text-muted-dark">
+            Servicii conform §6 Nr.4 StBerG. Fără consultanță fiscală, fără bilanț anual și fără EÜR.
+          </p>
+        </article>
+
+        <article class="group rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-eucalyptus-500/50 dark:border-white/10 dark:hover:border-eucalyptus-400/50 lg:col-span-5">
+          <div class="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-black/10 bg-eucalyptus-100 text-eucalyptus-700 dark:border-white/10 dark:bg-eucalyptus-900/35 dark:text-eucalyptus-300">
+            <LineChart class="h-5 w-5" aria-hidden="true" />
+          </div>
+          <h3 class="text-balance text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">CFO Cockpit & Controlling</h3>
+          <p class="mt-3 text-lg font-bold text-eucalyptus-400 dark:text-eucalyptus-300">de la 1.500 € (proiect sau retainer)</p>
+          <ul class="mt-4 space-y-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            <li class="flex items-start gap-3">
+              <CheckCircle2 class="mt-0.5 h-4 w-4 shrink-0 text-eucalyptus-400" aria-hidden="true" />
+              <span>Modelare cashflow și analiză de scenarii</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <CheckCircle2 class="mt-0.5 h-4 w-4 shrink-0 text-eucalyptus-400" aria-hidden="true" />
+              <span>Dashboard-uri KPI interactive</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <CheckCircle2 class="mt-0.5 h-4 w-4 shrink-0 text-eucalyptus-400" aria-hidden="true" />
+              <span>Consultanță strict operațională (business)</span>
+            </li>
+          </ul>
+        </article>
       </div>
-    </Container>
-  </section>
+    </section>
 
-  <!-- Contact Form -->
-  <section id="contact-form" class="services-contact" aria-label="Formular de contact">
-    <Container maxWidth="md">
-      <Card>
-        <div class="contact-form-wrapper">
-          <h2 class="contact-form__heading">{formLabels.heading}</h2>
-          <p class="contact-form__subheading">{formLabels.subheading}</p>
+    <section class="mx-auto mt-12 w-full max-w-6xl px-4 md:px-6">
+      <div class="mb-4">
+        <h2 class="text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">Pilon CTO · AI & Web Engineering</h2>
+      </div>
 
-          <form
-            action="mailto:mihai.mateescu@web.de"
-            method="POST"
-            enctype="text/plain"
-            class="contact-form"
-          >
-            <div class="contact-form__row">
-              <div class="contact-form__field">
-                <label for="name-ro" class="contact-form__label">{formLabels.name}</label>
-                <input
-                  type="text"
-                  id="name-ro"
-                  name="name"
-                  required
-                  class="contact-form__input"
-                  placeholder="Ion Popescu"
-                />
-              </div>
-              <div class="contact-form__field">
-                <label for="email-ro" class="contact-form__label">{formLabels.email}</label>
-                <input
-                  type="email"
-                  id="email-ro"
-                  name="email"
-                  required
-                  class="contact-form__input"
-                  placeholder="ion@exemplu.ro"
-                />
-              </div>
-            </div>
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <article class="group rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-eucalyptus-500/60 dark:border-white/10 dark:hover:border-eucalyptus-400/60 lg:col-span-5">
+          <div class="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-black/10 bg-eucalyptus-100 text-eucalyptus-700 dark:border-white/10 dark:bg-eucalyptus-900/35 dark:text-eucalyptus-300">
+            <Code2 class="h-5 w-5" aria-hidden="true" />
+          </div>
+          <h3 class="text-balance text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">Base Astro Portfolio</h3>
+          <p class="mt-3 text-lg font-bold text-eucalyptus-400 dark:text-eucalyptus-300">1.200 € – 1.800 €</p>
+          <ul class="mt-4 space-y-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            <li class="flex items-start gap-3">
+              <CheckCircle2 class="mt-0.5 h-4 w-4 shrink-0 text-eucalyptus-400" aria-hidden="true" />
+              <span>Setup Astro/Tailwind edge-native</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <CheckCircle2 class="mt-0.5 h-4 w-4 shrink-0 text-eucalyptus-400" aria-hidden="true" />
+              <span>Performanță Lighthouse 100/100</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <CheckCircle2 class="mt-0.5 h-4 w-4 shrink-0 text-eucalyptus-400" aria-hidden="true" />
+              <span>Design personalizat (fără template-uri)</span>
+            </li>
+          </ul>
+        </article>
 
-            <div class="contact-form__field">
-              <label for="service-ro" class="contact-form__label">{formLabels.service}</label>
-              <select id="service-ro" name="service" required class="contact-form__select">
-                {formLabels.serviceOptions.map((opt) => (
-                  <option value={opt.value} disabled={opt.value === ''} selected={opt.value === ''}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <article class="group rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-eucalyptus-500/60 dark:border-white/10 dark:hover:border-eucalyptus-400/60 lg:col-span-7">
+          <div class="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-black/10 bg-eucalyptus-100 text-eucalyptus-700 dark:border-white/10 dark:bg-eucalyptus-900/35 dark:text-eucalyptus-300">
+            <Bot class="h-5 w-5" aria-hidden="true" />
+          </div>
+          <h3 class="text-balance text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">Pro AI Hub</h3>
+          <p class="mt-3 text-lg font-bold text-eucalyptus-400 dark:text-eucalyptus-300">2.500 € – 3.500 €</p>
+          <ul class="mt-4 space-y-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            <li class="flex items-start gap-3">
+              <CheckCircle2 class="mt-0.5 h-4 w-4 shrink-0 text-eucalyptus-400" aria-hidden="true" />
+              <span>Tot ce include pachetul Base</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <CheckCircle2 class="mt-0.5 h-4 w-4 shrink-0 text-eucalyptus-400" aria-hidden="true" />
+              <span>Chatbot RAG AI custom integrat</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <CheckCircle2 class="mt-0.5 h-4 w-4 shrink-0 text-eucalyptus-400" aria-hidden="true" />
+              <span>Proof of work: testează "Ask Mihai AI" direct din meniu.</span>
+            </li>
+          </ul>
+        </article>
+      </div>
+    </section>
 
-            <div class="contact-form__field">
-              <label for="message-ro" class="contact-form__label">{formLabels.message}</label>
-              <textarea
-                id="message-ro"
-                name="message"
-                rows="5"
-                required
-                class="contact-form__textarea"
-                placeholder="Descrie pe scurt proiectul tău..."
-              ></textarea>
-            </div>
+    <section class="mx-auto mt-14 w-full max-w-6xl px-4 md:px-6">
+      <h2 class="text-center text-2xl font-semibold text-text-primary-light dark:text-text-primary-dark">
+        Cum funcționează colaborarea
+      </h2>
+      <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <article class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-5 dark:border-white/10">
+          <div class="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-black/10 bg-eucalyptus-100 text-eucalyptus-700 dark:border-white/10 dark:bg-eucalyptus-900/35 dark:text-eucalyptus-300">
+            <MessageSquare class="h-5 w-5" aria-hidden="true" />
+          </div>
+          <h3 class="text-base font-semibold text-text-primary-light dark:text-text-primary-dark">
+            Discuție inițială (gratuită)
+          </h3>
+          <p class="mt-2 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            Analizăm situația actuală și verificăm dacă setup-ul meu se potrivește obiectivelor tale.
+          </p>
+        </article>
 
-            <div class="contact-form__footer">
-              <p class="contact-form__privacy">
-                {formLabels.privacy}{' '}
-                <a href="/ro/confidentialitate" class="contact-form__link">Politicii de Confidențialitate</a>.
-              </p>
-              <button type="submit" class="contact-form__submit">
-                {formLabels.submit}
-                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7-7 7M5 12h16" />
-                </svg>
-              </button>
-            </div>
-          </form>
-        </div>
-      </Card>
-    </Container>
-  </section>
+        <article class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-5 dark:border-white/10">
+          <div class="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-black/10 bg-eucalyptus-100 text-eucalyptus-700 dark:border-white/10 dark:bg-eucalyptus-900/35 dark:text-eucalyptus-300">
+            <Cog class="h-5 w-5" aria-hidden="true" />
+          </div>
+          <h3 class="text-base font-semibold text-text-primary-light dark:text-text-primary-dark">
+            Strategie & Setup
+          </h3>
+          <p class="mt-2 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            Implementare precisă a fluxurilor digitale sau a arhitecturii pentru AI Hub.
+          </p>
+        </article>
+
+        <article class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-5 dark:border-white/10">
+          <div class="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-black/10 bg-eucalyptus-100 text-eucalyptus-700 dark:border-white/10 dark:bg-eucalyptus-900/35 dark:text-eucalyptus-300">
+            <Rocket class="h-5 w-5" aria-hidden="true" />
+          </div>
+          <h3 class="text-base font-semibold text-text-primary-light dark:text-text-primary-dark">
+            Go Live & Suport
+          </h3>
+          <p class="mt-2 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            Primești date solide pentru decizii sau un web presence cu conversie ridicată.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="mx-auto mt-12 w-full max-w-6xl px-4 md:px-6">
+      <div class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-6 md:p-8 dark:border-white/10">
+        <p class="text-pretty text-base leading-relaxed text-text-secondary-light dark:text-text-secondary-dark md:text-lg">
+          Din cauza standardului meu ridicat de calitate și a activității mele ca contabil financiar, accept maximum 2 proiecte noi pe lună.
+        </p>
+        <a
+          href="mailto:mihai.mateescu@web.de"
+          class="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-eucalyptus-500 px-5 py-3 text-sm font-semibold text-eucalyptus-950 shadow-sm transition-colors duration-200 hover:bg-eucalyptus-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus-500/60 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-bg"
+        >
+          <Mail class="h-4 w-4" aria-hidden="true" />
+          Verifică disponibilitatea
+        </a>
+      </div>
+    </section>
+  </main>
 </BaseLayout>
-
-<style>
-@reference "../../styles/global.css";
-  /* ========== HERO ========== */
-  .services-hero {
-    @apply relative overflow-hidden;
-    @apply bg-light-bg dark:bg-dark-bg;
-  }
-
-  .services-hero__content {
-    @apply text-center;
-    animation: fadeUp 0.5s ease-out;
-  }
-
-  .services-hero__badge {
-    @apply inline-flex items-center gap-2 mb-6;
-    @apply px-4 py-2 rounded-full;
-    @apply bg-eucalyptus-100 dark:bg-eucalyptus-900;
-    @apply text-eucalyptus-800 dark:text-eucalyptus-200;
-    @apply text-sm font-medium;
-  }
-
-  .services-hero__badge-dot {
-    @apply w-2 h-2 rounded-full;
-    @apply bg-eucalyptus-600 dark:bg-eucalyptus-400;
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  .services-hero__title {
-    @apply text-4xl sm:text-5xl md:text-6xl font-bold;
-    @apply text-text-primary-light dark:text-text-primary-dark;
-    @apply mb-4;
-    line-height: 1.1;
-  }
-
-  .services-hero__subtitle {
-    @apply text-xl sm:text-2xl font-semibold;
-    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
-    @apply mb-6;
-  }
-
-  .services-hero__description {
-    @apply text-base sm:text-lg;
-    @apply text-text-secondary-light dark:text-text-secondary-dark;
-    @apply max-w-3xl mx-auto;
-    @apply leading-relaxed;
-  }
-
-  /* Gradient Text */
-  .text-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(
-      135deg,
-      var(--color-eucalyptus-600) 0%,
-      var(--color-eucalyptus-700) 50%,
-      var(--color-eucalyptus-800) 100%
-    );
-  }
-
-  .dark .text-gradient {
-    background-image: linear-gradient(
-      135deg,
-      var(--color-eucalyptus-300) 0%,
-      var(--color-eucalyptus-400) 50%,
-      var(--color-eucalyptus-500) 100%
-    );
-  }
-
-  /* ========== SERVICE CARDS ========== */
-  .services-grid {
-    @apply py-16 sm:py-20;
-  }
-
-  .services-grid__cards {
-    @apply grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8;
-  }
-
-  .service-card {
-    @apply relative;
-    @apply rounded-2xl;
-    @apply p-6 sm:p-8;
-    @apply border border-gray-200 dark:border-gray-700/50;
-    @apply flex flex-col;
-    @apply transition-transform duration-300 ease-out;
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.9) 0%,
-      rgba(255, 255, 255, 0.5) 100%
-    );
-    backdrop-filter: blur(12px);
-    animation: fadeUp 0.5s ease-out both;
-  }
-
-  .dark .service-card {
-    background: linear-gradient(
-      135deg,
-      rgba(30, 41, 59, 0.9) 0%,
-      rgba(15, 23, 42, 0.7) 100%
-    );
-  }
-
-  .service-card:nth-child(1) { animation-delay: 0.1s; }
-  .service-card:nth-child(2) { animation-delay: 0.2s; }
-  .service-card:nth-child(3) { animation-delay: 0.3s; }
-
-  .service-card:hover {
-    @apply shadow-xl -translate-y-1;
-  }
-
-  .service-card--blue:hover {
-    @apply border-blue-400/50 dark:border-blue-500/40;
-  }
-
-  .service-card--eucalyptus:hover {
-    @apply border-eucalyptus-400/50 dark:border-eucalyptus-500/40;
-  }
-
-  .service-card--purple:hover {
-    @apply border-purple-400/50 dark:border-purple-500/40;
-  }
-
-  .service-card__header {
-    @apply flex items-center gap-3 mb-4;
-  }
-
-  .service-card__icon {
-    @apply inline-flex items-center justify-center text-eucalyptus-600 dark:text-eucalyptus-400;
-  }
-
-  .service-card__badge {
-    @apply px-3 py-1 rounded-full;
-    @apply text-xs font-semibold uppercase tracking-wider;
-  }
-
-  .service-card__badge--blue {
-    @apply bg-blue-100 dark:bg-blue-900/60;
-    @apply text-blue-800 dark:text-blue-300;
-  }
-
-  .service-card__badge--eucalyptus {
-    @apply bg-eucalyptus-100 dark:bg-eucalyptus-900/60;
-    @apply text-eucalyptus-800 dark:text-eucalyptus-300;
-  }
-
-  .service-card__badge--purple {
-    @apply bg-purple-100 dark:bg-purple-900/60;
-    @apply text-purple-800 dark:text-purple-300;
-  }
-
-  .service-card__title {
-    @apply text-xl sm:text-2xl font-bold;
-    @apply text-text-primary-light dark:text-text-primary-dark;
-    @apply mb-3;
-  }
-
-  .service-card__description {
-    @apply text-sm sm:text-base;
-    @apply text-text-secondary-light dark:text-text-secondary-dark;
-    @apply leading-relaxed mb-6;
-  }
-
-  .service-card__features {
-    @apply space-y-2 mb-6;
-    @apply flex-grow;
-  }
-
-  .service-card__features li {
-    @apply flex items-start gap-2;
-    @apply text-sm;
-    @apply text-text-secondary-light dark:text-text-secondary-dark;
-  }
-
-  .service-card__check {
-    @apply inline-flex items-center justify-center shrink-0 text-eucalyptus-600 dark:text-eucalyptus-400;
-    @apply mt-0.5;
-  }
-
-  .service-card__certifications {
-    @apply flex flex-wrap items-center gap-2;
-    @apply pt-4 mb-4;
-    @apply border-t border-gray-200/60 dark:border-gray-700/40;
-  }
-
-  .service-card__cert-label {
-    @apply text-xs font-medium uppercase tracking-wide;
-    @apply text-text-tertiary-light dark:text-text-tertiary-dark;
-    @apply w-full mb-1;
-  }
-
-  .service-card__cert-badge {
-    @apply px-2.5 py-1 rounded-lg;
-    @apply text-xs font-semibold;
-    @apply bg-amber-100 dark:bg-amber-900/40;
-    @apply text-amber-800 dark:text-amber-300;
-    @apply border border-amber-200/60 dark:border-amber-700/40;
-  }
-
-  .service-card__cta {
-    @apply inline-flex items-center;
-    @apply mt-auto pt-4;
-    @apply text-sm font-semibold;
-    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
-    @apply hover:text-eucalyptus-800 dark:hover:text-eucalyptus-200;
-    @apply transition-colors duration-200;
-    @apply no-underline;
-  }
-
-  /* ========== CONTACT FORM ========== */
-  .services-contact {
-    @apply py-16 sm:py-20;
-  }
-
-  .contact-form-wrapper {
-    @apply p-2 sm:p-4;
-  }
-
-  .contact-form__heading {
-    @apply text-2xl sm:text-3xl font-bold;
-    @apply text-text-primary-light dark:text-text-primary-dark;
-    @apply mb-2;
-  }
-
-  .contact-form__subheading {
-    @apply text-base;
-    @apply text-text-secondary-light dark:text-text-secondary-dark;
-    @apply mb-8;
-  }
-
-  .contact-form {
-    @apply space-y-5;
-  }
-
-  .contact-form__row {
-    @apply grid grid-cols-1 sm:grid-cols-2 gap-5;
-  }
-
-  .contact-form__field {
-    @apply flex flex-col gap-1.5;
-  }
-
-  .contact-form__label {
-    @apply text-sm font-medium;
-    @apply text-text-primary-light dark:text-text-primary-dark;
-  }
-
-  .contact-form__input,
-  .contact-form__select,
-  .contact-form__textarea {
-    @apply w-full px-4 py-3 rounded-xl;
-    @apply border border-gray-300 dark:border-gray-600;
-    @apply bg-white dark:bg-gray-800;
-    @apply text-text-primary-light dark:text-text-primary-dark;
-    @apply text-sm;
-    @apply transition-colors duration-200;
-  }
-
-  .contact-form__input:focus,
-  .contact-form__select:focus,
-  .contact-form__textarea:focus {
-    @apply border-eucalyptus-500 dark:border-eucalyptus-400;
-    @apply ring-2 ring-eucalyptus-500/20 dark:ring-eucalyptus-400/20;
-  }
-
-  .contact-form__input::placeholder,
-  .contact-form__textarea::placeholder {
-    @apply text-gray-400 dark:text-gray-500;
-  }
-
-  .contact-form__select {
-    @apply appearance-none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-    background-position: right 0.75rem center;
-    background-repeat: no-repeat;
-    background-size: 1.25em 1.25em;
-    padding-right: 2.5rem;
-  }
-
-  .contact-form__footer {
-    @apply flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4;
-    @apply pt-2;
-  }
-
-  .contact-form__privacy {
-    @apply text-xs;
-    @apply text-text-tertiary-light dark:text-text-tertiary-dark;
-  }
-
-  .contact-form__link {
-    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
-    @apply underline decoration-eucalyptus-600/50;
-    @apply hover:decoration-eucalyptus-700;
-  }
-
-  .contact-form__submit {
-    @apply inline-flex items-center;
-    @apply px-6 py-3 rounded-xl;
-    @apply bg-eucalyptus-600 hover:bg-eucalyptus-700;
-    @apply dark:bg-eucalyptus-500 dark:hover:bg-eucalyptus-600;
-    @apply text-white font-semibold text-sm;
-    @apply transition-colors duration-200;
-    @apply shadow-md hover:shadow-lg;
-    @apply cursor-pointer;
-    @apply shrink-0;
-  }
-
-  /* ========== ANIMATIONS ========== */
-  @keyframes fadeUp {
-    from {
-      opacity: 0;
-      transform: translateY(1rem);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
-</style>
