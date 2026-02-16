@@ -126,6 +126,24 @@ export const certifications: Certification[] = [
     category: 'reference'
   },
   {
+    id: 'arbeitszeugnis-kesen',
+    title: {
+      de: 'Arbeitszeugnis Kesen',
+      en: 'Work Reference Kesen',
+      ro: 'Referință Muncă Kesen'
+    },
+    issuer: 'Kesen Steuerberatungsgesellschaft mbH',
+    dateObtained: '2025-04',
+    image: '/images/arbeitszeugnis-kesen-2025.webp',
+    pdfUrl: '/images/Arbeitszeugnis-Kesen-2025.pdf',
+    description: {
+      de: 'Arbeitszeugnis für die Tätigkeit als Finanzbuchhalter bei Kesen Steuerberatungsgesellschaft mbH.',
+      en: 'Work reference for the activity as financial accountant at Kesen Steuerberatungsgesellschaft mbH.',
+      ro: 'Referință de muncă pentru activitatea de contabil financiar la Kesen Steuerberatungsgesellschaft mbH.'
+    },
+    category: 'reference'
+  },
+  {
     id: 'arbeitszeugnis-smc',
     title: {
       de: 'Arbeitszeugnis SMC Rumänien',

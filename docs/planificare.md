@@ -335,3 +335,30 @@ To continue this session, run codex resume 019c5d4d-df86-7fa3-be14-b0a57890697a
 2. smoke test final scurt pe runtime local
 3. merge controlat in `master` doar cu aprobare explicita
 4. monitorizare 24-48h post soft launch
+
+---
+
+## Local Dev Safety Guardrails (2026-02-16)
+
+Pentru a continua dezvoltarea locala fara publish accidental:
+
+- s-a adaugat hook versionat: `.githooks/pre-push`
+- hook-ul blocheaza push-urile catre `main` si `master` implicit
+- motiv: `.github/workflows/deploy.yml` face deploy automat pe push in `main/master`
+
+### Activare locala (o singura data pe clone)
+
+```bash
+git config core.hooksPath .githooks
+```
+
+### Comportament
+
+- flux normal: push doar pe `staging/*`, `fix/*`, `feat/*`, `chore/*`
+- daca este necesar un push direct controlat in productie, se face doar explicit:
+
+```bash
+ALLOW_PROD_PUSH=1 git push origin master
+```
+
+Aceasta protectie este intentionata si trebuie pastrata activa pe toata perioada de iteratie locala.

@@ -1,0 +1,51 @@
+[
+  {
+    "id": "fact-current-role-en",
+    "tab": "chat",
+    "lang": "en",
+    "message": "What is the current role?",
+    "intent": "current_role",
+    "expect": "fact_json",
+    "mustContain": ["modal3", "Financial Accountant"]
+  },
+  {
+    "id": "fact-certs-de",
+    "tab": "chat",
+    "lang": "de",
+    "message": "Liste die Zertifizierungen",
+    "intent": "certifications",
+    "expect": "fact_json",
+    "mustContain": ["IHK"]
+  },
+  {
+    "id": "fact-projects-ro",
+    "tab": "chat",
+    "lang": "ro",
+    "message": "Care sunt proiectele curente?",
+    "intent": "projects",
+    "expect": "fact_json",
+    "mustContain": ["MindHafen"]
+  },
+  {
+    "id": "chat-stream-en",
+    "tab": "chat",
+    "lang": "en",
+    "message": "Summarize Mihai's profile in 2 short bullet points.",
+    "expect": "sse_stream"
+  },
+  {
+    "id": "chat-stream-de",
+    "tab": "chat",
+    "lang": "de",
+    "message": "Fasse Mihais Profil in 2 kurzen Punkten zusammen.",
+    "expect": "sse_stream"
+  },
+  {
+    "id": "jd-json-en",
+    "tab": "jd",
+    "lang": "en",
+    "message": "Senior Accountant role: VAT reporting, monthly close, annual statements, DATEV, stakeholder communication, process improvement.",
+    "expect": "jd_json",
+    "mustContain": ["score", "verdict"]
+  }
+]

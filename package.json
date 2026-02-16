@@ -20,7 +20,10 @@
     "lint:content": "node .agent/skills/content-architect/scripts/audit-content.mjs",
     "dev:chat": "npx wrangler pages dev dist --compatibility-date=2024-01-01 --live-reload",
     "dev:copilot": "npm run build && npm run dev:chat",
-    "astro": "astro"
+    "astro": "astro",
+    "check:corpus": "node scripts/check-corpus.js",
+    "check:corpus:strict": "node scripts/check-corpus.js --strict",
+    "verify:chat:goldset": "bash scripts/verify-chat-goldset.sh http://localhost:8788 docs/chat-goldset.json"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.10",

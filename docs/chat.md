@@ -132,6 +132,7 @@ OPENAI_API_KEY="sk-..."
 ```bash
 npm run lint:chat       # Security check (no innerHTML, etc.)
 npm run lint:a11y:strict # Accessibility check
+npm run check:corpus     # Corpus freeze + structural QA
 ```
 
 ## Smoke Test
@@ -150,4 +151,16 @@ curl -s -X POST http://localhost:8788/api/chat \
 
 # 3. Verify SSE contract (headers + event markers)
 bash scripts/verify-sse.sh http://localhost:8788
+
+# 4. Verify chat regression goldset (facts + SSE + JD)
+npm run verify:chat:goldset
 ```
+
+## Regression Goldset
+
+- File: `docs/chat-goldset.json`
+- Script: `scripts/verify-chat-goldset.sh`
+- Purpose: detect regressions in response contract:
+  - fact shortcuts return JSON mode `fact`
+  - normal chat returns SSE (`text/event-stream` with `meta`/`done` events)
+  - JD tab returns JSON payload

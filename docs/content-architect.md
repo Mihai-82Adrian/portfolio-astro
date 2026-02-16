@@ -69,6 +69,23 @@ Output Format (JSONL):
 }
 ```
 
+### Manual PDF Evidence Workflow (Freeze-safe)
+
+- Extract only verifiable text from source PDFs (example tools: `pdftotext`, `pdfinfo`).
+- Add curated `evidence` entries manually to both:
+  - `public/corpus.jsonl`
+  - `public/corpus-jsonl.txt`
+- Keep entries factual, concise, and traceable via `metadata.docPath`.
+- If a PDF is image-only (scanned) and has no extractable text, do not invent details.
+  - Mark it for manual OCR/human review in a future pass.
+- After each update:
+
+```bash
+jq -c . public/corpus.jsonl >/dev/null
+jq -c . public/corpus-jsonl.txt >/dev/null
+sha256sum public/corpus.jsonl public/corpus-jsonl.txt
+```
+
 ## Rules
 
 | Rule | Description | Default Severity |
