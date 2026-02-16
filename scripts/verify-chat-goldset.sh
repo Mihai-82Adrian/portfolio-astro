@@ -36,8 +36,8 @@ for idx in $(seq 0 $((count - 1))); do
     --data "$payload" \
     "$BASE_URL/api/chat"
 
-  status=$(awk 'NR==1{print $2}' "$headers_file")
-  ctype=$(awk 'BEGIN{IGNORECASE=1} /^content-type:/{print $2}' "$headers_file" | tr -d '\r')
+  status=$(awk '/^HTTP\//{code=$2} END{print code}' "$headers_file")
+  ctype=$(sed -nE 's/^[Cc]ontent-[Tt]ype:[[:space:]]*([^;[:space:]]+).*/\1/p' "$headers_file" | tr -d '\r' | tail -1)
 
   ok=1
   if [[ "$status" -lt 200 || "$status" -ge 300 ]]; then
