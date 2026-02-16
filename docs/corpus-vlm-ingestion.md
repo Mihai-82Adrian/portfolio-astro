@@ -44,6 +44,7 @@ STRICT RULES
 - JSONL only.
 - Preserve metadata.docPath exactly.
 - Never hallucinate dates, scores, grades, or legal statements.
+- Optimize for Vector Search: Ensure key industry entities (e.g., software names like DATEV, standards like GoBD, specific roles) are kept in their exact original spelling, even in the translated variants.
 ```
 
 ## 4) Freeze policy reminder
