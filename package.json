@@ -23,7 +23,8 @@
     "astro": "astro",
     "check:corpus": "node scripts/check-corpus.js",
     "check:corpus:strict": "node scripts/check-corpus.js --strict",
-    "verify:chat:goldset": "bash scripts/verify-chat-goldset.sh http://localhost:8788 docs/chat-goldset.json"
+    "verify:chat:goldset": "bash scripts/verify-chat-goldset.sh http://localhost:8788 docs/chat-goldset.json",
+    "verify:xrechnung:fixtures": "node scripts/verify-xrechnung-fixtures.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.10",
