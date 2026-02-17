@@ -10,9 +10,9 @@ import {
 } from '@lucide/astro';
 import { generateBreadcrumbSchema } from '@utils/structuredData';
 
-const title = 'Open-Source Fin-Tools | Mihai Adrian Mateescu';
+const title = 'Fin-Tools Hub (Open Source) | Mihai Adrian Mateescu';
 const description =
-  'CFO-level financial utilities built with CTO-level engineering. Privacy-first. Zero tracking.';
+  'A practical finance lab for founders & freelancers in DACH.';
 
 const breadcrumbSchema = generateBreadcrumbSchema([
   { name: 'Home', url: 'https://me-mateescu.de/' },
@@ -80,10 +80,10 @@ const tiles = [
           Fin-Tools Hub
         </p>
         <h1 class="text-balance text-4xl font-bold leading-tight text-text-primary-light dark:text-text-primary-dark sm:text-5xl">
-          Open-Source Fin-Tools
+          Fin-Tools Hub (Open Source)
         </h1>
         <p class="mt-4 text-pretty text-base text-text-secondary-light dark:text-text-secondary-dark sm:text-lg">
-          CFO-level financial utilities built with CTO-level engineering. Privacy-first. Zero tracking.
+          A practical finance lab for founders & freelancers in DACH.
         </p>
       </div>
     </section>
@@ -146,6 +146,22 @@ const tiles = [
           );
         })}
       </div>
+    </section>
+
+    <section class="mx-auto mt-10 w-full max-w-6xl px-4 md:px-6">
+      <article class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-6 dark:border-white/10">
+        <h2 class="text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">
+          Built in public
+        </h2>
+        <p class="mt-3 text-pretty text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+          These utilities are open-source and privacy-first. I design the product and architecture, then collaborate with professional AI coding assistants to iterate faster, without compromising on performance or code quality.
+        </p>
+        <ul class="mt-4 space-y-2 text-sm text-text-secondary-light dark:text-text-secondary-dark">
+          <li>Open source: practical tools for founders & freelancers</li>
+          <li>Local-first: no server-side storage by default</li>
+          <li>Human-led, AI-accelerated engineering</li>
+        </ul>
+      </article>
     </section>
   </main>
 </BaseLayout>
