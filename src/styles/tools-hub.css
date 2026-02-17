@@ -1,0 +1,86 @@
+.tools-hub {
+  position: relative;
+  isolation: isolate;
+}
+
+.tools-hub::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: min(72rem, 100%);
+  height: 22rem;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(
+      62% 50% at 72% 14%,
+      color-mix(in oklab, var(--color-eucalyptus-500) 16%, transparent),
+      transparent 72%
+    );
+  opacity: 0.55;
+}
+
+.tools-hub .tool-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.tools-hub .tool-card--live::before,
+.tools-hub .tool-card--live::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.tools-hub .tool-card--live::before {
+  border: 1px solid color-mix(in oklab, var(--color-eucalyptus-500) 44%, transparent);
+  opacity: 0.14;
+  transform: scale(1);
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.tools-hub .tool-card--live::after {
+  inset: -30% -45%;
+  background: linear-gradient(
+    118deg,
+    transparent 35%,
+    color-mix(in oklab, var(--color-eucalyptus-300) 26%, transparent) 48%,
+    transparent 62%
+  );
+  opacity: 0.08;
+  transform: translate3d(-8%, -8%, 0);
+  transition: opacity 220ms ease, transform 260ms ease;
+}
+
+.tools-hub .tool-card--live:hover::before {
+  opacity: 0.3;
+  transform: scale(1.005);
+}
+
+.tools-hub .tool-card--live:hover::after {
+  opacity: 0.18;
+  transform: translate3d(6%, 6%, 0);
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  .tools-hub .tool-card--live {
+    backdrop-filter: blur(1px);
+  }
+}
+
+.tools-hub .tool-card--live a:focus-visible {
+  outline: 2px solid var(--color-eucalyptus-500);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tools-hub .tool-card,
+  .tools-hub .tool-card--live::before,
+  .tools-hub .tool-card--live::after {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}

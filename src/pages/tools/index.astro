@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import '@/styles/tools-hub.css';
 import {
   ArrowRight,
   BarChart3,
@@ -73,7 +74,7 @@ const tiles = [
 ---
 
 <BaseLayout title={title} description={description} lang="en" structuredData={breadcrumbSchema}>
-  <main class="pb-20">
+  <main class="tools-hub pb-20">
     <section class="mx-auto w-full max-w-6xl px-4 pt-20 md:px-6 md:pt-24">
       <div class="mx-auto max-w-3xl text-center">
         <p class="mb-4 inline-flex items-center rounded-full border border-black/10 bg-[var(--bg-elevated)] px-4 py-1.5 text-xs font-semibold tracking-wide text-eucalyptus-700 dark:border-white/15 dark:text-eucalyptus-300">
@@ -96,10 +97,9 @@ const tiles = [
           return (
             <article
               class:list={[
-                'rounded-2xl border bg-[var(--bg-elevated)] p-6',
-                'transition-all duration-300',
+                'tool-card rounded-2xl border bg-[var(--bg-elevated)] p-6',
                 isLive
-                  ? 'border-eucalyptus-500/30 hover:-translate-y-1 hover:border-eucalyptus-400/60 hover:shadow-[0_14px_40px_rgba(0,0,0,0.28)]'
+                  ? 'tool-card--live border-eucalyptus-500/30 transition-transform duration-300 hover:-translate-y-1 hover:border-eucalyptus-400/60'
                   : 'border-black/10 dark:border-white/10 opacity-75 cursor-not-allowed',
               ]}
               aria-disabled={!isLive}
