@@ -22,6 +22,7 @@ if (!existsSync(metadataPath)) {
 const metadata = JSON.parse(readFileSync(metadataPath, 'utf-8'));
 const jarPath = path.join(root, metadata.validator.jarPath);
 const scenariosPath = path.join(root, metadata.xrechnungConfig.scenariosPath);
+const configDir = path.dirname(scenariosPath);
 if (!existsSync(jarPath) || !existsSync(scenariosPath)) {
   console.error('KoSIT runtime incomplete. Re-run: npm run kosit:setup');
   process.exit(2);
@@ -96,14 +97,37 @@ for (const file of xmlFiles) {
   let output = '';
   let success = false;
 
+  const classpath = `${jarPath}:${path.join(path.dirname(jarPath), 'libs', '*')}`;
   const commandVariants = [
-    ['-s', scenariosPath, '-o', reportDir, file],
-    ['-s', scenariosPath, '-r', reportDir, file],
+    [
+      '-cp',
+      classpath,
+      'de.kosit.validationtool.cmd.CommandLineApplication',
+      '-s',
+      scenariosPath,
+      '-r',
+      configDir,
+      '-o',
+      reportDir,
+      file,
+    ],
+    [
+      '-cp',
+      classpath,
+      'de.kosit.validationtool.cmd.CommandLineApplication',
+      '-s',
+      scenariosPath,
+      '-r',
+      configDir,
+      '--output-directory',
+      reportDir,
+      file,
+    ],
   ];
 
   for (const args of commandVariants) {
     try {
-      output = execFileSync('java', ['-jar', jarPath, ...args], {
+      output = execFileSync('java', args, {
         encoding: 'utf-8',
       });
       success = true;
