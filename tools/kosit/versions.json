@@ -1,0 +1,17 @@
+{
+  "validator": {
+    "version": "1.5.2",
+    "url": "https://github.com/itplr-kosit/validator/releases/download/v1.5.2/validationtool-1.5.2.zip",
+    "archive": "validator-1.5.2.zip"
+  },
+  "xrechnungConfig": {
+    "version": "2024-12-17",
+    "url": "https://github.com/itplr-kosit/validator-configuration-xrechnung/releases/download/release-2024-12-17/validator-configuration-xrechnung_3.0.2_2024-12-17.zip",
+    "archive": "xrechnung-config-2024-12-17.zip"
+  },
+  "testsuite": {
+    "version": "2024-12",
+    "url": "https://github.com/itplr-kosit/xrechnung-testsuite/releases/download/release-2024-12-17/xrechnung-testsuite-2024-12-17.zip",
+    "archive": "xrechnung-testsuite-2024-12-17.zip"
+  }
+}
