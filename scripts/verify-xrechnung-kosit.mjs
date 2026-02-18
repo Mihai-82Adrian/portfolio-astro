@@ -35,7 +35,7 @@ function run(cmd, args, options = {}) {
 
 function generateFixtureXmlSet() {
   const bootstrap = `
-const { generateXRechnungXml } = require('./xrechnung.js');
+const { generateXRechnungXml } = require('./xrechnung.cjs');
 const fs = require('node:fs');
 const path = require('node:path');
 const outDir = process.argv[2];
@@ -88,6 +88,7 @@ for (const fixture of fixtures) {
 
   rmSync(generatedDir, { recursive: true, force: true });
   mkdirSync(generatedDir, { recursive: true });
+  writeFileSync(path.join(generatedDir, 'package.json'), JSON.stringify({ type: 'commonjs' }, null, 2));
 
   const scriptPath = path.join(generatedDir, '_gen.cjs');
   writeFileSync(scriptPath, bootstrap);
@@ -112,7 +113,7 @@ for (const fixture of fixtures) {
     'src/lib/fin-core/xrechnung.ts',
   ]);
 
-  run('cp', [path.join(compileDir, 'xrechnung.js'), path.join(generatedDir, 'xrechnung.js')]);
+  run('cp', [path.join(compileDir, 'xrechnung.js'), path.join(generatedDir, 'xrechnung.cjs')]);
   run('node', [scriptPath, generatedDir]);
 }
 
