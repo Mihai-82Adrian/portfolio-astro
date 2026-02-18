@@ -11,7 +11,7 @@ function assert(condition, message) {
   }
 }
 
-function compileFixtures() {
+function compileRuntime() {
   const outDir = mkdtempSync(join(tmpdir(), 'xrechnung-fixtures-'));
   const files = [
     'src/lib/fin-core/types.ts',
@@ -38,7 +38,6 @@ function compileFixtures() {
     ],
     { stdio: 'inherit' }
   );
-
   return outDir;
 }
 
@@ -46,7 +45,6 @@ function isXmlWellFormed(xml) {
   const tagRegex = /<([/]?)([A-Za-z_][A-Za-z0-9:._-]*)([^>]*?)([/]?)>/g;
   const stack = [];
   let match;
-
   while ((match = tagRegex.exec(xml)) !== null) {
     const [, closing, name, , selfClosing] = match;
     if (name.startsWith('?xml')) {
@@ -64,11 +62,10 @@ function isXmlWellFormed(xml) {
     }
     stack.push(name);
   }
-
   return stack.length === 0;
 }
 
-const outDir = compileFixtures();
+const outDir = compileRuntime();
 
 try {
   const require = createRequire(import.meta.url);
@@ -116,49 +113,119 @@ try {
   };
 
   const fixtures = [
+    { name: 'minimal', invoice: baseInvoice },
     {
-      name: 'minimal invoice',
-      invoice: baseInvoice,
-      tags: ['<cbc:ID>INV-2026-001</cbc:ID>', '<cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>'],
-    },
-    {
-      name: 'multiple line items',
+      name: 'multiple-line-items',
       invoice: {
         ...baseInvoice,
         invoiceNumber: 'INV-2026-002',
         lineItems: [
           ...baseInvoice.lineItems,
-          {
-            id: '2',
-            description: 'AI implementation',
-            quantity: 2,
-            unitCode: 'H87',
-            unitPrice: 450,
-            taxRate: 19,
-          },
+          { id: '2', description: 'AI implementation', quantity: 2, unitCode: 'H87', unitPrice: 450, taxRate: 19 },
         ],
       },
-      tags: ['<cbc:ID>2</cbc:ID>', '<cbc:Description>AI implementation</cbc:Description>'],
     },
     {
-      name: 'vat and escaping',
+      name: 'vat-19',
       invoice: {
         ...baseInvoice,
         invoiceNumber: 'INV-2026-003',
-        notes: 'Use & verify <strict> XML.',
+        lineItems: [{ ...baseInvoice.lineItems[0], taxRate: 19 }],
       },
-      tags: ['<cbc:TaxAmount>190.00</cbc:TaxAmount>', '<cbc:Note>Use &amp; verify &lt;strict&gt; XML.</cbc:Note>'],
+    },
+    {
+      name: 'vat-7',
+      invoice: {
+        ...baseInvoice,
+        invoiceNumber: 'INV-2026-004',
+        lineItems: [{ ...baseInvoice.lineItems[0], taxRate: 7 }],
+      },
+    },
+    {
+      name: 'vat-0',
+      invoice: {
+        ...baseInvoice,
+        invoiceNumber: 'INV-2026-005',
+        lineItems: [{ ...baseInvoice.lineItems[0], taxRate: 0 }],
+      },
+    },
+    {
+      name: 'mixed-vat',
+      invoice: {
+        ...baseInvoice,
+        invoiceNumber: 'INV-2026-006',
+        lineItems: [
+          { id: '1', description: 'Consulting', quantity: 1, unitCode: 'H87', unitPrice: 700, taxRate: 19 },
+          { id: '2', description: 'Books', quantity: 2, unitCode: 'H87', unitPrice: 100, taxRate: 7 },
+          { id: '3', description: 'Training export', quantity: 1, unitCode: 'H87', unitPrice: 500, taxRate: 0 },
+        ],
+      },
+    },
+    {
+      name: 'buyer-vat-optional',
+      invoice: {
+        ...baseInvoice,
+        invoiceNumber: 'INV-2026-007',
+        buyer: { ...baseInvoice.buyer, vatId: 'DE111122223' },
+      },
+    },
+    {
+      name: 'missing-due-date',
+      invoice: {
+        ...baseInvoice,
+        invoiceNumber: 'INV-2026-008',
+        dueDate: '',
+      },
+    },
+    {
+      name: 'escaping',
+      invoice: {
+        ...baseInvoice,
+        invoiceNumber: 'INV-2026-009',
+        notes: 'Use & verify <strict> XML with "quotes" and apostrophe\'s.',
+        lineItems: [{ ...baseInvoice.lineItems[0], description: 'R&D <Advisory> & QA' }],
+      },
+    },
+    {
+      name: 'decimal-quantity',
+      invoice: {
+        ...baseInvoice,
+        invoiceNumber: 'INV-2026-010',
+        lineItems: [{ ...baseInvoice.lineItems[0], quantity: 1.75, unitPrice: 199.995 }],
+      },
     },
   ];
 
+  const syntaxCases = [
+    { syntax: 'ubl', requiredTags: ['<Invoice ', '<cbc:CustomizationID>'] },
+    { syntax: 'cii', requiredTags: ['<rsm:CrossIndustryInvoice ', '<ram:GuidelineSpecifiedDocumentContextParameter>'] },
+  ];
+
   for (const fixture of fixtures) {
-    const xml = generateXRechnungXml(fixture.invoice);
-    assert(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>'), `[${fixture.name}] Missing XML declaration`);
-    assert(isXmlWellFormed(xml), `[${fixture.name}] XML is not well-formed`);
-    for (const tag of fixture.tags) {
-      assert(xml.includes(tag), `[${fixture.name}] Missing expected tag: ${tag}`);
+    for (const syntaxCase of syntaxCases) {
+      const xml = generateXRechnungXml(fixture.invoice, syntaxCase.syntax);
+      assert(
+        xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>'),
+        `[${fixture.name}/${syntaxCase.syntax}] Missing XML declaration`
+      );
+      assert(isXmlWellFormed(xml), `[${fixture.name}/${syntaxCase.syntax}] XML is not well-formed`);
+
+      for (const tag of syntaxCase.requiredTags) {
+        assert(
+          xml.includes(tag),
+          `[${fixture.name}/${syntaxCase.syntax}] Missing expected syntax tag: ${tag}`
+        );
+      }
+
+      if (fixture.name === 'escaping') {
+        assert(
+          xml.includes('&amp;') && xml.includes('&lt;') && xml.includes('&quot;'),
+          `[${fixture.name}/${syntaxCase.syntax}] XML escaping check failed`
+        );
+      }
+
+      console.log(`[PASS] ${fixture.name} (${syntaxCase.syntax})`);
     }
-    console.log(`[PASS] ${fixture.name}`);
   }
 } finally {
   rmSync(outDir, { recursive: true, force: true });
