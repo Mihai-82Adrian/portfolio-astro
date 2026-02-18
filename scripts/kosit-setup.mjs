@@ -39,6 +39,57 @@ function tryDownload(url, target) {
   }
 }
 
+function tryResolveGitHubReleaseAsset(downloadUrl) {
+  const match = downloadUrl.match(
+    /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/releases\/download\/([^/]+)\/(.+)$/
+  );
+  if (!match) {
+    return null;
+  }
+
+  const [, owner, repo, tag, expectedAsset] = match;
+  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}`;
+
+  try {
+    const response = execFileSync('curl', ['-fsSL', apiUrl], {
+      encoding: 'utf-8',
+    });
+    const release = JSON.parse(response);
+    const assets = Array.isArray(release.assets) ? release.assets : [];
+    if (assets.length === 0) {
+      return null;
+    }
+
+    const isZip = (name) => name.toLowerCase().endsWith('.zip');
+    const expectedLower = expectedAsset.toLowerCase();
+
+    const preferred =
+      assets.find((a) => a.name?.toLowerCase() === expectedLower && isZip(a.name)) ??
+      assets.find((a) => a.name?.toLowerCase().includes('validationtool') && isZip(a.name)) ??
+      assets.find((a) => a.name?.toLowerCase().includes('validator') && isZip(a.name)) ??
+      assets.find((a) => isZip(a.name));
+
+    return preferred?.browser_download_url ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function downloadWithFallback(primaryUrl, target) {
+  const directOk = tryDownload(primaryUrl, target);
+  if (directOk) {
+    return true;
+  }
+
+  const resolved = tryResolveGitHubReleaseAsset(primaryUrl);
+  if (!resolved) {
+    return false;
+  }
+
+  console.log(`Resolved fallback asset: ${resolved}`);
+  return tryDownload(resolved, target);
+}
+
 function unzipArchive(zipPath, destination) {
   ensureDir(destination);
   execFileSync('unzip', ['-o', zipPath, '-d', destination], { stdio: 'inherit' });
@@ -66,7 +117,10 @@ ensureDir(runtimeDir);
 
 if (!existsSync(validatorArchive)) {
   console.log(`Validator archive not in cache: ${validatorArchive}`);
-  const ok = tryDownload(process.env.KOSIT_VALIDATOR_URL || versions.validator.url, validatorArchive);
+  const ok = downloadWithFallback(
+    process.env.KOSIT_VALIDATOR_URL || versions.validator.url,
+    validatorArchive
+  );
   if (!ok) {
     throw new Error(
       [
@@ -80,7 +134,7 @@ if (!existsSync(validatorArchive)) {
 
 if (!existsSync(configArchive)) {
   console.log(`XRechnung config archive not in cache: ${configArchive}`);
-  const ok = tryDownload(
+  const ok = downloadWithFallback(
     process.env.KOSIT_XRECHNUNG_CONFIG_URL || versions.xrechnungConfig.url,
     configArchive
   );
