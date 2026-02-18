@@ -1,0 +1,61 @@
+{
+  "id": "stress-long-identifiers",
+  "invoice": {
+    "profileId": "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0",
+    "invoiceNumber": "INV-2026-LONG-ID-ALPHA-BETA-GAMMA-005",
+    "issueDate": "2026-02-18",
+    "dueDate": "2026-03-25",
+    "currency": "EUR",
+    "seller": {
+      "name": "Mihai Adrian Mateescu Finance & AI Engineering UG (haftungsbeschränkt)",
+      "vatId": "DE123456789",
+      "email": "billing.enterprise@mam-finops.de",
+      "address": {
+        "street": "Langer Firmenname Boulevard 123",
+        "city": "Hamburg",
+        "postalCode": "20095",
+        "countryCode": "DE"
+      },
+      "endpointScheme": "EM",
+      "endpointId": "billing.enterprise@mam-finops.de",
+      "phone": "+49 40 1234567"
+    },
+    "buyer": {
+      "name": "Very Long Customer Name Holding International GmbH",
+      "vatId": "DE909090909",
+      "address": {
+        "street": "Enterprise District Avenue 77",
+        "city": "Stuttgart",
+        "postalCode": "70173",
+        "countryCode": "DE"
+      },
+      "endpointScheme": "0204",
+      "endpointId": "DE909090909"
+    },
+    "notes": "Stress case for long identifiers and long legal names.",
+    "lineItems": [
+      {
+        "id": "1",
+        "description": "Strategic Finance Transformation Program",
+        "quantity": 1,
+        "unitCode": "H87",
+        "unitPrice": 2750,
+        "taxRate": 19
+      },
+      {
+        "id": "2",
+        "description": "AI Automation Enablement Sprint",
+        "quantity": 2,
+        "unitCode": "H87",
+        "unitPrice": 980,
+        "taxRate": 19
+      }
+    ],
+    "paymentMeansCode": "58",
+    "payeeIban": "DE89370400440532013000",
+    "payeeBic": "COBADEFFXXX",
+    "payeeAccountName": "Mihai Adrian Mateescu Finance & AI Engineering UG (haftungsbeschränkt)",
+    "buyerReference": "REF-INV-2026-LONG-ID-ALPHA-BETA-GAMMA-005",
+    "serviceDate": "2026-02-18"
+  }
+}

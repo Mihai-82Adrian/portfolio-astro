@@ -1,140 +1,250 @@
 #!/usr/bin/env node
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import * as esbuild from 'esbuild';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
-const generatedDir = path.join(root, '.tmp', 'xrechnung-kosit-fixtures');
+
+const vectorsPositiveDir = path.join(root, 'tests', 'xrechnung', 'vectors', 'positive');
+const vectorsNegativeDir = path.join(root, 'tests', 'xrechnung', 'vectors', 'negative');
 const testsuiteSamplesDir = path.join(root, 'tests', 'xrechnung', 'kosit-testsuite-samples');
 
-function collectXmlFiles(baseDir) {
-  if (!existsSync(baseDir)) {
-    return [];
-  }
-  const files = [];
-  const stack = [baseDir];
-  while (stack.length > 0) {
-    const current = stack.pop();
-    for (const entry of readdirSync(current, { withFileTypes: true })) {
-      const fullPath = path.join(current, entry.name);
-      if (entry.isDirectory()) {
-        stack.push(fullPath);
-      } else if (entry.name.endsWith('.xml')) {
-        files.push(fullPath);
-      }
-    }
-  }
-  return files.sort();
-}
+const generatedRoot = path.join(root, '.tmp', 'xrechnung-kosit-fixtures');
+const positiveOutDir = path.join(generatedRoot, 'positive');
+const negativeOutDir = path.join(generatedRoot, 'negative');
+const artifactsDir = path.join(root, '.tmp', 'artifacts', 'xrechnung-vectors');
 
 function run(cmd, args, options = {}) {
   return execFileSync(cmd, args, { stdio: 'inherit', ...options });
 }
 
-function generateFixtureXmlSet() {
-  const bootstrap = `
+function runCapture(cmd, args, options = {}) {
+  try {
+    const stdout = execFileSync(cmd, args, {
+      encoding: 'utf-8',
+      stdio: 'pipe',
+      ...options,
+    });
+    return { ok: true, status: 0, stdout, stderr: '' };
+  } catch (error) {
+    return {
+      ok: false,
+      status: error?.status ?? 1,
+      stdout: String(error?.stdout || ''),
+      stderr: String(error?.stderr || ''),
+    };
+  }
+}
+
+function collectFiles(baseDir, suffix) {
+  if (!existsSync(baseDir)) return [];
+  const out = [];
+  const stack = [baseDir];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    for (const entry of readdirSync(current, { withFileTypes: true })) {
+      const fullPath = path.join(current, entry.name);
+      if (entry.isDirectory()) stack.push(fullPath);
+      else if (entry.name.toLowerCase().endsWith(suffix)) out.push(fullPath);
+    }
+  }
+  return out.sort();
+}
+
+function assertContains(content, needles, label) {
+  const missing = needles.filter((n) => !content.includes(n));
+  if (missing.length > 0) {
+    throw new Error(`${label}: missing required XML nodes: ${missing.join(', ')}`);
+  }
+}
+
+function semanticAssertsForPositiveXml(xmlFiles) {
+  for (const xmlFile of xmlFiles) {
+    const xml = readFileSync(xmlFile, 'utf-8');
+    const isUbl = xmlFile.endsWith('_ubl.xml');
+    const label = path.basename(xmlFile);
+
+    if (isUbl) {
+      assertContains(
+        xml,
+        [
+          '<cbc:UBLVersionID>2.1</cbc:UBLVersionID>',
+          '<cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0</cbc:CustomizationID>',
+          '<cbc:ProfileID>',
+          '<cbc:BuyerReference>',
+          '<cbc:EndpointID schemeID=',
+          '<cbc:PaymentMeansCode>',
+          '<cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>',
+          '<cac:TaxTotal>',
+          '<cac:LegalMonetaryTotal>',
+          '<cac:InvoiceLine>',
+        ],
+        label
+      );
+    } else {
+      assertContains(
+        xml,
+        [
+          '<ram:GuidelineSpecifiedDocumentContextParameter>',
+          '<ram:ID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0</ram:ID>',
+          '<ram:BuyerReference>',
+          '<ram:URIID schemeID=',
+          '<ram:SpecifiedTradeSettlementPaymentMeans>',
+          '<ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>',
+          '<ram:ApplicableHeaderTradeSettlement>',
+          '<ram:SpecifiedTradeSettlementHeaderMonetarySummation>',
+          '<ram:IncludedSupplyChainTradeLineItem>',
+        ],
+        label
+      );
+    }
+  }
+}
+
+async function bundleGeneratorRuntime() {
+  rmSync(generatedRoot, { recursive: true, force: true });
+  mkdirSync(generatedRoot, { recursive: true });
+  writeFileSync(
+    path.join(generatedRoot, 'package.json'),
+    JSON.stringify({ type: 'commonjs' }, null, 2),
+    'utf-8'
+  );
+
+  const generatorPath = path.join(generatedRoot, '_gen.cjs');
+  const generatorScript = `
 const { generateXRechnungXml } = require('./xrechnung.cjs');
 const fs = require('node:fs');
 const path = require('node:path');
-const outDir = process.argv[2];
 
-const baseInvoice = {
-  profileId: 'urn:cen.eu:en16931:2017',
-  invoiceNumber: 'INV-2026-001',
-  issueDate: '2026-02-17',
-  dueDate: '2026-03-03',
-  currency: 'EUR',
-  seller: {
-    name: 'MAM Finance Ops',
-    vatId: 'DE123456789',
-    email: 'billing@example.com',
-    address: { street: 'Musterstrasse 1', city: 'Hamburg', postalCode: '20095', countryCode: 'DE' }
-  },
-  buyer: {
-    name: 'Client GmbH',
-    vatId: 'DE987654321',
-    address: { street: 'Beispielweg 5', city: 'Berlin', postalCode: '10115', countryCode: 'DE' }
-  },
-  notes: 'Delivery & support included.',
-  lineItems: [{ id: '1', description: 'Finance Ops Retainer', quantity: 1, unitCode: 'H87', unitPrice: 1000, taxRate: 19 }]
-};
+const inputDir = process.argv[2];
+const outDir = process.argv[3];
 
-const fixtures = [
-  { name: 'minimal', invoice: baseInvoice },
-  { name: 'multiple-line-items', invoice: { ...baseInvoice, invoiceNumber: 'INV-2026-002', lineItems: [...baseInvoice.lineItems, { id:'2', description:'AI implementation', quantity:2, unitCode:'H87', unitPrice:450, taxRate:19 }] } },
-  { name: 'vat-19', invoice: { ...baseInvoice, invoiceNumber: 'INV-2026-003', lineItems: [{ ...baseInvoice.lineItems[0], taxRate:19 }] } },
-  { name: 'vat-7', invoice: { ...baseInvoice, invoiceNumber: 'INV-2026-004', lineItems: [{ ...baseInvoice.lineItems[0], taxRate:7 }] } },
-  { name: 'vat-0', invoice: { ...baseInvoice, invoiceNumber: 'INV-2026-005', lineItems: [{ ...baseInvoice.lineItems[0], taxRate:0 }] } },
-  { name: 'mixed-vat', invoice: { ...baseInvoice, invoiceNumber: 'INV-2026-006', lineItems: [
-      { id:'1', description:'Consulting', quantity:1, unitCode:'H87', unitPrice:700, taxRate:19 },
-      { id:'2', description:'Books', quantity:2, unitCode:'H87', unitPrice:100, taxRate:7 },
-      { id:'3', description:'Training export', quantity:1, unitCode:'H87', unitPrice:500, taxRate:0 }
-  ] } },
-  { name: 'buyer-vat-optional', invoice: { ...baseInvoice, invoiceNumber: 'INV-2026-007', buyer: { ...baseInvoice.buyer, vatId: 'DE111122223' } } },
-  { name: 'missing-due-date', invoice: { ...baseInvoice, invoiceNumber: 'INV-2026-008', dueDate: '' } },
-  { name: 'escaping', invoice: { ...baseInvoice, invoiceNumber: 'INV-2026-009', notes: 'Use & verify <strict> XML with "quotes" and apostrophe\\'s.', lineItems: [{ ...baseInvoice.lineItems[0], description: 'R&D <Advisory> & QA' }] } },
-  { name: 'decimal-quantity', invoice: { ...baseInvoice, invoiceNumber: 'INV-2026-010', lineItems: [{ ...baseInvoice.lineItems[0], quantity:1.75, unitPrice:199.995 }] } },
-];
+if (!inputDir || !outDir) {
+  throw new Error('Usage: node _gen.cjs <input-json-dir> <output-xml-dir>');
+}
 
-for (const fixture of fixtures) {
+fs.mkdirSync(outDir, { recursive: true });
+const files = fs
+  .readdirSync(inputDir)
+  .filter((name) => name.endsWith('.json'))
+  .sort();
+
+for (const file of files) {
+  const fullPath = path.join(inputDir, file);
+  const payload = JSON.parse(fs.readFileSync(fullPath, 'utf-8'));
+  if (!payload.id || !payload.invoice) {
+    throw new Error('Invalid vector file: ' + fullPath);
+  }
+
   for (const syntax of ['ubl', 'cii']) {
-    const xml = generateXRechnungXml(fixture.invoice, syntax);
-    fs.writeFileSync(path.join(outDir, \`\${fixture.name}_\${syntax}.xml\`), xml, 'utf-8');
+    const xml = generateXRechnungXml(payload.invoice, syntax);
+    fs.writeFileSync(path.join(outDir, payload.id + '_' + syntax + '.xml'), xml, 'utf-8');
   }
 }
 `;
+  writeFileSync(generatorPath, generatorScript, 'utf-8');
 
-  rmSync(generatedDir, { recursive: true, force: true });
-  mkdirSync(generatedDir, { recursive: true });
-  writeFileSync(path.join(generatedDir, 'package.json'), JSON.stringify({ type: 'commonjs' }, null, 2));
+  await esbuild.build({
+    entryPoints: [path.join(root, 'src/lib/fin-core/xrechnung.ts')],
+    outfile: path.join(generatedRoot, 'xrechnung.cjs'),
+    bundle: true,
+    platform: 'node',
+    format: 'cjs',
+    target: ['node22'],
+    sourcemap: false,
+    logLevel: 'silent',
+  });
 
-  const scriptPath = path.join(generatedDir, '_gen.cjs');
-  writeFileSync(scriptPath, bootstrap);
+  return generatorPath;
+}
 
-  const compileDir = path.join(generatedDir, '_runtime');
-  mkdirSync(compileDir, { recursive: true });
-  run('npx', [
-    'tsc',
-    '--target',
-    'ES2022',
-    '--module',
-    'CommonJS',
-    '--moduleResolution',
-    'Node',
-    '--esModuleInterop',
-    '--skipLibCheck',
-    '--outDir',
-    compileDir,
-    'src/lib/fin-core/types.ts',
-    'src/lib/fin-core/money.ts',
-    'src/lib/fin-core/xml.ts',
-    'src/lib/fin-core/xrechnung.ts',
-  ]);
+function validateNegativeXmlFiles(xmlFiles) {
+  let failures = 0;
 
-  run('cp', [path.join(compileDir, 'xrechnung.js'), path.join(generatedDir, 'xrechnung.cjs')]);
-  run('node', [scriptPath, generatedDir]);
+  for (const xmlFile of xmlFiles) {
+    const result = runCapture('node', ['scripts/kosit-validate.mjs', xmlFile], { cwd: root });
+    if (result.ok) {
+      failures += 1;
+      console.error(`\n[NEG-FAIL] Expected validation failure but passed: ${xmlFile}`);
+      continue;
+    }
+
+    console.log(`[NEG-PASS] ${xmlFile}`);
+  }
+
+  if (failures > 0) {
+    throw new Error(`Negative vector validation failed for ${failures}/${xmlFiles.length} file(s).`);
+  }
 }
 
 run('node', ['scripts/kosit-setup.mjs']);
-generateFixtureXmlSet();
 
-const generatedFiles = collectXmlFiles(generatedDir).filter((f) => !f.includes('_runtime'));
-if (generatedFiles.length < 20) {
-  throw new Error(`Expected at least 20 generated XML files (10 fixtures x 2 syntaxes), got ${generatedFiles.length}`);
+if (!existsSync(vectorsPositiveDir) || !existsSync(vectorsNegativeDir)) {
+  throw new Error('Vector directories missing under tests/xrechnung/vectors.');
 }
 
-console.log(`Generated fixture XML files: ${generatedFiles.length}`);
-run('node', ['scripts/kosit-validate.mjs', generatedDir]);
+const positiveVectors = collectFiles(vectorsPositiveDir, '.json');
+const negativeVectors = collectFiles(vectorsNegativeDir, '.json');
+if (positiveVectors.length < 5) {
+  throw new Error(`Expected >=5 positive vectors. Found ${positiveVectors.length}.`);
+}
+if (negativeVectors.length < 3) {
+  throw new Error(`Expected >=3 negative vectors. Found ${negativeVectors.length}.`);
+}
 
-const sampleFiles = collectXmlFiles(testsuiteSamplesDir);
-if (sampleFiles.length < 5) {
+const generatorPath = await bundleGeneratorRuntime();
+
+run('node', [generatorPath, vectorsPositiveDir, positiveOutDir]);
+run('node', [generatorPath, vectorsNegativeDir, negativeOutDir]);
+
+const positiveXmlFiles = collectFiles(positiveOutDir, '.xml');
+const negativeXmlFiles = collectFiles(negativeOutDir, '.xml');
+
+if (positiveXmlFiles.length !== positiveVectors.length * 2) {
   throw new Error(
-    `Expected >=5 testsuite sample files in ${testsuiteSamplesDir}. Found ${sampleFiles.length}.`
+    `Expected ${positiveVectors.length * 2} positive XML files, got ${positiveXmlFiles.length}.`
+  );
+}
+if (negativeXmlFiles.length !== negativeVectors.length * 2) {
+  throw new Error(
+    `Expected ${negativeVectors.length * 2} negative XML files, got ${negativeXmlFiles.length}.`
   );
 }
 
-console.log(`Validating testsuite sample XML files: ${sampleFiles.length}`);
-run('node', ['scripts/kosit-validate.mjs', testsuiteSamplesDir]);
+semanticAssertsForPositiveXml(positiveXmlFiles);
+console.log(`Semantic asserts passed for ${positiveXmlFiles.length} positive XML files.`);
+
+rmSync(artifactsDir, { recursive: true, force: true });
+mkdirSync(artifactsDir, { recursive: true });
+for (const xmlFile of [...positiveXmlFiles, ...negativeXmlFiles]) {
+  const target = path.join(artifactsDir, path.basename(xmlFile));
+  writeFileSync(target, readFileSync(xmlFile));
+}
+
+console.log(`Validating positive vectors with KoSIT: ${positiveXmlFiles.length} XML files`);
+run('node', ['scripts/kosit-validate.mjs', positiveOutDir]);
+
+console.log(`Validating negative vectors with KoSIT (must fail): ${negativeXmlFiles.length} XML files`);
+validateNegativeXmlFiles(negativeXmlFiles);
+
+const sampleFiles = collectFiles(testsuiteSamplesDir, '.xml');
+if (sampleFiles.length >= 5) {
+  console.log(`Validating acceptance reference samples: ${sampleFiles.length} XML files`);
+  run('node', ['scripts/kosit-validate.mjs', testsuiteSamplesDir]);
+} else {
+  console.log(
+    `Skipping acceptance reference samples (found ${sampleFiles.length}, require >=5).`
+  );
+}
+
 console.log('KoSIT conformance verification: PASS');

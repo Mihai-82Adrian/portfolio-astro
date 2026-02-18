@@ -5,23 +5,64 @@ function required(value: string | undefined): boolean {
   return Boolean(value && value.trim().length > 0);
 }
 
+function isLikelyIban(value: string | undefined): boolean {
+  if (!value) return false;
+  const normalized = value.replaceAll(/\s+/g, '').toUpperCase();
+  return /^[A-Z]{2}[A-Z0-9]{13,32}$/.test(normalized);
+}
+
+function hasAtLeastThreeDigits(value: string | undefined): boolean {
+  if (!value) return false;
+  const digits = value.replaceAll(/\D+/g, '');
+  return digits.length >= 3;
+}
+
 export function validateInvoice(invoice: Invoice): ValidationResult {
   const errors: Record<string, string> = {};
 
   if (!required(invoice.invoiceNumber)) {
     errors.invoiceNumber = 'Rechnungsnummer ist erforderlich.';
   }
+  if (!required(invoice.buyerReference)) {
+    errors.buyerReference = 'Buyer Reference (BT-10) ist erforderlich.';
+  }
 
   if (!required(invoice.issueDate) || !isIsoDate(invoice.issueDate)) {
     errors.issueDate = 'Gültiges Rechnungsdatum ist erforderlich (YYYY-MM-DD).';
+  }
+  if (!required(invoice.serviceDate) || !isIsoDate(invoice.serviceDate)) {
+    errors.serviceDate = 'Leistungsdatum ist erforderlich (YYYY-MM-DD).';
   }
 
   if (invoice.dueDate && !isIsoDate(invoice.dueDate)) {
     errors.dueDate = 'Fälligkeitsdatum muss YYYY-MM-DD sein.';
   }
+  if (!required(invoice.dueDate) && !required(invoice.paymentTerms)) {
+    errors.paymentTerms =
+      'Bitte Fälligkeitsdatum oder Zahlungsbedingungen angeben (EN16931 BR-CO-25).';
+  }
+  if (!required(invoice.paymentMeansCode)) {
+    errors.paymentMeansCode = 'Zahlungsmittelcode ist erforderlich (BG-16).';
+  }
+  if (!isLikelyIban(invoice.payeeIban)) {
+    errors.payeeIban = 'Gültige IBAN ist erforderlich (BG-16).';
+  }
 
   if (!required(invoice.seller.name)) {
     errors['seller.name'] = 'Name des Senders ist erforderlich.';
+  }
+  if (!required(invoice.seller.email)) {
+    errors['seller.email'] = 'E-Mail des Senders ist erforderlich (BG-6 Seller Contact).';
+  }
+  if (!hasAtLeastThreeDigits(invoice.seller.phone)) {
+    errors['seller.phone'] = 'Telefonnummer des Senders ist erforderlich (mind. 3 Ziffern, BR-DE-27).';
+  }
+  if (!required(invoice.seller.endpointId)) {
+    errors['seller.endpointId'] = 'Elektronische Adresse (EndpointID) des Senders ist erforderlich.';
+  }
+  if (!required(invoice.seller.endpointScheme)) {
+    errors['seller.endpointScheme'] =
+      'Endpoint-Schema des Senders ist erforderlich (z.B. EM, 0204, 0088).';
   }
   if (!required(invoice.seller.address.street)) {
     errors['seller.street'] = 'Straße des Senders ist erforderlich.';
@@ -38,6 +79,13 @@ export function validateInvoice(invoice: Invoice): ValidationResult {
 
   if (!required(invoice.buyer.name)) {
     errors['buyer.name'] = 'Name des Käufers ist erforderlich.';
+  }
+  if (!required(invoice.buyer.endpointId)) {
+    errors['buyer.endpointId'] = 'Elektronische Adresse (EndpointID) des Käufers ist erforderlich.';
+  }
+  if (!required(invoice.buyer.endpointScheme)) {
+    errors['buyer.endpointScheme'] =
+      'Endpoint-Schema des Käufers ist erforderlich (z.B. EM, 0204, 0088).';
   }
   if (!required(invoice.buyer.address.street)) {
     errors['buyer.street'] = 'Straße des Käufers ist erforderlich.';

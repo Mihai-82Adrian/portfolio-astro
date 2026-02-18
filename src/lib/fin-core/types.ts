@@ -9,6 +9,9 @@ export interface Party {
   name: string;
   vatId?: string;
   email?: string;
+  phone?: string;
+  endpointId: string;
+  endpointScheme: string;
   address: Address;
 }
 
@@ -30,8 +33,15 @@ export interface TaxSummary {
 export interface Invoice {
   profileId: string;
   invoiceNumber: string;
+  buyerReference: string;
   issueDate: string;
+  serviceDate: string;
   dueDate?: string;
+  paymentTerms?: string;
+  paymentMeansCode: string;
+  payeeIban: string;
+  payeeBic?: string;
+  payeeAccountName?: string;
   currency: 'EUR';
   seller: Party;
   buyer: Party;

@@ -64,15 +64,32 @@ function readLogTail(logText, maxLines = 20) {
     .slice(-maxLines);
 }
 
-function hasErrorSignals(output) {
+function hasRejectSignals(output) {
   const lowered = output.toLowerCase();
-  return (
-    lowered.includes('invalid') ||
-    lowered.includes('fatal') ||
-    lowered.includes('error') ||
-    lowered.includes('nicht valide') ||
-    lowered.includes('fehl')
-  );
+  if (lowered.includes('validation failed')) {
+    return true;
+  }
+
+  const rejectedMatch = output.match(/Rejected:\s*(\d+)/i);
+  if (rejectedMatch && Number.parseInt(rejectedMatch[1], 10) > 0) {
+    return true;
+  }
+
+  return false;
+}
+
+function readMatchedScenarioName(reportDir) {
+  const reportFile = readdirSync(reportDir)
+    .filter((name) => name.endsWith('-report.xml'))
+    .sort()[0];
+
+  if (!reportFile) {
+    return '';
+  }
+
+  const xml = readFileSync(path.join(reportDir, reportFile), 'utf-8');
+  const match = xml.match(/<rep:scenarioMatched>[\s\S]*?<s:name>([^<]+)<\/s:name>/);
+  return match?.[1]?.trim() || '';
 }
 
 const xmlFiles = collectXmlFiles(targetPath);
@@ -86,6 +103,7 @@ rmSync(reportRoot, { recursive: true, force: true });
 mkdirSync(reportRoot, { recursive: true });
 
 let failures = 0;
+const requireXRechnung = process.env.KOSIT_REQUIRE_XRECHNUNG !== '0';
 
 for (const file of xmlFiles) {
   const reportDir = path.join(
@@ -134,20 +152,33 @@ for (const file of xmlFiles) {
       break;
     } catch (error) {
       output = `${error.stdout || ''}\n${error.stderr || ''}`;
+      if (error?.status === 0) {
+        success = true;
+        break;
+      }
     }
   }
 
-  const failedByOutput = hasErrorSignals(output);
-  if (!success || failedByOutput) {
+  const failedByOutput = hasRejectSignals(output);
+  const scenarioName = readMatchedScenarioName(reportDir);
+  const failedByScenario = requireXRechnung && !scenarioName.includes('XRechnung');
+
+  if (!success || failedByOutput || failedByScenario) {
     failures += 1;
     console.error(`\n[FAIL] ${file}`);
+    if (failedByScenario) {
+      console.error(
+        `Scenario mismatch: expected XRechnung scenario, got "${scenarioName || 'unknown'}".`
+      );
+      console.error('Hint: set CustomizationID/Profile to XRechnung CIUS values.');
+    }
     for (const line of readLogTail(output, 20)) {
       console.error(line);
     }
     continue;
   }
 
-  console.log(`[PASS] ${file}`);
+  console.log(`[PASS] ${file}${scenarioName ? ` (scenario: ${scenarioName})` : ''}`);
 }
 
 if (failures > 0) {

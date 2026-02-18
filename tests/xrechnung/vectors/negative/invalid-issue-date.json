@@ -1,0 +1,50 @@
+{
+  "id": "neg-invalid-issue-date",
+  "invoice": {
+    "profileId": "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0",
+    "invoiceNumber": "INV-NEG-002",
+    "issueDate": "2026/02/18",
+    "dueDate": "2026-03-01",
+    "currency": "EUR",
+    "seller": {
+      "name": "MAM Finance Ops GmbH",
+      "vatId": "DE123456789",
+      "address": {
+        "street": "Musterstrasse 12",
+        "city": "Hamburg",
+        "postalCode": "20095",
+        "countryCode": "DE"
+      },
+      "endpointScheme": "EM",
+      "endpointId": "billing@example.de",
+      "phone": "+49 40 1234567"
+    },
+    "buyer": {
+      "name": "Client GmbH",
+      "address": {
+        "street": "Client Street 9",
+        "city": "Berlin",
+        "postalCode": "10115",
+        "countryCode": "DE"
+      },
+      "endpointScheme": "0204",
+      "endpointId": "client-gmbh@example.de"
+    },
+    "lineItems": [
+      {
+        "id": "1",
+        "description": "Service",
+        "quantity": 1,
+        "unitCode": "H87",
+        "unitPrice": 100,
+        "taxRate": 19
+      }
+    ],
+    "paymentMeansCode": "58",
+    "payeeIban": "DE89370400440532013000",
+    "payeeBic": "COBADEFFXXX",
+    "payeeAccountName": "MAM Finance Ops GmbH",
+    "buyerReference": "REF-INV-NEG-002",
+    "serviceDate": "2026/02/18"
+  }
+}

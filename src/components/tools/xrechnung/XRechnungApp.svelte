@@ -13,6 +13,7 @@
     computeInvoiceTotals,
     generateXRechnungXml,
     safeFileName,
+    XRECHNUNG_CIUS_URN,
     type XRechnungSyntax,
   } from '@/lib/fin-core/xrechnung';
 
@@ -27,6 +28,15 @@
     { value: 'ubl', label: 'UBL 2.1' },
     { value: 'cii', label: 'UN/CEFACT CII' },
   ];
+  const endpointSchemeOptions = [
+    { value: 'EM', label: 'EM (E-Mail)' },
+    { value: '0204', label: '0204 (Leitweg-ID)' },
+    { value: '0088', label: '0088 (GLN)' },
+  ];
+  const paymentMeansOptions = [
+    { value: '58', label: '58 - SEPA Credit Transfer' },
+    { value: '30', label: '30 - Credit Transfer' },
+  ];
 
   function createLineItem(index: number): LineItem {
     return {
@@ -40,15 +50,24 @@
   }
 
   let invoice: Invoice = {
-    profileId: 'urn:cen.eu:en16931:2017',
+    profileId: XRECHNUNG_CIUS_URN,
     invoiceNumber: `INV-${new Date().getFullYear()}-001`,
+    buyerReference: 'PO-REF-001',
     issueDate: toIsoDate(),
+    serviceDate: toIsoDate(),
     dueDate: '',
+    paymentMeansCode: '58',
+    payeeIban: '',
+    payeeBic: '',
+    payeeAccountName: '',
     currency: 'EUR',
     seller: {
       name: '',
       vatId: '',
       email: '',
+      phone: '',
+      endpointId: '',
+      endpointScheme: 'EM',
       address: {
         street: '',
         city: '',
@@ -59,6 +78,8 @@
     buyer: {
       name: '',
       vatId: '',
+      endpointId: '',
+      endpointScheme: 'EM',
       address: {
         street: '',
         city: '',
@@ -77,6 +98,7 @@
   $: validation = validateInvoice(invoice);
   $: totals = computeInvoiceTotals(invoice);
   $: xmlOutput = validation.valid ? generateXRechnungXml(invoice, syntax) : '';
+  $: validationErrorCount = Object.keys(validation.errors).length;
 
   function addLineItem(): void {
     invoice = {
@@ -143,6 +165,9 @@
         name?: string;
         vatId?: string;
         email?: string;
+        phone?: string;
+        endpointId?: string;
+        endpointScheme?: string;
         address?: {
           street?: string;
           city?: string;
@@ -158,6 +183,9 @@
           name: parsed.name ?? invoice.seller.name,
           vatId: parsed.vatId ?? invoice.seller.vatId,
           email: parsed.email ?? invoice.seller.email,
+          phone: parsed.phone ?? invoice.seller.phone,
+          endpointId: parsed.endpointId ?? invoice.seller.endpointId,
+          endpointScheme: parsed.endpointScheme ?? invoice.seller.endpointScheme,
           address: {
             ...invoice.seller.address,
             street: parsed.address?.street ?? invoice.seller.address.street,
@@ -187,6 +215,9 @@
       name: invoice.seller.name,
       vatId: invoice.seller.vatId,
       email: invoice.seller.email,
+      phone: invoice.seller.phone,
+      endpointId: invoice.seller.endpointId,
+      endpointScheme: invoice.seller.endpointScheme,
       address: invoice.seller.address,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -223,7 +254,35 @@
           />
         </div>
         <TextField id="seller-vat" label="USt-ID (optional)" bind:value={invoice.seller.vatId} />
-        <TextField id="seller-email" label="E-Mail (optional)" type="email" bind:value={invoice.seller.email} />
+        <TextField
+          id="seller-email"
+          label="E-Mail"
+          type="email"
+          bind:value={invoice.seller.email}
+          required
+          error={validation.errors['seller.email']}
+        />
+        <TextField
+          id="seller-phone"
+          label="Telefon"
+          bind:value={invoice.seller.phone}
+          required
+          error={validation.errors['seller.phone']}
+        />
+        <SelectField
+          id="seller-endpoint-scheme"
+          label="Endpoint Scheme"
+          bind:value={invoice.seller.endpointScheme}
+          options={endpointSchemeOptions}
+          error={validation.errors['seller.endpointScheme']}
+        />
+        <TextField
+          id="seller-endpoint-id"
+          label="Seller EndpointID"
+          bind:value={invoice.seller.endpointId}
+          required
+          error={validation.errors['seller.endpointId']}
+        />
         <div class="md:col-span-2">
           <TextField
             id="seller-street"
@@ -270,6 +329,20 @@
           />
         </div>
         <TextField id="buyer-vat" label="USt-ID (optional)" bind:value={invoice.buyer.vatId} />
+        <SelectField
+          id="buyer-endpoint-scheme"
+          label="Endpoint Scheme"
+          bind:value={invoice.buyer.endpointScheme}
+          options={endpointSchemeOptions}
+          error={validation.errors['buyer.endpointScheme']}
+        />
+        <TextField
+          id="buyer-endpoint-id"
+          label="Buyer EndpointID"
+          bind:value={invoice.buyer.endpointId}
+          required
+          error={validation.errors['buyer.endpointId']}
+        />
         <div class="md:col-span-2">
           <TextField
             id="buyer-street"
@@ -314,6 +387,13 @@
           error={validation.errors.invoiceNumber}
         />
         <TextField
+          id="buyer-reference"
+          label="Buyer Reference (BT-10)"
+          bind:value={invoice.buyerReference}
+          required
+          error={validation.errors.buyerReference}
+        />
+        <TextField
           id="invoice-date"
           label="Rechnungsdatum"
           type="date"
@@ -321,7 +401,39 @@
           required
           error={validation.errors.issueDate}
         />
+        <TextField
+          id="service-date"
+          label="Leistungsdatum (BT-72)"
+          type="date"
+          bind:value={invoice.serviceDate}
+          required
+          error={validation.errors.serviceDate}
+        />
         <TextField id="due-date" label="Fälligkeitsdatum (optional)" type="date" bind:value={invoice.dueDate} error={validation.errors.dueDate} />
+        <div class="md:col-span-2">
+          <TextField
+            id="payment-terms"
+            label="Zahlungsbedingungen (optional wenn Due Date gesetzt)"
+            bind:value={invoice.paymentTerms}
+            error={validation.errors.paymentTerms}
+          />
+        </div>
+        <SelectField
+          id="payment-means-code"
+          label="Payment Means Code"
+          bind:value={invoice.paymentMeansCode}
+          options={paymentMeansOptions}
+          error={validation.errors.paymentMeansCode}
+        />
+        <TextField
+          id="payee-iban"
+          label="IBAN (Payee)"
+          bind:value={invoice.payeeIban}
+          required
+          error={validation.errors.payeeIban}
+        />
+        <TextField id="payee-bic" label="BIC (optional)" bind:value={invoice.payeeBic} />
+        <TextField id="payee-account-name" label="Kontoinhaber (optional)" bind:value={invoice.payeeAccountName} />
       </div>
     </article>
 
@@ -420,6 +532,7 @@
             <p class="text-sm text-text-muted-light dark:text-text-muted-dark">Invoice</p>
             <p class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">{invoice.invoiceNumber || 'INV-000'}</p>
             <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">{invoice.issueDate}</p>
+            <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">Service: {invoice.serviceDate}</p>
           </div>
         </div>
 
@@ -484,8 +597,22 @@
         {#if downloadError}
           <p class="text-sm text-error" aria-live="polite">{downloadError}</p>
         {/if}
+        <div
+          class={`rounded-lg border px-3 py-2 text-sm ${
+            validation.valid
+              ? 'border-eucalyptus-500/40 bg-eucalyptus-500/10 text-eucalyptus-700 dark:text-eucalyptus-300'
+              : 'border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300'
+          }`}
+          aria-live="polite"
+        >
+          {#if validation.valid}
+            XRechnung pre-check: valid for export ({syntax.toUpperCase()}).
+          {:else}
+            XRechnung pre-check: {validationErrorCount} Pflichtfeld(er) fehlen oder sind ungültig.
+          {/if}
+        </div>
         <p class="text-xs text-text-muted-light dark:text-text-muted-dark">
-          Validation: KoSIT Validator + XRechnung Config (version pinned).
+          Validation status in UI = pre-check. Final conformance must be verified with KoSIT validator.
         </p>
       </div>
     </article>

@@ -1,0 +1,93 @@
+{
+  "id": "high-volume-special-chars",
+  "invoice": {
+    "profileId": "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0",
+    "invoiceNumber": "INV-2026-HV-003",
+    "issueDate": "2026-02-18",
+    "dueDate": "2026-03-20",
+    "currency": "EUR",
+    "seller": {
+      "name": "MAM Finanz- & AI-Lab",
+      "vatId": "DE123456789",
+      "email": "billing+xml@mam-finops.de",
+      "address": {
+        "street": "Überseering 5A",
+        "city": "Hamburg",
+        "postalCode": "22297",
+        "countryCode": "DE"
+      },
+      "endpointScheme": "EM",
+      "endpointId": "billing+xml@mam-finops.de",
+      "phone": "+49 40 1234567"
+    },
+    "buyer": {
+      "name": "Gründer & Söhne OHG",
+      "vatId": "DE443322110",
+      "address": {
+        "street": "Königsallee 1",
+        "city": "Düsseldorf",
+        "postalCode": "40212",
+        "countryCode": "DE"
+      },
+      "endpointScheme": "EM",
+      "endpointId": "DE443322110"
+    },
+    "notes": "Contains umlauts, ampersands (&), and <escaped> content.",
+    "lineItems": [
+      {
+        "id": "1",
+        "description": "Analyse & Planung <Q1>",
+        "quantity": 3,
+        "unitCode": "H87",
+        "unitPrice": 120,
+        "taxRate": 19
+      },
+      {
+        "id": "2",
+        "description": "Implementierung Sprint 1",
+        "quantity": 5,
+        "unitCode": "H87",
+        "unitPrice": 95,
+        "taxRate": 19
+      },
+      {
+        "id": "3",
+        "description": "Implementierung Sprint 2",
+        "quantity": 6,
+        "unitCode": "H87",
+        "unitPrice": 95,
+        "taxRate": 19
+      },
+      {
+        "id": "4",
+        "description": "Dokumentation & Übergabe",
+        "quantity": 2,
+        "unitCode": "H87",
+        "unitPrice": 140,
+        "taxRate": 7
+      },
+      {
+        "id": "5",
+        "description": "Support Paket",
+        "quantity": 10,
+        "unitCode": "H87",
+        "unitPrice": 20.5,
+        "taxRate": 7
+      },
+      {
+        "id": "6",
+        "description": "Optionales Export-Setup",
+        "quantity": 1,
+        "unitCode": "H87",
+        "unitPrice": 310,
+        "taxRate": 0
+      }
+    ],
+    "paymentMeansCode": "58",
+    "payeeIban": "DE89370400440532013000",
+    "payeeBic": "COBADEFFXXX",
+    "payeeAccountName": "MAM Finanz- & AI-Lab",
+    "buyerReference": "REF-INV-2026-HV-003",
+    "serviceDate": "2026-02-18"
+  }
+}
