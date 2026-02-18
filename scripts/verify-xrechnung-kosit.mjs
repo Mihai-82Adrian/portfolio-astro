@@ -89,7 +89,7 @@ for (const fixture of fixtures) {
   rmSync(generatedDir, { recursive: true, force: true });
   mkdirSync(generatedDir, { recursive: true });
 
-  const scriptPath = path.join(generatedDir, '_gen.js');
+  const scriptPath = path.join(generatedDir, '_gen.cjs');
   writeFileSync(scriptPath, bootstrap);
 
   const compileDir = path.join(generatedDir, '_runtime');
