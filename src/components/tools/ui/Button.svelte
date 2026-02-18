@@ -1,4 +1,8 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte';
+
+  const dispatch = createEventDispatcher<{ click: MouseEvent }>();
+
   export let type: 'button' | 'submit' = 'button';
   export let variant: 'primary' | 'secondary' = 'primary';
   export let disabled = false;
@@ -7,6 +11,7 @@
 <button
   {type}
   {disabled}
+  on:click={(event) => dispatch('click', event)}
   class:list={[
     'inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50',
     variant === 'primary'

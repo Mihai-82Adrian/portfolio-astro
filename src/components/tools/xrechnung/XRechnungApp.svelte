@@ -9,7 +9,12 @@
   import { formatEUR } from '@/lib/fin-core/money';
   import type { Invoice, LineItem } from '@/lib/fin-core/types';
   import { validateInvoice } from '@/lib/fin-core/validate';
-  import { computeInvoiceTotals, generateXRechnungXml, safeFileName } from '@/lib/fin-core/xrechnung';
+  import {
+    computeInvoiceTotals,
+    generateXRechnungXml,
+    safeFileName,
+    type XRechnungSyntax,
+  } from '@/lib/fin-core/xrechnung';
 
   const STORAGE_KEY = 'tools.xrechnung.sender.defaults.v1';
 
@@ -17,6 +22,10 @@
     { value: '19', label: '19% (DE Standard)' },
     { value: '7', label: '7% (DE Reduced)' },
     { value: '0', label: '0% (VAT Exempt)' },
+  ];
+  const syntaxOptions = [
+    { value: 'ubl', label: 'UBL 2.1' },
+    { value: 'cii', label: 'UN/CEFACT CII' },
   ];
 
   function createLineItem(index: number): LineItem {
@@ -63,10 +72,11 @@
 
   let rememberDefaults = false;
   let downloadError = '';
+  let syntax: XRechnungSyntax = 'ubl';
 
   $: validation = validateInvoice(invoice);
   $: totals = computeInvoiceTotals(invoice);
-  $: xmlOutput = validation.valid ? generateXRechnungXml(invoice) : '';
+  $: xmlOutput = validation.valid ? generateXRechnungXml(invoice, syntax) : '';
 
   function addLineItem(): void {
     invoice = {
@@ -112,7 +122,7 @@
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = safeFileName(invoice.invoiceNumber);
+    link.download = safeFileName(invoice.invoiceNumber, syntax);
     document.body.append(link);
     link.click();
     link.remove();
@@ -464,10 +474,19 @@
       </div>
 
       <div class="mt-4 space-y-3">
+        <SelectField
+          id="invoice-syntax"
+          label="Syntax"
+          bind:value={syntax}
+          options={syntaxOptions}
+        />
         <Button type="button" on:click={downloadXml} disabled={!validation.valid}>Download XML</Button>
         {#if downloadError}
           <p class="text-sm text-error" aria-live="polite">{downloadError}</p>
         {/if}
+        <p class="text-xs text-text-muted-light dark:text-text-muted-dark">
+          Validation: KoSIT Validator + XRechnung Config (version pinned).
+        </p>
       </div>
     </article>
 
