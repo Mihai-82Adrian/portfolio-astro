@@ -1,8 +1,8 @@
 {
   "validator": {
-    "version": "1.5.2",
-    "url": "https://github.com/itplr-kosit/validator/releases/download/v1.5.2/validationtool-1.5.2.zip",
-    "archive": "validator-1.5.2.zip"
+    "version": "1.6.2",
+    "url": "https://github.com/itplr-kosit/validator/releases/download/v1.6.2/validationtool-1.6.2.zip",
+    "archive": "validator-1.6.2.zip"
   },
   "xrechnungConfig": {
     "version": "2024-12-17",
