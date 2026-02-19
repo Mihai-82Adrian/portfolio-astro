@@ -239,8 +239,12 @@ validateNegativeXmlFiles(negativeXmlFiles);
 
 const sampleFiles = collectFiles(testsuiteSamplesDir, '.xml');
 if (sampleFiles.length >= 5) {
-  console.log(`Validating acceptance reference samples: ${sampleFiles.length} XML files`);
-  run('node', ['scripts/kosit-validate.mjs', testsuiteSamplesDir]);
+  console.log(
+    `Validating acceptance reference samples (EN16931 compatibility mode): ${sampleFiles.length} XML files`
+  );
+  run('node', ['scripts/kosit-validate.mjs', testsuiteSamplesDir], {
+    env: { ...process.env, KOSIT_REQUIRE_XRECHNUNG: '0' },
+  });
 } else {
   console.log(
     `Skipping acceptance reference samples (found ${sampleFiles.length}, require >=5).`

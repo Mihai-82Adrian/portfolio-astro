@@ -174,8 +174,8 @@ export function generateUBLXml(invoice: Invoice): string {
         ${tag('cbc:RegistrationName', supplier.name)}
       </cac:PartyLegalEntity>
       ${
-        supplier.email
-          ? `<cac:Contact>${tag('cbc:ElectronicMail', supplier.email)}${sellerPhone ? tag('cbc:Telephone', sellerPhone) : ''}</cac:Contact>`
+        supplier.email || sellerPhone
+          ? `<cac:Contact>${tag('cbc:Name', supplier.name)}${sellerPhone ? tag('cbc:Telephone', sellerPhone) : ''}${supplier.email ? tag('cbc:ElectronicMail', supplier.email) : ''}</cac:Contact>`
           : ''
       }
     </cac:Party>
