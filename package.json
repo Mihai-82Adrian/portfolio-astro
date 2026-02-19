@@ -27,7 +27,8 @@
     "verify:xrechnung:fixtures": "node scripts/verify-xrechnung-fixtures.mjs",
     "kosit:setup": "node scripts/kosit-setup.mjs",
     "kosit:validate": "node scripts/kosit-validate.mjs",
-    "verify:xrechnung:kosit": "node scripts/verify-xrechnung-kosit.mjs"
+    "verify:xrechnung:kosit": "node scripts/verify-xrechnung-kosit.mjs",
+    "verify:xrechnung:results": "node scripts/verify-xrechnung-results.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.10",

@@ -1,5 +1,6 @@
 import { isIsoDate } from './date';
 import type { Invoice, ValidationResult } from './types';
+import { profileModeFromCustomizationId, type InvoiceProfileMode } from './xrechnung';
 
 function required(value: string | undefined): boolean {
   return Boolean(value && value.trim().length > 0);
@@ -17,14 +18,31 @@ function hasAtLeastThreeDigits(value: string | undefined): boolean {
   return digits.length >= 3;
 }
 
-export function validateInvoice(invoice: Invoice): ValidationResult {
+function isLikelyBuyerReference(value: string | undefined): boolean {
+  if (!value) return false;
+  const normalized = value.trim();
+  // Basic, permissive pattern for Leitweg-ID / customer PO reference.
+  return /^[A-Za-z0-9][A-Za-z0-9\-\/:.]{2,79}$/.test(normalized);
+}
+
+interface ValidateOptions {
+  profileMode?: InvoiceProfileMode;
+}
+
+export function validateInvoice(invoice: Invoice, options?: ValidateOptions): ValidationResult {
   const errors: Record<string, string> = {};
+  const profileMode = options?.profileMode ?? profileModeFromCustomizationId(invoice.profileId);
+  const needsEndpointValidation = profileMode !== 'en16931';
 
   if (!required(invoice.invoiceNumber)) {
     errors.invoiceNumber = 'Rechnungsnummer ist erforderlich.';
   }
-  if (!required(invoice.buyerReference)) {
-    errors.buyerReference = 'Buyer Reference (BT-10) ist erforderlich.';
+  if (profileMode === 'xrechnung' && !required(invoice.buyerReference)) {
+    errors.buyerReference = 'Buyer Reference (BT-10) ist für XRechnung erforderlich.';
+  }
+  if (required(invoice.buyerReference) && !isLikelyBuyerReference(invoice.buyerReference)) {
+    errors.buyerReference =
+      'Buyer Reference enthält ungültige Zeichen. Erlaubt: A-Z, 0-9, -, /, :, .';
   }
 
   if (!required(invoice.issueDate) || !isIsoDate(invoice.issueDate)) {
@@ -36,6 +54,11 @@ export function validateInvoice(invoice: Invoice): ValidationResult {
 
   if (invoice.dueDate && !isIsoDate(invoice.dueDate)) {
     errors.dueDate = 'Fälligkeitsdatum muss YYYY-MM-DD sein.';
+  }
+  if (invoice.issueDate && invoice.dueDate && isIsoDate(invoice.issueDate) && isIsoDate(invoice.dueDate)) {
+    if (invoice.dueDate <= invoice.issueDate) {
+      errors.dueDate = 'Fälligkeitsdatum muss nach dem Rechnungsdatum liegen (BR-CO-25).';
+    }
   }
   if (!required(invoice.dueDate) && !required(invoice.paymentTerms)) {
     errors.paymentTerms =
@@ -57,12 +80,14 @@ export function validateInvoice(invoice: Invoice): ValidationResult {
   if (!hasAtLeastThreeDigits(invoice.seller.phone)) {
     errors['seller.phone'] = 'Telefonnummer des Senders ist erforderlich (mind. 3 Ziffern, BR-DE-27).';
   }
-  if (!required(invoice.seller.endpointId)) {
-    errors['seller.endpointId'] = 'Elektronische Adresse (EndpointID) des Senders ist erforderlich.';
-  }
-  if (!required(invoice.seller.endpointScheme)) {
-    errors['seller.endpointScheme'] =
-      'Endpoint-Schema des Senders ist erforderlich (z.B. EM, 0204, 0088).';
+  if (needsEndpointValidation) {
+    if (!required(invoice.seller.endpointId)) {
+      errors['seller.endpointId'] = 'Elektronische Adresse (EndpointID) des Senders ist erforderlich.';
+    }
+    if (!required(invoice.seller.endpointScheme)) {
+      errors['seller.endpointScheme'] =
+        'Endpoint-Schema des Senders ist erforderlich (z.B. EM, 0204, 0088).';
+    }
   }
   if (!required(invoice.seller.address.street)) {
     errors['seller.street'] = 'Straße des Senders ist erforderlich.';
@@ -80,12 +105,14 @@ export function validateInvoice(invoice: Invoice): ValidationResult {
   if (!required(invoice.buyer.name)) {
     errors['buyer.name'] = 'Name des Käufers ist erforderlich.';
   }
-  if (!required(invoice.buyer.endpointId)) {
-    errors['buyer.endpointId'] = 'Elektronische Adresse (EndpointID) des Käufers ist erforderlich.';
-  }
-  if (!required(invoice.buyer.endpointScheme)) {
-    errors['buyer.endpointScheme'] =
-      'Endpoint-Schema des Käufers ist erforderlich (z.B. EM, 0204, 0088).';
+  if (needsEndpointValidation) {
+    if (!required(invoice.buyer.endpointId)) {
+      errors['buyer.endpointId'] = 'Elektronische Adresse (EndpointID) des Käufers ist erforderlich.';
+    }
+    if (!required(invoice.buyer.endpointScheme)) {
+      errors['buyer.endpointScheme'] =
+        'Endpoint-Schema des Käufers ist erforderlich (z.B. EM, 0204, 0088).';
+    }
   }
   if (!required(invoice.buyer.address.street)) {
     errors['buyer.street'] = 'Straße des Käufers ist erforderlich.';

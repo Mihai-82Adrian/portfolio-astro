@@ -3,10 +3,30 @@ import type { Invoice, InvoiceTotals, LineItem, TaxSummary } from './types';
 import { escapeXml, tag } from './xml';
 
 export type XRechnungSyntax = 'ubl' | 'cii';
+export type InvoiceProfileMode = 'xrechnung' | 'en16931' | 'peppol';
+
+export const EN16931_CORE_URN = 'urn:cen.eu:en16931:2017';
 export const XRECHNUNG_CIUS_URN =
-  'urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0';
+  `${EN16931_CORE_URN}#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0`;
+export const PEPPOL_CUSTOMIZATION_URN =
+  `${EN16931_CORE_URN}#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0`;
 export const PEPPOL_BILLING_PROFILE_URN =
   'urn:fdc:peppol.eu:2017:poacc:billing:01:1.0';
+
+export function profileModeFromCustomizationId(profileId: string | undefined): InvoiceProfileMode {
+  if (!profileId) return 'xrechnung';
+  if (profileId.includes('xrechnung_3.0')) return 'xrechnung';
+  if (profileId.includes('poacc:billing:3.0')) return 'peppol';
+  return 'en16931';
+}
+
+export function businessProcessIdForProfile(profileId: string | undefined): string {
+  const mode = profileModeFromCustomizationId(profileId);
+  if (mode === 'xrechnung' || mode === 'peppol') {
+    return PEPPOL_BILLING_PROFILE_URN;
+  }
+  return EN16931_CORE_URN;
+}
 
 function taxCategoryCode(rate: number): 'S' | 'Z' {
   return rate > 0 ? 'S' : 'Z';
@@ -90,6 +110,8 @@ export function generateUBLXml(invoice: Invoice): string {
   const payeeBic = compactValue(invoice.payeeBic);
   const payeeAccountName = compactValue(invoice.payeeAccountName);
   const paymentMeansCode = compactValue(invoice.paymentMeansCode) || '58';
+  const customizationId = compactValue(invoice.profileId) || XRECHNUNG_CIUS_URN;
+  const businessProcessId = businessProcessIdForProfile(customizationId);
 
   const taxTotalXml = totals.taxes
     .map(
@@ -139,8 +161,8 @@ export function generateUBLXml(invoice: Invoice): string {
   xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
   xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
   ${tag('cbc:UBLVersionID', '2.1')}
-  ${tag('cbc:CustomizationID', XRECHNUNG_CIUS_URN)}
-  ${tag('cbc:ProfileID', PEPPOL_BILLING_PROFILE_URN)}
+  ${tag('cbc:CustomizationID', customizationId)}
+  ${tag('cbc:ProfileID', businessProcessId)}
   ${tag('cbc:ID', invoice.invoiceNumber)}
   ${tag('cbc:IssueDate', invoice.issueDate)}
   ${dueDate ? tag('cbc:DueDate', dueDate) : ''}
@@ -258,6 +280,8 @@ export function generateCIIXml(invoice: Invoice): string {
   const payeeBic = compactValue(invoice.payeeBic);
   const payeeAccountName = compactValue(invoice.payeeAccountName);
   const paymentMeansCode = compactValue(invoice.paymentMeansCode) || '58';
+  const customizationId = compactValue(invoice.profileId) || XRECHNUNG_CIUS_URN;
+  const businessProcessId = businessProcessIdForProfile(customizationId);
 
   const lineItemsXml = invoice.lineItems
     .map((item, index) => {
@@ -316,10 +340,10 @@ export function generateCIIXml(invoice: Invoice): string {
   xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100">
   <rsm:ExchangedDocumentContext>
     <ram:BusinessProcessSpecifiedDocumentContextParameter>
-      ${tag('ram:ID', PEPPOL_BILLING_PROFILE_URN)}
+      ${tag('ram:ID', businessProcessId)}
     </ram:BusinessProcessSpecifiedDocumentContextParameter>
     <ram:GuidelineSpecifiedDocumentContextParameter>
-      ${tag('ram:ID', XRECHNUNG_CIUS_URN)}
+      ${tag('ram:ID', customizationId)}
     </ram:GuidelineSpecifiedDocumentContextParameter>
   </rsm:ExchangedDocumentContext>
   <rsm:ExchangedDocument>

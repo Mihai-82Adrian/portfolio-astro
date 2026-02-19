@@ -10,10 +10,14 @@
   import type { Invoice, LineItem } from '@/lib/fin-core/types';
   import { validateInvoice } from '@/lib/fin-core/validate';
   import {
+    businessProcessIdForProfile,
     computeInvoiceTotals,
+    EN16931_CORE_URN,
     generateXRechnungXml,
+    PEPPOL_CUSTOMIZATION_URN,
     safeFileName,
     XRECHNUNG_CIUS_URN,
+    type InvoiceProfileMode,
     type XRechnungSyntax,
   } from '@/lib/fin-core/xrechnung';
 
@@ -28,6 +32,21 @@
     { value: 'ubl', label: 'UBL 2.1' },
     { value: 'cii', label: 'UN/CEFACT CII' },
   ];
+  const profileOptions = [
+    { value: 'xrechnung', label: 'XRechnung 3.0 (KoSIT CIUS)' },
+    { value: 'peppol', label: 'Peppol BIS Billing 3.0' },
+    { value: 'en16931', label: 'EN 16931 Core' },
+  ];
+  const profileModeToCustomizationId: Record<InvoiceProfileMode, string> = {
+    xrechnung: XRECHNUNG_CIUS_URN,
+    peppol: PEPPOL_CUSTOMIZATION_URN,
+    en16931: EN16931_CORE_URN,
+  };
+  const profileMessages: Record<InvoiceProfileMode, string> = {
+    xrechnung: 'Target profile: XRechnung 3.0 (KoSIT CIUS).',
+    peppol: 'Target profile: Peppol BIS Billing 3.0.',
+    en16931: 'Target profile: EN 16931 Core (generic).',
+  };
   const endpointSchemeOptions = [
     { value: 'EM', label: 'EM (E-Mail)' },
     { value: '0204', label: '0204 (Leitweg-ID)' },
@@ -94,11 +113,116 @@
   let rememberDefaults = false;
   let downloadError = '';
   let syntax: XRechnungSyntax = 'ubl';
+  let profileMode: InvoiceProfileMode = 'xrechnung';
+  let profileLabel = profileOptions[0].label;
 
-  $: validation = validateInvoice(invoice);
-  $: totals = computeInvoiceTotals(invoice);
-  $: xmlOutput = validation.valid ? generateXRechnungXml(invoice, syntax) : '';
+  $: effectiveInvoice = {
+    ...invoice,
+    profileId: profileModeToCustomizationId[profileMode],
+  };
+  $: profileLabel = profileOptions.find((option) => option.value === profileMode)?.label ?? profileOptions[0].label;
+  $: validation = validateInvoice(effectiveInvoice, { profileMode });
+  $: totals = computeInvoiceTotals(effectiveInvoice);
+  $: xmlOutput = validation.valid ? generateXRechnungXml(effectiveInvoice, syntax) : '';
   $: validationErrorCount = Object.keys(validation.errors).length;
+  $: previewCustomizationId = effectiveInvoice.profileId;
+  $: previewBusinessProcessId = businessProcessIdForProfile(effectiveInvoice.profileId);
+  const fieldLabels: Record<string, string> = {
+    invoiceNumber: 'Rechnungsnummer',
+    buyerReference: 'Buyer Reference (BT-10)',
+    issueDate: 'Rechnungsdatum',
+    serviceDate: 'Leistungsdatum (BT-72)',
+    dueDate: 'Fälligkeitsdatum',
+    paymentTerms: 'Zahlungsbedingungen',
+    paymentMeansCode: 'Payment Means Code',
+    payeeIban: 'IBAN (Payee)',
+    'seller.name': 'Seller Name',
+    'seller.email': 'Seller E-Mail',
+    'seller.phone': 'Seller Telefon',
+    'seller.endpointId': 'Seller EndpointID',
+    'seller.endpointScheme': 'Seller Endpoint-Schema',
+    'seller.street': 'Seller Straße',
+    'seller.city': 'Seller Ort',
+    'seller.postalCode': 'Seller PLZ',
+    'seller.countryCode': 'Seller Land',
+    'buyer.name': 'Buyer Name',
+    'buyer.endpointId': 'Buyer EndpointID',
+    'buyer.endpointScheme': 'Buyer Endpoint-Schema',
+    'buyer.street': 'Buyer Straße',
+    'buyer.city': 'Buyer Ort',
+    'buyer.postalCode': 'Buyer PLZ',
+    'buyer.countryCode': 'Buyer Land',
+    lineItems: 'Line Items',
+  };
+  const errorFieldIdMap: Record<string, string> = {
+    invoiceNumber: 'invoice-number',
+    buyerReference: 'buyer-reference',
+    issueDate: 'invoice-date',
+    serviceDate: 'service-date',
+    dueDate: 'due-date',
+    paymentTerms: 'payment-terms',
+    paymentMeansCode: 'payment-means-code',
+    payeeIban: 'payee-iban',
+    'seller.name': 'seller-name',
+    'seller.email': 'seller-email',
+    'seller.phone': 'seller-phone',
+    'seller.endpointId': 'seller-endpoint-id',
+    'seller.endpointScheme': 'seller-endpoint-scheme',
+    'seller.street': 'seller-street',
+    'seller.city': 'seller-city',
+    'seller.postalCode': 'seller-postal',
+    'seller.countryCode': 'seller-country',
+    'buyer.name': 'buyer-name',
+    'buyer.endpointId': 'buyer-endpoint-id',
+    'buyer.endpointScheme': 'buyer-endpoint-scheme',
+    'buyer.street': 'buyer-street',
+    'buyer.city': 'buyer-city',
+    'buyer.postalCode': 'buyer-postal',
+    'buyer.countryCode': 'buyer-country',
+  };
+
+  function fieldIdForErrorKey(key: string): string | undefined {
+    if (errorFieldIdMap[key]) {
+      return errorFieldIdMap[key];
+    }
+    const lineItemMatch = key.match(/^lineItems\.(\d+)\.(description|quantity|unitPrice|taxRate)$/);
+    if (!lineItemMatch) {
+      return undefined;
+    }
+    const index = Number.parseInt(lineItemMatch[1], 10);
+    const field = lineItemMatch[2];
+    if (!Number.isFinite(index)) {
+      return undefined;
+    }
+    if (field === 'description') return `line-desc-${index}`;
+    if (field === 'quantity') return `line-qty-${index}`;
+    if (field === 'unitPrice') return `line-price-${index}`;
+    if (field === 'taxRate') return `line-tax-${index}`;
+    return undefined;
+  }
+
+  function focusErrorField(domId: string): void {
+    const element = document.getElementById(domId) as HTMLElement | null;
+    if (!element) {
+      return;
+    }
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    element.focus({ preventScroll: true });
+  }
+
+  $: errorEntries = Object.entries(validation.errors).map(([key, message]) => ({
+    key,
+    label: fieldLabels[key] ?? key,
+    message,
+    fieldId: fieldIdForErrorKey(key),
+  }));
+  $: requiredFieldState = {
+    invoiceNumber: invoice.invoiceNumber.trim().length > 0 && !validation.errors.invoiceNumber,
+    issueDate: invoice.issueDate.trim().length > 0 && !validation.errors.issueDate,
+    sellerName: invoice.seller.name.trim().length > 0 && !validation.errors['seller.name'],
+    buyerName: invoice.buyer.name.trim().length > 0 && !validation.errors['buyer.name'],
+    payeeIban: invoice.payeeIban.trim().length > 0 && !validation.errors.payeeIban,
+  };
 
   function addLineItem(): void {
     invoice = {
@@ -236,7 +360,7 @@
   }
 </script>
 
-<div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+<div class="grid grid-cols-1 gap-6 rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-4 dark:border-white/10 md:p-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
   <section class="space-y-5">
     <article class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-4 dark:border-white/10 md:p-5">
       <h2 class="text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">Sender</h2>
@@ -251,6 +375,7 @@
             bind:value={invoice.seller.name}
             required
             error={validation.errors['seller.name']}
+            valid={requiredFieldState.sellerName}
           />
         </div>
         <TextField id="seller-vat" label="USt-ID (optional)" bind:value={invoice.seller.vatId} />
@@ -326,6 +451,7 @@
             bind:value={invoice.buyer.name}
             required
             error={validation.errors['buyer.name']}
+            valid={requiredFieldState.buyerName}
           />
         </div>
         <TextField id="buyer-vat" label="USt-ID (optional)" bind:value={invoice.buyer.vatId} />
@@ -385,13 +511,15 @@
           bind:value={invoice.invoiceNumber}
           required
           error={validation.errors.invoiceNumber}
+          valid={requiredFieldState.invoiceNumber}
         />
         <TextField
           id="buyer-reference"
           label="Buyer Reference (BT-10)"
           bind:value={invoice.buyerReference}
-          required
           error={validation.errors.buyerReference}
+          helpText="Wichtig für B2G (Leitweg-ID) oder als Bestellnummer des Kunden (BR-DE-15)."
+          valid={invoice.buyerReference.trim().length > 0 && !validation.errors.buyerReference}
         />
         <TextField
           id="invoice-date"
@@ -400,6 +528,7 @@
           bind:value={invoice.issueDate}
           required
           error={validation.errors.issueDate}
+          valid={requiredFieldState.issueDate}
         />
         <TextField
           id="service-date"
@@ -416,6 +545,7 @@
             label="Zahlungsbedingungen (optional wenn Due Date gesetzt)"
             bind:value={invoice.paymentTerms}
             error={validation.errors.paymentTerms}
+            helpText="Fälligkeitsdatum muss logisch nach dem Rechnungsdatum liegen (BR-CO-25)."
           />
         </div>
         <SelectField
@@ -431,6 +561,8 @@
           bind:value={invoice.payeeIban}
           required
           error={validation.errors.payeeIban}
+          helpText="IBAN-Format: beginnt mit 2 Buchstaben und enthält 15-34 Zeichen."
+          valid={requiredFieldState.payeeIban}
         />
         <TextField id="payee-bic" label="BIC (optional)" bind:value={invoice.payeeBic} />
         <TextField id="payee-account-name" label="Kontoinhaber (optional)" bind:value={invoice.payeeAccountName} />
@@ -489,6 +621,7 @@
                   label="MwSt."
                   value={String(item.taxRate)}
                   options={taxRateOptions}
+                  helpText="S = Standardsteuer (z.B. 19%). Z = 0% / steuerbefreit / Reverse-Charge-Konstellation."
                   on:change={(event) =>
                     updateLineItem(index, {
                       taxRate: Number.parseFloat(event.detail),
@@ -588,12 +721,32 @@
 
       <div class="mt-4 space-y-3">
         <SelectField
+          id="invoice-profile"
+          label="Profil / Compliance Target"
+          bind:value={profileMode}
+          options={profileOptions}
+        />
+        <SelectField
           id="invoice-syntax"
           label="Syntax"
           bind:value={syntax}
           options={syntaxOptions}
         />
+        <div class="rounded-lg border border-black/10 bg-[var(--bg-elevated)] px-3 py-2 text-xs dark:border-white/10">
+          <p class="font-medium text-text-primary-light dark:text-text-primary-dark">Export IDs (current selection)</p>
+          <p class="mt-1 text-text-secondary-light dark:text-text-secondary-dark">
+            CustomizationID:
+            <code class="font-mono text-[11px] break-all text-eucalyptus-700 dark:text-eucalyptus-300">{previewCustomizationId}</code>
+          </p>
+          <p class="mt-1 text-text-secondary-light dark:text-text-secondary-dark">
+            ProfileID:
+            <code class="font-mono text-[11px] break-all text-eucalyptus-700 dark:text-eucalyptus-300">{previewBusinessProcessId}</code>
+          </p>
+        </div>
         <Button type="button" on:click={downloadXml} disabled={!validation.valid}>Download XML</Button>
+        <p class="rounded-lg border border-eucalyptus-500/30 bg-eucalyptus-500/15 px-3 py-2 text-xs font-medium text-eucalyptus-700 dark:text-eucalyptus-300">
+          {profileMessages[profileMode]} Lokale Verarbeitung im Browser (Zero-Tracking).
+        </p>
         {#if downloadError}
           <p class="text-sm text-error" aria-live="polite">{downloadError}</p>
         {/if}
@@ -606,15 +759,86 @@
           aria-live="polite"
         >
           {#if validation.valid}
-            XRechnung pre-check: valid for export ({syntax.toUpperCase()}).
+            Pre-check valid for export ({profileLabel} / {syntax.toUpperCase()}).
           {:else}
-            XRechnung pre-check: {validationErrorCount} Pflichtfeld(er) fehlen oder sind ungültig.
+            Pre-check failed: {validationErrorCount} Pflichtfeld(er) fehlen oder sind ungültig.
           {/if}
         </div>
         <p class="text-xs text-text-muted-light dark:text-text-muted-dark">
           Validation status in UI = pre-check. Final conformance must be verified with KoSIT validator.
         </p>
       </div>
+    </article>
+
+    <article class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-4 dark:border-white/10 md:p-5">
+      <h3 class="text-base font-semibold text-text-primary-light dark:text-text-primary-dark">Validation Summary</h3>
+      <ul class="mt-3 space-y-2 text-sm">
+        <li class="flex items-center justify-between rounded-lg border border-black/10 px-3 py-2 dark:border-white/10">
+          <span>Rechnungsnummer</span>
+          <span class={requiredFieldState.invoiceNumber ? 'text-eucalyptus-700 dark:text-eucalyptus-300' : 'text-red-700 dark:text-red-300'}>
+            {requiredFieldState.invoiceNumber ? 'OK' : 'Fehlt'}
+          </span>
+        </li>
+        <li class="flex items-center justify-between rounded-lg border border-black/10 px-3 py-2 dark:border-white/10">
+          <span>Rechnungsdatum</span>
+          <span class={requiredFieldState.issueDate ? 'text-eucalyptus-700 dark:text-eucalyptus-300' : 'text-red-700 dark:text-red-300'}>
+            {requiredFieldState.issueDate ? 'OK' : 'Fehlt/ungültig'}
+          </span>
+        </li>
+        <li class="flex items-center justify-between rounded-lg border border-black/10 px-3 py-2 dark:border-white/10">
+          <span>Seller Name</span>
+          <span class={requiredFieldState.sellerName ? 'text-eucalyptus-700 dark:text-eucalyptus-300' : 'text-red-700 dark:text-red-300'}>
+            {requiredFieldState.sellerName ? 'OK' : 'Fehlt'}
+          </span>
+        </li>
+        <li class="flex items-center justify-between rounded-lg border border-black/10 px-3 py-2 dark:border-white/10">
+          <span>Buyer Name</span>
+          <span class={requiredFieldState.buyerName ? 'text-eucalyptus-700 dark:text-eucalyptus-300' : 'text-red-700 dark:text-red-300'}>
+            {requiredFieldState.buyerName ? 'OK' : 'Fehlt'}
+          </span>
+        </li>
+        <li class="flex items-center justify-between rounded-lg border border-black/10 px-3 py-2 dark:border-white/10">
+          <span>IBAN</span>
+          <span class={requiredFieldState.payeeIban ? 'text-eucalyptus-700 dark:text-eucalyptus-300' : 'text-red-700 dark:text-red-300'}>
+            {requiredFieldState.payeeIban ? 'OK' : 'Ungültig'}
+          </span>
+        </li>
+      </ul>
+      <details
+        class="mt-4 rounded-lg border border-black/10 bg-[var(--bg-elevated)] dark:border-white/10"
+        open={!validation.valid}
+      >
+        <summary class="cursor-pointer px-3 py-2 text-sm font-medium text-text-primary-light dark:text-text-primary-dark">
+          {validation.valid ? 'Validation Details: no active errors' : `Validation Details: ${validationErrorCount} issue(s)`}
+        </summary>
+        <div class="border-t border-black/10 px-3 py-3 dark:border-white/10">
+          {#if validation.valid}
+            <p class="text-sm text-eucalyptus-700 dark:text-eucalyptus-300">
+              Alle Pflichtfelder sind gültig. XML-Export ist freigegeben.
+            </p>
+          {:else}
+            <ul class="space-y-2">
+              {#each errorEntries as entry}
+                <li class="rounded-md border border-red-500/30 bg-red-500/10 px-2.5 py-2">
+                  <div class="flex items-center justify-between gap-2">
+                    <p class="text-xs font-semibold text-red-700 dark:text-red-300">{entry.label}</p>
+                    {#if entry.fieldId}
+                      <button
+                        type="button"
+                        class="rounded border border-red-500/30 px-2 py-0.5 text-[11px] font-medium text-red-700 transition-colors hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40 dark:text-red-300"
+                        on:click={() => focusErrorField(entry.fieldId)}
+                      >
+                        Go to field
+                      </button>
+                    {/if}
+                  </div>
+                  <p class="text-xs text-red-700/90 dark:text-red-300/90">{entry.message}</p>
+                </li>
+              {/each}
+            </ul>
+          {/if}
+        </div>
+      </details>
     </article>
 
     <Toggle
