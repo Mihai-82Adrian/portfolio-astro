@@ -25,6 +25,11 @@ function isLikelyBuyerReference(value: string | undefined): boolean {
   return /^[A-Za-z0-9][A-Za-z0-9\-\/:.]{2,79}$/.test(normalized);
 }
 
+function isLikelyLeitwegId(value: string | undefined): boolean {
+  if (!value) return false;
+  return /^[0-9A-Z\-]+$/.test(value.trim());
+}
+
 interface ValidateOptions {
   profileMode?: InvoiceProfileMode;
 }
@@ -40,7 +45,9 @@ export function validateInvoice(invoice: Invoice, options?: ValidateOptions): Va
   if (profileMode === 'xrechnung' && !required(invoice.buyerReference)) {
     errors.buyerReference = 'Buyer Reference (BT-10) ist für XRechnung erforderlich.';
   }
-  if (required(invoice.buyerReference) && !isLikelyBuyerReference(invoice.buyerReference)) {
+  if (profileMode === 'xrechnung' && required(invoice.buyerReference) && !isLikelyLeitwegId(invoice.buyerReference)) {
+    errors.buyerReference = 'Leitweg-ID darf nur A-Z, 0-9 und Bindestrich enthalten.';
+  } else if (required(invoice.buyerReference) && !isLikelyBuyerReference(invoice.buyerReference)) {
     errors.buyerReference =
       'Buyer Reference enthält ungültige Zeichen. Erlaubt: A-Z, 0-9, -, /, :, .';
   }
@@ -79,6 +86,9 @@ export function validateInvoice(invoice: Invoice, options?: ValidateOptions): Va
   }
   const legalFormNormalized = (invoice.seller.legalForm ?? '').toLowerCase();
   const isCorporateForm = /(gmbh|ug|ag)/.test(legalFormNormalized);
+  if (isCorporateForm && !invoice.seller.name.toLowerCase().includes((invoice.seller.legalForm ?? '').trim().toLowerCase())) {
+    errors['seller.name'] = 'Bei Kapitalgesellschaften sollte die Rechtsform im Firmennamen enthalten sein (z. B. GmbH).';
+  }
   if (isCorporateForm && !required(invoice.seller.register)) {
     errors['seller.register'] = 'Registereintrag ist für Kapitalgesellschaften erforderlich.';
   }

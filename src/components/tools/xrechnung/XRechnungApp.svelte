@@ -33,7 +33,7 @@
   type UiProfileMode = 'xrechnung' | 'en16931';
 
   const profileOptions: Array<{ value: UiProfileMode; label: string }> = [
-    { value: 'xrechnung', label: 'XRechnung 3.0 (KoSIT CIUS)' },
+    { value: 'xrechnung', label: 'XRechnung 3.0 (B2G / KoSIT CIUS)' },
     { value: 'en16931', label: 'EN16931 Basic (UBL)' },
   ];
   const profileModeToCustomizationId: Record<UiProfileMode, string> = {
@@ -41,7 +41,7 @@
     en16931: EN16931_CORE_URN,
   };
   const profileMessages: Record<UiProfileMode, string> = {
-    xrechnung: 'Target profile: XRechnung 3.0 (KoSIT CIUS).',
+    xrechnung: 'Target profile: XRechnung 3.0 (B2G / KoSIT CIUS).',
     en16931: 'Target profile: EN16931 Basic (UBL).',
   };
   const endpointSchemeOptions = [
@@ -53,12 +53,23 @@
     { value: '58', label: '58 - SEPA Credit Transfer' },
     { value: '30', label: '30 - Credit Transfer' },
   ];
-  const taxNoteOptions = [
-    { value: 'standard_vat', label: 'Standard (mit USt.)' },
-    { value: 'kleinunternehmer_19', label: 'Kleinunternehmerregelung (§ 19 UStG)' },
-    { value: 'reverse_charge_13b', label: 'Reverse Charge / Steuerschuldnerschaft (§ 13b UStG)' },
-    { value: 'intra_community_supply', label: 'Innergemeinschaftliche Lieferung' },
+  type TaxRegime = 'standard' | 'kleinunternehmer' | 'reverse-charge';
+  const taxRegimeOptions: Array<{ value: TaxRegime; label: string }> = [
+    { value: 'standard', label: 'Standard mit USt. 19%' },
+    { value: 'kleinunternehmer', label: 'Kleinunternehmer (§19 UStG - 0% VAT)' },
+    { value: 'reverse-charge', label: 'Reverse-Charge (§13b UStG - 0% VAT)' },
   ];
+  const regimeNoteByMode: Record<TaxRegime, Invoice['taxNote']> = {
+    standard: 'standard_vat',
+    kleinunternehmer: 'kleinunternehmer_19',
+    'reverse-charge': 'reverse_charge_13b',
+  };
+  const regimePdfHint: Record<TaxRegime, string> = {
+    standard: '',
+    kleinunternehmer: 'Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.',
+    'reverse-charge': 'Steuerschuldnerschaft des Leistungsempfängers (Reverse Charge).',
+  };
+
   const taxNoteLabelMap: Record<string, string> = {
     standard_vat: 'Standard (mit USt.)',
     kleinunternehmer_19: 'Kleinunternehmerregelung (§ 19 UStG)',
@@ -128,6 +139,7 @@
   let downloadError = '';
   let syntax: XRechnungSyntax = 'ubl';
   let profileMode: UiProfileMode = 'xrechnung';
+  let taxRegime: TaxRegime = 'standard';
   let profileLabel = profileOptions[0].label;
   let sellerLogoDataUrl = '';
   let pdfError = '';
@@ -138,6 +150,28 @@
     profileId: profileModeToCustomizationId[profileMode],
   };
   $: profileLabel = profileOptions.find((option) => option.value === profileMode)?.label ?? profileOptions[0].label;
+  $: buyerReferenceLabel = profileMode === 'xrechnung' ? 'Leitweg-ID' : 'Bestellnummer / Referenz (BT-10)';
+  $: buyerReferenceHelpText =
+    profileMode === 'xrechnung'
+      ? 'Für XRechnung/B2G erforderlich. Format: nur A-Z, 0-9 und Bindestrich.'
+      : 'BT-10 Referenz für B2B (z. B. Bestellnummer des Kunden).';
+  $: taxRegimePdfText = regimePdfHint[taxRegime];
+  $: normalizedTaxRegime = regimeNoteByMode[taxRegime];
+  $: if (invoice.taxNote !== normalizedTaxRegime) {
+    invoice = {
+      ...invoice,
+      taxNote: normalizedTaxRegime,
+    };
+  }
+  $: if (taxRegime !== 'standard' && invoice.lineItems.some((item) => item.taxRate !== 0)) {
+    invoice = {
+      ...invoice,
+      lineItems: invoice.lineItems.map((item) => ({
+        ...item,
+        taxRate: 0,
+      })),
+    };
+  }
   $: validation = validateInvoice(effectiveInvoice, { profileMode });
   $: totals = computeInvoiceTotals(effectiveInvoice);
   $: xmlOutput = validation.valid ? generateXRechnungXml(effectiveInvoice, syntax) : '';
@@ -153,13 +187,13 @@
   $: previewBusinessProcessId = businessProcessIdForProfile(effectiveInvoice.profileId);
   const fieldLabels: Record<string, string> = {
     invoiceNumber: 'Rechnungsnummer',
-    buyerReference: 'Buyer Reference (BT-10)',
+    buyerReference: 'BT-10 Referenz',
     issueDate: 'Rechnungsdatum',
     serviceDate: 'Leistungsdatum (BT-72)',
     dueDate: 'Fälligkeitsdatum',
     paymentTerms: 'Zahlungsbedingungen',
     paymentMeansCode: 'Payment Means Code',
-    taxNote: 'Steuerregelung',
+    taxNote: 'Steuerregime',
     payeeIban: 'IBAN (Payee)',
     'seller.name': 'Seller Name',
     'seller.legalForm': 'Rechtsform',
@@ -190,7 +224,7 @@
     dueDate: 'due-date',
     paymentTerms: 'payment-terms',
     paymentMeansCode: 'payment-means-code',
-    taxNote: 'tax-note',
+    taxNote: 'tax-regime',
     payeeIban: 'payee-iban',
     'seller.name': 'seller-name',
     'seller.legalForm': 'seller-legal-form',
@@ -443,10 +477,10 @@
         },
         {
           stack: [
-            { text: 'Register / GmbHG', bold: true },
-            { text: effectiveInvoice.seller.register || '-' },
-            { text: effectiveInvoice.seller.legalForm || '-' },
-            { text: effectiveInvoice.seller.managingDirectors || '-' },
+            { text: 'Register / §35a GmbHG', bold: true },
+            { text: `Registergericht & HRB: ${effectiveInvoice.seller.register || '-'}` },
+            { text: `Rechtsform: ${effectiveInvoice.seller.legalForm || '-'}` },
+            { text: `Geschäftsführer: ${effectiveInvoice.seller.managingDirectors || '-'}` },
           ],
         },
       ];
@@ -502,7 +536,7 @@
               body: [
                 ['Rechnungsdatum', formatDateDE(effectiveInvoice.issueDate)],
                 ['Rechnungsnummer', invoiceNumber],
-                ['Leitweg-ID', effectiveInvoice.buyerReference || '-'],
+                [profileMode === 'xrechnung' ? 'Leitweg-ID' : 'Bestellnummer / Referenz (BT-10)', effectiveInvoice.buyerReference || '-'],
                 ['Fälligkeit', formatDateDE(effectiveInvoice.dueDate)],
               ],
             },
@@ -517,7 +551,9 @@
             margin: [0, 0, 0, 6],
           },
           {
-            text: `Leistungsdatum: ${formatDateDE(effectiveInvoice.serviceDate)}\nSteuerregelung: ${taxNoteLabelMap[effectiveInvoice.taxNote]}`,
+            text:
+              `Leistungsdatum: ${formatDateDE(effectiveInvoice.serviceDate)}\nSteuerregelung: ${taxNoteLabelMap[effectiveInvoice.taxNote]}`
+              + (taxRegimePdfText ? `\n${taxRegimePdfText}` : ''),
             fontSize: 10,
             margin: [0, 0, 0, 14],
           },
@@ -597,7 +633,8 @@
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = url;
-      anchor.download = `Rechnung_${safeFileName(invoiceNumber)}.pdf`;
+      const safeInvoiceNumber = invoiceNumber.replaceAll(/[^a-zA-Z0-9-_]/g, '-');
+      anchor.download = `Rechnung_${safeInvoiceNumber}.pdf`;
       document.body.append(anchor);
       anchor.click();
       anchor.remove();
@@ -737,6 +774,7 @@
             bind:value={invoice.seller.name}
             required
             error={validation.errors['seller.name']}
+            helpText="Bei GmbH/UG/AG sollte die Rechtsform im Firmennamen enthalten sein."
             valid={requiredFieldState.sellerName}
           />
         </div>
@@ -895,10 +933,10 @@
         />
         <TextField
           id="buyer-reference"
-          label="Buyer Reference (BT-10)"
+          label={buyerReferenceLabel}
           bind:value={invoice.buyerReference}
           error={validation.errors.buyerReference}
-          helpText="Wichtig für B2G (Leitweg-ID) oder als Bestellnummer des Kunden (BR-DE-15)."
+          helpText={buyerReferenceHelpText}
           valid={invoice.buyerReference.trim().length > 0 && !validation.errors.buyerReference}
         />
         <TextField
@@ -967,7 +1005,7 @@
           />
           <TextField
             id="seller-register"
-            label="Registereintrag (z. B. Amtsgericht Hamburg, HRB 123456)"
+            label="Registergericht & HRB (z. B. Amtsgericht Hamburg, HRB 123456)"
             bind:value={invoice.seller.register}
             error={validation.errors['seller.register']}
           />
@@ -985,10 +1023,10 @@
             bind:value={invoice.seller.taxNumber}
           />
           <SelectField
-            id="tax-note"
-            label="Steuerregelung"
-            bind:value={invoice.taxNote}
-            options={taxNoteOptions}
+            id="tax-regime"
+            label="Steuerregime"
+            bind:value={taxRegime}
+            options={taxRegimeOptions}
             error={validation.errors.taxNote}
           />
         </div>

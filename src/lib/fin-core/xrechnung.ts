@@ -37,7 +37,7 @@ function taxCategoryCode(invoice: Invoice, rate: number): TaxCategoryCode {
     case 'intra_community_supply':
       return 'E';
     case 'kleinunternehmer_19':
-      return 'Z';
+      return 'E';
     case 'standard_vat':
     default:
       return rate > 0 ? 'S' : 'Z';
