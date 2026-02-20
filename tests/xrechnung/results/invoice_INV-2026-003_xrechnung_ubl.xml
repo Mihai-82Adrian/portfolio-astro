@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+  xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+  xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+  <cbc:UBLVersionID>2.1</cbc:UBLVersionID>
+  <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0</cbc:CustomizationID>
+  <cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</cbc:ProfileID>
+  <cbc:ID>INV-2026-003</cbc:ID>
+  <cbc:IssueDate>2026-02-19</cbc:IssueDate>
+  <cbc:DueDate>2026-03-05</cbc:DueDate>
+  <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
+  <cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>
+  <cbc:BuyerReference>PO-REF-002</cbc:BuyerReference>
+  <cac:InvoicePeriod>
+    <cbc:StartDate>2026-02-18</cbc:StartDate>
+    <cbc:EndDate>2026-02-18</cbc:EndDate>
+  </cac:InvoicePeriod>
+  <cac:AccountingSupplierParty>
+    <cac:Party>
+      <cbc:EndpointID schemeID="EM">mihai.mateescu82@gmail.com</cbc:EndpointID>
+      <cac:PartyName>
+        <cbc:Name>Mihai-Adrian Mateescu</cbc:Name>
+      </cac:PartyName>
+      <cac:PostalAddress>
+        <cbc:StreetName>Bahnhofstraße 65b, OG</cbc:StreetName>
+        <cbc:CityName>Seevetal</cbc:CityName>
+        <cbc:PostalZone>21218</cbc:PostalZone>
+        <cac:Country><cbc:IdentificationCode>DE</cbc:IdentificationCode></cac:Country>
+      </cac:PostalAddress>
+      <cac:PartyTaxScheme><cbc:CompanyID>DE326541782</cbc:CompanyID><cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme></cac:PartyTaxScheme>
+      <cac:PartyLegalEntity>
+        <cbc:RegistrationName>Mihai-Adrian Mateescu</cbc:RegistrationName>
+      </cac:PartyLegalEntity>
+      <cac:Contact><cbc:Name>Mihai-Adrian Mateescu</cbc:Name><cbc:Telephone>015204924083</cbc:Telephone><cbc:ElectronicMail>Mihai.mateescu82@gmail.com</cbc:ElectronicMail></cac:Contact>
+    </cac:Party>
+  </cac:AccountingSupplierParty>
+  <cac:AccountingCustomerParty>
+    <cac:Party>
+      <cbc:EndpointID schemeID="EM">kontakt@profitminds.de</cbc:EndpointID>
+      <cac:PartyName>
+        <cbc:Name>Profit Minds</cbc:Name>
+      </cac:PartyName>
+      <cac:PostalAddress>
+        <cbc:StreetName>Kreuzweg 7</cbc:StreetName>
+        <cbc:CityName>Hamburg</cbc:CityName>
+        <cbc:PostalZone>20099</cbc:PostalZone>
+        <cac:Country><cbc:IdentificationCode>DE</cbc:IdentificationCode></cac:Country>
+      </cac:PostalAddress>
+      <cac:PartyTaxScheme><cbc:CompanyID>DE123789465</cbc:CompanyID><cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme></cac:PartyTaxScheme>
+      <cac:PartyLegalEntity>
+        <cbc:RegistrationName>Profit Minds</cbc:RegistrationName>
+      </cac:PartyLegalEntity>
+    </cac:Party>
+  </cac:AccountingCustomerParty>
+  <cac:Delivery>
+    <cbc:ActualDeliveryDate>2026-02-18</cbc:ActualDeliveryDate>
+  </cac:Delivery>
+  <cac:PaymentMeans>
+    <cbc:PaymentMeansCode>58</cbc:PaymentMeansCode>
+    <cac:PayeeFinancialAccount>
+      <cbc:ID>DE27207500000090838772</cbc:ID>
+      <cbc:Name>Profit Minds</cbc:Name>
+      <cac:FinancialInstitutionBranch><cbc:ID>NOLADE21HAM</cbc:ID></cac:FinancialInstitutionBranch>
+    </cac:PayeeFinancialAccount>
+  </cac:PaymentMeans>
+  <cac:PaymentTerms><cbc:Note>14 Tage</cbc:Note></cac:PaymentTerms>
+  <cac:TaxTotal>
+    <cbc:TaxAmount currencyID="EUR">64.85</cbc:TaxAmount>
+    <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="EUR">341.30</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="EUR">64.85</cbc:TaxAmount>
+      <cac:TaxCategory>
+        <cbc:ID>S</cbc:ID>
+        <cbc:Percent>19</cbc:Percent>
+        <cac:TaxScheme>
+          <cbc:ID>VAT</cbc:ID>
+        </cac:TaxScheme>
+      </cac:TaxCategory>
+    </cac:TaxSubtotal>
+  </cac:TaxTotal>
+  <cac:LegalMonetaryTotal>
+    <cbc:LineExtensionAmount currencyID="EUR">341.30</cbc:LineExtensionAmount>
+    <cbc:TaxExclusiveAmount currencyID="EUR">341.30</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="EUR">406.15</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="EUR">406.15</cbc:PayableAmount>
+  </cac:LegalMonetaryTotal>
+    <cac:InvoiceLine>
+      <cbc:ID>1</cbc:ID>
+      <cbc:InvoicedQuantity unitCode="H87">2</cbc:InvoicedQuantity>
+      <cbc:LineExtensionAmount currencyID="EUR">50.90</cbc:LineExtensionAmount>
+      <cac:Item>
+        <cbc:Description>Gaming Mouse Adventure</cbc:Description>
+        <cbc:Name>Gaming Mouse Adventure</cbc:Name>
+        <cac:ClassifiedTaxCategory>
+          <cbc:ID>S</cbc:ID>
+          <cbc:Percent>19</cbc:Percent>
+          <cac:TaxScheme>
+            <cbc:ID>VAT</cbc:ID>
+          </cac:TaxScheme>
+        </cac:ClassifiedTaxCategory>
+      </cac:Item>
+      <cac:Price>
+        <cbc:PriceAmount currencyID="EUR">25.45</cbc:PriceAmount>
+      </cac:Price>
+    </cac:InvoiceLine>
+    <cac:InvoiceLine>
+      <cbc:ID>2</cbc:ID>
+      <cbc:InvoicedQuantity unitCode="H87">2</cbc:InvoicedQuantity>
+      <cbc:LineExtensionAmount currencyID="EUR">290.40</cbc:LineExtensionAmount>
+      <cac:Item>
+        <cbc:Description>Monitor Asus 17``</cbc:Description>
+        <cbc:Name>Monitor Asus 17``</cbc:Name>
+        <cac:ClassifiedTaxCategory>
+          <cbc:ID>S</cbc:ID>
+          <cbc:Percent>19</cbc:Percent>
+          <cac:TaxScheme>
+            <cbc:ID>VAT</cbc:ID>
+          </cac:TaxScheme>
+        </cac:ClassifiedTaxCategory>
+      </cac:Item>
+      <cac:Price>
+        <cbc:PriceAmount currencyID="EUR">145.2</cbc:PriceAmount>
+      </cac:Price>
+    </cac:InvoiceLine>
+</Invoice>

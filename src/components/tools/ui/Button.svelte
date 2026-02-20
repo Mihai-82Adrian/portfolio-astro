@@ -1,7 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
-
-  const dispatch = createEventDispatcher<{ click: MouseEvent }>();
 
   export let type: 'button' | 'submit' = 'button';
   export let variant: 'primary' | 'secondary' = 'primary';
@@ -18,7 +15,7 @@
 <button
   {type}
   {disabled}
-  on:click={(event) => dispatch('click', event)}
+  on:click
   class={classes}
 >
   <slot />

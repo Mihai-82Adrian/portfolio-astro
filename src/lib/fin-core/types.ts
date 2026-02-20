@@ -7,6 +7,10 @@ export interface Address {
 
 export interface Party {
   name: string;
+  legalForm?: string;
+  register?: string;
+  managingDirectors?: string;
+  taxNumber?: string;
   vatId?: string;
   email?: string;
   phone?: string;
@@ -42,6 +46,11 @@ export interface Invoice {
   payeeIban: string;
   payeeBic?: string;
   payeeAccountName?: string;
+  taxNote:
+    | 'standard_vat'
+    | 'kleinunternehmer_19'
+    | 'reverse_charge_13b'
+    | 'intra_community_supply';
   currency: 'EUR';
   seller: Party;
   buyer: Party;

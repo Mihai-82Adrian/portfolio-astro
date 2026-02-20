@@ -74,6 +74,17 @@ export function validateInvoice(invoice: Invoice, options?: ValidateOptions): Va
   if (!required(invoice.seller.name)) {
     errors['seller.name'] = 'Name des Senders ist erforderlich.';
   }
+  if (!required(invoice.seller.legalForm)) {
+    errors['seller.legalForm'] = 'Rechtsform ist erforderlich (z. B. GmbH, UG, Einzelunternehmen).';
+  }
+  const legalFormNormalized = (invoice.seller.legalForm ?? '').toLowerCase();
+  const isCorporateForm = /(gmbh|ug|ag)/.test(legalFormNormalized);
+  if (isCorporateForm && !required(invoice.seller.register)) {
+    errors['seller.register'] = 'Registereintrag ist für Kapitalgesellschaften erforderlich.';
+  }
+  if (isCorporateForm && !required(invoice.seller.managingDirectors)) {
+    errors['seller.managingDirectors'] = 'Geschäftsführer/Vorstand ist für Kapitalgesellschaften erforderlich.';
+  }
   if (!required(invoice.seller.email)) {
     errors['seller.email'] = 'E-Mail des Senders ist erforderlich (BG-6 Seller Contact).';
   }
@@ -104,6 +115,10 @@ export function validateInvoice(invoice: Invoice, options?: ValidateOptions): Va
 
   if (!required(invoice.buyer.name)) {
     errors['buyer.name'] = 'Name des Käufers ist erforderlich.';
+  }
+
+  if (!required(invoice.taxNote)) {
+    errors.taxNote = 'Steuerregelung ist erforderlich.';
   }
   if (needsEndpointValidation) {
     if (!required(invoice.buyer.endpointId)) {

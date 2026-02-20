@@ -28,8 +28,41 @@ export function businessProcessIdForProfile(profileId: string | undefined): stri
   return EN16931_CORE_URN;
 }
 
-function taxCategoryCode(rate: number): 'S' | 'Z' {
-  return rate > 0 ? 'S' : 'Z';
+type TaxCategoryCode = 'S' | 'Z' | 'AE' | 'E';
+
+function taxCategoryCode(invoice: Invoice, rate: number): TaxCategoryCode {
+  switch (invoice.taxNote) {
+    case 'reverse_charge_13b':
+      return 'AE';
+    case 'intra_community_supply':
+      return 'E';
+    case 'kleinunternehmer_19':
+      return 'Z';
+    case 'standard_vat':
+    default:
+      return rate > 0 ? 'S' : 'Z';
+  }
+}
+
+function taxCategoryReason(invoice: Invoice): string {
+  switch (invoice.taxNote) {
+    case 'reverse_charge_13b':
+      return 'Steuerschuldnerschaft des Leistungsempfängers (§ 13b UStG)';
+    case 'intra_community_supply':
+      return 'Steuerfreie innergemeinschaftliche Lieferung';
+    case 'kleinunternehmer_19':
+      return 'Kein Ausweis von Umsatzsteuer gemäß § 19 UStG';
+    case 'standard_vat':
+    default:
+      return '';
+  }
+}
+
+function effectiveTaxRate(invoice: Invoice, line: LineItem): number {
+  if (!invoice.taxNote || invoice.taxNote === 'standard_vat') {
+    return line.taxRate;
+  }
+  return 0;
 }
 
 function decimal(value: number): string {
@@ -45,8 +78,8 @@ function lineNet(item: LineItem): number {
   return roundToCents(item.quantity * item.unitPrice);
 }
 
-function lineTax(item: LineItem): number {
-  return roundToCents((lineNet(item) * item.taxRate) / 100);
+function lineTax(invoice: Invoice, item: LineItem): number {
+  return roundToCents((lineNet(item) * effectiveTaxRate(invoice, item)) / 100);
 }
 
 function compactValue(value: string | undefined): string {
@@ -65,15 +98,16 @@ export function computeInvoiceTotals(invoice: Invoice): InvoiceTotals {
 
   for (const item of invoice.lineItems) {
     const currentLineNet = lineNet(item);
-    const currentLineTax = lineTax(item);
+    const normalizedTaxRate = effectiveTaxRate(invoice, item);
+    const currentLineTax = lineTax(invoice, item);
 
     netTotal += currentLineNet;
     taxTotal += currentLineTax;
 
-    const current = taxBuckets.get(item.taxRate) ?? { taxableAmount: 0, taxAmount: 0 };
+    const current = taxBuckets.get(normalizedTaxRate) ?? { taxableAmount: 0, taxAmount: 0 };
     current.taxableAmount = roundToCents(current.taxableAmount + currentLineNet);
     current.taxAmount = roundToCents(current.taxAmount + currentLineTax);
-    taxBuckets.set(item.taxRate, current);
+    taxBuckets.set(normalizedTaxRate, current);
   }
 
   const taxes: TaxSummary[] = [...taxBuckets.entries()]
@@ -112,6 +146,8 @@ export function generateUBLXml(invoice: Invoice): string {
   const paymentMeansCode = compactValue(invoice.paymentMeansCode) || '58';
   const customizationId = compactValue(invoice.profileId) || XRECHNUNG_CIUS_URN;
   const businessProcessId = businessProcessIdForProfile(customizationId);
+  const taxReason = taxCategoryReason(invoice);
+  const invoiceNote = [compactValue(invoice.notes), taxReason].filter(Boolean).join(' | ');
 
   const taxTotalXml = totals.taxes
     .map(
@@ -120,8 +156,9 @@ export function generateUBLXml(invoice: Invoice): string {
       ${tag('cbc:TaxableAmount', decimal(tax.taxableAmount), { currencyID: currency })}
       ${tag('cbc:TaxAmount', decimal(tax.taxAmount), { currencyID: currency })}
       <cac:TaxCategory>
-        ${tag('cbc:ID', taxCategoryCode(tax.taxRate))}
+        ${tag('cbc:ID', taxCategoryCode(invoice, tax.taxRate))}
         ${tag('cbc:Percent', decimalFlexible(tax.taxRate, 2))}
+        ${taxReason ? tag('cbc:TaxExemptionReason', taxReason) : ''}
         <cac:TaxScheme>
           ${tag('cbc:ID', 'VAT')}
         </cac:TaxScheme>
@@ -142,8 +179,9 @@ export function generateUBLXml(invoice: Invoice): string {
         ${tag('cbc:Description', item.description)}
         ${tag('cbc:Name', item.description)}
         <cac:ClassifiedTaxCategory>
-          ${tag('cbc:ID', taxCategoryCode(item.taxRate))}
-          ${tag('cbc:Percent', decimalFlexible(item.taxRate, 2))}
+          ${tag('cbc:ID', taxCategoryCode(invoice, item.taxRate))}
+          ${tag('cbc:Percent', decimalFlexible(effectiveTaxRate(invoice, item), 2))}
+          ${taxReason ? tag('cbc:TaxExemptionReason', taxReason) : ''}
           <cac:TaxScheme>
             ${tag('cbc:ID', 'VAT')}
           </cac:TaxScheme>
@@ -167,7 +205,7 @@ export function generateUBLXml(invoice: Invoice): string {
   ${tag('cbc:IssueDate', invoice.issueDate)}
   ${dueDate ? tag('cbc:DueDate', dueDate) : ''}
   ${tag('cbc:InvoiceTypeCode', '380')}
-  ${invoice.notes ? tag('cbc:Note', invoice.notes) : ''}
+  ${invoiceNote ? tag('cbc:Note', invoiceNote) : ''}
   ${tag('cbc:DocumentCurrencyCode', currency)}
   ${tag('cbc:BuyerReference', buyerReference)}
   <cac:InvoicePeriod>
@@ -194,6 +232,8 @@ export function generateUBLXml(invoice: Invoice): string {
       }
       <cac:PartyLegalEntity>
         ${tag('cbc:RegistrationName', supplier.name)}
+        ${supplier.register ? tag('cbc:CompanyID', supplier.register) : ''}
+        ${supplier.legalForm ? tag('cbc:CompanyLegalForm', supplier.legalForm) : ''}
       </cac:PartyLegalEntity>
       ${
         supplier.email || sellerPhone
@@ -282,6 +322,8 @@ export function generateCIIXml(invoice: Invoice): string {
   const paymentMeansCode = compactValue(invoice.paymentMeansCode) || '58';
   const customizationId = compactValue(invoice.profileId) || XRECHNUNG_CIUS_URN;
   const businessProcessId = businessProcessIdForProfile(customizationId);
+  const taxReason = taxCategoryReason(invoice);
+  const invoiceNote = [compactValue(invoice.notes), taxReason].filter(Boolean).join(' | ');
 
   const lineItemsXml = invoice.lineItems
     .map((item, index) => {
@@ -305,8 +347,9 @@ export function generateCIIXml(invoice: Invoice): string {
       <ram:SpecifiedLineTradeSettlement>
         <ram:ApplicableTradeTax>
           ${tag('ram:TypeCode', 'VAT')}
-          ${tag('ram:CategoryCode', taxCategoryCode(item.taxRate))}
-          ${tag('ram:RateApplicablePercent', decimalFlexible(item.taxRate, 2))}
+          ${tag('ram:CategoryCode', taxCategoryCode(invoice, item.taxRate))}
+          ${tag('ram:RateApplicablePercent', decimalFlexible(effectiveTaxRate(invoice, item), 2))}
+          ${taxReason ? tag('ram:ExemptionReason', taxReason) : ''}
         </ram:ApplicableTradeTax>
         <ram:SpecifiedTradeSettlementLineMonetarySummation>
           ${tag('ram:LineTotalAmount', decimal(currentLineNet))}
@@ -323,14 +366,15 @@ export function generateCIIXml(invoice: Invoice): string {
         ${tag('ram:CalculatedAmount', decimal(tax.taxAmount))}
         ${tag('ram:TypeCode', 'VAT')}
         ${tag('ram:BasisAmount', decimal(tax.taxableAmount))}
-        ${tag('ram:CategoryCode', taxCategoryCode(tax.taxRate))}
+        ${tag('ram:CategoryCode', taxCategoryCode(invoice, tax.taxRate))}
         ${tag('ram:RateApplicablePercent', decimalFlexible(tax.taxRate, 2))}
+        ${taxReason ? tag('ram:ExemptionReason', taxReason) : ''}
       </ram:ApplicableTradeTax>`
     )
     .join('');
 
-  const noteXml = invoice.notes
-    ? `<ram:IncludedNote>${tag('ram:Content', invoice.notes)}</ram:IncludedNote>`
+  const noteXml = invoiceNote
+    ? `<ram:IncludedNote>${tag('ram:Content', invoiceNote)}</ram:IncludedNote>`
     : '';
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -360,6 +404,11 @@ export function generateCIIXml(invoice: Invoice): string {
       ${tag('ram:BuyerReference', buyerReference)}
       <ram:SellerTradeParty>
         ${tag('ram:Name', invoice.seller.name)}
+        ${
+          invoice.seller.register || invoice.seller.legalForm
+            ? `<ram:SpecifiedLegalOrganization>${invoice.seller.register ? tag('ram:ID', invoice.seller.register) : ''}${invoice.seller.legalForm ? tag('ram:TradingBusinessName', invoice.seller.legalForm) : ''}</ram:SpecifiedLegalOrganization>`
+            : ''
+        }
         <ram:DefinedTradeContact>
           ${tag('ram:PersonName', invoice.seller.name)}
           <ram:TelephoneUniversalCommunication>
