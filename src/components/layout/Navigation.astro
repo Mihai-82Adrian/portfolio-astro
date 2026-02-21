@@ -119,43 +119,35 @@ const isActive = (href: string): boolean => {
   .nav-link {
     position: relative;
     font-weight: 500;
-    text-decoration: none;
-    transition: color var(--transition-fast) ease-in-out;
-    @apply  rounded-lg;
-    &:focus-visible { outline: none; ring: 2px solid; ring-color: var(--color-eucalyptus-500); ring-offset: 2px; }
+    text-decoration: none !important;
+    transition: all var(--transition-fast) ease-in-out;
+    @apply rounded-full;
   }
+  .nav-link:focus-visible { outline: none; @apply ring-2 ring-eucalyptus-500 ring-offset-2; }
 
   /* Desktop navigation links */
   .nav-link-desktop {
-    @apply px-3 py-2 text-base;
-    @apply text-text-secondary-light hover:text-text-primary-light;
-    @apply dark:text-text-secondary-dark dark:hover:text-text-primary-dark;
-    text-decoration: none;
+    @apply px-4 py-2 text-sm rounded-full;
+    @apply text-text-secondary-light hover:text-eucalyptus-800 hover:bg-eucalyptus-50;
+    @apply dark:text-text-secondary-dark dark:hover:text-eucalyptus-200 dark:hover:bg-eucalyptus-500/20;
   }
 
   /* Mobile navigation links */
   .nav-link-mobile {
-    @apply block px-4 py-3 text-lg;
+    @apply block px-4 py-3 text-lg rounded-lg;
     @apply text-text-primary-light hover:bg-eucalyptus-50;
     @apply dark:text-text-primary-dark dark:hover:bg-dark-elevated;
-    text-decoration: none;
   }
 
-  /* Active link styles */
+  /* Active link styles - Base */
   .nav-link-active {
-    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+    @apply text-eucalyptus-800 dark:text-eucalyptus-200 font-semibold;
   }
 
-  /* Desktop active indicator underline */
-  .desktop-nav .nav-link-active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    @apply bg-eucalyptus-600 dark:bg-eucalyptus-400;
-    border-radius: 2px;
+  /* Desktop active state - subtle background pill */
+  .desktop-nav .nav-link-active {
+    @apply bg-eucalyptus-500/15;
+    @apply dark:bg-eucalyptus-500/20;
   }
 
   /* Mobile active indicator */
@@ -164,28 +156,9 @@ const isActive = (href: string): boolean => {
     @apply border-l-4 border-eucalyptus-600 dark:border-eucalyptus-400;
   }
 
-  /* Hover effect for desktop links */
-  .desktop-nav .nav-link:hover::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    @apply bg-eucalyptus-400 dark:bg-eucalyptus-600;
-    border-radius: 2px;
-    opacity: 0.5;
-  }
-
   .nav-link:hover,
   .nav-link:focus-visible,
   .nav-link:visited {
-    text-decoration: none;
-  }
-
-  /* Prevent underline duplication on active links */
-  .desktop-nav .nav-link-active:hover::after {
-    @apply bg-eucalyptus-600 dark:bg-eucalyptus-400;
-    opacity: 1;
+    text-decoration: none !important;
   }
 </style>

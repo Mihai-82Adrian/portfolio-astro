@@ -14,7 +14,7 @@ const breadcrumbSchema = generateBreadcrumbSchema([
 ]);
 ---
 
-<BaseLayout title={title} description={description} lang="en" structuredData={breadcrumbSchema}>
+<BaseLayout title={title} description={description} lang="de" structuredData={breadcrumbSchema}>
   <main class="pb-20">
     <section class="mx-auto w-full max-w-6xl px-4 pt-20 md:px-6 md:pt-24">
       <div class="mx-auto max-w-3xl text-center">
@@ -22,10 +22,10 @@ const breadcrumbSchema = generateBreadcrumbSchema([
           XRechnung (EN 16931) XML Generator
         </h1>
         <p class="mt-3 text-pretty text-base text-text-secondary-light dark:text-text-secondary-dark sm:text-lg">
-          Local-first tool: create compliant XML with live preview and export directly in your browser.
+          Lokales Tool: Erstelle konforme XML-Dateien mit Live-Vorschau und direktem Export im Browser.
         </p>
-        <p class="mt-2 text-sm text-text-muted-light dark:text-text-muted-dark">
-          v1 scope: XML export only. No server-side storage.
+        <p class="mt-2 text-sm text-text-muted-light dark:text-text-muted-dark font-medium">
+          Validiert gegen KoSIT Validator v1.6.2 (Config v3.0.2) + EN16931. Zero-Tracking (keine Server-Speicherung).
         </p>
       </div>
     </section>

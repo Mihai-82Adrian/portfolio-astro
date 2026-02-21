@@ -8,11 +8,11 @@ export async function getStaticPaths() {
   // Get unique tags
   const allTags = new Set<string>();
   allPosts.forEach(post => {
-    post.data.tags.forEach(tag => allTags.add(tag));
+    post.data.tags.forEach((tag: string) => allTags.add(tag));
   });
 
   // Generate paths for each tag
-  return Array.from(allTags).map(tag => ({
+  return Array.from(allTags).map((tag: string) => ({
     params: { tag },
     props: {
       tag,
@@ -33,7 +33,7 @@ const { tag, posts } = Astro.props;
 // Format tag for display
 const tagDisplay = tag
   .split('-')
-  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+  .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
   .join(' ');
 
 const pageTitle = `#${tagDisplay} - Blog - Mihai Adrian Mateescu`;
@@ -42,7 +42,7 @@ const pageDescription = `Articles tagged with #${tagDisplay}. ${posts.length} ${
 // Get related tags (tags that appear in same posts as current tag)
 const relatedTagsMap = new Map<string, number>();
 posts.forEach(post => {
-  post.data.tags.forEach(t => {
+  post.data.tags.forEach((t: string) => {
     if (t !== tag) {
       relatedTagsMap.set(t, (relatedTagsMap.get(t) || 0) + 1);
     }
@@ -155,7 +155,7 @@ const relatedTags = Array.from(relatedTagsMap.entries())
             Related Tags
           </h2>
           <div class="flex flex-wrap gap-2">
-            {relatedTags.map(relatedTag => (
+            {relatedTags.map((relatedTag: string) => (
               <a
                 href={`/blog/tag/${relatedTag}`}
                 class="px-3 py-1 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-eucalyptus-100 dark:hover:bg-eucalyptus-900 transition-colors border border-gray-200 dark:border-gray-600"
