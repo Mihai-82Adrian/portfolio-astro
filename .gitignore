@@ -36,5 +36,6 @@ tests/invoice_*_xrechnung_*.xml
 # jetbrains setting folder
 .idea/
 
-# Claude Code Configuration
+# Claude Code Configuration (local tooling — never public)
 .claude/
+CLAUDE.md
