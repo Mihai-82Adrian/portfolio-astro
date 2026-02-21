@@ -11,6 +11,11 @@ draft: false
 lang: 'en'
 ---
 
+## In this Article
+
+- [Introduction](#introduction)
+
+
 ## Transparency and Disclaimer
 
 This article represents an educational analysis of machine learning concepts and their potential applications in accounting workflows. The content draws from published research, industry standards, and technical documentation (2022–2025). The examples, code snippets, and design patterns presented are **illustrative and for discussion purposes only** — they are not production-grade implementations. Any deployment of machine learning in accounting must comply with applicable legal and regulatory requirements (GoBD, HGB, GDPR, KassenSichV, and domain-specific standards). Readers should consult qualified accounting, legal, and data governance professionals before adopting any approach described herein.
@@ -53,7 +58,7 @@ Invoice processing represents one of the most mature applications of ML in accou
 
 ### The Technical Landscape
 
-**Layout-aware transformers.** Models such as LayoutLMv3, LayoutXLM, and emerging variants (DocLayLLM, DocLLM) represent a paradigm shift from traditional OCR. These multimodal architectures fuse text, image tokens, and 2D positional information to understand document structure. Rather than treating a scanned invoice as a sequence of words, they reason about spatial relationships: field labels appear above values, amounts cluster in tables, and signatures occupy predictable regions. Research from 2023–2025 demonstrates that LayoutLMv3 achieves state-of-the-art performance on form understanding and receipt extraction tasks, with F1 scores often exceeding 88% on public datasets like FUNSD and SROIE.
+**Layout-aware transformers.** Models such as LayoutLMv3, LayoutXLM, and emerging variants (DocLayLLM, DocLLM) represent a major transition from traditional OCR. These multimodal architectures fuse text, image tokens, and 2D positional information to understand document structure. Rather than treating a scanned invoice as a sequence of words, they reason about spatial relationships: field labels appear above values, amounts cluster in tables, and signatures occupy predictable regions. Research from 2023–2025 demonstrates that LayoutLMv3 achieves state-of-the-art performance on form understanding and receipt extraction tasks, with F1 scores often exceeding 88% on public datasets like FUNSD and SROIE.
 
 **Strengths and limitations.** Layout-aware models excel at extracting values from well-formed documents—standard invoice templates, printed receipts, and formatted forms. They generalize reasonably well across vendors when fine-tuned on task-specific data. However, they struggle with:
 
@@ -367,7 +372,7 @@ Research and industry practice employ several families of algorithms, each with 
 
 **Statistical baselines (Mahalanobis distance, elliptic envelope).** Model the normal data distribution and flag points in the tail. Strengths: interpretable, fast, well-understood failure modes. Limitations: assume well-behaved distributions (Gaussian, low outlier contamination), break down in high dimensions.
 
-**Class-imbalanced supervised learning.** If historical fraud labels are available, train classifiers (Random Forest, XGBoost, logistic regression) with resampling (SMOTE, class weighting) or cost-sensitive objectives. Strengths: leverage known fraud patterns. Limitations: require labeled data (expensive to obtain), suffer from label noise, vulnerable to adversarial adaptation by fraudsters.
+**Class-imbalanced supervised learning.** If historical fraud labels are available, train classifiers (Random Forest, XGBoost, logistic regression) with resampling (SMOTE, class weighting) or cost-sensitive objectives. Strengths: employ known fraud patterns. Limitations: require labeled data (expensive to obtain), suffer from label noise, vulnerable to adversarial adaptation by fraudsters.
 
 In practice, research from 2023–2025 suggests that **ensemble approaches**—combining multiple methods and using voting or stacking—outperform single models, particularly when balancing false positive (nuisance alerts) and false negative (missed fraud) rates.
 
@@ -809,3 +814,8 @@ The emerging consensus from research and industry practice (2022–2025) is clea
 ---
 
 **End of Article**
+
+
+## References
+
+- [Source Materials](https://example.com)

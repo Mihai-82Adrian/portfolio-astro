@@ -11,6 +11,11 @@ featured: true
 lang: 'en'
 ---
 
+## In this Article
+
+- [Introduction](#introduction)
+
+
 ## Executive Summary
 
 * **Context**: Job fit assessment relies on comparing unstructured HR text (job descriptions) against candidate profiles—a process prone to hallucinations and inconsistent LLM outputs

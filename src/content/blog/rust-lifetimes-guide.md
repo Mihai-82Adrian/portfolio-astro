@@ -10,6 +10,11 @@ featured: true
 lang: 'en'
 ---
 
+## In this Article
+
+- [Introduction](#introduction)
+
+
 ## Executive Summary
 
 Rust's lifetime system is both its most powerful feature and its steepest learning curve. After studying production-grade Rust projects, community guidance from the official Rust Book[13][15][28], and the formal elision rules defined in RFC 141[13], the value of lifetimes becomes clear: they prevent entire categories of memory bugs at compile time, with zero runtime overhead.
@@ -585,3 +590,8 @@ No `unsafe` blocks were used. All slicing operations use bounds-checked methods 
 ---
 
 *This guide reflects a research-based understanding of Rust lifetimes, synthesized from official documentation, RFCs, and community resources. All examples compile on stable Rust (Edition 2021) and follow best practices for safety and clarity.*
+
+
+## References
+
+- [Source Materials](https://example.com)
