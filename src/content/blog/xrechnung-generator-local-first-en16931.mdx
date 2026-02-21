@@ -1,0 +1,211 @@
+---
+title: "Building a KoSIT-Valid XRechnung Generator That Runs Entirely in the Browser"
+description: "How I built a local-first, zero-tracking XRechnung 3.0 tool for DACH founders — compliant with EN 16931 and KoSIT v3.0, with no backend, no database, and no vendor lock-in."
+pubDate: 2026-02-21
+lang: 'en'
+category: 'fintech'
+tags: ['xrechnung', 'en16931', 'astro', 'svelte', 'local-first', 'compliance', 'dach', 'typescript']
+heroImage: '/images/blog/xr-1.webp'
+draft: false
+featured: true
+---
+
+import Image from '@components/mdx/Image.astro';
+
+## In this Article
+
+- [The Problem: E-Rechnungspflicht and the Missing Middle](#part-i--the-problem-e-rechnungspflicht-and-the-missing-middle)
+- [The Product Vision: Compliance by Construction, Privacy by Default](#part-ii--the-product-vision-compliance-by-construction-privacy-by-default)
+- [The Engineering: How the Browser Becomes a Compliance Engine](#part-iii--the-engineering-how-the-browser-becomes-a-compliance-engine)
+- [Lessons Learned & The Hub Vision](#part-iv--lessons-learned--the-hub-vision)
+
+## Executive Summary
+
+- Germany's **E-Rechnungspflicht** mandates XRechnung for all B2G invoices now, and B2B from 2025–2027 — most SMEs have no compliant tooling and no budget for enterprise ERP
+- I built a **browser-native XRechnung 3.0 generator**: validates against KoSIT v3.0 (Config v3.0.2) + EN 16931, generates UBL 2.1 and CII XML, exports DIN 5008-style PDFs — zero server-side processing
+- The architecture encodes compliance at the **type level**: tax category codes, URN constants, and profile identifiers are not configurable strings — they are hardcoded TypeScript constants derived directly from the standard
+- The tool is live at [me-mateescu.de/tools/xrechnung](/tools/xrechnung), deploys to Cloudflare's edge network via GitHub Actions, and stores **nothing** beyond your own seller defaults in localStorage
+
+---
+
+## Part I — The Problem: E-Rechnungspflicht and the Missing Middle
+
+Germany's electronic invoicing mandate isn't coming — it's here.
+
+**B2G (Business to Government)** has been mandatory at the federal level since 2020. If you invoice a Bundesbehörde, a Landesbehörde, or any public-sector client, your invoice must be a valid XRechnung or ZUGFeRD document. A PDF is not enough. A "PDF invoice with the numbers in the right place" is not enough.
+
+**B2B** is next: large companies (annual turnover > €800k) must be *able to receive* structured electronic invoices from January 2025. Full B2B mandate for all businesses follows in 2027, per the amended §14 UStG.
+
+The market for compliant tooling breaks into three tiers:
+
+- **Enterprise ERP** (SAP, DATEV, Lexware): full XRechnung support, costs hundreds to thousands of euros per month, built for teams, not freelancers
+- **SaaS invoicing** (Lexoffice, sevDesk, FastBill): subscription-based, stores all your invoice data on their servers, lock-in by design
+- **DIY**: some open-source libraries exist (for Java or Python), but they require a developer to wire them up
+
+The **missing middle**: a freelance developer who needs to invoice the municipality of Hamburg once a quarter. Or a one-person consultancy that just won its first public-sector contract. Or a Kleinunternehmer who needs §19 UStG compliance without paying for DATEV.
+
+That's exactly who I built this for.
+
+<Image
+  src="/images/blog/xr-1.png"
+  alt="XRechnung generator UI showing the two-panel layout: invoice form on the left with seller/buyer fields and line items, live invoice preview on the right displaying a complete invoice for Profit Minds GmbH with a total of 413.59 EUR"
+  caption="The XRechnung generator in action — form input on the left, structured invoice preview on the right. All processing happens in the browser."
+/>
+
+---
+
+## Part II — The Product Vision: Compliance by Construction, Privacy by Default
+
+Before writing a single line of UI code, I made two non-negotiable architectural decisions.
+
+### Compliance is encoded in types, not enforced by validation
+
+The most common failure mode in compliance tooling is treating the standard as a checklist: build the UI first, add validation at the end. The result is that business logic leaks everywhere and invalid states are representable in the data model.
+
+Instead, I built the domain model to mirror EN 16931 directly. The `Invoice` type in `src/lib/fin-core/types.ts` isn't a generic invoice object with optional fields. `TaxSummary` carries `taxCategoryCode` — a typed enum, not a string. `LineItem` has `unitCode` with the UN/ECE Recommendation 20 unit codes. The data model makes invalid invoices *hard to construct*.
+
+The same principle applies to URN identifiers. In XRechnung, wrong URNs are the most common cause of KoSIT validation failures — even when the invoice data itself is correct. So they're not configurable:
+
+```typescript
+// src/lib/fin-core/xrechnung.ts
+
+export const EN16931_CORE_URN =
+  'urn:cen.eu:en16931:2017';
+
+export const XRECHNUNG_CIUS_URN =
+  'urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0';
+```
+
+You select a profile (`xrechnung` or `en16931`). The tool emits the correct URN. There's no text field where you can accidentally type the wrong value.
+
+Tax regimes follow the same pattern. The tool supports three:
+
+| Regime | Legal basis | EN 16931 tax code |
+|---|---|---|
+| Standard VAT (19%) | Default | `S` |
+| Kleinunternehmer | §19 UStG | `E` |
+| Reverse Charge | §13b UStG | `AE` |
+
+The `taxCategoryCode()` function maps your selected regime to the correct EN 16931 code. You don't type `AE` — you pick "Reverse Charge" and the standard-compliant code is derived automatically.
+
+### Privacy-first means no server, not "we encrypt your data"
+
+Invoice data is sensitive by nature: client names, project descriptions, amounts, payment details. Most SaaS tools solve the trust problem by asking you to trust them.
+
+This tool solves it by not touching your data at all.
+
+Everything — XML generation, PDF rendering, validation — runs in the browser. The only data that persists between sessions is your seller defaults (name, address, bank account), stored under `tools.xrechnung.sender.defaults.v1` in localStorage. Your invoice data never leaves your machine.
+
+<Image
+  src="/images/blog/xr-2.webp"
+  alt="Chrome DevTools Network panel open alongside the XRechnung generator, showing the Fetch/XHR tab completely empty — zero outbound network requests during invoice generation. The only item visible is a locally generated PDF blob download of 34KB."
+  caption="The Network tab doesn't lie. Zero Fetch/XHR requests during the entire invoice generation flow. The only item is a local blob — the PDF you generated on your own machine."
+/>
+
+---
+
+## Part III — The Engineering: How the Browser Becomes a Compliance Engine
+
+### Astro Island for a static portfolio that needed one interactive tool
+
+The portfolio is a static Astro 5 site. Adding a full interactive application to it without compromising the page weight of every other page required the Islands Architecture.
+
+The XRechnung generator lives in a single Svelte component — `<XRechnungApp />` — mounted with `client:load`. The rest of the page — the header, navigation, footer — is static HTML. The JavaScript bundle for the tool loads only when the user navigates to `/tools/xrechnung`.
+
+The site scores **100/100 on Lighthouse** across Performance, Accessibility, Best Practices, and SEO. The island is an island — not a leak.
+
+### Svelte's reactive model for 50+ interdependent fields
+
+The generator has over 50 reactive fields: seller info, buyer info, line items, tax regime, payment terms, delivery period, endpoint routing. Changing one field cascades to several others.
+
+Svelte's reactive declarations handle this elegantly. When a line item quantity or unit price changes, the totals recalculate. When the totals change, the tax summary updates. When the tax summary updates, the XML preview rerenders. The entire chain is synchronous and zero-latency — no "Recalculate" button, no debounced timeouts.
+
+```javascript
+// Reactive chain: line items → tax summaries → invoice totals → XML preview
+$: taxSummaries = computeTaxSummaries(lineItems, taxRegime);
+$: invoiceTotals = computeTotals(lineItems, taxSummaries);
+$: xmlPreview = generateXML(invoice, selectedProfile, selectedSyntax);
+```
+
+The reactive model also powers the validation UX: field-level errors update in real time, and `focusErrorField()` jumps the user directly to the problematic input.
+
+### Two XML syntaxes, one domain model
+
+EN 16931 mandates support for two syntaxes: **UBL 2.1** and **UN/CEFACT CII**. Both are generated from the same `Invoice` domain object — the syntax is a rendering concern, not a data concern.
+
+<Image
+  src="/images/blog/xr-3.webp"
+  alt="VS Code editor with a split view showing UBL 2.1 XML on the left and UN/CEFACT CII XML on the right, both generated from the same invoice data. The UBL file uses the Invoice root element with oasis UBL namespaces, while the CII file uses the rsm:CrossIndustryInvoice structure."
+  caption="Same invoice data, two syntax outputs — UBL 2.1 (left) and UN/CEFACT CII (right). The domain model is syntax-agnostic; the renderer handles the structural differences."
+/>
+
+For the XRechnung 3.0 profile, both syntaxes are available. For EN 16931 Basic, CII is selected automatically — the UI reflects the standard, not an arbitrary constraint.
+
+### PDF generation via lazy-loaded pdfmake
+
+Generating a print-quality PDF in the browser without a server is a solved problem — but it requires managing bundle size carefully. `pdfmake` with embedded fonts is ~2.5MB. Shipping that in the initial bundle is unacceptable.
+
+The solution is a dynamic import, triggered only when the user clicks "Export PDF":
+
+```javascript
+async function exportPDF() {
+  const [{ default: pdfMake }, { default: vfs }] =
+    await Promise.all([
+      import('pdfmake/build/pdfmake.js'),
+      import('pdfmake/build/vfs_fonts.js'),
+    ]);
+
+  pdfMake.vfs = vfs.pdfMake.vfs;
+  // generate document definition and download
+}
+```
+
+The initial page load carries zero pdfmake overhead. The library is fetched once, cached by the browser, and used on demand. The output is a **DIN 5008-style A4 PDF**: address window in the correct position for windowed envelopes, company logo (resized client-side via Canvas API to max 400px width), line items table, tax summary breakdown, and a legal footer with all mandatory §14 UStG disclosures.
+
+### Zero-backend deployment on Cloudflare's edge
+
+Every push to `master` triggers a GitHub Actions workflow that builds the Astro static output and deploys it directly to **Cloudflare Pages**. No servers to provision, no containers to manage, no databases to back up.
+
+Cloudflare's edge network serves the assets from the node closest to the user — TTFB is in single-digit milliseconds from any location in the DACH region. The tool loads fast in Berlin, Hamburg, Vienna, and Zurich equally, because the file is cached at the edge, not served from a single origin.
+
+<Image
+  src="/images/blog/xr-4.webp"
+  alt="Cloudflare Pages dashboard for the portfolio-astro project showing the Deployments tab with automatic deployments enabled, the production domain me-mateescu.de, and the latest master branch deployment from 6 hours ago with status Production."
+  caption="The deployment dashboard: push to master, GitHub Actions builds, Cloudflare Pages deploys. The domain me-mateescu.de is live on the edge — zero backend operations."
+/>
+
+---
+
+## Part IV — Lessons Learned & The Hub Vision
+
+### What this project taught me about compliance tooling
+
+The most valuable decision was the domain model — encoding EN 16931 concepts as TypeScript types before touching any UI. This constraint paid dividends throughout: the XML generator, the PDF renderer, and the validator all operate on the same typed data structure. Refactoring one layer doesn't require changes elsewhere.
+
+The KoSIT validator's role as a CI gate was equally important. During development, I ran `npm run kosit:validate` against fixture XML files for every profile-syntax combination. Knowing that generated output passes the official German government validator is a different level of confidence than "it looks right."
+
+### The broader vision: a local-first finance hub for DACH founders
+
+XRechnung is the first module. The Fin-Tools Hub roadmap includes:
+
+- **SEPA XML generator**: pain-compliant payment files for batch transfers
+- **EU VAT calculator**: cross-border B2C VAT for digital services (OSS registration)
+- **Kleinunternehmer revenue tracker**: §19 UStG threshold monitoring with annual projection
+- **GmbH profit distribution model**: dividend vs. salary optimization for owner-managers
+
+All tools will follow the same principles: local-first, zero-tracking, compliance-grade, free. The `fin-core` library — the typed domain model and XML generation logic — is being prepared for extraction as a standalone open-source npm package. If you're building financial tooling for the DACH market, you shouldn't have to implement EN 16931 URN constants from scratch.
+
+---
+
+**The tool is live.** If you're a DACH founder who needs to issue a compliant XRechnung today, [open the generator](/tools/xrechnung) — no account, no subscription, no data leaving your browser.
+
+If you're an engineer building in this space, the source is readable and the domain model is clean. The standard is more approachable than its 200-page PDF suggests.
+
+---
+
+## References
+
+- [XRechnung 3.0 — KoSIT (xeinkauf.de)](https://xeinkauf.de/xrechnung/) — official standard documentation, validator, and test suite
+- [EN 16931-1:2017 — European Committee for Standardization](https://www.xeinkauf.de/xrechnung/versionshistorie/) — the Core Invoice Usage Specification underlying XRechnung
+- [§14 UStG — Ausstellung von Rechnungen (gesetze-im-internet.de)](https://www.gesetze-im-internet.de/ustg_1980/__14.html) — mandatory invoice content requirements under German VAT law
+- [KoSIT Validator v1.6.2 — GitHub](https://github.com/itplr-kosit/validator) — the official Java-based validation engine used as CI gate in this project
