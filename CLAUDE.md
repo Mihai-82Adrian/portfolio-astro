@@ -104,23 +104,82 @@ Interactive finance tools built as Svelte 5 islands (`src/components/tools/`). I
 
 ## Skills (Custom Slash Commands)
 
-Skills live in `.agent/skills/<name>/SKILL.md` and are exposed as slash commands via `.claude/commands/`.
+Skills live in `.claude/skills/<name>/SKILL.md` and are invoked via the `Skill` tool.
 
 | Command | When to Use |
 |---|---|
 | `/brainstorming` | Before any new feature or creative work |
 | `/design-system-guardian` | Before committing UI changes |
-| `/web-design-guidelines` | Astro 5/Tailwind v4/React 19/Cloudflare best practices |
+| `/web-design-guidelines` | Astro 5/Tailwind v4/Svelte 5/Cloudflare best practices |
 | `/a11y-auditor` | After building UI components |
 | `/frontend-design` | Generating new polished UI |
 | `/ui-component-generator` | Scaffolding Astro or Svelte 5 components |
 | `/content-architect` | Writing or auditing blog content |
 | `/seo-auditor` | Checking meta tags, OpenGraph, sitemap |
 | `/performance-architect` | Pre-merge Lighthouse optimization |
-| `/security-baseline` | Backend/API security review |
+| `/security-baseline` | Security scan (secrets, eval, npm audit) |
 | `/pr-reviewer` | Pre-merge code review |
 | `/git-commit-architect` | Generating Conventional Commit messages |
 | `/deep-research` | Source-verified research before writing articles |
+
+### Skills with `disable-model-invocation: true`
+
+The following skills **cannot** be invoked via the `Skill` tool — calling `Skill(name)` will throw an error. Instead, read the SKILL.md directly with `Read` and apply its methodology in the current session:
+
+| Skill | Correct Approach |
+|---|---|
+| `git-commit-architect` | `Read .claude/skills/git-commit-architect/SKILL.md` → apply commit message rules manually |
+| `brainstorming` | `Read .claude/skills/brainstorming/SKILL.md` → run the brainstorming phases in-context |
+| `pr-reviewer` | `Read .claude/skills/pr-reviewer/SKILL.md` → run `git diff`, checks, and produce report |
+| `security-baseline` | `Read .claude/skills/security-baseline/SKILL.md` → run bash commands directly |
+| `format-lint` | `Read .claude/skills/format-lint/SKILL.md` → run lint commands directly |
+
+These skills have side effects (git operations, bash commands, file writes) that must run in the current session context, not in an isolated subagent.
+
+## Git Workflow
+
+This repo deploys to **Cloudflare Pages** automatically on every push to `master`. A local guardrail blocks direct `git push origin master`. **Never bypass it for routine changes.**
+
+### Standard Flow (all features, content, fixes)
+
+```
+1. Work on master locally (commits are fine locally)
+2. git checkout -b feature/<short-description>
+3. git push -u origin feature/<short-description>
+4. gh pr create --base master          # opens PR, triggers CI
+5. Wait for all GitHub Actions to pass
+6. Merge PR on GitHub → Cloudflare auto-deploys
+```
+
+### Pre-commit Checklist for Blog Content
+
+Run these locally before committing — they mirror the CI Quality Gates workflow exactly:
+
+```bash
+npm run lint:content -- --strict     # requireOutlineFirst + requireCitations + bannedWords
+npm run lint:design-system:strict    # no hex values, no magic spacing
+npm run check                        # TypeScript + Astro type errors
+npm run build                        # full production build + pagefind index
+```
+
+All 4 must pass with 0 errors before committing. The CI will run the same checks on the PR.
+
+### Common CI Failures and Fixes
+
+| CI Error | Cause | Fix |
+|---|---|---|
+| `requireOutlineFirst` | Missing `## In this Article` section in blog post | Add TOC heading after frontmatter import |
+| `requireCitations` | No external `http://` links in content > 2000 chars | Add `## References` section with authoritative sources |
+| `bannedWords` | Words: `delve`, `leverage`, `utilize`, `synergy`, `tapestry`, `paradigm shift` | Replace with direct language |
+| `frontmatterRequiredFields` | Missing `title`, `description`, `pubDate`, `tags`, or `lang` | Add missing frontmatter field |
+
+### Override (hotfixes only)
+
+```bash
+ALLOW_PROD_PUSH=1 git push origin master:master
+```
+
+Only for critical hotfixes where a PR cycle is not feasible. Requires explicit confirmation.
 
 ## Key Constraints
 
