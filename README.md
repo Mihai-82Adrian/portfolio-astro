@@ -1,133 +1,137 @@
-# Portfolio Astro - Mihai Adrian Mateescu
+# me-mateescu.de — Portfolio & Fin-Tools Hub
 
-Professional portfolio website built with Astro, featuring blog, projects showcase, and AI/ML content.
+Personal portfolio and open-source finance tooling for DACH founders, built with Astro 5, Tailwind CSS v4, and Svelte 5.
 
-## 🎨 Design System
-
-- **Color Palette**: Warm Eucalyptus theme with sophisticated green/teal tones
-- **Typography**: Geist/Inter for modern professional look
-- **Dark Mode**: Full support with theme toggle
-- **Accessibility**: WCAG 2.2 AAA compliance target
-
-## 🚀 Tech Stack
-
-- **Framework**: Astro 5.x
-- **Styling**: Tailwind CSS 4.x
-- **Content**: Markdown with Shiki syntax highlighting
-- **Deployment**: Cloudflare Pages (planned)
-- **Comments**: Giscus (GitHub Discussions)
-
-## 📦 Setup
-
-```bash
-# Install dependencies
-npm install
-
-# Development
-npm run dev
-
-# Build
-npm run build
-
-# Preview production build
-npm run preview
-```
-
-## 🔧 GitHub Discussions Setup (Required for Comments)
-
-**IMPORTANT**: To enable blog comments with Giscus, you need to:
-
-1. Go to repository **Settings** → **General**
-2. Scroll down to **Features** section
-3. Check ✅ **Discussions**
-4. Click **Set up discussions**
-5. Use the default welcome post or customize it
-
-Once enabled, get your Giscus configuration at: https://giscus.app
-
-You'll need:
-- Repository: `Mihai-82Adrian/portfolio-astro`
-- Mapping: `pathname` (recommended)
-- Theme: Match your site's theme (light/dark)
-
-## 📝 Content Structure
-
-```text
-src/
-├── content/
-│   ├── blog/           # Blog posts (Markdown)
-│   └── projects/       # Project showcases
-├── pages/
-│   ├── blog/          # Blog pages (DE main)
-│   ├── projects/      # Projects pages (DE main)
-│   ├── en/            # English translations
-│   └── ro/            # Romanian translations
-├── components/
-│   ├── blog/          # Blog-specific components
-│   ├── layout/        # Layout components
-│   ├── projects/      # Project components
-│   └── ui/            # UI components
-└── styles/            # Global styles
-```
-
-## 🌍 Multilingual Strategy
-
-- **Primary**: German (DE) at `/`
-- **English**: `/en/` for translated pages
-- **Romanian**: `/ro/` for translated pages
-- **Note**: Blog and Projects are English-only content
-  - `/en/blog/*` and `/ro/blog/*` redirect to `/blog/*`
-  - `/en/projects/*` and `/ro/projects/*` redirect to `/projects/*`
-
-## 📊 Features Implemented
-
-- ✅ Responsive design with mobile-first approach
-- ✅ Blog system with Shiki syntax highlighting (Rust, Julia, Python, TypeScript, etc.)
-- ✅ Project portfolio with GitHub integration widget
-- ✅ Interactive career timeline (13 positions, 2003-2024)
-- ✅ Skills matrix visualization
-- ✅ Reading time estimates
-- ✅ Related posts algorithm (category + tags + recency scoring)
-- ✅ Social sharing buttons (Twitter, LinkedIn, Email, Copy, Web Share API)
-- ✅ Dark/light mode with system preference detection
-- ✅ Multi-language consolidation with 301 redirects
-- 🔄 Comments system with Giscus (in progress)
-- 🔄 Newsletter integration (planned)
-- 🔄 Table of contents with scroll-spy (planned)
-- 🔄 Math equations with KaTeX (planned)
-
-## 🎯 Roadmap Progress
-
-Based on the Portfolio Refactor Research document:
-
-- ✅ **Phase 1**: Foundation (Weeks 1-2) - Complete
-- ✅ **Phase 2**: Core Pages (Weeks 3-4) - Complete
-- 🔄 **Phase 3**: Blog & Content (Weeks 5-6) - 70% Complete
-  - ✅ Blog system, syntax highlighting, reading time
-  - ✅ Related posts, social sharing
-  - 🔄 Comments system (current task)
-  - ⏳ Newsletter, Table of contents, Math equations
-- ⏳ **Phase 4**: Polish & Optimization (Weeks 7-8)
-- ⏳ **Phase 5**: Deployment & Launch (Week 9)
-
-## 🔗 Links
-
-- **Website**: https://me-mateescu.de
-- **LinkedIn**: [Mihai Adrian Mateescu](https://linkedin.com/in/mihai-adrian-mateescu)
-- **GitHub**: [@Mihai-82Adrian](https://github.com/Mihai-82Adrian)
-- **Email**: mihai.mateescu82@gmail.com
-
-## 📄 License
-
-Copyright © 2025 Mihai Adrian Mateescu. All rights reserved.
-
-## 🚀 Performance Targets
-
-- Lighthouse Score: 95+ (all categories)
-- Load Time: < 2 seconds
-- First Contentful Paint: < 1 second
-- Accessibility: WCAG 2.2 AAA compliance
+**Live:** [me-mateescu.de](https://me-mateescu.de)
 
 ---
 
-**Built with ❤️ using Astro**
+## What's inside
+
+### Portfolio
+Trilingual portfolio (DE/EN/RO) with blog, project showcases, career timeline, and an AI-powered chat assistant backed by Cloudflare Workers AI.
+
+### Fin-Tools Hub [`/tools`](https://me-mateescu.de/tools)
+Local-first finance tools for DACH founders and freelancers. No accounts, no server-side storage, no tracking.
+
+| Tool | Status | Description |
+|---|---|---|
+| **XRechnung Generator** | ✅ Live | EN 16931 + KoSIT v3.0 compliant e-invoicing. UBL 2.1 + CII XML, DIN 5008 PDF export |
+| SEPA XML Generator | 🔄 Planned | pain-compliant batch payment files |
+| EU VAT Calculator | 🔄 Planned | Cross-border B2C VAT for OSS registration |
+| Kleinunternehmer Tracker | 🔄 Planned | §19 UStG threshold monitoring |
+| GmbH Distribution Model | 🔄 Planned | Dividend vs. salary optimization |
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Astro 5.x (static output) |
+| Styling | Tailwind CSS 4.x (CSS-native config, `@theme {}`) |
+| Islands | Svelte 5 (Runes API) with `client:load` / `client:visible` |
+| Content | MDX + `remark-math` / `rehype-katex` for math equations |
+| Search | Pagefind (client-side full-text, built post-`astro build`) |
+| AI Chat | Cloudflare Workers AI via `@cf/meta/llama-3.1-8b-instruct` |
+| Deployment | Cloudflare Pages via GitHub Actions |
+| Icons | Lucide (`@lucide/astro`, `lucide-svelte`) |
+
+---
+
+## Getting Started
+
+```bash
+npm install
+npm run dev          # dev server at localhost:4321
+npm run build        # production build + pagefind index
+npm run preview      # preview production build locally
+```
+
+### XRechnung / AI Chat local dev
+
+```bash
+# AI chat requires a prior build + Wrangler
+npm run dev:copilot  # build + wrangler pages dev
+
+# XRechnung KoSIT validation (requires Java)
+npm run kosit:setup && npm run kosit:validate
+```
+
+---
+
+## Quality & CI
+
+Every pull request runs:
+
+```bash
+npm run lint:design-system:strict  # Eucalyptus token compliance
+npm run lint:content -- --strict   # editorial standards (BLUF, citations, banned words)
+npm run check                      # TypeScript + Astro type errors
+npm run build                      # full production build
+```
+
+Lighthouse scores (production): **100 / 100 / 100 / 100**
+
+---
+
+## Architecture Highlights
+
+### Multilingual
+- **DE** at `/` (primary), **EN** at `/en/`, **RO** at `/ro/`
+- Blog and Projects are English-only — `/en/blog/*` → 301 → `/blog/*`
+- hreflang generation via `src/utils/i18n.ts`
+
+### Design System
+- Brand: Eucalyptus green (`eucalyptus-500` = `#6B8E6F`)
+- Tokens in `src/data/design-tokens.json` — no raw hex values in components
+- Dark mode: class-based via `src/utils/theme.ts`
+- WCAG 2.2 AAA compliance target (7:1 contrast minimum)
+
+### XRechnung — Local-First Architecture
+- All processing in-browser: XML generation, PDF rendering, validation
+- Zero server-side storage — only seller defaults in `localStorage`
+- Profiles: XRechnung 3.0 (KoSIT CIUS URN) and EN 16931 Basic (Core URN)
+- Syntaxes: UBL 2.1 and UN/CEFACT CII
+- Tax regimes: Standard (19%), Kleinunternehmer (§19 UStG), Reverse Charge (§13b UStG)
+- PDF: pdfmake lazy-loaded on demand (~2.5MB, not in initial bundle)
+
+---
+
+## Project Structure
+
+```
+src/
+├── content/blog/        # MDX blog posts (English only)
+├── data/                # experience.ts, translations.ts, design-tokens.json
+├── layouts/             # BaseLayout.astro (meta, hreflang, ChatDrawer)
+├── pages/               # DE / EN / RO pages + blog + projects + tools
+├── components/
+│   ├── layout/          # Header, Navigation, Footer
+│   ├── sections/        # Hero, Timeline, SkillsMatrix, BentoGrid
+│   ├── blog/            # PostCard, TableOfContents, ShareButtons
+│   ├── tools/           # XRechnungApp.svelte + fin-core lib
+│   ├── ui/              # Button, Card, Badge, Modal, ThemeToggle
+│   └── mdx/             # Callout, CodeBlock, Image (with caption)
+├── lib/fin-core/        # EN 16931 domain model: types.ts, xrechnung.ts, validate.ts
+└── styles/
+    ├── global.css       # Tailwind + CSS custom properties (light/dark)
+    └── tools-hub.css    # FinTools-specific styles
+```
+
+---
+
+## Links
+
+- **Website:** [me-mateescu.de](https://me-mateescu.de)
+- **Blog:** [me-mateescu.de/blog](https://me-mateescu.de/blog)
+- **XRechnung Tool:** [me-mateescu.de/tools/xrechnung](https://me-mateescu.de/tools/xrechnung)
+- **LinkedIn:** [Mihai Adrian Mateescu](https://linkedin.com/in/mihai-adrian-mateescu)
+
+---
+
+## License
+
+Copyright © 2026 Mihai Adrian Mateescu. All rights reserved.
+
+The `fin-core` library (`src/lib/fin-core/`) is intended for future extraction as a standalone open-source npm package for DACH financial tooling.
