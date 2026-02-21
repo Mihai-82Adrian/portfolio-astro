@@ -132,6 +132,6 @@ src/
 
 ## License
 
-Copyright © 2026 Mihai Adrian Mateescu. All rights reserved.
+MIT License — Copyright © 2026 Mihai Adrian Mateescu.
 
-The `fin-core` library (`src/lib/fin-core/`) is intended for future extraction as a standalone open-source npm package for DACH financial tooling.
+See [LICENSE](./LICENSE) for the full text. Contributions and forks welcome.
