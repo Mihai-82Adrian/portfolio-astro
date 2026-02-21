@@ -39,3 +39,35 @@ tests/invoice_*_xrechnung_*.xml
 # Claude Code Configuration (local tooling — never public)
 .claude/
 CLAUDE.md
+
+# AI agent tooling — never public
+.agent/
+
+# Internal planning, audit logs, and design documents
+docs/archive/
+docs/plans/
+docs/research/
+docs/PROJECT-AUDIT-*.md
+docs/planificare.md
+docs/chat.md
+docs/corpus-vlm-ingestion.md
+
+# Redundant plain-text copies of corpus/facts (use .jsonl/.json directly)
+public/corpus-jsonl.txt
+public/facts-json.txt
+
+# Generated test output (XRechnung invoice files from test runs)
+tests/xrechnung/results/
+
+# Dead platform configs (project runs on Cloudflare Pages)
+netlify.toml
+public/vercel.json
+public/nginx-redirects.conf
+
+# Internal editorial artifacts (not linked from blog)
+public/assets/blog/julia-performance/editorial-report.md
+public/assets/blog/julia-performance/implementation-guide.md
+
+# VS Code personal settings (extensions.json is fine to share)
+.vscode/settings.json
+.vscode/launch.json
