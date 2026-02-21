@@ -10,6 +10,11 @@ featured: true
 lang: 'en'
 ---
 
+## In this Article
+
+- [Introduction](#introduction)
+
+
 ## Executive Summary
 
 Julia's design philosophy positions the language to achieve performance competitive with compiled languages while maintaining the expressiveness of dynamic languages. Contemporary reports and benchmark studies indicate that well-written Julia code can approach C-like execution speeds, but this outcome depends critically on understanding and applying several foundational principles. This guide explores the conceptual underpinnings of Julia's performance model—type stability, multiple dispatch, memory allocation discipline, and benchmarking rigor—with reproducible examples and reproducibility guidance for practitioners and researchers.

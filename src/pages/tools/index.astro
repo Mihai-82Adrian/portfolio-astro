@@ -1,0 +1,167 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import '@/styles/tools-hub.css';
+import {
+  ArrowRight,
+  BarChart3,
+  Calculator,
+  Coins,
+  FileCode2,
+  FlaskConical,
+} from '@lucide/astro';
+import { generateBreadcrumbSchema } from '@utils/structuredData';
+
+const title = 'Fin-Tools Hub (Open Source) | Mihai Adrian Mateescu';
+const description =
+  'A practical finance lab for founders & freelancers in DACH.';
+
+const breadcrumbSchema = generateBreadcrumbSchema([
+  { name: 'Home', url: 'https://me-mateescu.de/' },
+  { name: 'Tools', url: 'https://me-mateescu.de/tools' },
+]);
+
+const tiles = [
+  {
+    title: 'E-Rechnung (XRechnung XML) Generator',
+    badge: 'Live',
+    description:
+      'Erstellen Sie standardkonforme XRechnung-XML (EN 16931) direkt im Browser. Keine serverseitige Speicherung.',
+    href: '/tools/xrechnung',
+    icon: FileCode2,
+    live: true,
+  },
+  {
+    title: 'Startup Runway & Burn Rate',
+    badge: 'Coming Soon',
+    description:
+      'Runway-Prognosen, Burn-Rate-Analysen und Cashflow-Szenarien für DACH-Startups.',
+    icon: BarChart3,
+    live: false,
+  },
+  {
+    title: 'Cashflow & Forecasting',
+    badge: 'Coming Soon',
+    description:
+      'Cashflow-Modelle, Plan-Ist-Vergleiche und Forecast-Snapshots für kleine Teams.',
+    icon: Calculator,
+    live: false,
+  },
+  {
+    title: 'Investment Analytics',
+    badge: 'Coming Soon',
+    description:
+      'Rendite-/Risiko-Metriken, Szenario-Analysen und statistische Auswertungen.',
+    icon: Coins,
+    live: false,
+  },
+  {
+    title: 'Salary Tax Mini',
+    badge: 'Coming Soon',
+    description:
+      'Schnelle Netto/Brutto-Simulationen für Deutschland mit transparenten Annahmen.',
+    icon: Calculator,
+    live: false,
+  },
+  {
+    title: 'eRechnung Validator',
+    badge: 'Coming Soon',
+    description:
+      'Schema- und Business-Rule-Checks für eingehende XRechnung/XML-Dateien.',
+    icon: FlaskConical,
+    live: false,
+  },
+];
+---
+
+<BaseLayout title={title} description={description} lang="de" structuredData={breadcrumbSchema}>
+  <main class="tools-hub pb-20">
+    <section class="mx-auto w-full max-w-6xl px-4 pt-20 md:px-6 md:pt-24">
+      <div class="mx-auto max-w-3xl text-center">
+        <p class="mb-4 inline-flex items-center rounded-full border border-black/10 bg-[var(--bg-elevated)] px-4 py-1.5 text-xs font-semibold tracking-wide text-eucalyptus-700 dark:border-white/15 dark:text-eucalyptus-300">
+          Fin-Tools Hub
+        </p>
+        <h1 class="text-balance text-4xl font-bold leading-tight text-text-primary-light dark:text-text-primary-dark sm:text-5xl">
+          Fin-Tools Hub (Open Source)
+        </h1>
+        <p class="mt-4 text-pretty text-base text-text-secondary-light dark:text-text-secondary-dark sm:text-lg">
+          A practical finance lab for founders & freelancers in DACH.
+        </p>
+      </div>
+    </section>
+
+    <section class="mx-auto mt-12 w-full max-w-6xl px-4 md:px-6">
+      <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {tiles.map((tile) => {
+          const Icon = tile.icon;
+          const isLive = tile.live;
+          return (
+            <article
+              class:list={[
+                'tool-card rounded-2xl border bg-[var(--bg-elevated)] p-6',
+                isLive
+                  ? 'tool-card--live border-eucalyptus-500/30 transition-transform duration-300 hover:-translate-y-1 hover:border-eucalyptus-400/60'
+                  : 'border-black/10 dark:border-white/10 opacity-75 cursor-not-allowed',
+              ]}
+              aria-disabled={!isLive}
+            >
+              <div class="flex items-start justify-between gap-3">
+                <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-black/10 bg-eucalyptus-100 text-eucalyptus-700 dark:border-white/10 dark:bg-eucalyptus-900/35 dark:text-eucalyptus-300">
+                  <Icon class="h-5 w-5" aria-hidden="true" />
+                </span>
+                <span
+                  class:list={[
+                    'inline-flex rounded-full px-2.5 py-1 text-xs font-semibold',
+                    isLive
+                      ? 'border border-eucalyptus-500/40 bg-eucalyptus-500/15 text-eucalyptus-300'
+                      : 'border border-black/10 bg-black/5 text-text-muted-light dark:border-white/10 dark:bg-white/5 dark:text-text-muted-dark',
+                  ]}
+                >
+                  {tile.badge}
+                </span>
+              </div>
+
+              <h2 class="mt-4 text-balance text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">
+                {tile.title}
+              </h2>
+              <p class="mt-3 text-pretty text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                {tile.description}
+              </p>
+
+              <div class="mt-6">
+                {isLive ? (
+                  <a
+                    href={tile.href}
+                    class="inline-flex items-center gap-2 rounded-lg border border-eucalyptus-500/40 bg-eucalyptus-500/15 px-4 py-2 text-sm font-semibold text-eucalyptus-200 transition-colors duration-200 hover:border-eucalyptus-300 hover:bg-eucalyptus-500/25"
+                  >
+                    Open Tool
+                    <ArrowRight class="h-4 w-4" aria-hidden="true" />
+                  </a>
+                ) : (
+                  <span class="inline-flex items-center rounded-lg border border-black/10 px-4 py-2 text-sm font-medium text-text-muted-light dark:border-white/10 dark:text-text-muted-dark">
+                    Not available yet
+                  </span>
+                )}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+
+    <section class="mx-auto mt-10 w-full max-w-6xl px-4 md:px-6">
+      <article class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-6 dark:border-white/10">
+        <h2 class="text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">
+          Built in public
+        </h2>
+        <p class="mt-3 text-pretty text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+          These utilities are open-source and privacy-first. I design the product and architecture, then collaborate with professional AI coding assistants to iterate faster, without compromising on performance or code quality.
+        </p>
+        <ul class="mt-4 space-y-2 text-sm text-text-secondary-light dark:text-text-secondary-dark">
+          <li>Open source: practical tools for founders & freelancers</li>
+          <li>Local-first: no server-side storage by default</li>
+          <li>Human-led, AI-accelerated engineering</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+</BaseLayout>

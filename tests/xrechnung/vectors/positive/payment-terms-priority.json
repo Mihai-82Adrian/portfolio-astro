@@ -1,0 +1,53 @@
+{
+  "id": "payment-terms-priority",
+  "invoice": {
+    "profileId": "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0",
+    "invoiceNumber": "INV-2026-PT-004",
+    "issueDate": "2026-02-18",
+    "paymentTerms": "Zahlbar innerhalb 21 Tagen netto, Skonto 2% bei Zahlung innerhalb 7 Tagen.",
+    "currency": "EUR",
+    "seller": {
+      "name": "MAM Finance Ops GmbH",
+      "vatId": "DE123456789",
+      "email": "billing@mam-finops.de",
+      "address": {
+        "street": "Musterstrasse 12",
+        "city": "Hamburg",
+        "postalCode": "20095",
+        "countryCode": "DE"
+      },
+      "endpointScheme": "EM",
+      "endpointId": "billing@mam-finops.de",
+      "phone": "+49 40 1234567"
+    },
+    "buyer": {
+      "name": "Data Forge AG",
+      "vatId": "DE101010101",
+      "address": {
+        "street": "Tech Park 8",
+        "city": "Frankfurt",
+        "postalCode": "60313",
+        "countryCode": "DE"
+      },
+      "endpointScheme": "EM",
+      "endpointId": "DE101010101"
+    },
+    "notes": "No explicit due date, payment terms must satisfy BR-CO-25.",
+    "lineItems": [
+      {
+        "id": "1",
+        "description": "CFO Dashboard Setup",
+        "quantity": 1,
+        "unitCode": "H87",
+        "unitPrice": 1450,
+        "taxRate": 19
+      }
+    ],
+    "paymentMeansCode": "58",
+    "payeeIban": "DE89370400440532013000",
+    "payeeBic": "COBADEFFXXX",
+    "payeeAccountName": "MAM Finance Ops GmbH",
+    "buyerReference": "REF-INV-2026-PT-004",
+    "serviceDate": "2026-02-18"
+  }
+}

@@ -7,6 +7,8 @@ import tailwindcss from '@tailwindcss/vite';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
+import svelte from '@astrojs/svelte';
+
 // Shared Markdown pipeline (MDX will extend this by default)
 const remarkPlugins = [remarkMath];
 /** @type {NonNullable<import('astro').AstroUserConfig['markdown']>['rehypePlugins']} */
@@ -42,7 +44,6 @@ export default defineConfig({
   integrations: [
     // MDX inherits the `markdown` config (remark/rehype, gfm, etc.) by default
     mdx(),
-
     sitemap({
       i18n: {
         defaultLocale: 'de',
@@ -113,6 +114,7 @@ export default defineConfig({
         return item;
       },
     }),
+    svelte(),
   ],
 
   markdown: {

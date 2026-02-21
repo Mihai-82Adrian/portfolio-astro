@@ -17,6 +17,11 @@ lang: 'en'
 
 ---
 
+## In this Article
+
+- [Introduction](#introduction)
+
+
 ## Introduction: Research Framing
 
 This article documents technical exploration and evaluation rather than claims of production mastery. The following represents findings from researching and building a personal portfolio site—a learning exercise that examined multiple frameworks, styling approaches, and type-safety strategies available in 2024–2025.

@@ -1,0 +1,60 @@
+{
+  "id": "zero-plus-standard-vat",
+  "invoice": {
+    "profileId": "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0",
+    "invoiceNumber": "INV-2026-VAT-002",
+    "issueDate": "2026-02-18",
+    "dueDate": "2026-03-10",
+    "currency": "EUR",
+    "seller": {
+      "name": "MAM Finance Ops GmbH",
+      "vatId": "DE123456789",
+      "email": "billing@mam-finops.de",
+      "address": {
+        "street": "Musterstrasse 12",
+        "city": "Hamburg",
+        "postalCode": "20095",
+        "countryCode": "DE"
+      },
+      "endpointScheme": "EM",
+      "endpointId": "billing@mam-finops.de",
+      "phone": "+49 40 1234567"
+    },
+    "buyer": {
+      "name": "Freelance Studio KG",
+      "address": {
+        "street": "Altstadt 99",
+        "city": "Munich",
+        "postalCode": "80331",
+        "countryCode": "DE"
+      },
+      "endpointScheme": "EM",
+      "endpointId": "freelance-studio-kg@example.de"
+    },
+    "notes": "Combination of domestic and VAT-exempt line items.",
+    "lineItems": [
+      {
+        "id": "1",
+        "description": "Domestic Consulting",
+        "quantity": 2,
+        "unitCode": "H87",
+        "unitPrice": 250,
+        "taxRate": 19
+      },
+      {
+        "id": "2",
+        "description": "Cross-border preparation",
+        "quantity": 1,
+        "unitCode": "H87",
+        "unitPrice": 390,
+        "taxRate": 0
+      }
+    ],
+    "paymentMeansCode": "58",
+    "payeeIban": "DE89370400440532013000",
+    "payeeBic": "COBADEFFXXX",
+    "payeeAccountName": "MAM Finance Ops GmbH",
+    "buyerReference": "REF-INV-2026-VAT-002",
+    "serviceDate": "2026-02-18"
+  }
+}
