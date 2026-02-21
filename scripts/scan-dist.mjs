@@ -7,8 +7,8 @@ import { parseArgs } from 'node:util';
 import { parse } from 'node-html-parser';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = path.resolve(__dirname, '../../../../');
-const CONFIG_PATH = path.join(PROJECT_ROOT, '.agent/skills/a11y-auditor/resources/a11y.config.json');
+const PROJECT_ROOT = path.resolve(__dirname, '../');
+const CONFIG_PATH = path.join(__dirname, 'a11y.config.json');
 
 // Parse CLI Args
 const { values: args } = parseArgs({

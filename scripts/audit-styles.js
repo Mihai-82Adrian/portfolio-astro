@@ -10,9 +10,9 @@ const __dirname = path.dirname(__filename);
 // --- 1. CONFIGURATION & SETUP ---
 
 // Paths
-const ROOT_DIR = path.resolve(__dirname, '../../../../');
-const CONFIG_PATH = path.join(__dirname, '../resources/audit.config.json');
-const TOKENS_PATH = path.join(__dirname, '../resources/design-tokens.json');
+const ROOT_DIR = path.resolve(__dirname, '../');
+const CONFIG_PATH = path.join(__dirname, 'design-system.config.json');
+const TOKENS_PATH = path.join(__dirname, 'design-tokens.json');
 
 // Load Config
 let CONFIG;

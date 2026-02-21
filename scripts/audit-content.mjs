@@ -8,8 +8,8 @@ import { parseArgs } from 'node:util';
 
 // Resolve paths relative to project root
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = path.resolve(__dirname, '../../../../');
-const CONFIG_PATH = path.join(PROJECT_ROOT, '.agent/skills/content-architect/resources/content.config.json');
+const PROJECT_ROOT = path.resolve(__dirname, '../');
+const CONFIG_PATH = path.join(__dirname, 'content.config.json');
 
 // Parse CLI Args
 const { values: args } = parseArgs({
