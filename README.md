@@ -17,10 +17,11 @@ Local-first finance tools for DACH founders and freelancers. No accounts, no ser
 | Tool | Status | Description |
 |---|---|---|
 | **XRechnung Generator** | ✅ Live | EN 16931 + KoSIT v3.0 compliant e-invoicing. UBL 2.1 + CII XML, DIN 5008 PDF export |
-| SEPA XML Generator | 🔄 Planned | pain-compliant batch payment files |
-| EU VAT Calculator | 🔄 Planned | Cross-border B2C VAT for OSS registration |
-| Kleinunternehmer Tracker | 🔄 Planned | §19 UStG threshold monitoring |
-| GmbH Distribution Model | 🔄 Planned | Dividend vs. salary optimization |
+| **Startup Runway & Burn Rate** | ✅ Live | Headcount-driven burn, MRR compound growth, capital injections, Death Valley visualization |
+| **Brutto-Netto-Rechner 2026** | ✅ Live | Official BMF PAP 2026 wage tax, full AN+AG Sozialabgaben, Tax Wedge waterfall, GKV Kassenvergleich |
+| Cashflow & Forecasting | 🔄 Planned | Plan-Ist-Vergleiche, Forecast-Snapshots for small teams |
+| Investment Analytics | 🔄 Planned | Return/risk metrics, scenario analysis |
+| FinTech × KI PoC | 🔄 Planned | Experimental AI/ML at the intersection of FinTech |
 
 ---
 
@@ -48,7 +49,7 @@ npm run build        # production build + pagefind index
 npm run preview      # preview production build locally
 ```
 
-### XRechnung / AI Chat local dev
+### AI Chat & XRechnung local dev
 
 ```bash
 # AI chat requires a prior build + Wrangler
@@ -88,6 +89,26 @@ Lighthouse scores (production): **100 / 100 / 100 / 100**
 - Dark mode: class-based via `src/utils/theme.ts`
 - WCAG 2.2 AAA compliance target (7:1 contrast minimum)
 
+### ChatWidget / AI Copilot
+An AI chat assistant is embedded in every page via `ChatDrawer.astro`. It is backed by a Cloudflare Workers AI endpoint (`@cf/meta/llama-3.1-8b-instruct`) and uses a RAG knowledge base (`public/corpus.jsonl`) to answer questions about the portfolio, tools, and services. The drawer is toggled by a floating action button and is fully keyboard-accessible.
+
+Key files:
+- `src/components/ChatWidget.astro` — FAB + drawer shell
+- `src/components/ChatDrawer.astro` — chat UI (message list, input, streaming responses)
+- `public/corpus.jsonl` — RAG knowledge base (portfolio, tools, services — DE + EN)
+
+Test locally with `npm run dev:copilot` after a prior build.
+
+### Fin-Tools Hub — Local-First Architecture
+All tools run entirely in-browser as Svelte 5 islands. No server-side data processing, no accounts.
+
+- **fin-core lib** (`src/lib/fin-core/`) — pure TypeScript domain models, no UI dependencies
+  - `xrechnung.ts` — EN 16931 / XRechnung XML generation + KoSIT validation
+  - `runway.ts` — startup cash flow model (headcount burn, MRR compound growth, scenarios)
+  - `salary-tax.ts` + `bmf-engine-2026.generated.ts` — BMF PAP 2026 wage tax algorithm (22 methods, Eurocent precision)
+- **Islands** (`src/components/tools/`) — Svelte 5 Runes, `localStorage` persistence, reactive `$derived` calculations
+- **Shared UI primitives** (`src/components/tools/ui/`) — MoneyField, SelectField, Toggle, InfoTooltip
+
 ### XRechnung — Local-First Architecture
 - All processing in-browser: XML generation, PDF rendering, validation
 - Zero server-side storage — only seller defaults in `localStorage`
@@ -110,10 +131,14 @@ src/
 │   ├── layout/          # Header, Navigation, Footer
 │   ├── sections/        # Hero, Timeline, SkillsMatrix, BentoGrid
 │   ├── blog/            # PostCard, TableOfContents, ShareButtons
-│   ├── tools/           # XRechnungApp.svelte + fin-core lib
+│   ├── tools/
+│   │   ├── ui/          # MoneyField, SelectField, Toggle, InfoTooltip
+│   │   ├── xrechnung/   # XRechnungApp.svelte + subcomponents
+│   │   ├── runway/      # RunwayApp.svelte + chart, editors, methodology modal
+│   │   └── salary-tax/  # SalaryTaxApp.svelte + form, waterfall chart, breakdown cards
 │   ├── ui/              # Button, Card, Badge, Modal, ThemeToggle
 │   └── mdx/             # Callout, CodeBlock, Image (with caption)
-├── lib/fin-core/        # EN 16931 domain model: types.ts, xrechnung.ts, validate.ts
+├── lib/fin-core/        # Domain models: xrechnung.ts, runway.ts, salary-tax.ts, bmf-engine-2026.generated.ts
 └── styles/
     ├── global.css       # Tailwind + CSS custom properties (light/dark)
     └── tools-hub.css    # FinTools-specific styles
@@ -126,6 +151,8 @@ src/
 - **Website:** [me-mateescu.de](https://me-mateescu.de)
 - **Blog:** [me-mateescu.de/blog](https://me-mateescu.de/blog)
 - **XRechnung Tool:** [me-mateescu.de/tools/xrechnung](https://me-mateescu.de/tools/xrechnung)
+- **Startup Runway Tool:** [me-mateescu.de/tools/startup-runway](https://me-mateescu.de/tools/startup-runway)
+- **Brutto-Netto-Rechner:** [me-mateescu.de/tools/salary-tax](https://me-mateescu.de/tools/salary-tax)
 - **LinkedIn:** [Mihai Adrian Mateescu](https://linkedin.com/in/mihai-adrian-mateescu)
 
 ---
