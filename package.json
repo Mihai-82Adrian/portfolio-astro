@@ -28,6 +28,7 @@
     "kosit:setup": "node scripts/kosit-setup.mjs",
     "kosit:validate": "node scripts/kosit-validate.mjs",
     "verify:xrechnung:kosit": "node scripts/verify-xrechnung-kosit.mjs",
+    "gen:pap": "npx tsx scripts/parse-bmf-pap.ts",
     "verify:xrechnung:results": "node scripts/verify-xrechnung-results.mjs"
   },
   "dependencies": {
