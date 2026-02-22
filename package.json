@@ -37,8 +37,10 @@
     "@astrojs/svelte": "^7.2.5",
     "@lucide/astro": "^0.575.0",
     "astro": "^5.17.3",
+    "chart.js": "^4.5.1",
     "katex": "^0.16.25",
     "lodash": "^4.17.23",
+    "lucide-svelte": "^0.575.0",
     "pdfmake": "^0.3.4",
     "svelte": "^5.53.1"
   },

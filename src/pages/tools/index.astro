@@ -7,7 +7,7 @@ import {
   Calculator,
   Coins,
   FileCode2,
-  FlaskConical,
+  Sparkles,
 } from '@lucide/astro';
 import { generateBreadcrumbSchema } from '@utils/structuredData';
 
@@ -32,11 +32,12 @@ const tiles = [
   },
   {
     title: 'Startup Runway & Burn Rate',
-    badge: 'Demnächst',
+    badge: 'Live',
     description:
-      'Runway-Prognosen, Burn-Rate-Analysen und Cashflow-Szenarien für DACH-Startups.',
+      'Headcount-gesteuerter Burn, MRR-Wachstum, Kapitalinjektionen und Death-Valley-Visualisierung — lokal im Browser.',
+    href: '/tools/startup-runway',
     icon: BarChart3,
-    live: false,
+    live: true,
   },
   {
     title: 'Cashflow & Forecasting',
@@ -63,11 +64,11 @@ const tiles = [
     live: false,
   },
   {
-    title: 'eRechnung Validator',
+    title: 'FinTech × KI — Proof of Concept',
     badge: 'Demnächst',
     description:
-      'Schema- und Business-Rule-Checks für eingehende XRechnung/XML-Dateien.',
-    icon: FlaskConical,
+      'Ein experimentelles Tool an der Schnittstelle von Finanztechnologie und KI/ML. Details folgen.',
+    icon: Sparkles,
     live: false,
   },
 ];
@@ -100,7 +101,7 @@ const tiles = [
           return (
             <article
               class:list={[
-                'tool-card rounded-2xl border bg-[var(--bg-elevated)] p-6',
+                'tool-card flex flex-col rounded-2xl border bg-[var(--bg-elevated)] p-6',
                 isLive
                   ? 'tool-card--live border-eucalyptus-500/30 transition-transform duration-300 hover:-translate-y-1 hover:border-eucalyptus-400/60'
                   : 'border-black/10 dark:border-white/10 opacity-75 cursor-not-allowed',
@@ -130,7 +131,7 @@ const tiles = [
                 {tile.description}
               </p>
 
-              <div class="mt-6">
+              <div class="mt-auto pt-6">
                 {isLive ? (
                   <a
                     href={tile.href}
