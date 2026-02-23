@@ -20,6 +20,11 @@ const typeLabelMap: Record<MediaItem['type'], string> = {
 const typeLabel = typeLabelMap[item.type];
 const isPromoShorts = item.tags.includes('promo-shorts');
 const layout = isPromoShorts ? 'portrait' : 'landscape';
+const platformType = item.type.startsWith('youtube')
+  ? 'youtube'
+  : item.type.startsWith('spotify')
+    ? 'spotify'
+    : 'other';
 const slot = isPromoShorts
   ? 'promo-shorts'
   : item.type.startsWith('spotify') && item.featured
@@ -38,7 +43,13 @@ const slot = isPromoShorts
   data-layout={layout}
   data-slot={slot}
 >
-  <MediaEmbed embedUrl={item.embedUrl} title={displayTitle} orientation={layout} />
+  <MediaEmbed
+    embedUrl={item.embedUrl}
+    title={displayTitle}
+    orientation={layout}
+    type={platformType}
+    poster={item.poster}
+  />
   <header class="space-y-1">
     <div class="flex items-center gap-2 text-xs">
       <span class="rounded-full bg-eucalyptus-100 px-2 py-1 font-medium text-eucalyptus-800 dark:bg-eucalyptus-900 dark:text-eucalyptus-200">{typeLabel}</span>

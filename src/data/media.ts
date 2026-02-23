@@ -16,6 +16,7 @@ export interface MediaItem {
   description?: string;
   url: string;
   embedUrl: string;
+  poster?: string;
   tags: string[];
   featured: boolean;
   date?: string;
@@ -39,6 +40,7 @@ const mediaItems: MediaItem[] = [
     url: 'https://open.spotify.com/artist/5E7D3GVsqcPDaWSyxCQHFg',
     embedUrl:
       'https://open.spotify.com/embed/artist/5E7D3GVsqcPDaWSyxCQHFg?utm_source=generator&theme=0',
+    poster: '/images/spotify.webp',
     tags: ['spotify', 'featured'],
     featured: true,
     date: '2026-02-14',
@@ -57,6 +59,7 @@ const mediaItems: MediaItem[] = [
     url: 'https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ',
     embedUrl:
       'https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCadgRdKQ?utm_source=generator&theme=0',
+    poster: '/images/spotify.webp',
     tags: ['spotify', 'deep-work'],
     featured: false,
     date: '2026-02-14',
@@ -74,6 +77,7 @@ const mediaItems: MediaItem[] = [
     description: 'Unlisted playlist used for deep-work sessions.',
     url: `https://www.youtube.com/playlist?list=${MINDHAFEN_YOUTUBE_PLAYLIST_ID}`,
     embedUrl: `https://www.youtube.com/embed/videoseries?list=${MINDHAFEN_YOUTUBE_PLAYLIST_ID}`,
+    poster: '/images/yt-long.webp',
     tags: ['youtube', 'deep-work', 'featured'],
     featured: true,
     date: '2026-02-14',
@@ -91,6 +95,7 @@ const mediaItems: MediaItem[] = [
     description: 'Unlisted playlist for promo Shorts and teaser clips.',
     url: `https://www.youtube.com/playlist?list=${MINDHAFEN_PROMO_CLIPS_PLAYLIST_ID}&pp=sAgC`,
     embedUrl: `https://www.youtube.com/embed/videoseries?list=${MINDHAFEN_PROMO_CLIPS_PLAYLIST_ID}`,
+    poster: '/images/yt-shorts.webp',
     tags: ['youtube', 'promo-shorts'],
     featured: true,
     date: '2026-02-14',
