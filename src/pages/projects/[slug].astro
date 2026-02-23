@@ -19,6 +19,13 @@ export async function getStaticPaths() {
 const { project } = Astro.props;
 const { projects } = projectsData;
 
+// Build SEO meta description from the full project description (120–155 chars).
+// project.tagline is only 37–59 chars and triggers "Short" in crawlers.
+const _d = project.description;
+const seoDescription = _d.length <= 155
+  ? _d
+  : _d.slice(0, _d.lastIndexOf(' ', 155)) + '…';
+
 // Get related projects (other projects in same category)
 const relatedProjects = projects
   .filter(p => p.id !== project.id && p.category === project.category)
@@ -32,7 +39,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
 
 <BaseLayout 
   title={`${project.title} - Projects`}
-  description={project.tagline}
+  description={seoDescription}
   lang="en"
   ogImage={project.heroImage}
 >

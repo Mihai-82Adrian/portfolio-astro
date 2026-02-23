@@ -1,6 +1,6 @@
 ---
 title: "Bridging Finance and AI: A Rigorous Approach to Machine Learning in German Accounting"
-description: "An in-depth exploration of applying modern ML techniques to German accounting workflows—covering document AI, anomaly detection, forecasting, and GoBD compliance with reproducible examples and audit-ready practices."
+description: "An in-depth guide to ML in German accounting — document AI, anomaly detection, forecasting, and GoBD compliance with reproducible, audit-ready examples."
 pubDate: 2025-11-12
 updated: 2025-11-12
 category: 'fintech'

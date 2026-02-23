@@ -11,7 +11,7 @@ draft: false
 featured: true
 author:
   name: 'Mihai Adrian Mateescu'
-  email: 'mihai.mateescu@web.de'
+  email: 'kontakt@me-mateescu.de'
   url: 'https://me-mateescu.de'
 lang: 'en'
 
