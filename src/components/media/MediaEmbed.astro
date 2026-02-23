@@ -24,15 +24,24 @@ const frameAllow =
 {isSafeEmbed ? (
   <div class="relative overflow-hidden rounded-xl border bg-white shadow-subtle dark:bg-dark-elevated" style="border-color: color-mix(in srgb, var(--color-eucalyptus-500) 34%, transparent);">
     <div class={frameWrapperClass}>
-      <iframe
-        class="h-full w-full"
-        style="border:0"
-        src={embedUrl}
-        title={title}
-        loading="lazy"
-        allowfullscreen
-        allow={frameAllow}
-      ></iframe>
+      <!--
+        Deferred embed: placeholder rendered at build time.
+        The inline script below replaces it with the real <iframe>
+        via requestIdleCallback — after LCP is measured — so external
+        player requests (YouTube, Spotify) never block the Critical Path.
+      -->
+      <div
+        class="embed-pending h-full w-full flex flex-col items-center justify-center gap-2 bg-light-surface dark:bg-dark-surface rounded-xl"
+        data-embed-src={embedUrl}
+        data-embed-title={title}
+        data-embed-allow={frameAllow}
+        aria-label={`Embedded player: ${title}. Will load automatically.`}
+      >
+        <svg class="w-8 h-8 text-text-secondary-light dark:text-text-secondary-dark animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+        </svg>
+        <span class="text-xs text-text-secondary-light dark:text-text-secondary-dark">{title}</span>
+      </div>
     </div>
   </div>
 ) : (
