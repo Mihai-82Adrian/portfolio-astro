@@ -40,11 +40,13 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
     <!-- Hero Section -->
     <section class="hero" style={`--theme-color: ${project.themeColor}`}>
       <div class="hero-image">
-        <Image 
+        <Image
           src={project.heroImage}
           alt={`${project.title} - ${project.tagline}`}
           width="1200"
           height="630"
+          loading="eager"
+          fetchpriority="high"
         />
         <div class="hero-overlay"></div>
       </div>
