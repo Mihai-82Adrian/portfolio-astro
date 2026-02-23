@@ -59,15 +59,16 @@ const {
       <!-- Hero Banner Image (Wide) -->
       {imageSrc && (
         <div class="hero-banner-wrapper">
-          <Image 
-            src={heroImage} 
-            alt={imageAlt} 
+          <Image
+            src={heroImage}
+            alt={imageAlt}
             width={1200}
             height={400}
             format="avif"
             quality={80}
             class="hero-banner"
             loading="eager"
+            fetchpriority="high"
           />
         </div>
       )}

@@ -10,26 +10,13 @@
 @config "../../tailwind.config.mjs";
 
 /**
- * Font Face Declarations with font-display: swap
- * Ensures text remains visible during webfont load
+ * Self-hosted variable fonts via Fontsource
+ * Served from Cloudflare CDN with immutable cache — no cross-origin Google Fonts request.
+ * Variable fonts cover the full weight axis (100–900) in a single file.
  */
-@font-face {
-  font-family: 'Inter';
-  font-display: swap;
-  src: local('Inter');
-}
-
-@font-face {
-  font-family: 'Playfair Display';
-  font-display: swap;
-  src: local('Playfair Display');
-}
-
-@font-face {
-  font-family: 'JetBrains Mono';
-  font-display: swap;
-  src: local('JetBrains Mono');
-}
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/playfair-display';
+@import '@fontsource-variable/jetbrains-mono';
 
 /**
  * CSS Custom Properties for Theme Switching
