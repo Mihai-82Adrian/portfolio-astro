@@ -40,13 +40,21 @@ const allPosts = await getCollection('blog', ({ data }) => !data.draft);
 // Get related posts using similarity algorithm (category + tags + recency)
 const relatedPosts = getRelatedPosts(post, allPosts, 3);
 
-const pageTitle = `${title} - Mihai Adrian Mateescu`;
+const pageTitle = title;
 
 // Generate BlogPosting structured data
 const blogPostingSchema = generateBlogPostingSchema(post, Astro.url.toString());
 ---
 
-<BaseLayout title={pageTitle} description={description} lang="en" structuredData={[blogPostingSchema]}>
+<BaseLayout
+  title={pageTitle}
+  description={description}
+  ogImage={post.data.heroImage ?? undefined}
+  ogType="article"
+  lang="en"
+  math={true}
+  structuredData={[blogPostingSchema]}
+>
   <Container>
     <!-- Breadcrumb -->
     <nav class="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-8 pt-8">

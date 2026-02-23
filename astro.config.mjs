@@ -81,6 +81,12 @@ export default defineConfig({
           return item;
         }
 
+        // Tools (live tools are flagship pages)
+        if (url.match(/\/tools\/?$/) || url.includes('/tools/')) {
+          item.priority = 0.8;
+          return item;
+        }
+
         // Projects
         if (url.match(/\/projects\/?$/)) {
           item.priority = 0.9;

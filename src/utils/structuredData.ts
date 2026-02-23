@@ -185,7 +185,7 @@ export function generateWebSiteSchema(lang: 'de' | 'en' | 'ro' = 'de'): WebSiteS
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${SITE_URL}/blog/search?q={search_term_string}`
+        urlTemplate: `${SITE_URL}/blog?q={search_term_string}`
       },
       'query-input': 'required name=search_term_string'
     }
@@ -231,11 +231,11 @@ export function generateBlogPostingSchema(
       url: SITE_URL
     },
     publisher: {
-      '@type': 'Person',
+      '@type': 'Organization',
       name: 'Mihai Adrian Mateescu',
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_URL}/images/me.webp`
+        url: `${SITE_URL}/images/og-default.webp`
       }
     },
     mainEntityOfPage: url, // URL already contains full path

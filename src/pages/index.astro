@@ -19,8 +19,8 @@ import { generatePersonSchema, generateWebSiteSchema, generateMultipleSchemas } 
 const lang = 'de';
 const t = translations[lang];
 
-const title = 'Mihai Adrian Mateescu - Finanzbuchhalter Portfolio';
-const description = t.home.description;
+const title = 'Finanzbuchhalter & KI-Entwickler';
+const seoDescription = 'Finanzbuchhalter & KI-Enthusiast im DACH-Raum. FinTech-Tools, Buchhaltungsautomatisierung und AI-gestützte Webentwicklung für Gründer und Freelancer.';
 
 // Generate structured data for homepage
 const personSchema = generatePersonSchema(lang);
@@ -28,7 +28,7 @@ const websiteSchema = generateWebSiteSchema(lang);
 const structuredData = [personSchema, websiteSchema];
 ---
 
-<BaseLayout title={title} description={description} lang={lang} structuredData={structuredData}>
+<BaseLayout title={title} description={seoDescription} lang={lang} structuredData={structuredData}>
   <!-- Hero Section -->
   <Hero
     title={t.home.title}
@@ -91,7 +91,7 @@ const structuredData = [personSchema, websiteSchema];
               <p>
                 <strong>{t.contact.linkedin}:</strong>{' '}
                 <a
-                  href="https://www.linkedin.com/in/mateescu-mihai-adrian-922b3169/"
+                  href="https://www.linkedin.com/in/mihai-adrian-mateescu"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/50 dark:decoration-eucalyptus-400/50 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300"
