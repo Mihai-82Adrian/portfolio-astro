@@ -19,8 +19,8 @@ import { generatePersonSchema, generateWebSiteSchema } from '@utils/structuredDa
 const lang = 'ro';
 const t = translations[lang];
 
-const title = 'Mihai Adrian Mateescu - Portofoliu Contabil Financiar';
-const description = t.home.description;
+const title = 'Contabil Financiar & FinTech Dev';
+const seoDescription = 'Contabil Financiar & pasionat de AI în zona DACH. Unelte FinTech open-source și soluții web AI-powered pentru fondatori și freelanceri.';
 
 // Generate structured data for homepage
 const personSchema = generatePersonSchema(lang);
@@ -28,7 +28,7 @@ const websiteSchema = generateWebSiteSchema(lang);
 const structuredData = [personSchema, websiteSchema];
 ---
 
-<BaseLayout title={title} description={description} lang={lang} structuredData={structuredData}>
+<BaseLayout title={title} description={seoDescription} lang={lang} structuredData={structuredData}>
   <!-- Hero Section -->
   <Hero
     title={t.home.title}

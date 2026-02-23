@@ -1,254 +1,417 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Container from '@/components/ui/Container.astro';
-import Card from '@/components/ui/Card.astro';
-import Badge from '@/components/ui/Badge.astro';
-import Icon from '@/components/ui/Icon.astro';
+import { BarChart3, Bot, Calculator, FileCode2 } from '@lucide/astro';
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import BookOpen from '@lucide/astro/icons/book-open';
+import BrainCircuit from '@lucide/astro/icons/brain-circuit';
+import Briefcase from '@lucide/astro/icons/briefcase';
+import FileSearch from '@lucide/astro/icons/file-search';
+import GraduationCap from '@lucide/astro/icons/graduation-cap';
+import Hammer from '@lucide/astro/icons/hammer';
+import Layers from '@lucide/astro/icons/layers';
+import PenLine from '@lucide/astro/icons/pen-line';
+import TrendingDown from '@lucide/astro/icons/trending-down';
 
-const pageTitle = 'What I\'m Doing Now - Mihai Adrian Mateescu';
-const pageDescription = 'Current learning focus, projects, and professional activities. Updated monthly.';
-const lastUpdated = '2025-11-13';
+const pageTitle = "What I'm Building & Learning Now";
+const pageDescription =
+  "A snapshot of what I'm building and learning in 2026: Fin-Tools Hub, AI Copilot, BMF PAP engine, and CFO meets CTO services for DACH. Updated monthly.";
+const lastUpdated = '2026-02-23';
+const lastUpdatedFormatted = new Date(lastUpdated).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription} lang="en">
   <Container paddingY="lg">
-    <main class="max-w-3xl mx-auto">
+    <main class="mx-auto max-w-3xl">
+
       <!-- Page Header -->
       <div class="mb-12">
-        <h1 class="text-4xl md:text-5xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
+        <p class="mb-3 inline-flex items-center rounded-full border border-black/10 bg-[var(--bg-elevated)] px-4 py-1.5 text-xs font-semibold tracking-wide text-eucalyptus-700 dark:border-white/15 dark:text-eucalyptus-300">
+          Now
+        </p>
+        <h1 class="text-4xl font-bold leading-tight text-text-primary-light dark:text-text-primary-dark sm:text-5xl">
           What I'm Doing Now
         </h1>
-        <p class="text-xl text-text-secondary-light dark:text-text-secondary-dark">
-          A snapshot of my current focus, learning journey, and projects.
+        <p class="mt-3 text-lg text-text-secondary-light dark:text-text-secondary-dark">
+          A snapshot of what I'm currently building, learning, and offering.
         </p>
-        <p class="text-sm text-text-tertiary-light dark:text-text-tertiary-dark mt-2">
-          Last updated: <time datetime={lastUpdated}>{new Date(lastUpdated).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
+        <p class="mt-2 text-sm text-text-tertiary-light dark:text-text-tertiary-dark">
+          Last updated: <time datetime={lastUpdated}>{lastUpdatedFormatted}</time>
         </p>
       </div>
 
-      <!-- Current Learning -->
-      <section class="mb-12">
-        <Card>
-          <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4 flex items-center gap-2">
-            <Icon name="book-open" class="h-6 w-6 text-eucalyptus-600 dark:text-eucalyptus-400" />
-            <span>Current Learning</span>
-          </h2>
-          <div class="space-y-4">
-            <div>
-              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
-                Bilanzbuchhalter (IHK) Studies
-              </h3>
-              <p class="text-text-secondary-light dark:text-text-secondary-dark mb-2">
-                Pursuing advanced German accounting certification, focusing on IFRS, HGB compliance,
-                and corporate financial reporting. This deepens my expertise in financial statement
-                preparation and regulatory frameworks.
-              </p>
-              <div class="flex flex-wrap gap-2">
-                <Badge variant="secondary">#IFRS</Badge>
-                <Badge variant="secondary">#HGB</Badge>
-                <Badge variant="secondary">#Taxation</Badge>
-                <Badge variant="secondary">#Financial-Reporting</Badge>
-              </div>
-            </div>
+      <!-- SECTION 1: What I'm Building -->
+      <section class="mb-10" aria-labelledby="building-heading">
+        <h2
+          id="building-heading"
+          class="mb-5 flex items-center gap-2 text-xl font-semibold text-text-primary-light dark:text-text-primary-dark"
+        >
+          <Hammer class="h-5 w-5 text-eucalyptus-600 dark:text-eucalyptus-400" aria-hidden="true" />
+          What I'm Building
+        </h2>
 
+        <!-- Fin-Tools Hub card -->
+        <article class="mb-4 rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-6 dark:border-white/10">
+          <div class="mb-4 flex items-start justify-between gap-4">
             <div>
-              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
-                Machine Learning in Finance
+              <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
+                Fin-Tools Hub
               </h3>
-              <p class="text-text-secondary-light dark:text-text-secondary-dark mb-2">
-                Exploring applications of ML in accounting automation, anomaly detection, and
-                document AI. Researching transformer models for financial document understanding.
+              <p class="mt-1 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                Open-source, local-first finance tools for DACH founders and freelancers.
+                All processing in-browser — no accounts, no tracking.
               </p>
-              <div class="flex flex-wrap gap-2">
-                <Badge variant="secondary">#PyTorch</Badge>
-                <Badge variant="secondary">#Transformers</Badge>
-                <Badge variant="secondary">#Document-AI</Badge>
-              </div>
             </div>
-
-            <div>
-              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
-                Rust for Systems Programming
-              </h3>
-              <p class="text-text-secondary-light dark:text-text-secondary-dark mb-2">
-                Deepening knowledge of Rust's ownership model, lifetimes, and async programming
-                for building high-performance financial data processing tools.
-              </p>
-              <div class="flex flex-wrap gap-2">
-                <Badge variant="secondary">#Rust</Badge>
-                <Badge variant="secondary">#Async</Badge>
-                <Badge variant="secondary">#Performance</Badge>
-              </div>
-            </div>
+            <a
+              href="/tools"
+              class="shrink-0 inline-flex items-center gap-1 rounded-lg border border-eucalyptus-500/40 px-3 py-1.5 text-xs font-semibold text-eucalyptus-700 transition-colors hover:bg-eucalyptus-50 dark:border-eucalyptus-400/30 dark:text-eucalyptus-300 dark:hover:bg-eucalyptus-900/30"
+            >
+              View all <ArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />
+            </a>
           </div>
-        </Card>
-      </section>
 
-      <!-- Current Projects -->
-      <section class="mb-12">
-        <Card>
-          <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4 flex items-center gap-2">
-            <Icon name="rocket" class="h-6 w-6 text-eucalyptus-600 dark:text-eucalyptus-400" />
-            <span>Current Projects</span>
-          </h2>
-          <div class="space-y-4">
-            <div>
-              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
-                Portfolio Website Refactoring
-              </h3>
-              <p class="text-text-secondary-light dark:text-text-secondary-dark mb-2">
-                Migrating from static HTML to Astro 5.x with Tailwind CSS 4.x. Building a
-                modern, multilingual portfolio with blog, project showcase, and career timeline.
-              </p>
-              <div class="flex flex-wrap gap-2">
-                <Badge variant="secondary">#Astro</Badge>
-                <Badge variant="secondary">#Tailwind</Badge>
-                <Badge variant="secondary">#TypeScript</Badge>
+          <ul class="space-y-3">
+            <li class="flex items-center gap-3">
+              <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-black/10 bg-eucalyptus-100 text-eucalyptus-700 dark:border-white/10 dark:bg-eucalyptus-900/35 dark:text-eucalyptus-300">
+                <FileCode2 class="h-4 w-4" aria-hidden="true" />
               </div>
-            </div>
-
-            <div>
-              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
-                GoBD Compliance Research
-              </h3>
-              <p class="text-text-secondary-light dark:text-text-secondary-dark mb-2">
-                Researching GoBD compliance requirements for digital accounting systems in Germany,
-                exploring automation opportunities for audit trail generation and tax compliance.
-              </p>
-              <div class="flex flex-wrap gap-2">
-                <Badge variant="secondary">#GoBD</Badge>
-                <Badge variant="secondary">#Compliance</Badge>
-                <Badge variant="secondary">#Automation</Badge>
-              </div>
-            </div>
-
-            <div>
-              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
-                Blog Content Development
-              </h3>
-              <p class="text-text-secondary-light dark:text-text-secondary-dark mb-2">
-                Writing technical articles on AI/ML in finance, Rust programming, and FinTech
-                compliance. Target: 26-52 posts per year (2026 goal: 40 posts).
-              </p>
-              <div class="flex flex-wrap gap-2">
-                <Badge variant="secondary">#Technical-Writing</Badge>
-                <Badge variant="secondary">#SEO</Badge>
-                <Badge variant="secondary">#Content-Strategy</Badge>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </section>
-
-      <!-- Current Reading -->
-      <section class="mb-12">
-        <Card>
-          <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4 flex items-center gap-2">
-            <Icon name="book-open" class="h-6 w-6 text-eucalyptus-600 dark:text-eucalyptus-400" />
-            <span>Current Reading</span>
-          </h2>
-          <ul class="space-y-3 text-text-secondary-light dark:text-text-secondary-dark">
-            <li class="flex items-start">
-              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2">•</span>
-              <div>
-                <strong class="text-text-primary-light dark:text-text-primary-dark">
-                  "The Rust Programming Language" (2nd Edition)
-                </strong>
-                <span> by Steve Klabnik & Carol Nichols</span>
+              <div class="flex flex-1 flex-wrap items-center justify-between gap-2">
+                <span class="text-sm font-medium text-text-primary-light dark:text-text-primary-dark">
+                  XRechnung Generator
+                </span>
+                <div class="flex items-center gap-2">
+                  <span class="rounded-full bg-eucalyptus-100 px-2 py-0.5 text-xs font-semibold text-eucalyptus-700 dark:bg-eucalyptus-900/40 dark:text-eucalyptus-300">
+                    ✅ Live
+                  </span>
+                  <a href="/tools/xrechnung" class="text-xs text-eucalyptus-700 hover:underline dark:text-eucalyptus-300">
+                    /tools/xrechnung <ArrowUpRight class="inline h-3 w-3" aria-hidden="true" />
+                  </a>
+                </div>
               </div>
             </li>
-            <li class="flex items-start">
-              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2">•</span>
-              <div>
-                <strong class="text-text-primary-light dark:text-text-primary-dark">
-                  "Designing Machine Learning Systems"
-                </strong>
-                <span> by Chip Huyen</span>
+
+            <li class="flex items-center gap-3">
+              <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-black/10 bg-eucalyptus-100 text-eucalyptus-700 dark:border-white/10 dark:bg-eucalyptus-900/35 dark:text-eucalyptus-300">
+                <TrendingDown class="h-4 w-4" aria-hidden="true" />
+              </div>
+              <div class="flex flex-1 flex-wrap items-center justify-between gap-2">
+                <span class="text-sm font-medium text-text-primary-light dark:text-text-primary-dark">
+                  Startup Runway & Burn Rate
+                </span>
+                <div class="flex items-center gap-2">
+                  <span class="rounded-full bg-eucalyptus-100 px-2 py-0.5 text-xs font-semibold text-eucalyptus-700 dark:bg-eucalyptus-900/40 dark:text-eucalyptus-300">
+                    ✅ Live
+                  </span>
+                  <a href="/tools/startup-runway" class="text-xs text-eucalyptus-700 hover:underline dark:text-eucalyptus-300">
+                    /tools/startup-runway <ArrowUpRight class="inline h-3 w-3" aria-hidden="true" />
+                  </a>
+                </div>
               </div>
             </li>
-            <li class="flex items-start">
-              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2">•</span>
-              <div>
-                <strong class="text-text-primary-light dark:text-text-primary-dark">
-                  "Build a Large Language Model (From Scratch)"
-                </strong>
-                <span> by Sebastian Raschka PhD</span>
+
+            <li class="flex items-center gap-3">
+              <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-black/10 bg-eucalyptus-100 text-eucalyptus-700 dark:border-white/10 dark:bg-eucalyptus-900/35 dark:text-eucalyptus-300">
+                <Calculator class="h-4 w-4" aria-hidden="true" />
+              </div>
+              <div class="flex flex-1 flex-wrap items-center justify-between gap-2">
+                <span class="text-sm font-medium text-text-primary-light dark:text-text-primary-dark">
+                  Brutto-Netto-Rechner 2026 <span class="text-xs font-normal text-text-tertiary-light dark:text-text-tertiary-dark">(BMF PAP)</span>
+                </span>
+                <div class="flex items-center gap-2">
+                  <span class="rounded-full bg-eucalyptus-100 px-2 py-0.5 text-xs font-semibold text-eucalyptus-700 dark:bg-eucalyptus-900/40 dark:text-eucalyptus-300">
+                    ✅ Live
+                  </span>
+                  <a href="/tools/salary-tax" class="text-xs text-eucalyptus-700 hover:underline dark:text-eucalyptus-300">
+                    /tools/salary-tax <ArrowUpRight class="inline h-3 w-3" aria-hidden="true" />
+                  </a>
+                </div>
               </div>
             </li>
-            <li class="flex items-start">
-              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2">•</span>
-              <div>
-                <strong class="text-text-primary-light dark:text-text-primary-dark">
-                  "IFRS Essentials"
-                </strong>
-                <span> by Dieter Christian & Norbert Lüdenbach</span>
+
+            <li class="flex items-center gap-3">
+              <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-black/10 bg-[var(--bg-surface)] text-text-tertiary-light dark:border-white/10 dark:text-text-tertiary-dark">
+                <BarChart3 class="h-4 w-4" aria-hidden="true" />
               </div>
-            </li>
-            <li class="flex items-start">
-              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2">•</span>
-              <div>
-                <strong class="text-text-primary-light dark:text-text-primary-dark">
-                  Research Papers:
-                </strong>
-                <span> Transformer architectures for financial document understanding</span>
+              <div class="flex flex-1 flex-wrap items-center justify-between gap-2">
+                <span class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">
+                  Cashflow & Forecasting
+                </span>
+                <span class="rounded-full bg-taupe-100 px-2 py-0.5 text-xs font-semibold text-taupe-700 dark:bg-taupe-900/30 dark:text-taupe-300">
+                  🔄 Next
+                </span>
               </div>
             </li>
           </ul>
-        </Card>
-      </section>
+        </article>
 
-      <!-- Current Professional Focus -->
-      <section class="mb-12">
-        <Card>
-          <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4 flex items-center gap-2">
-            <Icon name="briefcase" class="h-6 w-6 text-eucalyptus-600 dark:text-eucalyptus-400" />
-            <span>Current Professional Focus</span>
-          </h2>
-          <div class="space-y-4 text-text-secondary-light dark:text-text-secondary-dark">
-            <div>
-              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
-                Finance & Accounting Expertise
-              </h3>
-              <p>
-                Working on complex financial reporting scenarios, month-end closings, and
-                compliance automation. Bridging accounting domain knowledge with technical skills.
-              </p>
+        <!-- AI Copilot card -->
+        <article class="mb-4 rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-6 dark:border-white/10">
+          <div class="flex items-start gap-3">
+            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-black/10 bg-eucalyptus-100 text-eucalyptus-700 dark:border-white/10 dark:bg-eucalyptus-900/35 dark:text-eucalyptus-300">
+              <Bot class="h-5 w-5" aria-hidden="true" />
             </div>
-
-            <div>
-              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
-                AI/ML Applications in FinTech
-              </h3>
-              <p>
-                Researching practical applications of machine learning in accounting automation,
-                fraud detection, and intelligent document processing for financial workflows.
-              </p>
-            </div>
-
-            <div>
-              <h3 class="text-lg font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
-                Technical Writing & Knowledge Sharing
-              </h3>
-              <p>
-                Publishing research-driven articles on finance, AI/ML, and software engineering.
-                Building an audience through SEO-optimized technical content.
+            <div class="flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="text-base font-semibold text-text-primary-light dark:text-text-primary-dark">
+                  AI Copilot — RAG Chat
+                </h3>
+                <span class="rounded-full bg-eucalyptus-100 px-2 py-0.5 text-xs font-semibold text-eucalyptus-700 dark:bg-eucalyptus-900/40 dark:text-eucalyptus-300">
+                  ✅ Live
+                </span>
+              </div>
+              <p class="mt-1.5 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                Site-wide AI assistant backed by Cloudflare Workers AI + a curated
+                <code class="rounded bg-black/5 px-1 py-0.5 text-xs dark:bg-white/10">corpus.jsonl</code>
+                knowledge base (portfolio, tools, services — DE + EN). Try it via the chat button.
               </p>
             </div>
           </div>
-        </Card>
+        </article>
+
+        <!-- Two smaller cards: GoBD + Blog -->
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <article class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-5 dark:border-white/10">
+            <div class="mb-3 flex items-center gap-2">
+              <FileSearch class="h-4 w-4 text-eucalyptus-600 dark:text-eucalyptus-400" aria-hidden="true" />
+              <h3 class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+                GoBD Compliance Research
+              </h3>
+              <span class="ml-auto rounded-full bg-taupe-100 px-2 py-0.5 text-xs font-semibold text-taupe-700 dark:bg-taupe-900/30 dark:text-taupe-300">
+                🔄 Active
+              </span>
+            </div>
+            <p class="text-xs leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+              Exploring GoBD automation opportunities for audit trail generation and
+              digital accounting compliance in Germany.
+            </p>
+          </article>
+
+          <article class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-5 dark:border-white/10">
+            <div class="mb-3 flex items-center gap-2">
+              <PenLine class="h-4 w-4 text-eucalyptus-600 dark:text-eucalyptus-400" aria-hidden="true" />
+              <h3 class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+                Technical Blog
+              </h3>
+              <span class="ml-auto rounded-full bg-taupe-100 px-2 py-0.5 text-xs font-semibold text-taupe-700 dark:bg-taupe-900/30 dark:text-taupe-300">
+                🔄 Active
+              </span>
+            </div>
+            <p class="text-xs leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+              Research-driven articles on AI/ML in finance and FinTech compliance.
+              Target: 40 posts in 2026.
+            </p>
+          </article>
+        </div>
       </section>
 
-      <!-- About This Page -->
-      <section class="border-t border-border-light dark:border-border-dark pt-8">
-        <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
-          This is a <a href="https://nownownow.com/about"
-             class="text-eucalyptus-700 dark:text-eucalyptus-300 hover:underline"
-             target="_blank"
-             rel="noopener noreferrer">"now page"</a>,
-          inspired by Derek Sivers. It's a snapshot of what I'm currently focused on,
-          updated monthly. Last updated on {new Date(lastUpdated).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.
-        </p>
+      <!-- SECTION 2: Currently Offering -->
+      <section class="mb-10" aria-labelledby="offering-heading">
+        <h2
+          id="offering-heading"
+          class="mb-5 flex items-center gap-2 text-xl font-semibold text-text-primary-light dark:text-text-primary-dark"
+        >
+          <Briefcase class="h-5 w-5 text-eucalyptus-600 dark:text-eucalyptus-400" aria-hidden="true" />
+          Currently Offering
+        </h2>
+
+        <article class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-6 dark:border-white/10">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
+                CFO meets CTO — DACH
+              </h3>
+              <p class="mt-1.5 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                Dual-pillar freelance practice combining Finance Ops & AI-powered web engineering
+                for founders and SMEs in the DACH region.
+              </p>
+            </div>
+            <a
+              href="/en/services"
+              class="shrink-0 inline-flex items-center gap-1 rounded-lg border border-eucalyptus-500/40 px-3 py-1.5 text-xs font-semibold text-eucalyptus-700 transition-colors hover:bg-eucalyptus-50 dark:border-eucalyptus-400/30 dark:text-eucalyptus-300 dark:hover:bg-eucalyptus-900/30"
+            >
+              Services <ArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />
+            </a>
+          </div>
+
+          <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div class="rounded-xl border border-black/8 bg-black/2 p-4 dark:border-white/8 dark:bg-white/3">
+              <p class="text-xs font-semibold uppercase tracking-wide text-eucalyptus-700 dark:text-eucalyptus-400">
+                CFO Pillar
+              </p>
+              <p class="mt-1 text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                Finance Ops Core, payroll, digital document workflows, cashflow modeling & KPI dashboards.
+              </p>
+            </div>
+            <div class="rounded-xl border border-black/8 bg-black/2 p-4 dark:border-white/8 dark:bg-white/3">
+              <p class="text-xs font-semibold uppercase tracking-wide text-eucalyptus-700 dark:text-eucalyptus-400">
+                CTO Pillar
+              </p>
+              <p class="mt-1 text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                Edge-native Astro portfolios, custom RAG AI hubs — max. 2 new projects per month.
+              </p>
+            </div>
+          </div>
+        </article>
       </section>
+
+      <!-- SECTION 3: What I'm Learning -->
+      <section class="mb-10" aria-labelledby="learning-heading">
+        <h2
+          id="learning-heading"
+          class="mb-5 flex items-center gap-2 text-xl font-semibold text-text-primary-light dark:text-text-primary-dark"
+        >
+          <GraduationCap class="h-5 w-5 text-eucalyptus-600 dark:text-eucalyptus-400" aria-hidden="true" />
+          What I'm Learning
+        </h2>
+
+        <div class="space-y-4">
+
+          <article class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-5 dark:border-white/10">
+            <div class="flex items-start gap-3">
+              <BookOpen class="mt-0.5 h-5 w-5 shrink-0 text-eucalyptus-600 dark:text-eucalyptus-400" aria-hidden="true" />
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="text-base font-semibold text-text-primary-light dark:text-text-primary-dark">
+                    Bilanzbuchhalter (IHK)
+                  </h3>
+                  <span class="rounded-full bg-eucalyptus-100 px-2 py-0.5 text-xs font-semibold text-eucalyptus-700 dark:bg-eucalyptus-900/40 dark:text-eucalyptus-300">
+                    📚 Studying
+                  </span>
+                </div>
+                <p class="mt-1 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                  Advanced German accounting certification — IFRS, HGB compliance, and corporate
+                  financial reporting. Deepens the CFO pillar of my service offering.
+                </p>
+                <div class="mt-2 flex flex-wrap gap-1.5">
+                  <span class="rounded-md bg-black/5 px-2 py-0.5 text-xs text-text-tertiary-light dark:bg-white/8 dark:text-text-tertiary-dark">#IFRS</span>
+                  <span class="rounded-md bg-black/5 px-2 py-0.5 text-xs text-text-tertiary-light dark:bg-white/8 dark:text-text-tertiary-dark">#HGB</span>
+                  <span class="rounded-md bg-black/5 px-2 py-0.5 text-xs text-text-tertiary-light dark:bg-white/8 dark:text-text-tertiary-dark">#Financial-Reporting</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-5 dark:border-white/10">
+            <div class="flex items-start gap-3">
+              <BrainCircuit class="mt-0.5 h-5 w-5 shrink-0 text-eucalyptus-600 dark:text-eucalyptus-400" aria-hidden="true" />
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="text-base font-semibold text-text-primary-light dark:text-text-primary-dark">
+                    Machine Learning in Finance & Edge AI
+                  </h3>
+                  <span class="rounded-full bg-eucalyptus-100 px-2 py-0.5 text-xs font-semibold text-eucalyptus-700 dark:bg-eucalyptus-900/40 dark:text-eucalyptus-300">
+                    📚 Active
+                  </span>
+                </div>
+                <p class="mt-1 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                  Transformer models for financial document understanding, RAG pipelines,
+                  and serverless AI inference on Cloudflare Workers AI.
+                </p>
+                <div class="mt-2 flex flex-wrap gap-1.5">
+                  <span class="rounded-md bg-black/5 px-2 py-0.5 text-xs text-text-tertiary-light dark:bg-white/8 dark:text-text-tertiary-dark">#Transformers</span>
+                  <span class="rounded-md bg-black/5 px-2 py-0.5 text-xs text-text-tertiary-light dark:bg-white/8 dark:text-text-tertiary-dark">#RAG</span>
+                  <span class="rounded-md bg-black/5 px-2 py-0.5 text-xs text-text-tertiary-light dark:bg-white/8 dark:text-text-tertiary-dark">#Document-AI</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-5 dark:border-white/10">
+            <div class="flex items-start gap-3">
+              <Layers class="mt-0.5 h-5 w-5 shrink-0 text-eucalyptus-600 dark:text-eucalyptus-400" aria-hidden="true" />
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="text-base font-semibold text-text-primary-light dark:text-text-primary-dark">
+                    Svelte 5 Runes & Astro 5
+                  </h3>
+                  <span class="rounded-full bg-eucalyptus-100 px-2 py-0.5 text-xs font-semibold text-eucalyptus-700 dark:bg-eucalyptus-900/40 dark:text-eucalyptus-300">
+                    ✅ In production
+                  </span>
+                </div>
+                <p class="mt-1 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                  Building all Fin-Tools islands with the new Runes API
+                  (<code class="rounded bg-black/5 px-1 py-0.5 text-xs dark:bg-white/10">$state</code>,
+                  <code class="rounded bg-black/5 px-1 py-0.5 text-xs dark:bg-white/10">$derived</code>,
+                  <code class="rounded bg-black/5 px-1 py-0.5 text-xs dark:bg-white/10">$bindable</code>).
+                  Edge-first static output via Astro 5.
+                </p>
+                <div class="mt-2 flex flex-wrap gap-1.5">
+                  <span class="rounded-md bg-black/5 px-2 py-0.5 text-xs text-text-tertiary-light dark:bg-white/8 dark:text-text-tertiary-dark">#Svelte5</span>
+                  <span class="rounded-md bg-black/5 px-2 py-0.5 text-xs text-text-tertiary-light dark:bg-white/8 dark:text-text-tertiary-dark">#Astro5</span>
+                  <span class="rounded-md bg-black/5 px-2 py-0.5 text-xs text-text-tertiary-light dark:bg-white/8 dark:text-text-tertiary-dark">#TypeScript</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- SECTION 4: Currently Reading -->
+      <section class="mb-12" aria-labelledby="reading-heading">
+        <h2
+          id="reading-heading"
+          class="mb-5 flex items-center gap-2 text-xl font-semibold text-text-primary-light dark:text-text-primary-dark"
+        >
+          <BookOpen class="h-5 w-5 text-eucalyptus-600 dark:text-eucalyptus-400" aria-hidden="true" />
+          Currently Reading
+        </h2>
+
+        <article class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-6 dark:border-white/10">
+          <ul class="space-y-3">
+            {[
+              {
+                title: 'Designing Machine Learning Systems',
+                author: 'Chip Huyen',
+              },
+              {
+                title: 'Build a Large Language Model (From Scratch)',
+                author: 'Sebastian Raschka PhD',
+              },
+              {
+                title: 'IFRS Essentials',
+                author: 'Dieter Christian & Norbert Lüdenbach',
+              },
+              {
+                title: 'The Rust Programming Language (2nd Edition)',
+                author: 'Steve Klabnik & Carol Nichols',
+              },
+            ].map((book) => (
+              <li class="flex items-start gap-3">
+                <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-eucalyptus-500 dark:bg-eucalyptus-400" aria-hidden="true" />
+                <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                  <strong class="font-semibold text-text-primary-light dark:text-text-primary-dark">
+                    {book.title}
+                  </strong>
+                  {' '}— {book.author}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </article>
+      </section>
+
+      <!-- Footer note -->
+      <div class="border-t border-black/10 pt-8 dark:border-white/10">
+        <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+          This is a{' '}
+          <a
+            href="https://nownownow.com/about"
+            class="text-eucalyptus-700 hover:underline dark:text-eucalyptus-300"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            now page
+          </a>
+          , inspired by Derek Sivers — a snapshot of current focus, updated monthly.
+          Last updated: {lastUpdatedFormatted}.
+        </p>
+      </div>
+
     </main>
   </Container>
 </BaseLayout>

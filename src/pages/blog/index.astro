@@ -36,8 +36,8 @@ const categories = [...new Set(allPosts.map(post => post.data.category))];
 // Get featured posts
 const featuredPosts = sortedPosts.filter(post => post.data.featured).slice(0, 3);
 
-const pageTitle = 'Blog - Mihai Adrian Mateescu';
-const pageDescription = 'Articles about AI/ML, finance, FinTech, Rust, Julia, and the intersection of technology and accounting.';
+const pageTitle = 'Blog — AI, Finance & FinTech';
+const pageDescription = 'Research-driven articles on AI/ML in finance, FinTech compliance, and software engineering — at the intersection of technology and accounting.';
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription} lang="en">

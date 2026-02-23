@@ -28,20 +28,24 @@ interface Props {
   title?: string;
   description?: string;
   ogImage?: string;
+  ogType?: 'website' | 'article';
   canonicalURL?: string;
   lang?: Language;
   noindex?: boolean;
   structuredData?: Record<string, any>;
+  math?: boolean;
 }
 
 const {
-  title = 'Mihai Adrian Mateescu - Finanzbuchhalter Portfolio',
-  description = 'Finanzbuchhalter mit Erfahrung in Buchhaltung, Finanzmanagement und Steuerberatung. Aktuell in Weiterbildung zum Bilanzbuchhalter (IHK).',
-  ogImage = '/images/me.webp',
-  canonicalURL, // NOTE: we will compute a stable default below
+  title = 'Mihai Adrian Mateescu',
+  description = 'Finanzbuchhalter & KI-Entwickler im DACH-Raum. FinTech-Tools, Buchhaltungsautomatisierung und AI-gestützte Webentwicklung für Gründer und Freelancer.',
+  ogImage = '/images/og-default.webp',
+  ogType = 'website',
+  canonicalURL,
   lang: langProp,
   noindex = false,
-  structuredData
+  structuredData,
+  math = false,
 } = Astro.props;
 
 const siteTitle = 'Mihai Adrian Mateescu';
@@ -75,7 +79,11 @@ const lang: Language = langProp ?? inferredLang;
 // Canonical should be stable (production origin), allow override from props
 const canonicalHref = canonicalURL ?? new URL(currentPath, siteUrl).href;
 
-const fullTitle = title === siteTitle ? title : `${title} | ${siteTitle}`;
+// Avoid double-appending if the title already contains the site name
+const fullTitle =
+  title === siteTitle || title.includes(siteTitle)
+    ? title
+    : `${title} | ${siteTitle}`;
 const fullImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
 
 // Generate alternate language URLs
@@ -139,7 +147,7 @@ const defaultStructuredData = {
     ))}
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:url" content={canonicalHref} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
@@ -148,6 +156,8 @@ const defaultStructuredData = {
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@mihaimateescu_de" />
+    <meta name="twitter:creator" content="@mihaimateescu_de" />
     <meta name="twitter:url" content={canonicalHref} />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
@@ -174,8 +184,8 @@ const defaultStructuredData = {
       set:html={JSON.stringify(structuredData || defaultStructuredData)}
     />
 
-    <!-- KaTeX CSS for math equations (self-hosted for privacy and performance) -->
-    <link rel="stylesheet" href="/katex/katex.min.css" />
+    <!-- KaTeX CSS: only loaded on pages with mathematical content -->
+    {math && <link rel="stylesheet" href="/katex/katex.min.css" />}
 
     <!-- Fonts: Inter + Playfair Display + JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
