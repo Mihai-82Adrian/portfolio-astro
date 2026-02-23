@@ -54,35 +54,34 @@ const tabs = [
 
   <script is:inline>
     (() => {
-      // Activate deferred embeds — replaces .embed-pending placeholders with real iframes.
-      // Called via requestIdleCallback so external player requests (YouTube, Spotify)
-      // never block LCP measurement.
-      const activateEmbeds = () => {
-        document.querySelectorAll('.embed-pending').forEach((el) => {
-          if (!(el instanceof HTMLElement)) return;
-          const iframe = document.createElement('iframe');
-          iframe.src = el.dataset.embedSrc ?? '';
-          iframe.title = el.dataset.embedTitle ?? '';
-          iframe.allow = el.dataset.embedAllow ?? '';
-          iframe.className = 'h-full w-full';
-          iframe.style.border = '0';
-          iframe.setAttribute('allowfullscreen', '');
-          iframe.setAttribute('loading', 'lazy');
-          el.replaceWith(iframe);
-        });
-      };
-
-      const scheduleEmbeds = () => {
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(activateEmbeds, { timeout: 3000 });
-        } else {
-          setTimeout(activateEmbeds, 1500);
-        }
+      // Click-to-load: activates a single embed on explicit user interaction.
+      // Embeds are NEVER injected automatically — this prevents Spotify (sp_t,
+      // sp_landing) and YouTube third-party cookies from being set without user
+      // consent, satisfying GDPR/DSGVO requirements for German-targeted sites.
+      const activateEmbed = (el) => {
+        if (!(el instanceof HTMLElement)) return;
+        const wrapper = el.parentElement;
+        const iframe = document.createElement('iframe');
+        iframe.src = el.dataset.embedSrc ?? '';
+        iframe.title = el.dataset.embedTitle ?? '';
+        iframe.allow = el.dataset.embedAllow ?? '';
+        iframe.className = 'h-full w-full';
+        iframe.style.border = '0';
+        iframe.setAttribute('allowfullscreen', '');
+        el.replaceWith(iframe);
+        // Auto-focus iframe so keyboard/screenreader users land inside the player
+        iframe.focus();
       };
 
       const initGallery = (gallery) => {
         if (!(gallery instanceof HTMLElement) || gallery.dataset.mediaGalleryReady === 'true') return;
         gallery.dataset.mediaGalleryReady = 'true';
+
+        // Attach click-to-load listener to every embed placeholder in this gallery
+        gallery.querySelectorAll('.embed-pending').forEach((el) => {
+          if (!(el instanceof HTMLElement)) return;
+          el.addEventListener('click', () => activateEmbed(el), { once: true });
+        });
 
         const buttons = Array.from(gallery.querySelectorAll('[data-media-filter]'));
         const cards = Array.from(gallery.querySelectorAll('[data-media-card]'));
@@ -131,7 +130,6 @@ const tabs = [
 
       const initAllGalleries = () => {
         document.querySelectorAll('[data-media-gallery]').forEach((gallery) => initGallery(gallery));
-        scheduleEmbeds();
       };
 
       if (document.readyState === 'loading') {
