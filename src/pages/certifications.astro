@@ -65,7 +65,7 @@ const categoryLabels = t.certifications.categories;
           {categoryLabels.professional}
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {professionalCerts.map((cert) => (
+          {professionalCerts.map((cert, index) => (
             <Card>
               <div class="flex flex-col items-center text-center">
                 <h3 class="text-xl font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-4">
@@ -76,8 +76,11 @@ const categoryLabels = t.certifications.categories;
                   <img
                     src={cert.image}
                     alt={cert.title[lang]}
+                    width={cert.imageWidth}
+                    height={cert.imageHeight}
                     class="w-48 h-auto rounded-lg shadow-md mb-4"
-                    loading="lazy"
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    fetchpriority={index === 0 ? 'high' : undefined}
                   />
                 )}
 
@@ -145,6 +148,8 @@ const categoryLabels = t.certifications.categories;
                   <img
                     src={cert.image}
                     alt={cert.title[lang]}
+                    width={cert.imageWidth}
+                    height={cert.imageHeight}
                     class="w-48 h-auto rounded-lg shadow-md mb-4"
                     loading="lazy"
                   />
@@ -214,6 +219,8 @@ const categoryLabels = t.certifications.categories;
                   <img
                     src={cert.image}
                     alt={cert.title[lang]}
+                    width={cert.imageWidth}
+                    height={cert.imageHeight}
                     class="w-48 h-auto rounded-lg shadow-md mb-4"
                     loading="lazy"
                   />
@@ -267,6 +274,8 @@ const categoryLabels = t.certifications.categories;
                   <img
                     src={cert.image}
                     alt={cert.title[lang]}
+                    width={cert.imageWidth}
+                    height={cert.imageHeight}
                     class="w-48 h-auto rounded-lg shadow-md mb-4"
                     loading="lazy"
                   />
