@@ -128,7 +128,7 @@ export function generatePersonSchema(lang: 'de' | 'en' | 'ro' = 'de'): PersonSch
     jobTitle: jobTitles[lang],
     url: SITE_URL,
     image: `${SITE_URL}/images/me.webp`,
-    email: 'mihai.mateescu@web.de',
+    email: 'kontakt@me-mateescu.de',
     telephone: '+491704740121',
     address: {
       '@type': 'PostalAddress',

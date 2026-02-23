@@ -30,7 +30,7 @@ const blog = defineCollection({
       avatar: z.string().optional(),
     }).default({
       name: 'Mihai Adrian Mateescu',
-      email: 'mihai.mateescu@web.de',
+      email: 'kontakt@me-mateescu.de',
       avatar: '/images/portrait.webp',
     }),
 

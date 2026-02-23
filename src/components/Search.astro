@@ -50,6 +50,12 @@
     margin: 0 auto;
   }
 
+  /* Pre-allocate space for the Pagefind UI input so it doesn't cause CLS
+     when PagefindUI.init() runs on DOMContentLoaded (input height ≈ 56px). */
+  #pagefind-search {
+    min-height: 56px;
+  }
+
   /* Custom Pagefind UI styling to match eucalyptus theme */
   :global(.pagefind-ui__search-input) {
     border: 2px solid var(--color-eucalyptus-500);
