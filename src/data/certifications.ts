@@ -17,6 +17,8 @@ export interface Certification {
   validUntil?: string; // ISO date string or 'unlimited' for permanent certifications
   verificationUrl?: string; // URL to verify certificate authenticity (IHK registry, LinkedIn, etc.)
   image: string;
+  imageWidth?: number;
+  imageHeight?: number;
   pdfUrl?: string;
   description?: {
     de: string;
@@ -39,6 +41,8 @@ export const certifications: Certification[] = [
     validUntil: 'unlimited',
     verificationUrl: 'https://www.ihk.de',
     image: '/images/ihk1.png',
+    imageWidth: 258,
+    imageHeight: 372,
     pdfUrl: '/images/IHK - Fachkraft für Buchführung.pdf',
     description: {
       de: 'Zertifizierung als Fachkraft für Buchführung mit umfassenden Kenntnissen in Finanzbuchhaltung, Steuerrecht und DATEV-Software.',
@@ -59,6 +63,8 @@ export const certifications: Certification[] = [
     validUntil: 'unlimited',
     verificationUrl: 'https://www.ihk.de',
     image: '/images/ihk2.png',
+    imageWidth: 262,
+    imageHeight: 372,
     pdfUrl: '/images/IHK - Finanzbuchhaltung.pdf',
     description: {
       de: 'Spezialisierung in Finanzbuchhaltung mit Fokus auf Jahresabschlüsse und Bilanzierung.',
@@ -79,6 +85,8 @@ export const certifications: Certification[] = [
     validUntil: 'unlimited',
     verificationUrl: 'https://www.ihk.de',
     image: '/images/ihk3.png',
+    imageWidth: 262,
+    imageHeight: 370,
     pdfUrl: '/images/IHK - Lohn- und Gehaltsrechnung.pdf',
     description: {
       de: 'Zertifizierung in Lohn- und Gehaltsabrechnung, Sozialversicherungsrecht und Lohnsteuer.',
@@ -99,6 +107,8 @@ export const certifications: Certification[] = [
     validUntil: 'unlimited',
     verificationUrl: 'https://www.ihk-fosa.de',
     image: '/images/ihkf.png',
+    imageWidth: 261,
+    imageHeight: 372,
     pdfUrl: '/images/Bescheid über Gleichwertigkeit - IHK.pdf',
     description: {
       de: 'Anerkennung der ausländischen Berufsqualifikation als gleichwertig mit dem deutschen Abschluss "Kaufmann im Einzelhandel".',
@@ -117,6 +127,8 @@ export const certifications: Certification[] = [
     issuer: 'Quadriga Steuerberatungsgesellschaft OHG',
     dateObtained: '2022-11',
     image: '/images/az_q.webp',
+    imageWidth: 461,
+    imageHeight: 652,
     pdfUrl: '/images/Zeugnis Mateescu_Quadriga.pdf',
     description: {
       de: 'Arbeitszeugnis für die Tätigkeit als Auszubildender Steuerfachangestellter.',
@@ -135,6 +147,8 @@ export const certifications: Certification[] = [
     issuer: 'Kesen Steuerberatungsgesellschaft mbH',
     dateObtained: '2025-04',
     image: '/images/arbeitszeugnis-kesen-2025.webp',
+    imageWidth: 823,
+    imageHeight: 1200,
     pdfUrl: '/images/Arbeitszeugnis-Kesen-2025.pdf',
     description: {
       de: 'Arbeitszeugnis für die Tätigkeit als Finanzbuchhalter bei Kesen Steuerberatungsgesellschaft mbH.',
@@ -153,6 +167,8 @@ export const certifications: Certification[] = [
     issuer: 'SMC Rumänien',
     dateObtained: '2018-08',
     image: '/images/az_s.webp',
+    imageWidth: 458,
+    imageHeight: 615,
     pdfUrl: '/images/Arbeitszeugnis Mateescu.pdf',
     description: {
       de: 'Arbeitszeugnis für die Tätigkeit als Gebietsverkaufsleiter.',
@@ -173,6 +189,8 @@ export const certifications: Certification[] = [
     validUntil: 'unlimited',
     verificationUrl: 'https://www.telc.net',
     image: '/images/telc.png',
+    imageWidth: 261,
+    imageHeight: 369,
     pdfUrl: '/images/telc B2 Zertifikat Mateescu.pdf',
     description: {
       de: 'Deutschkenntnisse auf Niveau B2 (Selbstständige Sprachverwendung).',
@@ -191,6 +209,8 @@ export const certifications: Certification[] = [
     issuer: 'Mihai Adrian Mateescu',
     dateObtained: '2024',
     image: '/images/cv.png',
+    imageWidth: 275,
+    imageHeight: 390,
     pdfUrl: '/images/Lebenslauf_Mateescu24_2.pdf',
     description: {
       de: 'Aktueller Lebenslauf mit vollständiger Berufs- und Ausbildungshistorie.',
