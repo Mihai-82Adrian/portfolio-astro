@@ -217,7 +217,7 @@ export const onRequestPost = async (context: any) => {
                 'Authorization': `Bearer ${env.OPENAI_API_KEY}`,
             },
             body: JSON.stringify({
-                model: 'gpt-4.1-mini',
+                model: 'o4-mini',
                 input,
                 temperature: 0.6,
                 max_output_tokens: 2500,
