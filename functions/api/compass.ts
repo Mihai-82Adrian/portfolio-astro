@@ -173,14 +173,19 @@ export const onRequestPost = async (context: any) => {
         }
 
         // 2. Weekly Quota Check (1 per 7 days, Cache API with hashed IP)
+        //    Bypass on localhost / wrangler dev for testing
+        const isLocal = request.url.includes('localhost') || request.url.includes('127.0.0.1');
         const ipHash = await hashIP(clientIP);
-        const alreadyUsed = await hasWeeklyQuota(ipHash, request.url);
 
-        if (alreadyUsed) {
-            return new Response(JSON.stringify({
-                error: 'Sie haben diese Woche bereits eine Auswertung erstellt. Die nächste Auswertung ist in 7 Tagen möglich.',
-                code: 'WEEKLY_QUOTA_EXCEEDED',
-            }), { status: 429, headers: { 'Content-Type': 'application/json' } });
+        if (!isLocal) {
+            const alreadyUsed = await hasWeeklyQuota(ipHash, request.url);
+
+            if (alreadyUsed) {
+                return new Response(JSON.stringify({
+                    error: 'Sie haben diese Woche bereits eine Auswertung erstellt. Die nächste Auswertung ist in 7 Tagen möglich.',
+                    code: 'WEEKLY_QUOTA_EXCEEDED',
+                }), { status: 429, headers: { 'Content-Type': 'application/json' } });
+            }
         }
 
         // 3. Parse & Validate Body
@@ -219,7 +224,6 @@ export const onRequestPost = async (context: any) => {
             body: JSON.stringify({
                 model: 'o4-mini',
                 input,
-                temperature: 0.6,
                 max_output_tokens: 2500,
                 stream: true,
             }),
@@ -250,7 +254,9 @@ export const onRequestPost = async (context: any) => {
         }
 
         // 6. Mark weekly quota BEFORE streaming (prevents double-submit)
-        await setWeeklyQuota(ipHash, request.url);
+        if (!isLocal) {
+            await setWeeklyQuota(ipHash, request.url);
+        }
 
         // 7. Stream response via SSE
         if (!openAIResponse.body) {
