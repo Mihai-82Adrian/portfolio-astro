@@ -1,0 +1,38 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import FounderCompassApp from '@/components/tools/founder-compass/FounderCompassApp.svelte';
+import { generateBreadcrumbSchema } from '@utils/structuredData';
+
+const title = 'Founder Compass — Gründerprofil-Analyse';
+const description =
+  'Interaktiver Gründer-Profiler: 12 Fragen zu Risikotoleranz, Finanzierung, Geschäftsmodell und Arbeitsweise — personalisierte KI-Auswertung für angehende Gründer im DACH-Raum.';
+
+const breadcrumbSchema = generateBreadcrumbSchema([
+  { name: 'Home', url: '/' },
+  { name: 'Tools', url: '/tools' },
+  { name: 'Founder Compass', url: '/tools/founder-compass' },
+]);
+---
+
+<BaseLayout title={title} description={description} lang="de" structuredData={breadcrumbSchema}>
+  <main class="pb-20">
+    <section class="mx-auto w-full max-w-6xl px-4 pt-20 md:px-6 md:pt-24">
+      <div class="mx-auto max-w-3xl text-center">
+        <p class="mb-4 inline-flex items-center rounded-full border border-black/10 bg-[var(--bg-elevated)] px-4 py-1.5 text-xs font-semibold tracking-wide text-eucalyptus-700 dark:border-white/15 dark:text-eucalyptus-300">
+          Fin-Tools Hub — Entrepreneurial Profiler
+        </p>
+        <h1 class="text-balance text-3xl font-bold text-text-primary-light dark:text-text-primary-dark sm:text-4xl">
+          Founder Compass
+        </h1>
+        <p class="mt-3 text-pretty text-base text-text-secondary-light dark:text-text-secondary-dark sm:text-lg">
+          12 gezielte Fragen zu Ihrer Risikotoleranz, Finanzstrategie und Gründungspräferenz —
+          am Ende erhalten Sie ein personalisiertes Gründerprofil per KI-Auswertung.
+        </p>
+      </div>
+    </section>
+
+    <section class="mx-auto mt-10 w-full max-w-6xl px-4 md:px-6">
+      <FounderCompassApp client:visible />
+    </section>
+  </main>
+</BaseLayout>
