@@ -1,0 +1,148 @@
+import type { QuizQuestion } from '@/lib/founder-compass/types';
+
+export const QUESTIONS: QuizQuestion[] = [
+  {
+    id: 'risk-tolerance',
+    dimension: 'Risikotoleranz',
+    title: 'Wie hoch ist Ihre finanzielle Risikotoleranz?',
+    body: 'Stellen Sie sich vor, Sie müssen einen signifikanten Teil Ihrer Ersparnisse in Ihr Unternehmen investieren. Wie reagieren Sie?',
+    options: [
+      { key: 'A', label: 'Ich investiere maximal 10 % meiner Ersparnisse — Sicherheit geht vor.' },
+      { key: 'B', label: 'Bis zu 30 % fühle ich mich noch wohl, aber es muss kalkuliert sein.' },
+      { key: 'C', label: 'Ich würde 50 %+ riskieren, wenn ich an die Idee glaube.' },
+      { key: 'D', label: 'All-in — ich vertraue meiner Vision und finde Wege, das Risiko zu managen.' },
+    ],
+  },
+  {
+    id: 'runway-comfort',
+    dimension: 'Runway-Komfort',
+    title: 'Wie lange könnten Sie ohne Einkommen auskommen?',
+    body: 'Gründen bedeutet oft Monate ohne Gehalt. Wie ist Ihre persönliche Puffer-Situation?',
+    options: [
+      { key: 'A', label: 'Weniger als 3 Monate — ich brauche schnell Einnahmen.' },
+      { key: 'B', label: '3–6 Monate Rücklage, danach wird es eng.' },
+      { key: 'C', label: '6–12 Monate — genug Puffer für eine ordentliche Anlaufphase.' },
+      { key: 'D', label: 'Über 12 Monate — ich kann mir eine längere Aufbauphase leisten.' },
+    ],
+  },
+  {
+    id: 'founding-motivation',
+    dimension: 'Gründungsmotivation',
+    title: 'Was treibt Sie primär zur Gründung an?',
+    body: 'Menschen gründen aus unterschiedlichen Motivationen. Was ist Ihr stärkster Antrieb?',
+    options: [
+      { key: 'A', label: 'Finanzielle Unabhängigkeit und Vermögensaufbau.' },
+      { key: 'B', label: 'Ein konkretes Problem lösen, das mich persönlich betrifft.' },
+      { key: 'C', label: 'Freiheit und Selbstbestimmung — ich will mein eigener Chef sein.' },
+      { key: 'D', label: 'Impact: Ich möchte etwas Bedeutendes für andere Menschen schaffen.' },
+    ],
+  },
+  {
+    id: 'team-preference',
+    dimension: 'Teamstruktur',
+    title: 'Wie stellen Sie sich Ihr Gründungsteam vor?',
+    body: 'Die Teamkonstellation beeinflusst Geschwindigkeit, Kultur und Finanzierbarkeit.',
+    options: [
+      { key: 'A', label: 'Solo-Gründer — ich entscheide schnell und brauche niemanden.' },
+      { key: 'B', label: 'Ein Co-Founder mit komplementären Fähigkeiten.' },
+      { key: 'C', label: 'Kleines Kernteam (2–4 Personen) von Anfang an.' },
+      { key: 'D', label: 'Ich baue zuerst allein, hole aber bald Freelancer oder Mitarbeiter dazu.' },
+    ],
+  },
+  {
+    id: 'revenue-model',
+    dimension: 'Geschäftsmodell',
+    title: 'Welches Erlösmodell spricht Sie am meisten an?',
+    body: 'Das Erlösmodell bestimmt Cashflow-Muster, Skalierbarkeit und Finanzierungsbedarf.',
+    options: [
+      { key: 'A', label: 'Recurring Revenue (SaaS, Abos) — planbare, wiederkehrende Einnahmen.' },
+      { key: 'B', label: 'Projektbasiert / Dienstleistung — direkter Kundenkontakt, schnelle Umsätze.' },
+      { key: 'C', label: 'Marketplace / Plattform — Vermittlergebühren bei jeder Transaktion.' },
+      { key: 'D', label: 'Produktverkauf (E-Commerce, physische/digitale Güter).' },
+    ],
+  },
+  {
+    id: 'market-timing',
+    dimension: 'Markteintritt',
+    title: 'Wie schnell wollen Sie an den Markt gehen?',
+    body: 'Time-to-market vs. Produktreife — wo liegt Ihre Priorität?',
+    options: [
+      { key: 'A', label: 'So schnell wie möglich — MVP in 4–8 Wochen, dann iterieren.' },
+      { key: 'B', label: '3–6 Monate Entwicklung, dann mit solidem Produkt starten.' },
+      { key: 'C', label: '6–12 Monate — ich will ein durchdachtes Produkt mit klarem Vorsprung.' },
+      { key: 'D', label: 'Zeitdruck ist mir egal — Qualität und Timing müssen stimmen.' },
+    ],
+  },
+  {
+    id: 'funding-preference',
+    dimension: 'Finanzierungsstrategie',
+    title: 'Wie möchten Sie Ihr Unternehmen finanzieren?',
+    body: 'Die Finanzierungsstrategie beeinflusst Kontrolle, Wachstumstempo und Risiko.',
+    options: [
+      { key: 'A', label: 'Bootstrapping — aus eigener Kraft, ohne externe Investoren.' },
+      { key: 'B', label: 'Gründungszuschuss + Fördermittel (KfW, EXIST, BAFA).' },
+      { key: 'C', label: 'Business Angels für Startkapital und Netzwerk.' },
+      { key: 'D', label: 'VC-Finanzierung — ich will schnell skalieren und brauche signifikantes Kapital.' },
+    ],
+  },
+  {
+    id: 'failure-response',
+    dimension: 'Resilienz',
+    title: 'Wie gehen Sie mit Rückschlägen um?',
+    body: 'Jeder Gründer erlebt Krisen. Was beschreibt Ihre typische Reaktion am besten?',
+    options: [
+      { key: 'A', label: 'Ich analysiere rational, lerne daraus und passe den Plan an.' },
+      { key: 'B', label: 'Rückschläge treffen mich emotional, aber ich erhole mich schnell.' },
+      { key: 'C', label: 'Ich brauche mein Netzwerk — Austausch mit anderen hilft mir am meisten.' },
+      { key: 'D', label: 'Rückschläge motivieren mich eher — ich kämpfe härter.' },
+    ],
+  },
+  {
+    id: 'work-life-balance',
+    dimension: 'Work-Life-Balance',
+    title: 'Wie viel Zeit sind Sie bereit, in Ihr Startup zu investieren?',
+    body: 'Gründung erfordert oft mehr als einen 9-to-5 Job. Wo liegt Ihre Grenze?',
+    options: [
+      { key: 'A', label: 'Nebenberuflich starten (10–20h/Woche) — mein Hauptjob bleibt.' },
+      { key: 'B', label: 'Vollzeit, aber mit klaren Grenzen (max. 50h/Woche).' },
+      { key: 'C', label: '60–70h/Woche in der Anfangsphase, danach reduzieren.' },
+      { key: 'D', label: 'Was auch immer nötig ist — in den ersten 1–2 Jahren gibt es kein Limit.' },
+    ],
+  },
+  {
+    id: 'tech-affinity',
+    dimension: 'Technologieaffinität',
+    title: 'Wie technisch versiert sind Sie?',
+    body: 'Ihre technische Kompetenz beeinflusst Build-vs-Buy-Entscheidungen und Teamplanung.',
+    options: [
+      { key: 'A', label: 'Nicht-technisch — ich brauche einen technischen Co-Founder oder Dienstleister.' },
+      { key: 'B', label: 'Tech-affin: Ich verstehe Technik, kann aber nicht selbst programmieren.' },
+      { key: 'C', label: 'Ich kann einen MVP mit No-Code/Low-Code-Tools selbst bauen.' },
+      { key: 'D', label: 'Full-Stack-Entwickler — ich baue alles selbst.' },
+    ],
+  },
+  {
+    id: 'industry-focus',
+    dimension: 'Branchenfokus',
+    title: 'In welchem Bereich möchten Sie gründen?',
+    body: 'Die Branche bestimmt Regulierung, Kapitalintensität und Wettbewerbsdynamik.',
+    options: [
+      { key: 'A', label: 'Software / SaaS / KI — digitale Produkte mit hoher Skalierbarkeit.' },
+      { key: 'B', label: 'E-Commerce / D2C — physische oder digitale Konsumgüter.' },
+      { key: 'C', label: 'Beratung / Agentur / Freelancing — wissensbasierte Dienstleistungen.' },
+      { key: 'D', label: 'FinTech / RegTech / HealthTech — regulierter Markt mit hohen Eintrittsbarrieren.' },
+    ],
+  },
+  {
+    id: 'success-metric',
+    dimension: 'Erfolgsdefinition',
+    title: 'Woran messen Sie den Erfolg Ihres Unternehmens in 3 Jahren?',
+    body: 'Ihre persönliche Erfolgsdefinition bestimmt Strategie und Prioritäten.',
+    options: [
+      { key: 'A', label: 'Profitabilität — das Unternehmen trägt sich selbst und generiert Gewinn.' },
+      { key: 'B', label: 'Wachstum — Nutzerzahlen, MRR und Marktanteil steigen steil.' },
+      { key: 'C', label: 'Lifestyle — stabile Einnahmen bei maximaler persönlicher Freiheit.' },
+      { key: 'D', label: 'Exit-Potential — das Unternehmen ist attraktiv für Investoren oder Käufer.' },
+    ],
+  },
+];
