@@ -9,6 +9,8 @@
     onSubmit = () => {},
     onBack = () => {},
     submitting = false,
+    weeklyLocked = false,
+    cooldownLabel = '',
   } = $props();
 
   let consentChecked = $state(false);
@@ -16,6 +18,8 @@
   let answeredCount = $derived(
     answers.filter((a) => a.selectedKey !== null).length
   );
+
+  let canSubmit = $derived(consentChecked && !submitting && !weeklyLocked);
 
   function getAnswerSummary(answer: QuizAnswer): string {
     const q = QUESTIONS.find((q) => q.id === answer.questionId);
@@ -81,6 +85,34 @@
       </div>
     </details>
 
+    <!-- Rate limit & upsell notice -->
+    <div class="mb-5 rounded-xl border border-taupe-400/30 bg-taupe-400/5 p-4">
+      <h3 class="mb-2 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+        Hinweis zur Nutzung
+      </h3>
+      <p class="text-xs leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+        Um einen Missbrauch der KI-Schnittstelle zu vermeiden, ist die Erstellung des
+        Gründerprofils auf <strong class="text-text-primary-light dark:text-text-primary-dark">1 Auswertung pro Woche</strong> limitiert.
+        Wenn Sie mehrere Szenarien testen möchten oder eine tiefergehende strategische Beratung
+        benötigen, buchen Sie gerne ein
+        <a href="/services" class="font-medium text-eucalyptus-700 underline underline-offset-2 hover:text-eucalyptus-600 dark:text-eucalyptus-300 dark:hover:text-eucalyptus-200">1:1 Strategiegespräch</a>
+        mit mir.
+      </p>
+    </div>
+
+    <!-- Weekly cooldown warning -->
+    {#if weeklyLocked}
+      <div class="mb-5 rounded-xl border border-red-500/30 bg-red-500/5 p-4">
+        <p class="text-sm font-medium text-red-600 dark:text-red-400">
+          Wochenlimit erreicht
+        </p>
+        <p class="mt-1 text-xs text-text-secondary-light dark:text-text-secondary-dark">
+          Sie haben bereits eine Auswertung erstellt. Die nächste Auswertung ist
+          <strong class="text-text-primary-light dark:text-text-primary-dark">{cooldownLabel}</strong> möglich.
+        </p>
+      </div>
+    {/if}
+
     <!-- Privacy notice -->
     <div class="mb-5 rounded-xl border border-eucalyptus-500/30 bg-eucalyptus-500/5 p-4">
       <h3 class="mb-2 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
@@ -99,6 +131,7 @@
       <input
         type="checkbox"
         bind:checked={consentChecked}
+        disabled={weeklyLocked}
         class="mt-0.5 h-4 w-4 rounded border-black/20 text-eucalyptus-600 focus:ring-eucalyptus-500 dark:border-white/20"
       />
       <span class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
@@ -119,14 +152,20 @@
 
       <button
         type="button"
-        disabled={!consentChecked || submitting}
+        disabled={!canSubmit}
         onclick={onSubmit}
         class="rounded-xl px-6 py-2.5 text-sm font-semibold transition-all duration-200
-          {consentChecked && !submitting
+          {canSubmit
             ? 'bg-eucalyptus-600 text-white hover:bg-eucalyptus-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus-500 focus-visible:ring-offset-2 dark:bg-eucalyptus-500 dark:hover:bg-eucalyptus-400'
             : 'cursor-not-allowed bg-black/10 text-text-muted-light dark:bg-white/10 dark:text-text-muted-dark'}"
       >
-        {submitting ? 'Wird analysiert ...' : 'Profil auswerten'}
+        {#if weeklyLocked}
+          Wochenlimit erreicht
+        {:else if submitting}
+          Wird analysiert ...
+        {:else}
+          Profil auswerten
+        {/if}
       </button>
     </div>
   </div>

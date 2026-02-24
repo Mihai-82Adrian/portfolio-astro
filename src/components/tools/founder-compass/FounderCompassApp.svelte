@@ -4,7 +4,12 @@
   import ConsentStep from './ConsentStep.svelte';
   import ReportView from './ReportView.svelte';
   import { QUESTIONS } from './questions';
-  import { createEmptyAnswers, type CompassState } from '@/lib/founder-compass/types';
+  import {
+    createEmptyAnswers,
+    isWeeklyCooldownActive,
+    cooldownRemainingLabel,
+    type CompassState,
+  } from '@/lib/founder-compass/types';
 
   const STORAGE_KEY = 'tools.founder-compass.state.v1';
   const TOTAL = QUESTIONS.length;
@@ -15,6 +20,7 @@
   let status = $state<CompassState['status']>('idle');
   let report = $state<string | null>(null);
   let errorMessage = $state<string | null>(null);
+  let lastGeneratedAt = $state<number | null>(null);
 
   let restored = $state(false);
 
@@ -26,6 +32,9 @@
   let currentQuestion = $derived(
     currentStep < TOTAL ? QUESTIONS[currentStep] : null
   );
+
+  let weeklyLocked = $derived(isWeeklyCooldownActive(lastGeneratedAt));
+  let cooldownLabel = $derived(cooldownRemainingLabel(lastGeneratedAt));
 
   // ── Lifecycle ────────────────────────────────────────────────────
   onMount(() => {
@@ -45,6 +54,9 @@
         if (p.status === 'complete') {
           status = 'complete';
         }
+        if (typeof p.lastGeneratedAt === 'number') {
+          lastGeneratedAt = p.lastGeneratedAt;
+        }
       }
     } catch { /* ignore */ }
     restored = true;
@@ -59,6 +71,7 @@
       status: status === 'streaming' || status === 'submitting' ? 'in-progress' : status,
       report,
       errorMessage: null,
+      lastGeneratedAt,
     };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
@@ -80,10 +93,18 @@
 
   // ── Submit & Stream ──────────────────────────────────────────────
   async function handleSubmit() {
+    // Double-check frontend guard
+    if (weeklyLocked) {
+      errorMessage = `Wochenlimit erreicht. Nächste Auswertung ${cooldownLabel}.`;
+      status = 'error';
+      currentStep = TOTAL + 1;
+      return;
+    }
+
     status = 'submitting';
     errorMessage = null;
     report = '';
-    currentStep = TOTAL + 1; // Show report view
+    currentStep = TOTAL + 1;
 
     try {
       const payload = answers.map((a) => {
@@ -159,11 +180,13 @@
           }
         }
 
+        // Mark generation timestamp on success
+        lastGeneratedAt = Date.now();
         status = 'complete';
       } else {
-        // Non-streaming fallback
         const data = await res.json();
         report = (data as { report?: string }).report || 'Kein Ergebnis generiert.';
+        lastGeneratedAt = Date.now();
         status = 'complete';
       }
     } catch (e) {
@@ -180,8 +203,18 @@
     status = 'idle';
     report = null;
     errorMessage = null;
+    // NOTE: lastGeneratedAt is intentionally NOT reset — cooldown persists
     try {
-      localStorage.removeItem(STORAGE_KEY);
+      // Persist with lastGeneratedAt intact
+      const snapshot: Partial<CompassState> = {
+        currentStep: 0,
+        answers: createEmptyAnswers(QUESTIONS),
+        status: 'idle',
+        report: null,
+        errorMessage: null,
+        lastGeneratedAt,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
     } catch { /* ignore */ }
   }
 </script>
@@ -227,6 +260,8 @@
       onSubmit={handleSubmit}
       onBack={goBack}
       submitting={status === 'submitting'}
+      {weeklyLocked}
+      {cooldownLabel}
     />
   {/if}
 

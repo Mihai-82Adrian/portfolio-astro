@@ -1,6 +1,7 @@
 <script lang="ts">
   import { fly, fade } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
+  import { Marked } from 'marked';
 
   let {
     report = '' as string,
@@ -10,6 +11,28 @@
   } = $props();
 
   let reportEl: HTMLElement | undefined = $state(undefined);
+
+  // Configure marked with safe defaults (no raw HTML passthrough)
+  const marked = new Marked({
+    breaks: true,
+    gfm: true,
+  });
+
+  // Sanitize HTML output — strip any raw HTML tags the LLM might produce
+  function sanitizeHtml(html: string): string {
+    return html
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<iframe[\s\S]*?<\/iframe>/gi, '')
+      .replace(/on\w+="[^"]*"/gi, '')
+      .replace(/on\w+='[^']*'/gi, '');
+  }
+
+  let renderedHtml = $derived(() => {
+    if (!report) return '';
+    const raw = marked.parse(report);
+    if (typeof raw !== 'string') return '';
+    return sanitizeHtml(raw);
+  });
 
   // Auto-scroll as content streams in
   $effect(() => {
@@ -42,7 +65,7 @@
       </div>
     {/if}
 
-    <!-- Report content -->
+    <!-- Report content (rendered Markdown) -->
     {#if status === 'streaming' || status === 'complete'}
       <div>
         <div class="mb-4 flex items-center justify-between">
@@ -59,9 +82,9 @@
 
         <div
           bind:this={reportEl}
-          class="prose prose-sm max-h-[60vh] overflow-y-auto text-text-primary-light dark:text-text-primary-dark"
+          class="compass-report max-h-[65vh] overflow-y-auto"
         >
-          <pre class="whitespace-pre-wrap font-sans text-sm leading-relaxed">{report}</pre>
+          {@html renderedHtml()}
         </div>
 
         {#if status === 'complete'}
@@ -106,3 +129,71 @@
     {/if}
   </div>
 </div>
+
+<style>
+  /* Scoped typography for rendered Markdown report */
+  .compass-report :global(h2) {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-primary);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-eucalyptus-500) 25%, transparent);
+    padding-bottom: 0.375rem;
+  }
+
+  .compass-report :global(h2:first-child) {
+    margin-top: 0;
+  }
+
+  .compass-report :global(h3) {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 1.25rem;
+    margin-bottom: 0.375rem;
+    color: var(--color-text-primary);
+  }
+
+  .compass-report :global(p) {
+    font-size: 0.875rem;
+    line-height: 1.625;
+    margin-bottom: 0.75rem;
+    color: var(--color-text-secondary);
+  }
+
+  .compass-report :global(strong) {
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .compass-report :global(ul),
+  .compass-report :global(ol) {
+    font-size: 0.875rem;
+    line-height: 1.625;
+    margin-bottom: 0.75rem;
+    padding-left: 1.25rem;
+    color: var(--color-text-secondary);
+  }
+
+  .compass-report :global(ul) {
+    list-style-type: disc;
+  }
+
+  .compass-report :global(ol) {
+    list-style-type: decimal;
+  }
+
+  .compass-report :global(li) {
+    margin-bottom: 0.375rem;
+  }
+
+  .compass-report :global(a) {
+    color: var(--color-eucalyptus-700);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  :global(.dark) .compass-report :global(a) {
+    color: var(--color-eucalyptus-300);
+  }
+</style>
