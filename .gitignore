@@ -4,6 +4,7 @@ dist/
 .astro/
 # local temp artifacts
 .tmp/
+.wrangler/
 
 # dependencies
 node_modules/
