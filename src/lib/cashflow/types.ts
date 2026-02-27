@@ -1,3 +1,19 @@
+// ─── Default stress scenario parameters ───────────────────────────────────
+// We calculate the scenarios — LLM only analyzes the results.
+export const DEFAULT_SCENARIO_PARAMS = {
+  late_payment: {
+    percentAffected: 30,   // 30% of monthly revenue delayed
+    delayDays:       60,   // net-60 days (2 months)
+  },
+  churn_spike: {
+    percentAffected: 25,   // 25% permanent revenue drop from month 1
+  },
+  cost_shock: {
+    costIncreasePercent:   20,    // 20% increase on all recurring costs
+    additionalOneTimeCost: 5000,  // one-time unexpected cost in month 3
+  },
+} as const;
+
 // ─── Storage ───────────────────────────────────────────────────────────────
 export const STORAGE_KEY = 'tools.cashflow-forecast.state.v1';
 export const WEEKLY_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
@@ -88,6 +104,8 @@ export interface CashflowState {
 // ─── Helpers ───────────────────────────────────────────────────────────────
 export function isWeeklyCooldownActive(lastAt: number | null): boolean {
   if (lastAt === null) return false;
+  // Bypass on localhost so devs can test freely
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') return false;
   return Date.now() - lastAt < WEEKLY_COOLDOWN_MS;
 }
 

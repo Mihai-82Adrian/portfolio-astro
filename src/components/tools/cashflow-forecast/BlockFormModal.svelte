@@ -141,7 +141,7 @@
           type="number"
           bind:value={amount}
           min="0"
-          step="50"
+          step="1"
           class="w-full rounded-xl border border-black/10 bg-[var(--bg-primary)] px-3 py-2.5 text-sm text-text-primary-light focus:outline-none focus:ring-2 focus:ring-eucalyptus-500/40 dark:border-white/10 dark:text-text-primary-dark"
         />
       </div>

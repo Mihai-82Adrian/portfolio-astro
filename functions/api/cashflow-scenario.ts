@@ -4,11 +4,11 @@ interface Env {
 
 // ─── Rate limiting (burst protection) ──────────────────────────────────────
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT_WINDOW   = 60 * 1000;
+const RATE_LIMIT_WINDOW       = 60 * 1000;
 const MAX_REQUESTS_PER_WINDOW = 5;
 
 // ─── Weekly quota (1 per 7 days, GDPR-compliant via Cache API) ─────────────
-const WEEKLY_TTL = 604800; // 7 days in seconds
+const WEEKLY_TTL = 604800;
 
 async function hashIP(ip: string): Promise<string> {
     const data = new TextEncoder().encode(`cashflow-scenario:${ip}:salt_7d`);
@@ -30,8 +30,30 @@ async function setWeeklyQuota(ipHash: string, requestUrl: string): Promise<void>
     }));
 }
 
-// ─── JSON Schema for OpenAI Structured Outputs ─────────────────────────────
-const SCENARIO_SCHEMA = {
+// ─── Types (mirrors frontend types) ───────────────────────────────────────
+interface MonthlyDataPoint {
+    month: string;
+    revenue: number;
+    costs: number;
+    net: number;
+    cumulative: number;
+}
+
+interface ScenarioPayload {
+    type: 'late_payment' | 'churn_spike' | 'cost_shock';
+    title: string;
+    monthlyData: MonthlyDataPoint[];
+}
+
+interface RequestPayload {
+    initialCash:    number;
+    baseProjection: MonthlyDataPoint[];
+    scenarios:      ScenarioPayload[];
+}
+
+// ─── JSON Schema for narratives only ──────────────────────────────────────
+// We send the calculated numbers; LLM writes the analysis. No math from LLM.
+const NARRATIVE_SCHEMA = {
     type: 'object',
     properties: {
         scenarios: {
@@ -39,37 +61,10 @@ const SCENARIO_SCHEMA = {
             items: {
                 type: 'object',
                 properties: {
-                    type:  { type: 'string', enum: ['late_payment', 'churn_spike', 'cost_shock'] },
-                    title: { type: 'string' },
-                    parameters: {
-                        type: 'object',
-                        properties: {
-                            percentAffected:        { type: 'number' },
-                            delayDays:              { type: 'number' },
-                            costIncreasePercent:    { type: 'number' },
-                            additionalOneTimeCost:  { type: 'number' },
-                        },
-                        required: ['percentAffected', 'delayDays', 'costIncreasePercent', 'additionalOneTimeCost'],
-                        additionalProperties: false,
-                    },
-                    narrative:   { type: 'string' },
-                    monthlyData: {
-                        type: 'array',
-                        items: {
-                            type: 'object',
-                            properties: {
-                                month:      { type: 'string' },
-                                revenue:    { type: 'number' },
-                                costs:      { type: 'number' },
-                                net:        { type: 'number' },
-                                cumulative: { type: 'number' },
-                            },
-                            required: ['month', 'revenue', 'costs', 'net', 'cumulative'],
-                            additionalProperties: false,
-                        },
-                    },
+                    type:      { type: 'string', enum: ['late_payment', 'churn_spike', 'cost_shock'] },
+                    narrative: { type: 'string' },
                 },
-                required: ['type', 'title', 'parameters', 'narrative', 'monthlyData'],
+                required: ['type', 'narrative'],
                 additionalProperties: false,
             },
         },
@@ -80,77 +75,52 @@ const SCENARIO_SCHEMA = {
 
 // ─── System prompt ─────────────────────────────────────────────────────────
 function buildSystemPrompt(): string {
-    return `Du bist ein erfahrener CFO-Berater für DACH-Startups und KMUs mit 15 Jahren Erfahrung in Liquiditätsplanung und Krisenmanagement.
+    return `Du bist ein erfahrener CFO-Berater für DACH-Startups und KMUs.
 
-Du erhältst das Cashflow-Modell eines Unternehmens: Startkapital, monatliche Finanzpositionen und eine 12-Monats-Basisprognose.
+Du erhältst berechnete Cashflow-Krisenszenarien (Zahlen bereits vom System berechnet).
+Deine Aufgabe: Schreibe für jedes Szenario eine präzise, handlungsorientierte Analyse auf Deutsch.
 
-Deine Aufgabe: Generiere EXAKT 3 Krisenszenarien mit realistischen, modellspezifischen Parametern.
+Für jedes Szenario:
+- Erkläre die konkrete finanzielle Auswirkung anhand der Zahlen (Liquiditätsveränderung, kritische Monate)
+- Nenne 1-2 konkrete Gegenmaßnahmen, die das Unternehmen sofort ergreifen kann
+- Ton: direkt, professionell, keine Panik — aber klar über die Risiken
 
-SZENARIO 1 — late_payment (Zahlungsverzug):
-- Analysiere die Einnahmequellen des Modells
-- Bestimme einen realistischen Prozentsatz betroffener B2B-Forderungen (percentAffected) und Verzugstage (delayDays)
-- Berechne neue monatliche Einnahmen unter Berücksichtigung der Verschiebung
-- Schreibe eine präzise 1-2-Satz-Beschreibung auf Deutsch
-
-SZENARIO 2 — churn_spike (Kundenverlust):
-- Fokussiere auf MRR/Abonnement-Einnahmen; wenn keine vorhanden, adaptiere auf Projektabbrüche
-- Bestimme realistischen Churn (percentAffected) basierend auf der Branchenstruktur des Modells
-- delayDays = 0 für dieses Szenario
-- Berechne die monatlichen Auswirkungen kumulativ
-
-SZENARIO 3 — cost_shock (Kostenschock):
-- Analysiere die Kostenbasis des Modells
-- Bestimme realistischen Kostenanstieg (costIncreasePercent) und eine einmalige Zusatzbelastung (additionalOneTimeCost) in Monat 3
-- percentAffected = 0, delayDays = 0 für dieses Szenario
-
-WICHTIG:
-- monthlyData muss EXAKT 12 Einträge haben (Monat 1 bis 12)
-- Alle Zahlen in EUR, gerundet auf ganze Zahlen
-- cumulative = kumulierter Kassenbestand unter dem Szenario, beginnend mit dem übergebenen initialCash
-- Die narrative muss das konkrete Modell referenzieren, nicht generisch sein
-- Setze unrelevante Parameter auf 0`;
+Maximale Länge pro narrative: 3 Sätze.
+Keine generischen Ratschläge — beziehe dich auf die konkreten Zahlen.`;
 }
 
 // ─── Input validation ───────────────────────────────────────────────────────
-interface BlockPayload {
-    id: string;
-    category: string;
-    subcategory: string;
-    label: string;
-    amount: number;
-    growthRate?: number;
-    variablePercent?: number;
-    oneTimeMonth?: number;
-}
-
-interface DataPointPayload {
-    month: string;
-    revenue: number;
-    costs: number;
-    net: number;
-    cumulative: number;
-}
-
-function validateInput(raw: unknown): { initialCash: number; blocks: BlockPayload[]; baseProjection: DataPointPayload[] } | null {
+function validateInput(raw: unknown): RequestPayload | null {
     if (typeof raw !== 'object' || raw === null) return null;
     const r = raw as Record<string, unknown>;
 
-    if (typeof r.initialCash !== 'number' || r.initialCash < 0) return null;
-    if (!Array.isArray(r.blocks) || r.blocks.length === 0 || r.blocks.length > 50) return null;
+    if (typeof r.initialCash !== 'number') return null;
     if (!Array.isArray(r.baseProjection) || r.baseProjection.length !== 12) return null;
+    if (!Array.isArray(r.scenarios) || r.scenarios.length !== 3) return null;
 
-    for (const b of r.blocks) {
-        if (typeof b !== 'object' || b === null) return null;
-        const block = b as Record<string, unknown>;
-        if (typeof block.category !== 'string') return null;
-        if (typeof block.amount !== 'number' || block.amount < 0) return null;
+    for (const sc of r.scenarios) {
+        if (typeof sc !== 'object' || sc === null) return null;
+        const s = sc as Record<string, unknown>;
+        if (!['late_payment', 'churn_spike', 'cost_shock'].includes(s.type as string)) return null;
+        if (!Array.isArray(s.monthlyData) || s.monthlyData.length !== 12) return null;
     }
 
-    return {
-        initialCash:    r.initialCash as number,
-        blocks:         r.blocks as BlockPayload[],
-        baseProjection: r.baseProjection as DataPointPayload[],
-    };
+    return r as unknown as RequestPayload;
+}
+
+// ─── Format numbers for LLM context ────────────────────────────────────────
+function eur(v: number): string {
+    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v);
+}
+
+function summarizeProjection(data: MonthlyDataPoint[]): string {
+    const minMonth = data.reduce((a, b) => a.cumulative < b.cumulative ? a : b);
+    const endBalance = data.at(-1)!.cumulative;
+    const insolvencyMonth = data.findIndex(d => d.cumulative < 0);
+    const insolvencyNote = insolvencyMonth >= 0
+        ? ` INSOLVENZRISIKO in Monat ${insolvencyMonth + 1} (${data[insolvencyMonth].month}, Kasse: ${eur(data[insolvencyMonth].cumulative)}).`
+        : ' Keine Insolvenz im Prognosezeitraum.';
+    return `Endbestand M12: ${eur(endBalance)}, Tiefpunkt: ${eur(minMonth.cumulative)} (${minMonth.month}).${insolvencyNote}`;
 }
 
 // ─── Request handler ────────────────────────────────────────────────────────
@@ -160,29 +130,26 @@ export const onRequestPost = async (context: any) => {
 
     const isLocal = request.url.includes('localhost') || request.url.includes('127.0.0.1');
 
-    // ── CORS preflight ──────────────────────────────────────────────────────
-    if (request.method === 'OPTIONS') {
-        return new Response(null, { status: 204, headers: { 'Access-Control-Allow-Origin': '*' } });
-    }
+    // ── Burst rate limit (skipped on localhost for development) ─────────────
+    const clientIP  = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+    if (!isLocal) {
+        const now       = Date.now();
+        const rateEntry = rateLimitMap.get(clientIP);
 
-    // ── Burst rate limit ────────────────────────────────────────────────────
-    const clientIP   = request.headers.get('CF-Connecting-IP') ?? 'unknown';
-    const now        = Date.now();
-    const rateEntry  = rateLimitMap.get(clientIP);
-
-    if (rateEntry) {
-        if (now < rateEntry.resetTime) {
-            if (rateEntry.count >= MAX_REQUESTS_PER_WINDOW) {
-                return new Response(JSON.stringify({ message: 'Zu viele Anfragen. Bitte warten Sie kurz.' }), {
-                    status: 429, headers: { 'Content-Type': 'application/json' },
-                });
+        if (rateEntry) {
+            if (now < rateEntry.resetTime) {
+                if (rateEntry.count >= MAX_REQUESTS_PER_WINDOW) {
+                    return new Response(JSON.stringify({ message: 'Zu viele Anfragen. Bitte warten Sie kurz.' }), {
+                        status: 429, headers: { 'Content-Type': 'application/json' },
+                    });
+                }
+                rateEntry.count++;
+            } else {
+                rateLimitMap.set(clientIP, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
             }
-            rateEntry.count++;
         } else {
             rateLimitMap.set(clientIP, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
         }
-    } else {
-        rateLimitMap.set(clientIP, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
     }
 
     // ── Weekly quota ────────────────────────────────────────────────────────
@@ -195,11 +162,10 @@ export const onRequestPost = async (context: any) => {
         }
     }
 
-    // ── Parse & validate body ───────────────────────────────────────────────
+    // ── Parse & validate ────────────────────────────────────────────────────
     let body: unknown;
-    try {
-        body = await request.json();
-    } catch {
+    try { body = await request.json(); }
+    catch {
         return new Response(JSON.stringify({ message: 'Ungültiger JSON-Body.' }), {
             status: 400, headers: { 'Content-Type': 'application/json' },
         });
@@ -212,31 +178,22 @@ export const onRequestPost = async (context: any) => {
         });
     }
 
-    // ── Build user message ──────────────────────────────────────────────────
-    const blocksText = validated.blocks.map(b => {
-        const suffix = b.variablePercent ? ` (${b.variablePercent}% Umsatz)`
-                     : b.growthRate      ? ` (+${b.growthRate}%/Monat Wachstum)`
-                     : b.oneTimeMonth !== undefined ? ` (einmalig Monat ${b.oneTimeMonth + 1})`
-                     : '';
-        return `  - [${b.category}] ${b.label}: ${b.amount}€${suffix}`;
-    }).join('\n');
-
-    const projText = validated.baseProjection.map((p, i) =>
-        `  Monat ${i + 1} (${p.month}): Einnahmen ${p.revenue}€, Kosten ${p.costs}€, Netto ${p.net}€, Kasse ${p.cumulative}€`
+    // ── Build context for LLM — numbers only, no calculations requested ─────
+    const baseSum = summarizeProjection(validated.baseProjection);
+    const scenarioSummaries = validated.scenarios.map(sc =>
+        `${sc.title} (${sc.type}): ${summarizeProjection(sc.monthlyData)}`
     ).join('\n');
 
-    const userMessage = `Cashflow-Modell:
-Startkapital: ${validated.initialCash}€
+    const userMessage = `Startkapital: ${eur(validated.initialCash)}
 
-Finanzpositionen:
-${blocksText}
+Basis-Prognose: ${baseSum}
 
-Basisprognose (12 Monate):
-${projText}
+Krisenszenarien (berechnet):
+${scenarioSummaries}
 
-Bitte generiere die 3 Krisenszenarien für dieses spezifische Modell.`;
+Bitte analysiere jedes Szenario und gib Handlungsempfehlungen.`;
 
-    // ── Call OpenAI Chat Completions with Structured Outputs ────────────────
+    // ── Call o4-mini with structured output for narratives ──────────────────
     try {
         const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
@@ -245,34 +202,42 @@ Bitte generiere die 3 Krisenszenarien für dieses spezifische Modell.`;
                 'Content-Type':  'application/json',
             },
             body: JSON.stringify({
-                model: 'o4-mini',
+                model:            'o4-mini',
+                reasoning_effort: 'low',              // minimize reasoning token overhead
                 messages: [
-                    { role: 'system', content: buildSystemPrompt() },
-                    { role: 'user',   content: userMessage },
+                    { role: 'developer', content: buildSystemPrompt() },  // o4-mini uses 'developer' not 'system'
+                    { role: 'user',      content: userMessage },
                 ],
                 response_format: {
                     type:        'json_schema',
                     json_schema: {
-                        name:   'cashflow_scenarios',
+                        name:   'scenario_narratives',
                         strict: true,
-                        schema: SCENARIO_SCHEMA,
+                        schema: NARRATIVE_SCHEMA,
                     },
                 },
-                max_completion_tokens: 4000,
+                max_completion_tokens: 2000,           // budget for reasoning (~500) + response (~300)
             }),
         });
 
         if (!openAIResponse.ok) {
             const errText = await openAIResponse.text();
-            console.error('OpenAI error:', errText);
+            console.error('OpenAI HTTP error:', openAIResponse.status, errText);
             return new Response(JSON.stringify({ message: 'KI-Analyse fehlgeschlagen. Bitte später erneut versuchen.' }), {
                 status: 502, headers: { 'Content-Type': 'application/json' },
             });
         }
 
-        const data   = await openAIResponse.json() as any;
-        const content = data.choices?.[0]?.message?.content;
+        const data       = await openAIResponse.json() as any;
+        const choice     = data.choices?.[0];
+        const content    = choice?.message?.content;
+        const refusal    = choice?.message?.refusal;
+        const finishReason = choice?.finish_reason;
+
+        console.log('[cashflow-scenario] finish_reason:', finishReason, '| has_content:', !!content, '| has_refusal:', !!refusal);
+
         if (!content) {
+            console.error('[cashflow-scenario] null content — refusal:', refusal, '| full choice:', JSON.stringify(choice));
             return new Response(JSON.stringify({ message: 'Keine Antwort vom KI-Modell erhalten.' }), {
                 status: 502, headers: { 'Content-Type': 'application/json' },
             });
@@ -280,7 +245,6 @@ Bitte generiere die 3 Krisenszenarien für dieses spezifische Modell.`;
 
         const result = JSON.parse(content);
 
-        // ── Set weekly quota on success ─────────────────────────────────────
         if (!isLocal) {
             const ipHash = await hashIP(clientIP);
             await setWeeklyQuota(ipHash, request.url);
