@@ -1,13 +1,20 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Download } from 'lucide-svelte';
+  import { Download, FileDown } from 'lucide-svelte';
   import type { CashflowBlock, CashflowState, StressScenarioResult } from '@/lib/cashflow/types';
   import {
     STORAGE_KEY,
+    DEFAULT_SCENARIO_PARAMS,
     isWeeklyCooldownActive,
     cooldownRemainingLabel,
   } from '@/lib/cashflow/types';
-  import { projectCashflow } from '@/lib/cashflow/projectionEngine';
+  import {
+    projectCashflow,
+    applyLatePayment,
+    applyChurnSpike,
+    applyCostShock,
+  } from '@/lib/cashflow/projectionEngine';
+  import { generateCashflowPdf } from '@/lib/cashflow/pdfExport';
 
   import CashflowChart   from './CashflowChart.svelte';
   import MetricsSummary  from './MetricsSummary.svelte';
@@ -24,6 +31,11 @@
   let isGenerating   = $state(false);
   let errorMessage   = $state<string | null>(null);
   let restored       = $state(false);
+
+  // PDF export — getChartImage is registered via onChartReady callback (Svelte 5: bind:this doesn't expose exports)
+  let getChartImage  = $state<(() => string | null) | null>(null);
+  let pdfBusy        = $state(false);
+  let pdfError       = $state<string | null>(null);
 
   // Modal state
   let editingBlock   = $state<Partial<CashflowBlock> & { id?: string } | null>(null);
@@ -155,13 +167,34 @@
     errorMessage  = null;
 
     try {
+      // ── 1. Calculate all 3 scenarios locally (no LLM math) ─────────────
+      const p = DEFAULT_SCENARIO_PARAMS;
+      const calculatedScenarios = [
+        {
+          type:      'late_payment' as const,
+          title:     'Zahlungsverzug (30%, Net-60)',
+          monthlyData: applyLatePayment(baseProjection, initialCash, p.late_payment.percentAffected, p.late_payment.delayDays),
+        },
+        {
+          type:      'churn_spike' as const,
+          title:     'Churn-Einbruch (−25% Umsatz)',
+          monthlyData: applyChurnSpike(baseProjection, initialCash, p.churn_spike.percentAffected),
+        },
+        {
+          type:      'cost_shock' as const,
+          title:     'Kostenschock (+20% + 5.000 €)',
+          monthlyData: applyCostShock(baseProjection, initialCash, p.cost_shock.costIncreasePercent, p.cost_shock.additionalOneTimeCost),
+        },
+      ];
+
+      // ── 2. Send pre-calculated results to Worker for narrative analysis ─
       const res = await fetch('/api/cashflow-scenario', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           initialCash,
-          blocks,
           baseProjection,
+          scenarios: calculatedScenarios,
         }),
       });
 
@@ -176,10 +209,25 @@
         return;
       }
 
-      const data = await res.json() as { scenarios: any[] };
+      // ── 3. Merge AI narratives with locally calculated monthlyData ──────
+      const data = await res.json() as { scenarios: { type: string; narrative: string }[] };
+
+      const merged = calculatedScenarios.map(sc => {
+        const aiEntry = data.scenarios.find(a => a.type === sc.type);
+        return {
+          ...sc,
+          parameters: {
+            percentAffected:       sc.type === 'late_payment' ? p.late_payment.percentAffected  : sc.type === 'churn_spike' ? p.churn_spike.percentAffected : 0,
+            delayDays:             sc.type === 'late_payment' ? p.late_payment.delayDays         : 0,
+            costIncreasePercent:   sc.type === 'cost_shock'   ? p.cost_shock.costIncreasePercent : 0,
+            additionalOneTimeCost: sc.type === 'cost_shock'   ? p.cost_shock.additionalOneTimeCost : 0,
+          },
+          narrative: aiEntry?.narrative ?? '',
+        };
+      });
 
       scenarioResult = {
-        scenarios:   data.scenarios,
+        scenarios:   merged,
         generatedAt: Date.now(),
       };
       lastScenarioAt = Date.now();
@@ -187,6 +235,26 @@
       errorMessage = 'Netzwerkfehler. Bitte Verbindung prüfen.';
     } finally {
       isGenerating = false;
+    }
+  }
+
+  // ── PDF Export ────────────────────────────────────────────────────────────
+  async function handleDownloadPdf() {
+    if (pdfBusy || !hasBlocks) return;
+    pdfBusy  = true;
+    pdfError = null;
+    try {
+      const chartImage = getChartImage?.() ?? null;
+      await generateCashflowPdf({
+        initialCash,
+        baseProjection,
+        scenarioResult,
+        chartImageBase64: chartImage,
+      });
+    } catch {
+      pdfError = 'PDF konnte nicht erstellt werden. Bitte erneut versuchen.';
+    } finally {
+      pdfBusy = false;
     }
   }
 
@@ -245,7 +313,7 @@
         type="number"
         bind:value={initialCash}
         min="0"
-        step="1000"
+        step="1"
         oninput={() => { if (scenarioResult) scenarioResult = null; }}
         class="w-48 rounded-xl border border-black/10 bg-[var(--bg-primary)] px-3 py-2.5 text-sm text-text-primary-light focus:outline-none focus:ring-2 focus:ring-eucalyptus-500/40 dark:border-white/10 dark:text-text-primary-dark"
       />
@@ -258,7 +326,12 @@
     <h2 class="mb-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
       12-Monats-Liquiditätsprognose
     </h2>
-    <CashflowChart baseData={baseProjection} {scenarioResult} {initialCash} />
+    <CashflowChart
+      baseData={baseProjection}
+      {scenarioResult}
+      {initialCash}
+      onChartReady={(fn) => { getChartImage = fn; }}
+    />
   </div>
 
   <!-- Metrics -->
@@ -291,12 +364,42 @@
     />
   </div>
 
-  <!-- Reset -->
-  <div class="flex justify-end">
+  <!-- Footer actions: PDF export (left) + Reset (right) -->
+  <div class="flex items-start justify-between gap-4">
+    <!-- PDF export -->
+    <div class="flex flex-col items-start gap-1">
+      {#if hasBlocks}
+        <button
+          type="button"
+          onclick={handleDownloadPdf}
+          disabled={pdfBusy}
+          class="flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium transition-all
+            {pdfBusy
+              ? 'cursor-wait border-black/10 text-text-muted-light dark:border-white/10 dark:text-text-muted-dark'
+              : 'border-eucalyptus-500/40 text-eucalyptus-700 hover:border-eucalyptus-500 hover:bg-eucalyptus-50 dark:border-eucalyptus-500/30 dark:text-eucalyptus-400 dark:hover:bg-eucalyptus-500/10'}"
+        >
+          {#if pdfBusy}
+            <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            PDF wird erstellt…
+          {:else}
+            <FileDown size={15} />
+            Als PDF exportieren
+          {/if}
+        </button>
+        {#if pdfError}
+          <p class="text-xs text-red-500">{pdfError}</p>
+        {/if}
+      {/if}
+    </div>
+
+    <!-- Reset -->
     <button
       type="button"
       onclick={handleReset}
-      class="text-xs text-text-secondary-light underline underline-offset-2 hover:text-text-primary-light dark:text-text-secondary-dark dark:hover:text-text-primary-dark"
+      class="mt-2 text-xs text-text-secondary-light underline underline-offset-2 hover:text-text-primary-light dark:text-text-secondary-dark dark:hover:text-text-primary-dark"
     >
       Modell zurücksetzen
     </button>

@@ -6,10 +6,12 @@
     baseData,
     scenarioResult = null,
     initialCash = 0,
+    onChartReady = undefined,
   }: {
-    baseData: MonthlyDataPoint[];
+    baseData:       MonthlyDataPoint[];
     scenarioResult: StressScenarioResult | null;
-    initialCash: number;
+    initialCash:    number;
+    onChartReady?:  (getImage: () => string | null) => void;
   } = $props();
 
   let canvas: HTMLCanvasElement;
@@ -196,7 +198,26 @@
     chartInstance.update('none');
   }
 
-  onMount(() => buildChart());
+  // ── Public API (accessible via bind:this from CashflowApp) ─────────────
+  export function getImageBase64(): string | null {
+    if (!chartInstance || !canvas) return null;
+    // Draw onto an offscreen canvas with white background (transparent canvas → PDF-safe)
+    const offscreen = document.createElement('canvas');
+    offscreen.width  = canvas.width;
+    offscreen.height = canvas.height;
+    const ctx = offscreen.getContext('2d');
+    if (!ctx) return null;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, offscreen.width, offscreen.height);
+    ctx.drawImage(canvas, 0, 0);
+    return offscreen.toDataURL('image/png', 1);
+  }
+
+  onMount(async () => {
+    await buildChart();
+    // Expose getImageBase64 to parent via callback (Svelte 5: bind:this doesn't expose exports)
+    onChartReady?.(getImageBase64);
+  });
   onDestroy(() => chartInstance?.destroy());
 
   $effect(() => {

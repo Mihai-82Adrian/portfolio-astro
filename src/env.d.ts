@@ -1,3 +1,15 @@
+declare module 'pdfmake/build/pdfmake.js' {
+    const pdfMake: any;
+    export default pdfMake;
+    export = pdfMake;
+}
+
+declare module 'pdfmake/build/vfs_fonts.js' {
+    const vfs: any;
+    export default vfs;
+    export = vfs;
+}
+
 declare module '@lucide/astro' {
     import type { HTMLAttributes } from 'astro/types';
 
