@@ -78,7 +78,10 @@ export function calcReturnMetrics(
 
   return {
     roi:         calcROI(initial, sorted),
-    cagr:        calcCAGR(initial, totalCF, years),
+    // CAGR is only valid for a single exit cashflow — with multiple cashflows use IRR
+    cagr:        sorted.length === 1
+      ? calcCAGR(initial, sorted[0].amount, sorted[0].year)
+      : null,
     irr:         calcIRR(initial, sorted),
     npv:         calcNPV(initial, sorted, discountRate),
     paybackYear: calcPayback(initial, sorted),
@@ -164,9 +167,9 @@ export function calcRiskMetrics(
     if (dd < maxDD) maxDD = dd;
   }
 
-  // Parametric VaR
-  const var95 = -(mu + sigma * 1.645) * initial;
-  const var99 = -(mu + sigma * 2.3263) * initial;
+  // Parametric VaR — 5th percentile of return distribution = loss at 95% confidence
+  const var95 = (mu - sigma * 1.645) * initial;
+  const var99 = (mu - sigma * 2.3263) * initial;
 
   return {
     annualizedReturn:     mu * 100,
@@ -191,7 +194,7 @@ export function runMonteCarlo(
 
   // Estimate μ and σ from historical data
   const returns = buildReturnSeries(initial, cashFlows);
-  const mu    = returns.length > 0 ? mean(returns) : 0.07;
+  const mu    = returns.length > 1 ? mean(returns) : 0.07;
   const sigma = returns.length > 1 ? stdDev(returns) : 0.15;
 
   // Build a map from year → scheduled CF
@@ -244,7 +247,9 @@ export function calcTax(
   isFund: boolean,
   isAccumulating: boolean,
   ter: number,
-  personalFreibetrag: number
+  personalFreibetrag: number,
+  teilfreistellung: boolean,
+  kirchensteuer: number
 ): TaxResult {
   const totalInflows = cashFlows.reduce((s, cf) => s + cf.amount, 0);
   const grossGain = totalInflows - initial;
@@ -255,11 +260,22 @@ export function calcTax(
     vorabpauschale = initial * VORABPAUSCHALE_RATE_2026 * (1 - ter / 100);
   }
 
-  const freibetrag  = Math.max(0, personalFreibetrag);
-  const taxableGain = Math.max(0, grossGain - freibetrag);
-  const taxAmount   = taxableGain * TAX_RATE;
-  const netGain     = grossGain - taxAmount;
-  const effectiveTaxRate = grossGain > 0 ? (taxAmount / grossGain) * 100 : 0;
+  // Apply Teilfreistellung (30% exemption for Aktienfonds, § 20 InvStG) BEFORE Freibetrag
+  const adjustedGain = (isFund && teilfreistellung) ? grossGain * 0.7 : grossGain;
+  const teilfreistellungReduction = grossGain - adjustedGain;
 
-  return { grossGain, taxableGain, taxAmount, netGain, vorabpauschale, effectiveTaxRate };
+  const freibetrag  = Math.max(0, personalFreibetrag);
+  const taxableGain = Math.max(0, adjustedGain - freibetrag);
+  const taxAmount   = taxableGain * TAX_RATE;
+
+  const kirchensteuerAmount = taxAmount * (kirchensteuer / 100);
+  const netGain     = grossGain - taxAmount - kirchensteuerAmount;
+  const effectiveTaxRate = grossGain > 0
+    ? ((taxAmount + kirchensteuerAmount) / grossGain) * 100
+    : 0;
+
+  return {
+    grossGain, taxableGain, taxAmount, netGain, vorabpauschale,
+    effectiveTaxRate, teilfreistellungReduction, kirchensteuerAmount,
+  };
 }

@@ -28,8 +28,10 @@ export async function generateInvestmentPdf(params: {
   taxResult:        TaxResult;
   aiNarrative:      string | null;
   chartImageBase64: string | null;
+  targetWindow?:    Window;
 }): Promise<void> {
-  const { returnMetrics, riskMetrics, mcResult, taxResult, aiNarrative, chartImageBase64 } = params;
+  const { returnMetrics, riskMetrics, mcResult, taxResult, aiNarrative, chartImageBase64, targetWindow } = params;
+  const { input } = params;
 
   // Lazy-load pdfmake
   const [pdfMakeMod, vfsMod] = await Promise.all([
@@ -152,7 +154,7 @@ export async function generateInvestmentPdf(params: {
           widths: ['25%', '25%', '25%', '25%'],
           body: [[
             { stack: [{ text: 'ROI', style: 'kpiLabel' }, { text: pct(returnMetrics.roi), style: returnMetrics.roi >= 0 ? 'kpiBrand' : 'kpiNeg' }], fillColor: '#F9FAFB', margin: [10, 10, 10, 12], border: [false, false, true, false] },
-            { stack: [{ text: 'CAGR p.a.', style: 'kpiLabel' }, { text: pct(returnMetrics.cagr), style: returnMetrics.cagr >= 0 ? 'kpiBrand' : 'kpiNeg' }], fillColor: '#F9FAFB', margin: [10, 10, 10, 12], border: [false, false, true, false] },
+            { stack: [{ text: 'CAGR p.a.', style: 'kpiLabel' }, { text: returnMetrics.cagr !== null ? pct(returnMetrics.cagr) : '—', style: (returnMetrics.cagr ?? 0) >= 0 ? 'kpiBrand' : 'kpiNeg' }], fillColor: '#F9FAFB', margin: [10, 10, 10, 12], border: [false, false, true, false] },
             { stack: [{ text: 'IRR', style: 'kpiLabel' }, { text: returnMetrics.irr !== null ? pct(returnMetrics.irr) : '—', style: (returnMetrics.irr ?? 0) >= 0 ? 'kpiBrand' : 'kpiNeg' }], fillColor: '#F9FAFB', margin: [10, 10, 10, 12], border: [false, false, true, false] },
             { stack: [{ text: 'NPV (Kapitalwert)', style: 'kpiLabel' }, { text: eur(returnMetrics.npv), style: returnMetrics.npv >= 0 ? 'kpiBrand' : 'kpiNeg' }, { text: returnMetrics.paybackYear ? `Amortisation: Jahr ${returnMetrics.paybackYear}` : 'Kein Break-Even', style: 'kpiSub' }], fillColor: '#F9FAFB', margin: [10, 10, 10, 12], border: [false, false, false, false] },
           ]],
@@ -179,8 +181,8 @@ export async function generateInvestmentPdf(params: {
       },
       {
         columns: [
-          { stack: [{ text: 'VaR 95 %', fontSize: 8, color: '#6b7280', margin: [0, 0, 0, 2] }, { text: eur(riskMetrics.var95), fontSize: 12, bold: true, color: '#dc2626' }], margin: [0, 0, 10, 8] },
-          { stack: [{ text: 'VaR 99 %', fontSize: 8, color: '#6b7280', margin: [0, 0, 0, 2] }, { text: eur(riskMetrics.var99), fontSize: 12, bold: true, color: '#dc2626' }], margin: [0, 0, 0, 8] },
+          { stack: [{ text: 'VaR 95 %', fontSize: 8, color: '#6b7280', margin: [0, 0, 0, 2] }, { text: eur(riskMetrics.var95), fontSize: 12, bold: true, color: riskMetrics.var95 < 0 ? '#dc2626' : BRAND }], margin: [0, 0, 10, 8] },
+          { stack: [{ text: 'VaR 99 %', fontSize: 8, color: '#6b7280', margin: [0, 0, 0, 2] }, { text: eur(riskMetrics.var99), fontSize: 12, bold: true, color: riskMetrics.var99 < 0 ? '#dc2626' : BRAND }], margin: [0, 0, 0, 8] },
         ],
       },
 
@@ -202,8 +204,26 @@ export async function generateInvestmentPdf(params: {
           widths: ['25%', '25%', '25%', '25%'],
           body: [[
             { stack: [{ text: 'Bruttogewinn', style: 'kpiLabel' }, { text: eur(taxResult.grossGain), style: taxResult.grossGain >= 0 ? 'kpiBrand' : 'kpiNeg' }], fillColor: '#F9FAFB', margin: [10, 10, 10, 12], border: [false, false, true, false] },
-            { stack: [{ text: 'Steuerpflichtig', style: 'kpiLabel' }, { text: eur(taxResult.taxableGain), style: 'kpiPos' }], fillColor: '#F9FAFB', margin: [10, 10, 10, 12], border: [false, false, true, false] },
-            { stack: [{ text: 'Steuerbetrag', style: 'kpiLabel' }, { text: eur(taxResult.taxAmount), style: 'kpiNeg' }], fillColor: '#F9FAFB', margin: [10, 10, 10, 12], border: [false, false, true, false] },
+            {
+              stack: [
+                { text: 'Steuerpflichtig', style: 'kpiLabel' },
+                { text: eur(taxResult.taxableGain), style: 'kpiPos' },
+                ...(taxResult.teilfreistellungReduction > 0
+                  ? [{ text: `inkl. −${eur(taxResult.teilfreistellungReduction)} Teilfreistellung`, fontSize: 7, color: '#6b7280', margin: [0, 2, 0, 0] }]
+                  : []),
+              ],
+              fillColor: '#F9FAFB', margin: [10, 10, 10, 12], border: [false, false, true, false],
+            },
+            {
+              stack: [
+                { text: 'Steuerbetrag', style: 'kpiLabel' },
+                { text: eur(taxResult.taxAmount), style: 'kpiNeg' },
+                ...(taxResult.kirchensteuerAmount > 0
+                  ? [{ text: `+ KiSt ${eur(taxResult.kirchensteuerAmount)}`, fontSize: 7, color: '#6b7280', margin: [0, 2, 0, 0] }]
+                  : []),
+              ],
+              fillColor: '#F9FAFB', margin: [10, 10, 10, 12], border: [false, false, true, false],
+            },
             { stack: [{ text: 'Nettogewinn', style: 'kpiLabel' }, { text: eur(taxResult.netGain), style: taxResult.netGain >= 0 ? 'kpiBrand' : 'kpiNeg' }, { text: `Eff. Steuersatz: ${pct(taxResult.effectiveTaxRate)}`, style: 'kpiSub' }], fillColor: '#F9FAFB', margin: [10, 10, 10, 12], border: [false, false, false, false] },
           ]],
         },
@@ -230,11 +250,18 @@ export async function generateInvestmentPdf(params: {
   if (!(blob instanceof Blob)) throw new Error('PDF blob invalid');
 
   const url = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href     = url;
-  anchor.download = `Investment-Analytics_${new Date().toISOString().slice(0, 10)}.pdf`;
-  document.body.append(anchor);
-  anchor.click();
-  anchor.remove();
-  URL.revokeObjectURL(url);
+  if (targetWindow) {
+    // iOS Safari path: inject into pre-opened window (avoids async user-gesture restriction)
+    targetWindow.location.href = url;
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  } else {
+    // Desktop path: anchor download with filename
+    const anchor = document.createElement('a');
+    anchor.href     = url;
+    anchor.download = `Investment-Analytics_${new Date().toISOString().slice(0, 10)}.pdf`;
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  }
 }

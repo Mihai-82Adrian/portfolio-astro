@@ -64,7 +64,9 @@
       input.isFund,
       input.isAccumulating,
       input.ter,
-      input.personalFreibetrag
+      input.personalFreibetrag,
+      input.teilfreistellung,
+      input.kirchensteuer
     )
   );
 
@@ -194,6 +196,15 @@
     if (pdfBusy || !hasData) return;
     pdfBusy  = true;
     pdfError = null;
+    // Pre-open window BEFORE first await — only on iOS Safari (async blob clicks are blocked there).
+    // Desktop browsers support the <a download> anchor approach and must NOT get a pre-opened window,
+    // otherwise Chrome/Firefox open the PDF in a new tab instead of downloading it.
+    const isIOS = typeof navigator !== 'undefined'
+      && /iPad|iPhone|iPod/.test(navigator.userAgent)
+      && !('MSStream' in window);
+    const targetWindow = isIOS
+      ? window.open('', '_blank') ?? undefined
+      : undefined;
     try {
       const chartImage = getChartImage?.() ?? null;
       await generateInvestmentPdf({
@@ -204,9 +215,11 @@
         taxResult,
         aiNarrative,
         chartImageBase64: chartImage,
+        targetWindow,
       });
     } catch {
       pdfError = 'PDF konnte nicht erstellt werden.';
+      targetWindow?.close();
     } finally {
       pdfBusy = false;
     }

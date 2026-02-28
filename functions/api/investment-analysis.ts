@@ -146,7 +146,7 @@ export const onRequestPost = async (context: any) => {
 
 Rendite-Kennzahlen:
 - ROI: ${pct(rm.roi)}
-- CAGR: ${pct(rm.cagr)} p.a.
+- CAGR: ${rm.cagr !== null ? pct(rm.cagr) + ' p.a.' : 'nicht anwendbar (mehrere Cashflows — siehe IRR)'}
 - IRR: ${rm.irr !== null ? pct(rm.irr) : 'nicht konvergiert'}
 - NPV: ${eur(rm.npv)}
 - Amortisation: ${rm.paybackYear !== null ? `Jahr ${rm.paybackYear}` : 'nicht erreicht'}

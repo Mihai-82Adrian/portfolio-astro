@@ -35,6 +35,19 @@
         </span>
       </div>
 
+      <!-- Teilfreistellung (only for Aktienfonds) -->
+      {#if input.isFund && input.teilfreistellung && taxResult.teilfreistellungReduction > 0}
+        <div class="flex items-center justify-between border-b border-black/5 pb-3 dark:border-white/5">
+          <div>
+            <span class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Teilfreistellung (30 %)</span>
+            <p class="text-xs text-text-muted-light dark:text-text-muted-dark">§ 20 InvStG — Aktienfonds</p>
+          </div>
+          <span class="font-semibold text-eucalyptus-700 dark:text-eucalyptus-400">
+            − {eur(taxResult.teilfreistellungReduction)}
+          </span>
+        </div>
+      {/if}
+
       <!-- Freistellungsauftrag -->
       <div class="flex items-center justify-between border-b border-black/5 pb-3 dark:border-white/5">
         <div>
@@ -66,12 +79,25 @@
       </div>
 
       <!-- Tax amount -->
-      <div class="flex items-center justify-between border-b border-black/5 pb-3 dark:border-white/5">
+      <div class="flex items-center justify-between {input.kirchensteuer > 0 ? 'border-b border-black/5 pb-3 dark:border-white/5' : ''}" >
         <span class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">Steuerbetrag</span>
         <span class="font-bold text-red-600 dark:text-red-400">
           − {eur(taxResult.taxAmount)}
         </span>
       </div>
+
+      <!-- Kirchensteuer -->
+      {#if input.kirchensteuer > 0}
+        <div class="flex items-center justify-between border-b border-black/5 pb-3 dark:border-white/5">
+          <div>
+            <span class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Kirchensteuer ({input.kirchensteuer} %)</span>
+            <p class="text-xs text-text-muted-light dark:text-text-muted-dark">auf Abgeltungsteuer</p>
+          </div>
+          <span class="font-semibold text-red-600 dark:text-red-400">
+            − {eur(taxResult.kirchensteuerAmount)}
+          </span>
+        </div>
+      {/if}
 
       <!-- Net gain -->
       <div class="flex items-center justify-between pt-1">
@@ -104,9 +130,17 @@
   <!-- Vorabpauschale -->
   {#if input.isFund && input.isAccumulating && taxResult.vorabpauschale !== undefined}
     <div class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-5 dark:border-white/10">
-      <h3 class="mb-3 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
-        Vorabpauschale (Thesaurierer)
-      </h3>
+      <div class="mb-3 flex flex-wrap items-center gap-2">
+        <h3 class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+          Vorabpauschale (Thesaurierer)
+        </h3>
+        <span
+          class="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-400"
+          title="Berechnung nimmt positives Jahresergebnis an. Die tatsächliche Vorabpauschale entfällt, wenn der Fonds keine positive Rendite erzielt hat."
+        >
+          Schätzwert · Worst Case
+        </span>
+      </div>
       <p class="mb-3 text-xs text-text-muted-light dark:text-text-muted-dark">
         Jährliche fiktive Ausschüttung nach § 18 InvStG. Basiert auf dem Basiszins 2026
         ({pct(VORABPAUSCHALE_RATE_2026 * 100)} × TER-Korrektur).

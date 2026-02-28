@@ -1,9 +1,11 @@
 <script lang="ts">
   import { fly, fade } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
-  import { X, BookOpen, Calculator, TrendingUp, HelpCircle, ShieldAlert } from 'lucide-svelte';
+  import { X, BookOpen, Calculator, TrendingUp, HelpCircle, ShieldAlert, Lightbulb } from 'lucide-svelte';
 
   let { open = $bindable(false) }: { open: boolean } = $props();
+
+  let activeSection = $state<'methodik' | 'praxis'>('methodik');
 
   function close() { open = false; }
 </script>
@@ -28,24 +30,52 @@
     aria-modal="true"
   >
     <!-- Header -->
-    <div class="flex shrink-0 items-center justify-between border-b border-white/10 px-6 py-4">
-      <div class="flex items-center gap-2.5">
-        <BookOpen size={18} class="text-eucalyptus-400" aria-hidden="true" />
-        <h2 class="text-base font-semibold text-white">Methodik & Guide</h2>
+    <div class="shrink-0 border-b border-white/10">
+      <div class="flex items-center justify-between px-6 py-4">
+        <div class="flex items-center gap-2.5">
+          <BookOpen size={18} class="text-eucalyptus-400" aria-hidden="true" />
+          <h2 class="text-base font-semibold text-white">Methodik & Guide</h2>
+        </div>
+        <button
+          type="button"
+          onclick={close}
+          aria-label="Schließen"
+          class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-white/8 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus-500"
+        >
+          <X size={18} aria-hidden="true" />
+        </button>
       </div>
-      <button
-        type="button"
-        onclick={close}
-        aria-label="Schließen"
-        class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-white/8 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus-500"
-      >
-        <X size={18} aria-hidden="true" />
-      </button>
+      <!-- Tab switcher -->
+      <div class="flex gap-1 px-6 pb-3">
+        <button
+          type="button"
+          onclick={() => (activeSection = 'methodik')}
+          class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors
+            {activeSection === 'methodik'
+              ? 'bg-eucalyptus-500/20 text-eucalyptus-300'
+              : 'text-gray-500 hover:bg-white/5 hover:text-gray-300'}"
+        >
+          <Calculator size={12} aria-hidden="true" />
+          Formeln & Methodik
+        </button>
+        <button
+          type="button"
+          onclick={() => (activeSection = 'praxis')}
+          class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors
+            {activeSection === 'praxis'
+              ? 'bg-amber-500/20 text-amber-300'
+              : 'text-gray-500 hover:bg-white/5 hover:text-gray-300'}"
+        >
+          <Lightbulb size={12} aria-hidden="true" />
+          Praxis-Beispiel
+        </button>
+      </div>
     </div>
 
     <!-- Scrollable content -->
     <div class="flex-1 overflow-y-auto px-6 py-6 space-y-8">
 
+{#if activeSection === 'methodik'}
       <!-- ── A. Quick Start ──────────────────────────────────────────────── -->
       <section>
         <div class="mb-3 flex items-center gap-2">
@@ -115,10 +145,15 @@
           <div class="rounded-xl border border-white/8 bg-white/4 p-4">
             <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">CAGR — Compound Annual Growth Rate</p>
             <code class="block rounded-md bg-gray-900/80 px-3 py-2 font-mono text-sm text-blue-300">
-              CAGR = (Σ CF / Investition)^(1/Jahre) − 1
+              CAGR = (Exitwert / Investition)^(1/Jahre) − 1
             </code>
             <p class="mt-2 text-xs leading-relaxed text-gray-400">
               Die annualisierte Wachstumsrate: Bei welchem konstanten Jahreszins hätte dein Kapital den gleichen Gesamtrückfluss erzielt? Vergleichbar mit dem Zinseszins-Ansatz.
+            </p>
+            <p class="mt-2 rounded-md border border-amber-500/20 bg-amber-500/8 px-2.5 py-1.5 text-xs text-amber-300">
+              <strong class="text-amber-200">Einschränkung:</strong> CAGR ist nur bei einem einzelnen Exit-Cashflow mathematisch korrekt.
+              Bei mehreren Cashflows auf verschiedene Jahre wird <strong class="text-amber-200">—</strong> angezeigt —
+              verwende stattdessen den <strong class="text-amber-200">IRR</strong>, der Zeitwerteffekte korrekt berücksichtigt.
             </p>
           </div>
 
@@ -129,7 +164,10 @@
               NPV(IRR) = 0  →  −I + Σ [CF_t / (1+IRR)^t] = 0
             </code>
             <p class="mt-2 text-xs leading-relaxed text-gray-400">
-              Der Diskontierungssatz, bei dem der Kapitalwert null wird. Berechnung per Newton-Raphson-Verfahren (Startwert 10 %, Toleranz 10⁻⁶). Wenn IRR &gt; deine Mindestrendite (Diskontierungsrate), ist die Investition rentabel. Kann bei unregelmäßigen Cashflows mehrfach auftreten.
+              Der Diskontierungssatz, bei dem der Kapitalwert null wird. Berechnung per Newton-Raphson-Verfahren (Startwert 10 %, Toleranz 10⁻⁶). Wenn IRR &gt; deine Mindestrendite (Diskontierungsrate), ist die Investition rentabel.
+            </p>
+            <p class="mt-2 rounded-md border border-red-500/20 bg-red-500/8 px-2.5 py-1.5 text-xs text-red-300">
+              <strong class="text-red-200">Achtung:</strong> Bei unkonventionellen Cashflows (z. B. hohe Nachschusspflichten am Ende der Laufzeit) kann es <strong class="text-red-200">mehrere mathematisch gültige IRR-Werte</strong> geben. In diesem Fall ist der NPV die verlässlichere Entscheidungsgrundlage.
             </p>
           </div>
 
@@ -170,10 +208,11 @@
           <div class="rounded-xl border border-white/8 bg-white/4 p-4">
             <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">VaR — Value at Risk (parametrisch)</p>
             <code class="block rounded-md bg-gray-900/80 px-3 py-2 font-mono text-sm text-red-300">
-              VaR 95% = −(μ + 1,645 × σ) × Investition
+              VaR 95% = (μ − 1,645 × σ) × Investition
             </code>
             <p class="mt-2 text-xs leading-relaxed text-gray-400">
-              Der maximale Verlust, der mit 95 % (bzw. 99 %) Wahrscheinlichkeit nicht überschritten wird. Basiert auf der Normalverteilungs-Annahme. Bei stark asymmetrischen Cashflows ist der parametrische VaR eine Annäherung — die Monte-Carlo-Simulation liefert ein robusteres Bild.
+              Das 5. Perzentil der Renditeverteilung — der maximale Verlust, der mit 95 % Wahrscheinlichkeit nicht überschritten wird.
+              Ein negativer Wert bedeutet Verlust in EUR. Basiert auf der Normalverteilungs-Annahme. Bei stark asymmetrischen Cashflows ist der parametrische VaR eine Annäherung — die Monte-Carlo-Simulation liefert ein robusteres Bild.
             </p>
           </div>
 
@@ -185,7 +224,7 @@
             </code>
             <p class="mt-2 text-xs leading-relaxed text-gray-400">
               1.000 Pfade mit log-normalem Wachstum (Box-Muller-Transformation). Der Driftterm
-              <strong class="text-gray-200">μ − σ²/2</strong> verhindert den Jensen-Bias bei Log-Normal-Verteilungen.
+              <strong class="text-gray-200">μ − σ²/2</strong> ist die Itô-Korrektur (Log-Normal-Bias-Korrektur): ohne diesen Term würde der Erwartungswert der Simulation den gewünschten Drift überschätzen.
               <strong class="text-gray-200">ε ~ N(0,1)</strong> ist der Zufallsschock.
               Ergebnis: P5 (Worst Case), P50 (Median), P95 (Best Case) pro Jahr.
             </p>
@@ -267,7 +306,29 @@
               Abgeltungsteuer (Abgeltungssteuer)
             </dt>
             <dd class="mt-1 text-xs leading-relaxed text-gray-400">
-              Pauschale Kapitalertragsteuer von <strong class="text-gray-200">25 % + 5,5 % Solidaritätszuschlag = 26,375 %</strong> auf Zinsen, Dividenden und Kursgewinne. Wird an der Quelle einbehalten. Kirchensteuer (8–9 %) wird hier nicht berücksichtigt.
+              Pauschale Kapitalertragsteuer von <strong class="text-gray-200">25 % zzgl. 5,5 % Solidaritätszuschlag auf die Steuer (= 1,375 %) → gesamt 26,375 %</strong> auf Zinsen, Dividenden und Kursgewinne. Wird an der Quelle einbehalten.
+            </dd>
+          </div>
+
+          <div>
+            <dt class="flex items-center gap-1.5 text-xs font-semibold text-orange-400">
+              <span class="inline-block h-1.5 w-1.5 rounded-full bg-orange-400"></span>
+              Teilfreistellung (§ 20 InvStG)
+            </dt>
+            <dd class="mt-1 text-xs leading-relaxed text-gray-400">
+              Für <strong class="text-gray-200">Aktienfonds</strong> (Aktienanteil ≥ 51 %) sind <strong class="text-gray-200">30 %</strong> des Gewinns steuerfrei. Gilt für in Deutschland registrierte Investmentfonds nach dem Investmentsteuergesetz 2018.
+              <strong class="text-gray-200">Im Tool zuschaltbar für Aktienfonds (30 %).</strong>
+              Mischfonds (15 %) oder Immobilienfonds (60 %) sind aktuell nicht als direkter Toggle modelliert.
+            </dd>
+          </div>
+
+          <div>
+            <dt class="flex items-center gap-1.5 text-xs font-semibold text-yellow-400">
+              <span class="inline-block h-1.5 w-1.5 rounded-full bg-yellow-400"></span>
+              Kirchensteuer
+            </dt>
+            <dd class="mt-1 text-xs leading-relaxed text-gray-400">
+              <strong class="text-gray-200">8 %</strong> (Bayern, Baden-Württemberg) oder <strong class="text-gray-200">9 %</strong> (übrige Bundesländer) auf den Abgeltungsteuerbetrag. Kirchensteuerpflichtige Anleger müssen dies zusätzlich zur Abgeltungsteuer abführen. Hier als Vereinfachung direkt auf den Steuerbetrag berechnet.
             </dd>
           </div>
 
@@ -287,7 +348,10 @@
               Vorabpauschale (§ 18 InvStG)
             </dt>
             <dd class="mt-1 text-xs leading-relaxed text-gray-400">
-              Jährliche fiktive Besteuerung für <strong class="text-gray-200">thesaurierende Fonds</strong>, die keine Ausschüttungen vornehmen. Basis: Basiszins (2026: ~3,2 %) × 0,7 × Fondswert, gemindert um die tatsächliche Wertsteigerung. Verhindert eine vollständige Steuerstundung bis zum Verkauf.
+              Jährliche fiktive Besteuerung für <strong class="text-gray-200">thesaurierende Fonds</strong>, die keine Ausschüttungen vornehmen.
+              Basisertrag = Fondswert (1.1.) × Basiszins (2026: 3,20 %) × 0,7 <strong class="text-gray-200">(= 2,24 %)</strong>.
+              Die Vorabpauschale ist <strong class="text-gray-200">begrenzt auf die tatsächliche Wertsteigerung</strong>
+              (min-Funktion: nie höher als der reale Kursanstieg des Jahres). Verhindert eine vollständige Steuerstundung bis zum Verkauf.
             </dd>
           </div>
 
@@ -343,11 +407,15 @@
           </li>
           <li class="flex gap-2">
             <span class="mt-0.5 text-amber-400">▸</span>
-            <span>Die <strong class="text-gray-200">Steuerberechnung</strong> ist vereinfacht: Keine Kirchensteuer, keine Verlustverrechnung über mehrere Jahre, keine Teilfreistellung für Fonds (§ 20 InvStG).</span>
+            <span>Die <strong class="text-gray-200">Steuerberechnung</strong> ist vereinfacht: Keine Verlustverrechnung über mehrere Jahre. Kirchensteuer und Teilfreistellung (30 % für Aktienfonds) sind optional konfigurierbar, ersetzen aber keine individuelle Steuerberatung.</span>
           </li>
           <li class="flex gap-2">
             <span class="mt-0.5 text-amber-400">▸</span>
-            <span>CAGR verwendet die Summe aller Cashflows als Endwert — korrekt für reine Cash-Flow-Investments, aber nicht identisch mit dem CAGR eines gehaltenen Wertpapiers.</span>
+            <span>Die <strong class="text-gray-200">Vorabpauschale</strong> wird als Worst-Case-Schätzung berechnet: Es wird ein positives Jahresergebnis angenommen. In Jahren mit negativer oder keiner Wertsteigerung fällt die Vorabpauschale geringer oder gar nicht an.</span>
+          </li>
+          <li class="flex gap-2">
+            <span class="mt-0.5 text-amber-400">▸</span>
+            <span><strong class="text-gray-200">CAGR</strong> wird nur bei einem einzelnen Exit-Cashflow berechnet — mathematisch korrekt für einfache Einmalanlage mit Verkauf. Bei mehreren Cashflows ist IRR die richtige Kennzahl.</span>
           </li>
         </ul>
       </section>
@@ -356,6 +424,179 @@
       <div class="rounded-lg border border-white/6 bg-white/3 px-4 py-3 text-xs text-gray-500">
         Dieses Tool ist ein Planungsinstrument. Die Berechnungen basieren auf vereinfachten Modellen und ersetzen keine professionelle Steuer- oder Anlageberatung. Vergangene Renditen sind keine Garantie für zukünftige Ergebnisse.
       </div>
+
+{:else}
+      <!-- ── Praxis-Beispiel ────────────────────────────────────────────────── -->
+      <section>
+        <div class="mb-4 flex items-center gap-2">
+          <div class="flex h-6 w-6 items-center justify-center rounded-md bg-amber-500/20">
+            <Lightbulb size={13} class="text-amber-400" aria-hidden="true" />
+          </div>
+          <h3 class="text-sm font-semibold text-white">Praxis-Beispiel: Investition von privatem Vermögen</h3>
+        </div>
+
+        <!-- Scenario intro -->
+        <div class="mb-5 rounded-xl border border-amber-500/20 bg-amber-500/8 p-4">
+          <p class="text-xs font-semibold uppercase tracking-wide text-amber-400 mb-2">Der Fall</p>
+          <p class="text-sm leading-relaxed text-gray-300">
+            Du bist erfolgreicher Unternehmer und hast dir <strong class="text-white">100.000 € als Gewinnausschüttung privat auszahlen lassen</strong>.
+            Du überlegst, dieses Geld privat für 5 Jahre in einen globalen Aktien-ETF (thesaurierend) zu investieren,
+            um die Inflation zu schlagen. Dein Bankberater rechnet mit rund <strong class="text-white">6–7 % Rendite p.a.</strong> —
+            aber du willst das Risiko und die exakte Steuerlast (nach DACH-Regeln für Privatpersonen) selbst nachrechnen.
+          </p>
+        </div>
+
+        <!-- Steps -->
+        <div class="space-y-4">
+
+          <!-- Step 1 -->
+          <div class="rounded-xl border border-white/8 bg-white/4 p-4">
+            <div class="mb-3 flex items-center gap-2.5">
+              <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-eucalyptus-500/20 text-xs font-bold text-eucalyptus-400">1</span>
+              <p class="text-sm font-semibold text-white">Die Eingabe</p>
+            </div>
+            <ul class="space-y-2 text-xs leading-relaxed text-gray-400">
+              <li class="flex gap-2">
+                <span class="text-eucalyptus-400 mt-0.5">▸</span>
+                <span><strong class="text-gray-200">Investitionsbetrag:</strong> 100.000 € · <strong class="text-gray-200">Diskontierungsrate:</strong> 8 %</span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-eucalyptus-400 mt-0.5">▸</span>
+                <span>
+                  <strong class="text-gray-200">Cashflow:</strong> Trage <strong class="text-white">+135.000 € in Jahr 5</strong> ein
+                  (konservativer Exit-Wert, entspricht ca. 6,2 % Wachstum p.a. nach CAGR-Formel: (135k/100k)^(1/5)−1).
+                  Ein einzelner Cashflow — damit berechnet das Tool den <strong class="text-white">CAGR direkt</strong>.
+                </span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-eucalyptus-400 mt-0.5">▸</span>
+                <span>
+                  <strong class="text-gray-200">Steuer-Setup:</strong> Fonds → Thesaurierend aktivieren (TER 0,20 %) →
+                  <strong class="text-white">Aktienfonds (30 % Teilfreistellung)</strong> aktivieren →
+                  Freistellungsauftrag 1.000 €
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="rounded-xl border border-white/8 bg-white/4 p-4">
+            <div class="mb-3 flex items-center gap-2.5">
+              <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-xs font-bold text-blue-400">2</span>
+              <p class="text-sm font-semibold text-white">Die Erkenntnis (Kennzahlen-Tab)</p>
+            </div>
+            <ul class="space-y-2 text-xs leading-relaxed text-gray-400">
+              <li class="flex gap-2">
+                <span class="text-blue-400 mt-0.5">▸</span>
+                <span>
+                  <strong class="text-gray-200">CAGR ≈ 6,2 %</strong> — bestätigt die Bankberater-Aussage grob.
+                  Der <strong class="text-gray-200">NPV</strong> (bei 8 % Diskontierungsrate) zeigt dir,
+                  ob das Investment eine Opportunitätskosten-Hurdle schlägt.
+                </span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-blue-400 mt-0.5">▸</span>
+                <span>
+                  Der <strong class="text-gray-200">VaR 95 %</strong> ist die ungeschminkte Wahrheit:
+                  Bei historischer Volatilität eines globalen ETFs (σ ≈ 15–20 %)
+                  könntest du in einem einzelnen schlechten Jahr
+                  <strong class="text-white">mehrere Tausend Euro verlieren</strong>.
+                  Als Privatanleger musst du diese Zahl nüchtern einkalkulieren, bevor du unterschreibst.
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="rounded-xl border border-white/8 bg-white/4 p-4">
+            <div class="mb-3 flex items-center gap-2.5">
+              <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-purple-500/20 text-xs font-bold text-purple-400">3</span>
+              <p class="text-sm font-semibold text-white">Der Stress-Test (Monte-Carlo-Tab)</p>
+            </div>
+            <ul class="space-y-2 text-xs leading-relaxed text-gray-400">
+              <li class="flex gap-2">
+                <span class="text-purple-400 mt-0.5">▸</span>
+                <span>
+                  Klicke auf <strong class="text-gray-200">Simulation starten</strong>.
+                  Die 1.000 Pfade zeigen nicht nur das P50-Szenario (Median),
+                  sondern auch den <strong class="text-white">P5-Worst-Case</strong>.
+                </span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-purple-400 mt-0.5">▸</span>
+                <span>
+                  Wenn die <strong class="text-gray-200">P5-Linie nach 5 Jahren unter 100.000 €</strong> liegt:
+                  Es gibt ein reales statistisches Risiko, mit Verlust auszusteigen.
+                  Das ist die Information, die dein Bankberater dir nicht zeigt.
+                </span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-purple-400 mt-0.5">▸</span>
+                <span>
+                  Die <strong class="text-gray-200">Gewinnwahrscheinlichkeit</strong> (% der Pfade mit Endwert &gt; 100.000 €)
+                  ist deine ehrlichste Risikokennzahl für dieses Szenario.
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="rounded-xl border border-white/8 bg-white/4 p-4">
+            <div class="mb-3 flex items-center gap-2.5">
+              <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-xs font-bold text-red-400">4</span>
+              <p class="text-sm font-semibold text-white">Die harte Realität (Steuer-Tab)</p>
+            </div>
+            <ul class="space-y-2 text-xs leading-relaxed text-gray-400">
+              <li class="flex gap-2">
+                <span class="text-red-400 mt-0.5">▸</span>
+                <span>
+                  Von deinen <strong class="text-gray-200">35.000 € Bruttogewinn</strong> werden dank der
+                  <strong class="text-white">Teilfreistellung</strong> nur 70 % (24.500 €) besteuert —
+                  minus Freistellungsauftrag (1.000 €) = 23.500 € steuerpflichtiger Gewinn.
+                  Das Tool rechnet das automatisch durch.
+                </span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-red-400 mt-0.5">▸</span>
+                <span>
+                  Die <strong class="text-gray-200">Vorabpauschale</strong> (jährliche Schätzsteuer für Thesaurierer)
+                  zeigt dir, wie viel Cash du <strong class="text-white">jedes Jahr im Januar</strong> auf dem Girokonto
+                  vorhalten musst — obwohl du nichts ausgezahlt bekommst.
+                </span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-eucalyptus-400 mt-0.5">▸</span>
+                <span>
+                  Ganz unten: <strong class="text-white">Nettogewinn nach Steuern</strong> —
+                  die einzige Zahl, die für deine Entscheidung zählt.
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Step 5 — AI -->
+          <div class="rounded-xl border border-eucalyptus-500/20 bg-eucalyptus-500/8 p-4">
+            <div class="mb-3 flex items-center gap-2.5">
+              <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-eucalyptus-500/20 text-xs font-bold text-eucalyptus-400">5</span>
+              <p class="text-sm font-semibold text-white">Das Management-Summary (KI-Analyse)</p>
+            </div>
+            <p class="text-xs leading-relaxed text-gray-400">
+              Nutze nach der Simulation die <strong class="text-eucalyptus-300">KI-Analyse</strong>,
+              um alle Ergebnisse wie von einem externen CFO zusammenfassen zu lassen —
+              Stärken, Risiken und eine direkte Handlungsempfehlung.
+              Ideal, um das Investment intern zu kommunizieren oder mit deinem Steuerberater zu besprechen.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Praxis Footer -->
+      <div class="rounded-lg border border-white/6 bg-white/3 px-4 py-3 text-xs text-gray-500">
+        Dieses Beispiel dient der Illustration. Alle Zahlen sind Näherungswerte. Für verbindliche Steuer- und Investitionsentscheidungen konsultiere einen Steuerberater und Finanzberater.
+      </div>
+
+{/if}
 
     </div>
   </aside>

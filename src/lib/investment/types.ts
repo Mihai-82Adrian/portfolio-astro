@@ -21,11 +21,13 @@ export interface InvestmentInput {
   isAccumulating: boolean;     // true → accumulating fund (Thesaurierer)
   ter: number;                 // Total Expense Ratio % (only for funds)
   personalFreibetrag: number;  // EUR (default 1000, max 2000 for married)
+  teilfreistellung: boolean;   // true → 30% Aktienfonds exemption (§ 20 InvStG)
+  kirchensteuer: 0 | 8 | 9;   // % on Abgeltungsteuer (0 = none)
 }
 
 export interface ReturnMetrics {
   roi: number;               // %
-  cagr: number;              // % annualized
+  cagr: number | null;       // % annualized (null for multiple cashflows — use IRR instead)
   irr: number | null;        // % (null if Newton-Raphson fails)
   npv: number;               // EUR
   paybackYear: number | null; // 1-based year index (null if not recovered)
@@ -52,11 +54,13 @@ export interface MonteCarloResult {
 
 export interface TaxResult {
   grossGain: number;
-  taxableGain: number;       // after Freistellungsauftrag
+  taxableGain: number;           // after Freistellungsauftrag
   taxAmount: number;
   netGain: number;
-  vorabpauschale?: number;   // only for accumulating funds (per year)
-  effectiveTaxRate: number;  // % of gross gain
+  vorabpauschale?: number;       // only for accumulating funds (per year)
+  effectiveTaxRate: number;      // % of gross gain (includes Kirchensteuer)
+  teilfreistellungReduction: number; // EUR reduction from Teilfreistellung (0 if not applied)
+  kirchensteuerAmount: number;   // EUR Kirchensteuer (0 if none)
 }
 
 export interface InvestmentState {
@@ -95,4 +99,6 @@ export const DEFAULT_INPUT: InvestmentInput = {
   isAccumulating: false,
   ter: 0.2,
   personalFreibetrag: 1000,
+  teilfreistellung: false,
+  kirchensteuer: 0,
 };

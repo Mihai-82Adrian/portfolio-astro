@@ -49,8 +49,16 @@
 
       <div class={metricClass}>
         <p class={labelClass}>CAGR</p>
-        <p class={colorVal(returnMetrics.cagr)}>{pct(returnMetrics.cagr)}</p>
-        <p class="mt-1 text-xs text-text-muted-light dark:text-text-muted-dark">p.a. annualisiert</p>
+        {#if returnMetrics.cagr !== null}
+          <p class={colorVal(returnMetrics.cagr)}>{pct(returnMetrics.cagr)}</p>
+          <p class="mt-1 text-xs text-text-muted-light dark:text-text-muted-dark">p.a. annualisiert</p>
+        {:else}
+          <p
+            class="text-xl font-bold text-text-muted-light dark:text-text-muted-dark"
+            title="Bei mehreren Cashflows auf verschiedene Jahre ist IRR die korrekte Metrik"
+          >—</p>
+          <p class="mt-1 text-xs text-text-muted-light dark:text-text-muted-dark">Siehe IRR</p>
+        {/if}
       </div>
 
       <div class={metricClass}>

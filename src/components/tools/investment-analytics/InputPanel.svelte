@@ -198,6 +198,23 @@
           </button>
         </div>
 
+        <!-- Teilfreistellung toggle -->
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <p class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">Aktienfonds (30 % Teilfreistellung)</p>
+            <p class="text-xs text-text-muted-light dark:text-text-muted-dark">30 % des Gewinns steuerfrei (§ 20 InvStG)</p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={input.teilfreistellung}
+            onclick={() => update({ teilfreistellung: !input.teilfreistellung })}
+            class="relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-eucalyptus-500/40 {input.teilfreistellung ? 'bg-eucalyptus-500' : 'bg-gray-300 dark:bg-gray-600'}"
+          >
+            <span class="pointer-events-none inline-block h-4 w-4 translate-x-0 rounded-full bg-white shadow ring-0 transition duration-200 {input.teilfreistellung ? 'translate-x-4' : 'translate-x-0'}"></span>
+          </button>
+        </div>
+
         <!-- TER -->
         <div class="space-y-1.5">
           <label for="ter" class="block text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">
@@ -218,6 +235,23 @@
           </div>
         </div>
       {/if}
+
+      <!-- Kirchensteuer -->
+      <div class="space-y-1.5">
+        <label for="kirchensteuer" class="block text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">
+          Kirchensteuer
+        </label>
+        <select
+          id="kirchensteuer"
+          value={input.kirchensteuer}
+          onchange={(e) => update({ kirchensteuer: Number((e.target as HTMLSelectElement).value) as 0 | 8 | 9 })}
+          class="{inputClass}"
+        >
+          <option value={0}>0 % (keine)</option>
+          <option value={8}>8 % (Bayern / Baden-Württemberg)</option>
+          <option value={9}>9 % (andere Bundesländer)</option>
+        </select>
+      </div>
 
       <!-- Freistellungsauftrag -->
       <div class="space-y-1.5">
