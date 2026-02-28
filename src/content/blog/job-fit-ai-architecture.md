@@ -7,7 +7,7 @@ category: 'ai-ml'
 tags: ['llm', 'openai', 'prompt-engineering', 'typescript', 'astro', 'zod', 'structured-outputs', 'automation']
 heroImage: '/images/blog/job-fit-ai-architecture.webp'
 draft: false
-featured: true
+featured: false
 lang: 'en'
 ---
 

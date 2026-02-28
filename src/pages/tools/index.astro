@@ -23,6 +23,7 @@ const breadcrumbSchema = generateBreadcrumbSchema([
 const tiles = [
   {
     title: 'E-Rechnung (XRechnung XML) Generator',
+    subtitle: 'E-Invoice Generator — EN 16931 compliant',
     badge: 'Live',
     description:
       'Erstellen Sie standardkonforme XRechnung-XML (EN 16931) direkt im Browser. Keine serverseitige Speicherung.',
@@ -32,6 +33,7 @@ const tiles = [
   },
   {
     title: 'Startup Runway & Burn Rate',
+    subtitle: 'Cash runway planner with burn rate modeling',
     badge: 'Live',
     description:
       'Headcount-gesteuerter Burn, MRR-Wachstum, Kapitalinjektionen und Death-Valley-Visualisierung — lokal im Browser.',
@@ -41,6 +43,7 @@ const tiles = [
   },
   {
     title: 'Cashflow & Forecasting',
+    subtitle: '12-month liquidity planner with AI stress test',
     badge: 'Live',
     description:
       '12-Monats-Liquiditätsplanung mit Einnahmen, Fixkosten und variablen Posten — KI-Stresstest simuliert Zahlungsverzug, Churn und Kostenschock in Echtzeit.',
@@ -50,6 +53,7 @@ const tiles = [
   },
   {
     title: 'Investment Analytics',
+    subtitle: 'ROI · IRR · NPV · Monte Carlo · DACH tax',
     badge: 'Live',
     description:
       'ROI, CAGR, IRR, NPV, Sharpe Ratio und Monte-Carlo-Simulation für Ihre Investition — inkl. DACH-Abgeltungsteuer-Berechnung, lokal im Browser.',
@@ -59,6 +63,7 @@ const tiles = [
   },
   {
     title: 'Brutto-Netto-Rechner 2026',
+    subtitle: 'Gross-to-net salary calculator (BMF PAP 2026)',
     badge: 'Live',
     description:
       'Lohnsteuer nach BMF PAP 2026, alle Sozialabgaben AN & AG, Steuerkeil-Visualisierung und KV-Kassenvergleich — lokal im Browser.',
@@ -68,6 +73,7 @@ const tiles = [
   },
   {
     title: 'Founder Compass — Gründerprofil',
+    subtitle: 'AI-powered entrepreneur profiler',
     badge: 'Live',
     description:
       '12-Fragen-Assessment zu Risikotoleranz, Finanzierung und Geschäftsmodell — personalisiertes Gründerprofil per KI-Auswertung.',
@@ -131,6 +137,11 @@ const tiles = [
               <h2 class="mt-4 text-balance text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">
                 {tile.title}
               </h2>
+              {tile.subtitle && (
+                <p class="mt-1 text-xs text-text-muted-light dark:text-text-muted-dark">
+                  {tile.subtitle}
+                </p>
+              )}
               <p class="mt-3 text-pretty text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
                 {tile.description}
               </p>

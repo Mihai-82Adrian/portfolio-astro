@@ -167,6 +167,9 @@ export interface Translations {
     description: string;
     copyright: string;
     madeWith: string;
+    quickLinks: string;
+    language: string;
+    legal: string;
   };
   // Contact Info
   contact: {
@@ -174,6 +177,7 @@ export interface Translations {
     phone: string;
     email: string;
     linkedin: string;
+    heading: string;
   };
 }
 
@@ -386,13 +390,17 @@ export const translations: Record<Language, Translations> = {
     footer: {
       description: 'Finanzbuchhalter mit Leidenschaft für Zahlen und kontinuierliches Lernen. Aktuell: Weiterbildung zum Bilanzbuchhalter (IHK). Hobby: Technologie-Exploration.',
       copyright: '© 2025 Mihai Adrian Mateescu',
-      madeWith: 'Erstellt mit'
+      madeWith: 'Erstellt mit',
+      quickLinks: 'Schnellzugriff',
+      language: 'Sprache',
+      legal: 'Rechtliches',
     },
     contact: {
       address: 'Adresse',
       phone: 'Telefon',
       email: 'E-Mail',
-      linkedin: 'LinkedIn'
+      linkedin: 'LinkedIn',
+      heading: 'Kontakt',
     }
   },
   en: {
@@ -603,13 +611,17 @@ export const translations: Record<Language, Translations> = {
     footer: {
       description: 'Financial Accountant with a passion for numbers and continuous learning. Currently: Further training to become a certified accountant (IHK). Hobby: Technology exploration.',
       copyright: '© 2025 Mihai Adrian Mateescu',
-      madeWith: 'Made with'
+      madeWith: 'Made with',
+      quickLinks: 'Quick Links',
+      language: 'Language',
+      legal: 'Legal',
     },
     contact: {
       address: 'Address',
       phone: 'Phone',
       email: 'Email',
-      linkedin: 'LinkedIn'
+      linkedin: 'LinkedIn',
+      heading: 'Contact',
     }
   },
   ro: {
@@ -820,13 +832,17 @@ export const translations: Record<Language, Translations> = {
     footer: {
       description: 'Contabil Financiar cu pasiune pentru cifre și învățare continuă. În prezent: Formare pentru a deveni contabil certificat (IHK). Hobby: Explorare tehnologică.',
       copyright: '© 2025 Mihai Adrian Mateescu',
-      madeWith: 'Creat cu'
+      madeWith: 'Creat cu',
+      quickLinks: 'Linkuri rapide',
+      language: 'Limbă',
+      legal: 'Legal',
     },
     contact: {
       address: 'Adresă',
       phone: 'Telefon',
       email: 'Email',
-      linkedin: 'LinkedIn'
+      linkedin: 'LinkedIn',
+      heading: 'Contact',
     }
   }
 };

@@ -8,7 +8,7 @@ tags: ['astro', 'typescript', 'tailwind', 'frontend-architecture', 'performance'
 heroImage: '/images/blog/tech-stack.webp'
 heroAlt: 'Abstract illustration of interconnected web technologies and performance metrics'
 draft: false
-featured: true
+featured: false
 author:
   name: 'Mihai Adrian Mateescu'
   email: 'kontakt@me-mateescu.de'

@@ -6,7 +6,7 @@ category: 'ai-ml'
 tags: ['julia', 'performance', 'benchmarking', 'scientific-computing', 'best-practices']
 heroImage: '/images/blog/julia-performance-optimization-hero.webp'
 draft: false
-featured: true
+featured: false
 lang: 'en'
 ---
 

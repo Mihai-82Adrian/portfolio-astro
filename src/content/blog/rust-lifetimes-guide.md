@@ -6,7 +6,7 @@ category: 'ai-ml'
 tags: ['rust', 'lifetimes', 'memory-safety', 'ownership', 'best-practices']
 heroImage: '/images/blog/rust-lifetimes.webp'
 draft: false
-featured: true
+featured: false
 lang: 'en'
 ---
 

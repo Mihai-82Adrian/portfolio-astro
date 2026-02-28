@@ -1,12 +1,13 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Container from '@/components/ui/Container.astro';
-import { BarChart3, Bot, Calculator, FileCode2 } from '@lucide/astro';
+import { BarChart3, Bot, Calculator, Compass, FileCode2 } from '@lucide/astro';
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import FileSearch from '@lucide/astro/icons/file-search';
+import TrendingUp from '@lucide/astro/icons/trending-up';
 import BookOpen from '@lucide/astro/icons/book-open';
 import BrainCircuit from '@lucide/astro/icons/brain-circuit';
 import Briefcase from '@lucide/astro/icons/briefcase';
-import FileSearch from '@lucide/astro/icons/file-search';
 import GraduationCap from '@lucide/astro/icons/graduation-cap';
 import Hammer from '@lucide/astro/icons/hammer';
 import Layers from '@lucide/astro/icons/layers';
@@ -15,8 +16,8 @@ import TrendingDown from '@lucide/astro/icons/trending-down';
 
 const pageTitle = "What I'm Building & Learning Now";
 const pageDescription =
-  "A snapshot of what I'm building and learning in 2026: Fin-Tools Hub, AI Copilot, BMF PAP engine, and CFO meets CTO services for DACH. Updated monthly.";
-const lastUpdated = '2026-02-23';
+  "A snapshot of what I'm building and learning in 2026: 6-tool Fin-Tools Hub, AI Copilot, GoBD research, and CFO meets CTO services for DACH. Updated monthly.";
+const lastUpdated = '2026-02-28';
 const lastUpdatedFormatted = new Date(lastUpdated).toLocaleDateString('en-US', {
   year: 'numeric',
   month: 'long',
@@ -133,16 +134,59 @@ const lastUpdatedFormatted = new Date(lastUpdated).toLocaleDateString('en-US', {
             </li>
 
             <li class="flex items-center gap-3">
-              <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-black/10 bg-[var(--bg-surface)] text-text-tertiary-light dark:border-white/10 dark:text-text-tertiary-dark">
+              <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-black/10 bg-eucalyptus-100 text-eucalyptus-700 dark:border-white/10 dark:bg-eucalyptus-900/35 dark:text-eucalyptus-300">
                 <BarChart3 class="h-4 w-4" aria-hidden="true" />
               </div>
               <div class="flex flex-1 flex-wrap items-center justify-between gap-2">
-                <span class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">
+                <span class="text-sm font-medium text-text-primary-light dark:text-text-primary-dark">
                   Cashflow & Forecasting
                 </span>
-                <span class="rounded-full bg-taupe-100 px-2 py-0.5 text-xs font-semibold text-taupe-700 dark:bg-taupe-900/30 dark:text-taupe-300">
-                  🔄 Next
+                <div class="flex items-center gap-2">
+                  <span class="rounded-full bg-eucalyptus-100 px-2 py-0.5 text-xs font-semibold text-eucalyptus-700 dark:bg-eucalyptus-900/40 dark:text-eucalyptus-300">
+                    ✅ Live
+                  </span>
+                  <a href="/tools/cashflow" class="text-xs text-eucalyptus-700 hover:underline dark:text-eucalyptus-300">
+                    /tools/cashflow <ArrowUpRight class="inline h-3 w-3" aria-hidden="true" />
+                  </a>
+                </div>
+              </div>
+            </li>
+
+            <li class="flex items-center gap-3">
+              <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-black/10 bg-eucalyptus-100 text-eucalyptus-700 dark:border-white/10 dark:bg-eucalyptus-900/35 dark:text-eucalyptus-300">
+                <TrendingUp class="h-4 w-4" aria-hidden="true" />
+              </div>
+              <div class="flex flex-1 flex-wrap items-center justify-between gap-2">
+                <span class="text-sm font-medium text-text-primary-light dark:text-text-primary-dark">
+                  Investment Analytics
                 </span>
+                <div class="flex items-center gap-2">
+                  <span class="rounded-full bg-eucalyptus-100 px-2 py-0.5 text-xs font-semibold text-eucalyptus-700 dark:bg-eucalyptus-900/40 dark:text-eucalyptus-300">
+                    ✅ Live
+                  </span>
+                  <a href="/tools/investment-analytics" class="text-xs text-eucalyptus-700 hover:underline dark:text-eucalyptus-300">
+                    /tools/investment-analytics <ArrowUpRight class="inline h-3 w-3" aria-hidden="true" />
+                  </a>
+                </div>
+              </div>
+            </li>
+
+            <li class="flex items-center gap-3">
+              <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-black/10 bg-eucalyptus-100 text-eucalyptus-700 dark:border-white/10 dark:bg-eucalyptus-900/35 dark:text-eucalyptus-300">
+                <Compass class="h-4 w-4" aria-hidden="true" />
+              </div>
+              <div class="flex flex-1 flex-wrap items-center justify-between gap-2">
+                <span class="text-sm font-medium text-text-primary-light dark:text-text-primary-dark">
+                  Founder Compass
+                </span>
+                <div class="flex items-center gap-2">
+                  <span class="rounded-full bg-eucalyptus-100 px-2 py-0.5 text-xs font-semibold text-eucalyptus-700 dark:bg-eucalyptus-900/40 dark:text-eucalyptus-300">
+                    ✅ Live
+                  </span>
+                  <a href="/tools/founder-compass" class="text-xs text-eucalyptus-700 hover:underline dark:text-eucalyptus-300">
+                    /tools/founder-compass <ArrowUpRight class="inline h-3 w-3" aria-hidden="true" />
+                  </a>
+                </div>
               </div>
             </li>
           </ul>
