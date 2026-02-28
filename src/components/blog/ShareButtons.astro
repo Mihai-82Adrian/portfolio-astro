@@ -247,9 +247,8 @@ const iconSizes = {
               text: description,
               url,
             });
-          } catch (err) {
-            // User cancelled or error occurred
-            console.log('Share cancelled or failed:', err);
+          } catch {
+            // User cancelled or error occurred — silently ignore
           }
         });
       }
@@ -293,20 +292,6 @@ const iconSizes = {
       });
     }
 
-    // Track share events (optional analytics)
-    const shareButtons = shareContainer.querySelectorAll('.share-button');
-    shareButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const platform = button.classList.contains('share-button-twitter') ? 'twitter' :
-                         button.classList.contains('share-button-linkedin') ? 'linkedin' :
-                         button.classList.contains('share-button-email') ? 'email' :
-                         button.classList.contains('share-button-copy') ? 'copy' :
-                         button.classList.contains('share-button-native') ? 'native' : 'unknown';
-        
-        // Log share event (can be sent to analytics)
-        console.log('Share clicked:', { platform, title, url });
-      });
-    });
   }
 
   // Initialize on page load

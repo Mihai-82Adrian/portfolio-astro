@@ -8,7 +8,6 @@ import PostMeta from '@/components/blog/PostMeta.astro';
 import TableOfContents from '@/components/blog/TableOfContents.astro';
 import LearningDisclaimer from '@/components/blog/LearningDisclaimer.astro';
 import ShareButtons from '@/components/blog/ShareButtons.astro';
-import Newsletter from '@/components/blog/Newsletter.astro';
 import Comments from '@/components/blog/Comments.astro';
 import { calculateReadingTime } from '@/utils/readingTime';
 import { generateBlogPostingSchema } from '@/utils/structuredData';
@@ -194,9 +193,6 @@ const blogPostingSchema = generateBlogPostingSchema(post, Astro.url.toString());
         </div>
       </section>
     )}
-
-    <!-- Newsletter Signup -->
-    <Newsletter variant="inline" showTopicSelection={true} />
 
     <!-- Comments Section -->
     <Comments />
