@@ -58,6 +58,7 @@ export interface TaxResult {
   taxAmount: number;
   netGain: number;
   vorabpauschale?: number;       // only for accumulating funds (per year)
+  vorabpauschaleTax?: number;    // annual tax on Vorabpauschale (with Teilfreistellung + KiSt)
   effectiveTaxRate: number;      // % of gross gain (includes Kirchensteuer)
   teilfreistellungReduction: number; // EUR reduction from Teilfreistellung (0 if not applied)
   kirchensteuerAmount: number;   // EUR Kirchensteuer (0 if none)

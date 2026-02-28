@@ -192,18 +192,14 @@ export function runMonteCarlo(
   const sorted = [...cashFlows].sort((a, b) => a.year - b.year);
   const nYears = sorted.length > 0 ? sorted[sorted.length - 1].year : 1;
 
-  // Estimate μ and σ from historical data
+  // Estimate μ and σ from historical return series (which already encodes CF effects)
   const returns = buildReturnSeries(initial, cashFlows);
   const mu    = returns.length > 1 ? mean(returns) : 0.07;
   const sigma = returns.length > 1 ? stdDev(returns) : 0.15;
 
-  // Build a map from year → scheduled CF
-  const cfMap = new Map<number, number>();
-  for (const cf of sorted) {
-    cfMap.set(cf.year, (cfMap.get(cf.year) ?? 0) + cf.amount);
-  }
-
-  // Run simulations
+  // Run simulations — returns already encode CF effects, so we do NOT add CFs again
+  // (adding them would double-count: once via μ/σ derived from CF-based returns,
+  //  and once via explicit addition)
   const paths: number[][] = [];
 
   for (let s = 0; s < nSims; s++) {
@@ -213,7 +209,7 @@ export function runMonteCarlo(
     for (let t = 1; t <= nYears; t++) {
       const drift = mu - 0.5 * sigma * sigma;
       const shock = gaussianRandom(drift, sigma);
-      value = value * Math.exp(shock) + (cfMap.get(t) ?? 0);
+      value = value * Math.exp(shock);
       path.push(value);
     }
 
@@ -256,8 +252,14 @@ export function calcTax(
 
   // Vorabpauschale (accumulating fund only)
   let vorabpauschale: number | undefined;
+  let vorabpauschaleTax: number | undefined;
   if (isFund && isAccumulating) {
     vorabpauschale = initial * VORABPAUSCHALE_RATE_2026 * (1 - ter / 100);
+    // Apply Teilfreistellung to Vorabpauschale (§ 20 InvStG applies to all fund income)
+    const taxableVorab = teilfreistellung ? vorabpauschale * 0.7 : vorabpauschale;
+    const vorabAbgeltung = taxableVorab * TAX_RATE;
+    const vorabKirchensteuer = vorabAbgeltung * (kirchensteuer / 100);
+    vorabpauschaleTax = vorabAbgeltung + vorabKirchensteuer;
   }
 
   // Apply Teilfreistellung (30% exemption for Aktienfonds, § 20 InvStG) BEFORE Freibetrag
@@ -275,7 +277,7 @@ export function calcTax(
     : 0;
 
   return {
-    grossGain, taxableGain, taxAmount, netGain, vorabpauschale,
+    grossGain, taxableGain, taxAmount, netGain, vorabpauschale, vorabpauschaleTax,
     effectiveTaxRate, teilfreistellungReduction, kirchensteuerAmount,
   };
 }

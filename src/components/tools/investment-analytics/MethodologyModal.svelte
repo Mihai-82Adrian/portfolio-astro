@@ -220,14 +220,27 @@
           <div class="rounded-xl border border-white/8 bg-white/4 p-4">
             <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Monte-Carlo-Simulation</p>
             <code class="block rounded-md bg-gray-900/80 px-3 py-2 font-mono text-sm text-green-300">
-              V_t = V_{'{'}t-1{'}'} × exp(μ − σ²/2 + σ·ε) + CF_t
+              V_t = V_{'{'}t-1{'}'} × exp(μ − σ²/2 + σ·ε)
             </code>
             <p class="mt-2 text-xs leading-relaxed text-gray-400">
               1.000 Pfade mit log-normalem Wachstum (Box-Muller-Transformation). Der Driftterm
               <strong class="text-gray-200">μ − σ²/2</strong> ist die Itô-Korrektur (Log-Normal-Bias-Korrektur): ohne diesen Term würde der Erwartungswert der Simulation den gewünschten Drift überschätzen.
               <strong class="text-gray-200">ε ~ N(0,1)</strong> ist der Zufallsschock.
+              <strong class="text-gray-200">μ</strong> und <strong class="text-gray-200">σ</strong> werden aus den jährlichen Wertveränderungen
+              (inkl. Cashflow-Effekte) geschätzt — die Simulation modelliert somit die Wertentwicklung des Portfolios
+              unter Berücksichtigung der beobachteten Volatilität.
               Ergebnis: P5 (Worst Case), P50 (Median), P95 (Best Case) pro Jahr.
             </p>
+            <div class="mt-3 rounded-lg border border-amber-500/20 bg-amber-500/8 px-3 py-2">
+              <p class="text-xs leading-relaxed text-amber-300/90">
+                <strong>Hinweis zur Interpretation:</strong> ROI/IRR/NPV messen den <em>Cash-on-Cash-Return</em> —
+                wieviel Geld Sie relativ zur Investition zurückerhalten.
+                Die Monte-Carlo-Simulation modelliert dagegen die <em>Portfoliowertentwicklung</em> —
+                wie sich der Gesamtwert Ihrer Anlage unter Unsicherheit entwickeln könnte.
+                Beide Perspektiven ergänzen sich, können aber bei negativem ROI dennoch eine hohe Gewinnwahrscheinlichkeit zeigen,
+                wenn der Portfoliowert die Anfangsinvestition übersteigt.
+              </p>
+            </div>
           </div>
 
         </div>

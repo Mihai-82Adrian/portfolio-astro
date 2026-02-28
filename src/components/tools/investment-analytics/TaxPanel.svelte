@@ -144,6 +144,8 @@
       <p class="mb-3 text-xs text-text-muted-light dark:text-text-muted-dark">
         Jährliche fiktive Ausschüttung nach § 18 InvStG. Basiert auf dem Basiszins 2026
         ({pct(VORABPAUSCHALE_RATE_2026 * 100)} × TER-Korrektur).
+        Der Freistellungsauftrag wird hier <strong>nicht</strong> angerechnet, da er mit anderen
+        Kapitalerträgen geteilt wird — die tatsächliche Steuerlast kann daher niedriger ausfallen.
       </p>
 
       <div class="flex items-center justify-between rounded-xl border border-black/10 bg-[var(--bg-primary)] p-4 dark:border-white/10">
@@ -156,8 +158,13 @@
         <div class="text-right">
           <p class="text-xs text-text-muted-light dark:text-text-muted-dark">Steuer darauf</p>
           <p class="text-lg font-bold text-red-600 dark:text-red-400">
-            {eur(taxResult.vorabpauschale * TAX_RATE)}
+            {eur(taxResult.vorabpauschaleTax ?? taxResult.vorabpauschale * TAX_RATE)}
           </p>
+          {#if input.teilfreistellung || input.kirchensteuer > 0}
+            <p class="mt-0.5 text-xs text-text-muted-light dark:text-text-muted-dark">
+              {#if input.teilfreistellung}inkl. 30 % TFS{/if}{#if input.teilfreistellung && input.kirchensteuer > 0}, {/if}{#if input.kirchensteuer > 0}{input.kirchensteuer} % KiSt{/if}
+            </p>
+          {/if}
         </div>
       </div>
     </div>
