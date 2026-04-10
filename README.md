@@ -62,6 +62,25 @@ npm run dev:copilot  # build + wrangler pages dev
 npm run kosit:setup && npm run kosit:validate
 ```
 
+### Service funnel & local submit flow
+
+The services area now includes a dedicated funnel for the German offer **Datenaufbereitung für KI**:
+
+- `/services/datenaufbereitung-fuer-ki` — conversion-focused landing page for the service
+- `/discovery-call` — qualification page with final booking CTA to `https://cal.eu/mihai-adrian.mateescu`
+- `/sample-struktur-pruefen` — first-party sample-review form
+- `/sample-struktur-pruefen/danke` — noindex confirmation page after successful submit
+
+To test the sample-review submit flow locally with `functions/api/sample-review.ts`, create a local `.dev.vars` file based on `.dev.vars.example` and provide:
+
+```env
+RESEND_API_KEY=
+SAMPLE_REVIEW_EMAIL_FROM=
+SAMPLE_REVIEW_EMAIL_TO=
+```
+
+`SAMPLE_REVIEW_EMAIL_TO` can be a comma-separated list if multiple recipients should receive the request email.
+
 ---
 
 ## Quality & CI
