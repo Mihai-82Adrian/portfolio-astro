@@ -1,0 +1,131 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@components/ui/Button.astro';
+import Card from '@components/ui/Card.astro';
+import Container from '@components/ui/Container.astro';
+import { dataPrepCalUrl, discoveryCallContent } from '@data/services/data-prep-for-ai';
+
+const { seo, hero, fit, agenda, expectations, cta } = discoveryCallContent;
+---
+
+<BaseLayout
+  title={seo.title}
+  description={seo.description}
+  ogImage={seo.ogImage}
+  lang="de"
+>
+  <main class="pb-20">
+    <section class="mx-auto w-full max-w-6xl px-4 pt-20 md:px-6 md:pt-24">
+      <div class="mx-auto max-w-3xl text-center">
+        <p class="mb-4 inline-flex items-center rounded-full border border-black/10 bg-[var(--bg-elevated)] px-4 py-1.5 text-xs font-semibold tracking-wide text-eucalyptus-700 dark:border-white/15 dark:text-eucalyptus-300">
+          {hero.eyebrow}
+        </p>
+        <h1 class="text-balance text-4xl font-bold leading-tight text-text-primary-light dark:text-text-primary-dark sm:text-5xl">
+          {hero.title}
+        </h1>
+        <p class="mt-4 text-pretty text-base text-text-secondary-light dark:text-text-secondary-dark sm:text-lg">
+          {hero.subtitle}
+        </p>
+      </div>
+    </section>
+
+    <Container maxWidth="lg" paddingY="lg">
+      <div class="grid gap-6 lg:grid-cols-3">
+        <Card class="h-full">
+          <h2 class="text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">
+            {fit.title}
+          </h2>
+          <ul class="mt-4 space-y-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            {fit.bullets.map((bullet) => (
+              <li class="flex items-start gap-3">
+                <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+                <span>{bullet}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+
+        <Card class="h-full">
+          <h2 class="text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">
+            {agenda.title}
+          </h2>
+          <ul class="mt-4 space-y-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            {agenda.bullets.map((bullet) => (
+              <li class="flex items-start gap-3">
+                <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+                <span>{bullet}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+
+        <Card class="h-full">
+          <h2 class="text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">
+            {expectations.title}
+          </h2>
+          <ul class="mt-4 space-y-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            {expectations.bullets.map((bullet) => (
+              <li class="flex items-start gap-3">
+                <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+                <span>{bullet}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </div>
+    </Container>
+
+    <section class="mx-auto w-full max-w-6xl px-4 md:px-6">
+      <div class="rounded-3xl border border-black/10 bg-[var(--bg-elevated)] p-6 dark:border-white/10 md:p-8">
+        <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <div>
+            <h2 class="text-3xl font-bold tracking-tight text-text-primary-light dark:text-text-primary-dark">
+              {cta.title}
+            </h2>
+            <p class="mt-4 text-pretty text-lg leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+              {cta.body}
+            </p>
+            <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Button
+                href={dataPrepCalUrl}
+                variant="primary"
+                size="lg"
+                target="_blank"
+                rel="noopener noreferrer"
+                ariaLabel={cta.button.description}
+              >
+                {cta.button.label}
+              </Button>
+              <Button href="/services/datenaufbereitung-fuer-ki" variant="outline" size="lg">
+                Zur Landing Page
+              </Button>
+            </div>
+          </div>
+
+          <Card class="border-black/10 bg-[var(--bg-surface)] dark:border-white/10 dark:bg-dark-surface">
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-eucalyptus-700 dark:text-eucalyptus-300">
+              Schnellprüfung
+            </p>
+            <ul class="mt-4 space-y-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+              <li class="flex items-start gap-3">
+                <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+                <span>Konkrete Datenquellen und Zielsysteme</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+                <span>Realistischer Output-Umfang</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+                <span>Risiken, Sonderfälle und Pilot-Fit</span>
+              </li>
+            </ul>
+            <p class="mt-5 text-sm leading-relaxed text-text-muted-light dark:text-text-muted-dark">
+              {cta.microcopy}
+            </p>
+          </Card>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
