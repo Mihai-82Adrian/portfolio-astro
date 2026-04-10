@@ -34,6 +34,7 @@ interface Props {
   noindex?: boolean;
   structuredData?: Record<string, any>;
   math?: boolean;
+  hideChatDrawer?: boolean;
 }
 
 const {
@@ -46,6 +47,7 @@ const {
   noindex = false,
   structuredData,
   math = false,
+  hideChatDrawer = false,
 } = Astro.props;
 
 const siteTitle = 'Mihai Adrian Mateescu';
@@ -227,7 +229,7 @@ const defaultStructuredData = {
       <Footer lang={lang} />
     </div>
     <!-- AI Chat Drawer (Global, excluded on Services routes) -->
-    {!isServicesRoute && <ChatDrawer />}
+    {!isServicesRoute && !hideChatDrawer && <ChatDrawer />}
     <CookieConsent />
 
     <!-- Re-apply persisted theme after client-side route transitions -->

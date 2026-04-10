@@ -2,13 +2,12 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Container from '@/components/ui/Container.astro';
 import ChatWidget from '@/components/ChatWidget.astro';
-import Badge from '@/components/ui/Badge.astro';
 
 const pageTitle = "Ask Mihai \u00b7 AI - Mihai Adrian Mateescu";
 const description = "Ask anything about my skills, experience, and career — or analyze a job description for fit. Powered by AI.";
 ---
 
-<BaseLayout title={pageTitle} description={description}>
+<BaseLayout title={pageTitle} description={description} hideChatDrawer={true}>
   <Container>
     <div class="py-12 md:py-20">
       <!-- Hero Section -->
