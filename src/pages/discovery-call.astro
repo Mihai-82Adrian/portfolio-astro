@@ -3,16 +3,26 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Button from '@components/ui/Button.astro';
 import Card from '@components/ui/Card.astro';
 import Container from '@components/ui/Container.astro';
+import { generateBreadcrumbSchema } from '@utils/structuredData';
 import { dataPrepCalUrl, discoveryCallContent } from '@data/services/data-prep-for-ai';
 
 const { seo, hero, fit, agenda, expectations, cta } = discoveryCallContent;
+const canonicalURL = 'https://me-mateescu.de/discovery-call';
+const structuredData = generateBreadcrumbSchema([
+  { name: 'Home', url: 'https://me-mateescu.de/' },
+  { name: 'Services', url: 'https://me-mateescu.de/services' },
+  { name: 'Datenaufbereitung für KI', url: 'https://me-mateescu.de/services/datenaufbereitung-fuer-ki' },
+  { name: 'Discovery Call', url: canonicalURL },
+]);
 ---
 
 <BaseLayout
   title={seo.title}
   description={seo.description}
   ogImage={seo.ogImage}
+  canonicalURL={canonicalURL}
   lang="de"
+  structuredData={structuredData}
 >
   <main class="pb-20">
     <section class="mx-auto w-full max-w-6xl px-4 pt-20 md:px-6 md:pt-24">

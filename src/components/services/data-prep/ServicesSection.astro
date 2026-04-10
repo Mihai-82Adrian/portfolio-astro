@@ -1,6 +1,5 @@
 ---
 import Container from '@components/ui/Container.astro';
-import Card from '@components/ui/Card.astro';
 import type { LandingPageContent } from '@data/services/data-prep-for-ai';
 
 interface Props {
@@ -21,29 +20,32 @@ const { content } = Astro.props;
       </p>
     </div>
 
-    <Card class="mt-8 overflow-hidden">
+    <div class="mt-8 overflow-hidden rounded-3xl border border-black/10 bg-[var(--bg-elevated)] dark:border-white/10">
       <div class="overflow-x-auto">
         <table class="min-w-[52rem] w-full border-collapse text-left">
           <thead>
-            <tr class="border-b border-light-border dark:border-dark-border">
-              <th class="p-4 font-semibold text-text-primary-light dark:text-text-primary-dark">
+            <tr class="border-b border-black/10 bg-eucalyptus-50/70 dark:border-white/10 dark:bg-eucalyptus-950/20">
+              <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
                 Richtung
               </th>
-              <th class="p-4 font-semibold text-text-primary-light dark:text-text-primary-dark">
+              <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
                 Problem
               </th>
-              <th class="p-4 font-semibold text-text-primary-light dark:text-text-primary-dark">
+              <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
                 Prozess
               </th>
-              <th class="p-4 font-semibold text-text-primary-light dark:text-text-primary-dark">
+              <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
                 Output
               </th>
             </tr>
           </thead>
           <tbody>
             {content.rows.map((row) => (
-              <tr class="border-b border-light-border last:border-b-0 dark:border-dark-border">
-                <th scope="row" class="p-4 align-top font-medium text-text-primary-light dark:text-text-primary-dark">
+              <tr class="border-b border-black/10 last:border-b-0 dark:border-white/10">
+                <th
+                  scope="row"
+                  class="w-[15rem] p-4 align-top text-sm font-semibold text-text-primary-light dark:text-text-primary-dark"
+                >
                   {row.direction}
                 </th>
                 <td class="p-4 align-top text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
@@ -60,18 +62,18 @@ const { content } = Astro.props;
           </tbody>
         </table>
       </div>
-    </Card>
+    </div>
 
-    <div class="mt-6 grid gap-4 md:grid-cols-3">
+    <div class="mt-6 grid gap-0 overflow-hidden rounded-3xl border border-black/10 bg-[var(--bg-elevated)] dark:border-white/10 md:grid-cols-3">
       {content.details.map((detail) => (
-        <Card padding="sm">
+        <div class="border-b border-black/10 p-5 last:border-b-0 dark:border-white/10 md:border-b-0 md:border-r md:last:border-r-0">
           <h3 class="text-base font-semibold text-text-primary-light dark:text-text-primary-dark">
             {detail.title}
           </h3>
           <p class="mt-2 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
             {detail.description}
           </p>
-        </Card>
+        </div>
       ))}
     </div>
   </Container>

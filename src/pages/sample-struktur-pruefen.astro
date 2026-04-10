@@ -4,16 +4,26 @@ import Button from '@components/ui/Button.astro';
 import Card from '@components/ui/Card.astro';
 import Container from '@components/ui/Container.astro';
 import SampleReviewForm from '@components/services/data-prep/SampleReviewForm.astro';
+import { generateBreadcrumbSchema } from '@utils/structuredData';
 import { sampleReviewContent } from '@data/services/data-prep-for-ai';
 
-const { seo, hero, pitch, requirements, form, submission, cta } = sampleReviewContent;
+const { seo, hero, commercial, pitch, requirements, form, submission, cta } = sampleReviewContent;
+const canonicalURL = 'https://me-mateescu.de/sample-struktur-pruefen';
+const structuredData = generateBreadcrumbSchema([
+  { name: 'Home', url: 'https://me-mateescu.de/' },
+  { name: 'Services', url: 'https://me-mateescu.de/services' },
+  { name: 'Datenaufbereitung für KI', url: 'https://me-mateescu.de/services/datenaufbereitung-fuer-ki' },
+  { name: 'Sample-Struktur prüfen', url: canonicalURL },
+]);
 ---
 
 <BaseLayout
   title={seo.title}
   description={seo.description}
   ogImage={seo.ogImage}
+  canonicalURL={canonicalURL}
   lang="de"
+  structuredData={structuredData}
 >
   <main class="pb-20">
     <section class="mx-auto w-full max-w-6xl px-4 pt-20 md:px-6 md:pt-24">
@@ -58,6 +68,30 @@ const { seo, hero, pitch, requirements, form, submission, cta } = sampleReviewCo
     </Container>
 
     <section class="mx-auto w-full max-w-6xl px-4 md:px-6">
+      <div class="mb-6 rounded-3xl border border-eucalyptus-500/25 bg-eucalyptus-50/80 p-5 dark:border-eucalyptus-400/25 dark:bg-eucalyptus-950/20 md:p-6">
+        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div class="max-w-3xl">
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-eucalyptus-700 dark:text-eucalyptus-300">
+              {commercial.title}
+            </p>
+            <p class="mt-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark md:text-base">
+              {commercial.body}
+            </p>
+            <p class="mt-3 text-sm leading-relaxed text-text-muted-light dark:text-text-muted-dark">
+              {commercial.note}
+            </p>
+          </div>
+          <div class="shrink-0 rounded-2xl border border-black/10 bg-[var(--bg-elevated)] px-5 py-4 text-center dark:border-white/10">
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-eucalyptus-700 dark:text-eucalyptus-300">
+              Einstieg
+            </p>
+            <p class="mt-2 text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">
+              {commercial.price}
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div class="grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
         <Card class="h-full">
           <div class="space-y-4">
@@ -88,7 +122,7 @@ const { seo, hero, pitch, requirements, form, submission, cta } = sampleReviewCo
             </p>
           </div>
           <p class="mt-4 text-sm leading-relaxed text-text-muted-light dark:text-text-muted-dark">
-            Nach dem Submit erhalten Sie eine klare Einordnung zu Scope, Risiken und dem sinnvollsten nächsten Schritt.
+            Nach dem Submit erhalten Sie eine klare Einordnung zu Scope, Risiken und dem sinnvollsten nächsten Schritt für einen bezahlten Mini-Pilot.
           </p>
         </Card>
       </div>

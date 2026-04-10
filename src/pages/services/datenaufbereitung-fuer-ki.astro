@@ -16,11 +16,12 @@ import FinalCtaSection from '@components/services/data-prep/FinalCtaSection.astr
 
 const { seo, hero, problem, services, outputs, process, trust, faq, pricing, finalCta } =
   dataPrepLandingContent;
+const canonicalURL = 'https://me-mateescu.de/services/datenaufbereitung-fuer-ki';
 
 const breadcrumbSchema = generateBreadcrumbSchema([
-  { name: 'Home', url: '/' },
-  { name: 'Services', url: '/services' },
-  { name: 'Datenaufbereitung für KI', url: '/services/datenaufbereitung-fuer-ki' },
+  { name: 'Home', url: 'https://me-mateescu.de/' },
+  { name: 'Services', url: 'https://me-mateescu.de/services' },
+  { name: 'Datenaufbereitung für KI', url: canonicalURL },
 ]);
 ---
 
@@ -28,6 +29,7 @@ const breadcrumbSchema = generateBreadcrumbSchema([
   title={seo.title}
   description={seo.description}
   ogImage={seo.ogImage}
+  canonicalURL={canonicalURL}
   lang="de"
   structuredData={breadcrumbSchema}
 >

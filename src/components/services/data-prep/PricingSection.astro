@@ -1,6 +1,5 @@
 ---
 import Container from '@components/ui/Container.astro';
-import Card from '@components/ui/Card.astro';
 import type { LandingPageContent } from '@data/services/data-prep-for-ai';
 
 interface Props {
@@ -22,82 +21,91 @@ const { content } = Astro.props;
     </div>
 
     <div class="mt-8 grid gap-6">
-      <div class="grid gap-4 xl:grid-cols-2">
-        {content.tiers.map((tier) => (
-          <Card class="h-full">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <h3 class="text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">
-                  {tier.name}
-                </h3>
-                <p class="mt-2 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
-                  {tier.description}
-                </p>
-              </div>
-              <p class="shrink-0 text-lg font-bold text-eucalyptus-700 dark:text-eucalyptus-300">
-                {tier.price}
-              </p>
-            </div>
-
-            <div class="mt-5 grid gap-4 sm:grid-cols-[1.2fr_0.8fr]">
-              <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-eucalyptus-700 dark:text-eucalyptus-300">
-                  Scope
-                </p>
-                <ul class="mt-3 space-y-2">
-                  {tier.scope.map((item) => (
-                    <li class="flex items-start gap-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
-                      <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div class="rounded-xl border border-black/10 bg-[var(--bg-surface)] p-4 dark:border-white/10 dark:bg-dark-surface">
-                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-eucalyptus-700 dark:text-eucalyptus-300">
-                  Dauer
-                </p>
-                <p class="mt-2 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
-                  {tier.duration}
-                </p>
-                {tier.note && (
-                  <p class="mt-4 text-xs leading-relaxed text-text-muted-light dark:text-text-muted-dark">
-                    {tier.note}
-                  </p>
-                )}
-              </div>
-            </div>
-          </Card>
-        ))}
+      <div class="overflow-hidden rounded-3xl border border-black/10 bg-[var(--bg-elevated)] dark:border-white/10">
+        <div class="overflow-x-auto">
+          <table class="min-w-[56rem] w-full border-collapse text-left">
+            <thead>
+              <tr class="border-b border-black/10 bg-eucalyptus-50/70 dark:border-white/10 dark:bg-eucalyptus-950/20">
+                <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+                  Leistung
+                </th>
+                <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+                  Einstieg
+                </th>
+                <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+                  Geeignet für
+                </th>
+                <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+                  Umfang / Ergebnis
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {content.tiers.map((tier) => (
+                <tr class="border-b border-black/10 last:border-b-0 dark:border-white/10">
+                  <th scope="row" class="w-[14rem] p-4 align-top text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+                    <div>{tier.name}</div>
+                    <div class="mt-2 text-xs font-medium tracking-[0.16em] text-eucalyptus-700 dark:text-eucalyptus-300">
+                      {tier.duration}
+                    </div>
+                  </th>
+                  <td class="w-[10rem] p-4 align-top text-base font-semibold text-eucalyptus-700 dark:text-eucalyptus-300">
+                    {tier.price}
+                  </td>
+                  <td class="p-4 align-top text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                    {tier.description}
+                  </td>
+                  <td class="p-4 align-top text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                    <ul class="space-y-2">
+                      {tier.scope.map((item) => (
+                        <li class="flex items-start gap-2">
+                          <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    {tier.note && (
+                      <p class="mt-3 text-xs leading-relaxed text-text-muted-light dark:text-text-muted-dark">
+                        {tier.note}
+                      </p>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <Card>
-        <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
-          Preislogik
-        </h3>
-        <ul class="mt-4 space-y-3">
-          {content.notes.map((note) => (
-            <li class="flex items-start gap-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
-              <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
-              <span>{note}</span>
-            </li>
-          ))}
-        </ul>
-      </Card>
-
-      <Card>
-        <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
-          Warum dieser Preisrahmen sinnvoll ist
-        </h3>
-        <div class="mt-4 flex flex-wrap gap-2">
-          {content.premiumRationale.map((item) => (
-            <span class="inline-flex rounded-full border border-eucalyptus-500/20 bg-eucalyptus-50 px-3 py-1 text-sm text-eucalyptus-700 dark:border-eucalyptus-400/20 dark:bg-eucalyptus-950/35 dark:text-eucalyptus-300">
-              {item}
-            </span>
-          ))}
+      <div class="grid gap-0 overflow-hidden rounded-3xl border border-black/10 bg-[var(--bg-elevated)] dark:border-white/10 lg:grid-cols-[1.1fr_0.9fr]">
+        <div class="border-b border-black/10 p-6 dark:border-white/10 lg:border-b-0 lg:border-r">
+          <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
+            Preislogik
+          </h3>
+          <ul class="mt-4 space-y-3">
+            {content.notes.map((note) => (
+              <li class="flex items-start gap-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+                <span>{note}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-      </Card>
+
+        <div class="p-6">
+          <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
+            Warum dieser Preisrahmen sinnvoll ist
+          </h3>
+          <ul class="mt-4 space-y-3">
+            {content.premiumRationale.map((item) => (
+              <li class="flex items-start gap-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
   </Container>
 </section>

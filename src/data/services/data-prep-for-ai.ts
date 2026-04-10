@@ -151,6 +151,12 @@ export interface SampleReviewContent {
     title: string;
     subtitle: string;
   };
+  commercial: {
+    title: string;
+    price: string;
+    body: string;
+    note: string;
+  };
   pitch: {
     title: string;
     body: string[];
@@ -453,8 +459,7 @@ export const dataPrepLandingContent: LandingPageContent = {
       'Der genaue Preis hängt von Datenqualität, Formatvielfalt, Umfang, Validierungstiefe und Anzahl der Sonderfälle ab.',
       'Für klar definierte Pilotprojekte arbeite ich bevorzugt mit Fixpreisen.',
       'Für komplexe, uneinheitliche oder iterative Datenlagen erfolgt die Umsetzung nach Aufwand.',
-      'Umsetzung / Delivery: 95-115 EUR / Stunde',
-      'Discovery, Strukturdesign, Validierung, QA: 120-140 EUR / Stunde',
+      'Der Fokus liegt auf klaren Einstiegspreisen und sauber abgegrenzten Scopes, nicht auf offenen Retainer-Konstrukten.',
     ],
     premiumRationale: [
       'Datenaufbereitung im Finanz- und Rechnungswesen-Kontext',
@@ -539,14 +544,22 @@ export const sampleReviewContent: SampleReviewContent = {
   seo: {
     title: 'Sample-Struktur prüfen | Datenaufbereitung für KI',
     description:
-      'Prüfen Sie Ihre Datenbasis mit einem first-party Sample Review: Ich bewerte Struktur, Qualität und die Eignung für AI-, RAG- oder Automatisierungs-Piloten.',
+      'Kostenpflichtiger Mini-Pilot zur fachlichen Vorprüfung Ihrer Datenbasis: Ich bewerte Struktur, Qualität und die Eignung für AI-, RAG- oder Automatisierungs-Piloten.',
     ogImage: '/images/og-default.webp',
   },
   hero: {
     eyebrow: 'Mini-Pilot',
     title: 'Sample-Struktur prüfen',
     subtitle:
-      'Mit einem kleinen, klar abgegrenzten Einstieg prüfen wir, ob Ihre Daten oder Dokumente für einen realistischen AI-Pilot geeignet sind.',
+      'Mit einem kostenpflichtigen, klar abgegrenzten Mini-Pilot prüfen wir, ob Ihre Daten oder Dokumente für einen realistischen AI-Pilot geeignet sind.',
+  },
+  commercial: {
+    title: 'Mini-Pilot mit echter B2B-Selektion',
+    price: 'ab 350 €',
+    body:
+      'Der Sample Review ist keine kostenlose Lead-Magnet-Anfrage, sondern ein bezahlter Einstieg zur fachlichen Vorprüfung von Struktur, Risiken und realistischer Umsetzbarkeit.',
+    note:
+      'Der Betrag wird bei Beauftragung eines Folgeprojekts vollständig angerechnet. Kein Datei-Upload in V1; der erste Schritt dient der Scope-Klärung, bevor sensible Finanzdaten sicher ausgetauscht werden.',
   },
   pitch: {
     title: 'Warum der Einstieg als Mini-Pilot sinnvoll ist',
@@ -650,8 +663,8 @@ export const sampleReviewContent: SampleReviewContent = {
       },
     ],
     consentLabel:
-      'Ich stimme zu, dass meine Angaben zur Bearbeitung der Anfrage verarbeitet werden.',
-    submitLabel: 'Sample-Struktur prüfen',
+      'Ich stimme zu, dass meine Angaben zur Bearbeitung dieser geschäftlichen Anfrage verarbeitet werden.',
+    submitLabel: 'Kostenpflichtige Analyse anfragen',
     successRedirect: '/sample-struktur-pruefen/danke',
   },
   submission: {
