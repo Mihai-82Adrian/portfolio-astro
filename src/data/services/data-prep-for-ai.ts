@@ -165,7 +165,6 @@ export interface SampleReviewContent {
     fields: FormField[];
     consentLabel: string;
     submitLabel: string;
-    honeypotName: string;
     successRedirect: string;
   };
   submission: {
@@ -653,7 +652,6 @@ export const sampleReviewContent: SampleReviewContent = {
     consentLabel:
       'Ich stimme zu, dass meine Angaben zur Bearbeitung der Anfrage verarbeitet werden.',
     submitLabel: 'Sample-Struktur prüfen',
-    honeypotName: 'website',
     successRedirect: '/sample-struktur-pruefen/danke',
   },
   submission: {
