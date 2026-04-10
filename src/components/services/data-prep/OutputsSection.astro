@@ -1,0 +1,53 @@
+---
+import Container from '@components/ui/Container.astro';
+import Card from '@components/ui/Card.astro';
+import type { LandingPageContent } from '@data/services/data-prep-for-ai';
+
+interface Props {
+  content: LandingPageContent['outputs'];
+}
+
+const { content } = Astro.props;
+---
+
+<section>
+  <Container maxWidth="lg" paddingY="lg">
+    <div class="max-w-3xl">
+      <h2 class="text-3xl font-bold tracking-tight text-text-primary-light dark:text-text-primary-dark sm:text-4xl">
+        {content.title}
+      </h2>
+      <p class="mt-4 text-pretty text-lg leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+        {content.intro}
+      </p>
+    </div>
+
+    <div class="mt-8 grid gap-6 lg:grid-cols-[1fr_0.92fr]">
+      <Card>
+        <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
+          Ergebnisse im Fokus
+        </h3>
+        <ul class="mt-5 space-y-3">
+          {content.bullets.map((bullet) => (
+            <li class="flex items-start gap-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+              <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+              <span>{bullet}</span>
+            </li>
+          ))}
+        </ul>
+      </Card>
+
+      <Card>
+        <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
+          Geeignet für
+        </h3>
+        <div class="mt-4 flex flex-wrap gap-2">
+          {content.suitableFor.map((item) => (
+            <span class="inline-flex items-center rounded-full border border-eucalyptus-500/20 bg-eucalyptus-50 px-3 py-1 text-sm font-medium text-eucalyptus-700 dark:border-eucalyptus-400/20 dark:bg-eucalyptus-950/35 dark:text-eucalyptus-300">
+              {item}
+            </span>
+          ))}
+        </div>
+      </Card>
+    </div>
+  </Container>
+</section>
