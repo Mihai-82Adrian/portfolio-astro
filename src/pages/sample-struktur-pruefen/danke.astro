@@ -1,0 +1,85 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@components/ui/Button.astro';
+import Card from '@components/ui/Card.astro';
+import Container from '@components/ui/Container.astro';
+import { thankYouPageContent } from '@data/services/data-prep-for-ai';
+
+const content = thankYouPageContent.sampleReview;
+---
+
+<BaseLayout
+  title={content.seo.title}
+  description={content.seo.description}
+  ogImage={content.seo.ogImage}
+  lang="de"
+  noindex={true}
+>
+  <main class="pb-20">
+    <section class="mx-auto w-full max-w-6xl px-4 pt-20 md:px-6 md:pt-24">
+      <div class="mx-auto max-w-3xl text-center">
+        <p class="mb-4 inline-flex items-center rounded-full border border-black/10 bg-[var(--bg-elevated)] px-4 py-1.5 text-xs font-semibold tracking-wide text-eucalyptus-700 dark:border-white/15 dark:text-eucalyptus-300">
+          Sample Review
+        </p>
+        <h1 class="text-balance text-4xl font-bold leading-tight text-text-primary-light dark:text-text-primary-dark sm:text-5xl">
+          {content.title}
+        </h1>
+        <p class="mt-4 text-pretty text-base text-text-secondary-light dark:text-text-secondary-dark sm:text-lg">
+          {content.body}
+        </p>
+      </div>
+    </section>
+
+    <Container maxWidth="lg" paddingY="lg">
+      <div class="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+        <Card class="h-full">
+          <h2 class="text-2xl font-semibold tracking-tight text-text-primary-light dark:text-text-primary-dark">
+            {content.nextStepTitle}
+          </h2>
+          <p class="mt-4 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            {content.nextStepBody}
+          </p>
+          <div class="mt-6 rounded-2xl border border-black/10 bg-[var(--bg-surface)] p-4 dark:border-white/10 dark:bg-dark-surface">
+            <p class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+              Direktes Reply-Fenster
+            </p>
+            <p class="mt-2 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+              Ich antworte auf dieselbe Business-E-Mail-Adresse, die Sie im Formular angegeben haben.
+            </p>
+          </div>
+        </Card>
+
+        <Card class="h-full border-black/10 bg-[var(--bg-surface)] dark:border-white/10 dark:bg-dark-surface">
+          <h2 class="text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">
+            Was ich jetzt prüfe
+          </h2>
+          <ul class="mt-4 space-y-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            <li class="flex items-start gap-3">
+              <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+              <span>Struktur und Verwertbarkeit der angegebenen Datenbasis</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+              <span>Risiken, Sonderfälle und notwendige Vorarbeit</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+              <span>Ob ein Mini-Pilot oder ein direkter nächster Schritt sinnvoll ist</span>
+            </li>
+          </ul>
+          <p class="mt-4 text-sm leading-relaxed text-text-muted-light dark:text-text-muted-dark">
+            Der Einstieg kann bewusst klein gehalten werden.
+          </p>
+        </Card>
+      </div>
+    </Container>
+
+    <section class="mx-auto w-full max-w-6xl px-4 md:px-6">
+      <div class="mt-2 flex justify-center">
+        <Button href={content.backLink.href} variant="outline" size="lg">
+          {content.backLink.label}
+        </Button>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
