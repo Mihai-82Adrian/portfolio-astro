@@ -170,14 +170,14 @@ const structuredData = [personSchema, websiteSchema];
           </Button>
         </Card>
 
-        <Card variant="glass">
+        <Card variant="glass" hover>
           <h3 class="text-xl font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-3 text-balance">
             {t.nav.certifications}
           </h3>
           <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4 text-pretty">
             {t.home.quickLinks.certifications}
           </p>
-          <Button href="/certifications" variant="ghost" size="sm">
+          <Button href="/certifications" variant="primary" size="sm">
             {t.common.learnMore} →
           </Button>
         </Card>
@@ -188,47 +188,49 @@ const structuredData = [personSchema, websiteSchema];
   <!-- Overview Hub: Bento Grid (Lowered) -->
   <BentoGrid lang={lang} />
 
-    <!-- Skills Section -->
+  <Container>
+    <!-- Professional Expertise Hub -->
     <section class="py-12">
-      <Card>
-        <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6 text-balance">
-          {t.home.skills.title}
-        </h2>
-        <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-text-secondary-light dark:text-text-secondary-dark">
-          {t.home.skills.items.map((skill) => (
-            <li class="flex items-start">
-              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2 inline-flex pt-0.5" aria-hidden="true">
-                <Icon name="check-circle" class="h-4 w-4" />
-              </span>
-              <span>{skill}</span>
-            </li>
-          ))}
-        </ul>
-      </Card>
-    </section>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Skills Section -->
+        <Card variant="glass" hover>
+          <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6 text-balance">
+            {t.home.skills.title}
+          </h2>
+          <ul class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-x-6 gap-y-4">
+            {t.home.skills.items.map((skill) => (
+              <li class="flex items-start">
+                <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-3 inline-flex pt-1" aria-hidden="true">
+                  <Icon name="check-circle" class="h-5 w-5" />
+                </span>
+                <span class="text-pretty">{skill}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
 
-    <!-- Leadership Section -->
-    <section class="py-12">
-      <Card>
-        <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6 text-balance">
-          {t.home.leadership.title}
-        </h2>
-        <ul class="space-y-3 text-text-secondary-light dark:text-text-secondary-dark">
-          {t.home.leadership.items.map((item) => (
-            <li class="flex items-start">
-              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2 inline-flex pt-1" aria-hidden="true">
-                <Icon name="circle" class="h-2.5 w-2.5" />
-              </span>
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      </Card>
+        <!-- Leadership Section -->
+        <Card variant="glass" hover>
+          <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6 text-balance">
+            {t.home.leadership.title}
+          </h2>
+          <ul class="space-y-4 text-text-secondary-light dark:text-text-secondary-dark">
+            {t.home.leadership.items.map((item) => (
+              <li class="flex items-start">
+                <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-3 inline-flex pt-1" aria-hidden="true">
+                  <Icon name="check-circle" class="h-5 w-5" />
+                </span>
+                <span class="text-pretty">{item}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </div>
     </section>
 
     <!-- Hobbies Teaser -->
     <section class="py-12 text-center">
-      <Card>
+      <Card variant="glass" hover>
         <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4 text-balance">
           {t.home.hobbies.title}
         </h2>

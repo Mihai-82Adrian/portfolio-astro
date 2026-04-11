@@ -39,7 +39,7 @@ Local-first finance tools for DACH founders and freelancers. No accounts, no ser
 | AI Chat | Cloudflare Workers AI via `@cf/meta/llama-3.1-8b-instruct` |
 | AI Analysis | OpenAI o4-mini via Cloudflare Workers (structured JSON output) |
 | Deployment | Cloudflare Pages via GitHub Actions |
-| Icons | Lucide (`@lucide/astro`, `lucide-svelte`) |
+| Icons | Lucide (`@lucide/astro`, Local Icon Layer) |
 
 ---
 

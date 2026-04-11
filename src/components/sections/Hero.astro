@@ -52,7 +52,7 @@ const {
   subtitle = t.home.subtitle,
   description = t.home.description,
   primaryCta = t.home.cta.viewProjects,
-  primaryHref = '/projects',
+  primaryHref = lang === 'de' ? '/experience' : `/${lang}/experience`,
   secondaryCta = t.home.cta.readBlog,
   secondaryHref = '/blog',
   imageSrc,
@@ -66,7 +66,7 @@ const heroSkills = skills as string[];
 ---
 
 <section class="hero-section">
-  <Container maxWidth="lg" paddingY="xl">
+  <Container maxWidth="lg" paddingY="none" class="py-8 sm:py-10 md:py-14 lg:py-16 xl:py-20">
     <div class="hero-shell">
       <!-- Hero Banner Image (Wide) -->
       {imageSrc && (
@@ -182,7 +182,7 @@ const heroSkills = skills as string[];
   }
 
   .hero-shell {
-    @apply relative @container rounded-3xl border p-8 @md:p-12 @lg:p-16;
+    @apply relative @container rounded-3xl border p-6 @md:p-10 @lg:p-14;
     @apply backdrop-blur-2xl;
     border-color: color-mix(in srgb, var(--border-color) 30%, transparent);
     background: linear-gradient(
@@ -219,7 +219,7 @@ const heroSkills = skills as string[];
 
   /* Hero Banner (Wide) */
   .hero-banner-wrapper {
-    @apply w-full mb-12;
+    @apply w-full mb-8 md:mb-10;
     @apply flex justify-center;
   }
 

@@ -193,7 +193,7 @@ export interface Translations {
 export const translations: Record<Language, Translations> = {
   de: {
     nav: {
-      home: 'Startseite',
+      home: 'Start',
       about: 'Über mich',
       experience: 'Berufserfahrung',
       education: 'Ausbildung',
@@ -206,11 +206,11 @@ export const translations: Record<Language, Translations> = {
       title: 'Mihai Adrian Mateescu',
       subtitle: 'Finanzbuchhalter · Tech & AI · Kreativproduzent',
       description: 'Engagierter Finanzbuchhalter mit Erfahrung in der Buchhaltung und Finanzverwaltung, spezialisiert auf die detaillierte Analyse von Geschäftsvorfällen und die steuerliche Berichterstattung. Mit einer ausgeprägten Leidenschaft für Zahlen und einem scharfen Auge für Details suche ich stets nach Möglichkeiten, meine beruflichen Fähigkeiten weiterzuentwickeln. Meine vielseitige Erfahrung, die von der Buchhaltung bis hin zum Management von Teams reicht, empfiehlt mich als einen flexiblen Fachmann, der in jeder finanziellen Umgebung einen Mehrwert schafft.',
-      availabilityBadge: 'Für Beratungen verfügbar',
+      availabilityBadge: 'Für Beratungsprojekte verfügbar',
       skillsLabel: 'Kompetenzen:',
-      heroSkills: ['DATEV', 'Finanzbuchhaltung', 'AI/ML', 'Web Development', 'Kreativproduktion'],
+      heroSkills: ['DATEV', 'Finanzbuchhaltung', 'AI/ML', 'Webentwicklung', 'Kreativproduktion'],
       cta: {
-        viewProjects: 'Projekte ansehen',
+        viewProjects: 'Berufserfahrung',
         readBlog: 'Blog lesen',
         contact: 'Kontakt aufnehmen'
       },
@@ -223,20 +223,21 @@ export const translations: Record<Language, Translations> = {
       skills: {
         title: 'Fähigkeiten und Kenntnisse',
         items: [
-          'Finanz- und Lohnbuchhaltung',
-          'MS Office Kenntnisse',
-          'DATEV / Agenda / Simba',
-          'Schnelles Schreiben',
-          'Gute Kommunikationsfähigkeiten',
-          'Führungserfahrung: bis zu 9 Mitarbeiter/innen'
+          'Finanzbuchhaltung (Debitoren, Kreditoren, Sachkonten)',
+          'UStVA, BWA & vorbereitende Abschlussarbeiten',
+          'Systeme: DATEV, Simba, SelectLine, ELO',
+          'Digitalisierung & Prozessoptimierung',
+          'IT: Excel (Advanced), XML (EN 16931), XRechnung',
+          'Entwicklung webbasierter Finanztools (AI-gestützt)'
         ]
       },
       leadership: {
         title: 'Führungs-Kompetenzen',
         items: [
-          'Kaufmännische Leitung mit Schwerpunkt auf betriebswirtschaftlicher Steuerung und operativer Umsetzung.',
-          'Bis zu 2 Jahre Erfahrung in der Leitung und Koordination von Geschäftsprozessen.',
-          'Verantwortlich für die Führung und Entwicklung von bis zu 9 Mitarbeiter/innen.'
+          'Gebietsverkaufsleiter: Führung & Koordination von Vertriebsteams',
+          'Filialleiter: Kaufmännische Leitung inkl. Rechnungswesen & Lohnabrechnung',
+          'Führung & Entwicklung von bis zu 9 Mitarbeiter/innen',
+          'Strategische Steuerung operativer Geschäftsprozesse'
         ]
       },
       hobbies: {
@@ -440,7 +441,7 @@ export const translations: Record<Language, Translations> = {
       skillsLabel: 'Skills:',
       heroSkills: ['DATEV', 'Financial Accounting', 'AI/ML', 'Web Development', 'Creative Production'],
       cta: {
-        viewProjects: 'View Projects',
+        viewProjects: 'Experience',
         readBlog: 'Read Blog',
         contact: 'Get in Touch'
       },
@@ -453,20 +454,21 @@ export const translations: Record<Language, Translations> = {
       skills: {
         title: 'Skills and Expertise',
         items: [
-          'Financial and Payroll Accounting',
-          'MS Office Proficiency',
-          'DATEV / Agenda / Simba',
-          'Fast Typing',
-          'Excellent Communication Skills',
-          'Leadership Experience: up to 9 employees'
+          'Financial Accounting (AR, AP, GL)',
+          'VAT Returns, P&L & Preparatory Closing Tasks',
+          'Systems: DATEV, Simba, SelectLine, ELO',
+          'Digitalization & Process Optimization',
+          'IT: Excel (Advanced), XML (EN 16931), XRechnung',
+          'Development of Web-based AI Finance Tools'
         ]
       },
       leadership: {
         title: 'Leadership Competencies',
         items: [
-          'Commercial management with focus on business administration and operational implementation.',
-          'Up to 2 years of experience in leading and coordinating business processes.',
-          'Responsible for leading and developing up to 9 employees.'
+          'Regional Sales Manager: Leadership & coordination of sales teams',
+          'Branch Manager: Commercial management including accounting & payroll',
+          'Leadership & development of teams up to 9 employees',
+          'Strategic steering of operational business processes'
         ]
       },
       hobbies: {
@@ -666,11 +668,11 @@ export const translations: Record<Language, Translations> = {
       title: 'Mihai Adrian Mateescu',
       subtitle: 'Contabil Financiar',
       description: 'Contabil Financiar dedicat cu experiență în contabilitate și management financiar, specializat în analiza detaliată a tranzacțiilor comerciale și raportarea fiscală. Cu o pasiune puternică pentru cifre și un ochi atent la detalii, caut constant oportunități de a-mi dezvolta abilitățile profesionale. Experiența mea diversă, care variază de la contabilitate la managementul echipelor, mă poziționează ca un profesionist flexibil care creează valoare în orice mediu financiar.',
-      availabilityBadge: 'Disponibil pentru consultanță',
+      availabilityBadge: 'Disponibil pentru proiecte de consultanță',
       skillsLabel: 'Competențe:',
-      heroSkills: ['DATEV', 'Contabilitate Financiară', 'AI/ML', 'Web Development', 'Producție Creativă'],
+      heroSkills: ['DATEV', 'Contabilitate Financiară', 'AI/ML', 'Dezvoltare web', 'Producție Creativă'],
       cta: {
-        viewProjects: 'Vezi Proiecte',
+        viewProjects: 'Experiență',
         readBlog: 'Citește Blog',
         contact: 'Contactează-mă'
       },
@@ -683,20 +685,21 @@ export const translations: Record<Language, Translations> = {
       skills: {
         title: 'Competențe și Cunoștințe',
         items: [
-          'Contabilitate Financiară și Salarizare',
-          'Cunoștințe MS Office',
-          'DATEV / Agenda / Simba',
-          'Tastare Rapidă',
-          'Abilități Excelente de Comunicare',
-          'Experiență Leadership: până la 9 angajați'
+          'Contabilitate Financiară (Clienți, Furnizori, Registru Jurnal)',
+          'Deconturi TVA, BWA și Lucrări de Închidere',
+          'Sisteme: DATEV, Simba, SelectLine, ELO',
+          'Digitalizare și Optimizare de Procese',
+          'IT: Excel (Avansat), XML (EN 16931), XRechnung',
+          'Dezvoltare de Instrumente Financiare bazate pe AI'
         ]
       },
       leadership: {
         title: 'Competențe de Leadership',
         items: [
-          'Conducere comercială cu accent pe controlul administrației afacerii și implementarea operațională.',
-          'Până la 2 ani de experiență în conducerea și coordonarea proceselor de afaceri.',
-          'Responsabil pentru conducerea și dezvoltarea a până la 9 angajați.'
+          'Manager Regional de Vânzări: Conducerea și coordonarea echipelor de vânzări',
+          'Manager de Filială: Management comercial, incluzând contabilitatea și salarizarea',
+          'Conducerea și dezvoltarea unei echipe de până la 9 angajați',
+          'Pilotarea strategică a proceselor operaționale de afaceri'
         ]
       },
       hobbies: {
