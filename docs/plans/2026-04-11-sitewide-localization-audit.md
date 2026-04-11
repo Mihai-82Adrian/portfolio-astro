@@ -269,6 +269,119 @@ git commit -m "docs: define localization audit standard and glossary"
 
 ---
 
+## Editorial Decision Standard
+
+### Severity Levels
+
+- `P0`: critical professionalism defects in navigation, hero copy, CTAs, forms, metadata, landing pages, or any mixed-language sentence in DE/RO outside the approved glossary
+- `P1`: section headings, badges, teaser cards, helper copy, breadcrumbs, filters, labels, supporting transactional states
+- `P2`: secondary microcopy, older supporting pages, low-visibility descriptive framing
+
+### Decision Matrix
+
+#### `Keep as-is`
+
+Use when the term is a technical standard, file format, system name, or established domain shorthand that would become less precise if translated.
+
+Examples:
+- `RAG`
+- `XML`
+- `ERP`
+- `XRechnung`
+- `Document AI`
+- `AI-ready`
+- `JSONL`
+- `CSV`
+- `Parquet`
+- `SAP`
+- `EN 16931`
+
+#### `Localize`
+
+Use for all language-bearing UI and marketing framing that is not a protected technical or product term.
+
+Examples:
+- explanatory sentences
+- helper copy
+- descriptive CTAs
+- card intros
+- empty states
+- breadcrumbs when not route or product proper nouns
+- section framing
+- labels like `Read more`, `Learn more`, `View details`
+
+#### `Case-by-case`
+
+Use when the term may be acceptable in English in one locale or context, but weak or ornamental in another.
+
+Examples:
+- `Discovery Call`
+- `Output`
+- `Sample Review`
+- `Accounting Cleanup`
+- `Compliance Transformation`
+- `Process Digitalization`
+- `Now`
+- `Workflow`
+- `Finance-first`
+- `AI Data Preparation`
+
+### Glossary / Term Registry
+
+| Term | DE | EN | RO | Status | Usage Note |
+| --- | --- | --- | --- | --- | --- |
+| RAG | RAG | RAG | RAG | `keep` | Keep across all locales. Standard technical shorthand. |
+| AI-ready | AI-ready | AI-ready | AI-ready | `keep` | Acceptable in all locales when modifying it would reduce clarity. |
+| Document AI | Document AI | Document AI | Document AI | `keep` | Product/category term; keep. |
+| Discovery Call | Discovery Call | Discovery Call | Discovery Call | `conditional` | Keep in commercial contexts unless a page reads unnaturally; do not force-translate by default. |
+| Sample Review | Sample Review / Sample-Struktur prüfen | Sample Review | Revizuire structură eșantion | `conditional` | Localize when this is user-facing explanatory copy; product CTA labels may remain mixed if established in funnel. |
+| Output | Output / Ergebnis | Output | Output / rezultat | `conditional` | Keep in technical tables if concise; localize in explanatory sentences if mixed prose becomes awkward. |
+| Workflow | Workflow | Workflow | workflow | `conditional` | Keep in technical/business contexts; avoid decorative use in DE/RO marketing prose. |
+| Process Digitalization | Prozessdigitalisierung | Process Digitalization | Digitalizare de procese | `localized` | Prefer localized version outside quoted product/category names. |
+| Compliance Transformation | Compliance Transformation | Compliance Transformation | Compliance Transformation | `conditional` | Keep when used as a named service line; localize only if it appears as generic descriptive prose. |
+| Accounting Cleanup | FiBu Cleanup / Accounting Cleanup | Accounting Cleanup | curățare accounting / cleanup contabil | `conditional` | Service-line naming is conditional; avoid clumsy forced translation. |
+| Now | Now | Now | Now | `conditional` | Keep as page/product label; localize surrounding explanatory copy. |
+| Finance Data | Finanzdaten | finance data | date financiare | `localized` | Localize in prose. |
+| XRechnung | XRechnung | XRechnung | XRechnung | `keep` | Standard-specific proper term. |
+| XML | XML | XML | XML | `keep` | Format term. |
+| ERP | ERP | ERP | ERP | `keep` | Standard enterprise systems acronym. |
+
+### Locale Policy
+
+#### `DE`
+
+- Avoid decorative English in headlines, badges, card titles, helper copy, and descriptive marketing UI.
+- Keep technical English only if it is standard, clearly more precise, or more natural than a forced translation.
+- No English-only sentence fragments in commercial framing when a clean German equivalent exists.
+
+#### `EN`
+
+- Use fully English UI and framing except for:
+  - product names
+  - standards and formats
+  - company names
+  - proper nouns that should not be translated
+
+#### `RO`
+
+- Use Romanian-first copy.
+- Allow technical English only where it is standard and more natural than a forced translation.
+- Avoid decorative English introduced only for symmetry with EN.
+
+### No Mixed-Language Sentence Rule
+
+> No mixed-language sentence is allowed in DE or RO unless the embedded English term is explicitly whitelisted in the glossary / term registry.
+
+### Authored Content Boundary
+
+- Do not translate standards or file formats.
+- Do not mass-rewrite blog post titles or article bodies unless mixed-language framing clearly damages professionalism.
+- Do not rewrite substantial authored longform just for stylistic symmetry.
+- Do not translate job titles, company names, certifications, product names, route/product proper nouns unless they appear as shell-level artifacts.
+- Do not Germanize or Romanianize technical jargon just to make the page look uniformly translated.
+
+---
+
 ## Task 2: Inventory all public locale surfaces
 
 **Files:**
