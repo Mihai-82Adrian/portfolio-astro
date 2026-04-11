@@ -141,6 +141,7 @@ const isServicesRoute = new Set([
                        transition-[opacity,transform] duration-500 ease-out z-50 hidden"
                 role="status"
                 aria-live="polite"
+                data-nudges={JSON.stringify(headerCopy.nudges)}
               >
                 <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-2xl
                             border border-gray-100 dark:border-gray-700
@@ -230,7 +231,12 @@ const isServicesRoute = new Set([
     const nudgeEl = document.getElementById('ask-mihai-nudge');
     const nudgeText = document.getElementById('ask-mihai-nudge-text');
 
-    const nudgeMessages = JSON.parse('{JSON.stringify(headerCopy.nudges)}');
+    let nudgeMessages = [];
+    try {
+      nudgeMessages = JSON.parse(nudgeEl?.dataset.nudges || '[]');
+    } catch (e) {
+      console.error('Failed to parse nudges', e);
+    }
 
     let nudgeIndex = 0;
     let nudgeShows = 0;
