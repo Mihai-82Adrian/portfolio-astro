@@ -447,6 +447,58 @@ git commit -m "docs: add sitewide localization audit inventory"
 
 ---
 
+## Audit Inventory
+
+### Surface Type Summary
+
+- `shared shell`: navigation, footer, global CTA labels, legal/support links
+- `shared component copy`: reusable landing sections, blog/project cards, shared buttons, badges, tool shell UI
+- `locale page copy`: page-specific intros, teasers, framing blocks, explanatory sections
+- `structured data / SEO`: titles, descriptions, breadcrumb labels, OG text
+- `tool UI / form UI`: labels, placeholders, helper text, submit states, modal headings
+- `transactional / success / error state UI`: thank-you pages, form success/failure framing
+
+### Audit Table
+
+| File / Surface | Current String / Issue | Locales Affected | Severity | Surface Type | Decision | Recommended Handling |
+| --- | --- | --- | --- | --- | --- | --- |
+| `src/components/services/data-prep/ProblemSection.astro` | `Typische Ursachen`, `Typische Folgen` hardcoded in shared component | EN, RO | `P0` | shared component copy | `localize` | Move titles into localized content model |
+| `src/components/services/data-prep/TrustSection.astro` | `Typische Ausgangslagen` hardcoded in shared component | EN, RO | `P0` | shared component copy | `localize` | Move card title into localized content model |
+| `src/components/services/data-prep/HeroSection.astro` + `src/data/services/data-prep-for-ai.ts` | DE eyebrow previously decorative English; still needs sitewide glossary review | DE, RO | `P0` | shared component copy | `case-by-case` | Keep neutral localized eyebrow on DE/RO, review similar patterns elsewhere |
+| `src/data/services/data-prep-for-ai.ts` | DE prose mixes German with `AI-ready Outputs`, `Output-Fokus`, `Output-Formate` style phrasing | DE | `P0` | locale page copy | `case-by-case` | Normalize only where phrase-level mix feels ornamental or clumsy |
+| `src/data/services/data-prep-for-ai.ts` | DE CTA labels use `Discovery Call`, `Sample Review` in commercial UI | DE | `P0` | locale page copy | `case-by-case` | Decide via glossary whether to keep as product labels or localize in some contexts |
+| `src/pages/en/about.astro` | `In Entwicklung — Konzept teilweise validiert, nicht produktiv` in EN page | EN | `P0` | locale page copy | `localize` | Replace with English |
+| `src/pages/ro/about.astro` | `In Entwicklung — Konzept teilweise validiert, nicht produktiv` in RO page | RO | `P0` | locale page copy | `localize` | Replace with Romanian |
+| `src/pages/en/about.astro` | `Hobbies & Interessen` section heading on EN page | EN | `P0` | locale page copy | `localize` | Replace with English |
+| `src/pages/ro/about.astro` | `Hobbies & Interessen` section heading on RO page | RO | `P0` | locale page copy | `localize` | Replace with Romanian |
+| `src/pages/sample-struktur-pruefen/danke.astro` | `Sample Review` in DE thank-you framing | DE | `P1` | transactional UI | `case-by-case` | Review whether this remains as funnel product label or should become DE framing |
+| `src/pages/index.astro` | DE teaser body includes sentence-level English mix: `AI-ready Outputs` | DE | `P1` | locale page copy | `case-by-case` | Localize phrase if sentence reads mixed rather than technical |
+| `src/pages/en/index.astro` / `src/pages/ro/index.astro` | secondary CTA label `Discovery Call` | EN, RO | `P1` | locale page copy | `conditional` | Keep for EN; review RO based on glossary decision |
+| `src/pages/discovery-call.astro`, `src/pages/en/discovery-call.astro`, `src/pages/ro/discovery-call.astro` | breadcrumb item `Discovery Call` across locales | DE, EN, RO | `P1` | structured data / SEO | `conditional` | Keep or localize consistently based on glossary |
+| `src/pages/now.astro` | new module block uses English-first service framing | DE-default page | `P1` | locale page copy | `case-by-case` | Review as part of profile/narrative pass, not as P0 shell fix |
+| `src/components/blog/PostCard.astro` | `Read more` hardcoded in shared blog card | DE, RO | `P1` | shared component copy | `localize` | Move into locale-aware label source |
+| `src/components/common/CookieConsent.astro` | `Learn more about data privacy` hardcoded | DE, RO | `P1` | shared shell | `localize` | Localize visible copy and aria label |
+| `src/components/projects/ProjectCard.astro` | `View details about ...` aria label hardcoded | DE, RO | `P1` | shared component copy | `localize` | Localize aria labels |
+| `src/components/sections/Timeline.astro` | `View details for ...` aria label hardcoded | DE, RO | `P1` | shared component copy | `localize` | Localize aria labels |
+| `src/pages/about.astro`, `src/pages/en/about.astro`, `src/pages/ro/about.astro` | `Now` feature uses mixed/localized framing inconsistently | DE, EN, RO | `P1` | locale page copy | `case-by-case` | Keep `Now` as product label, localize surrounding explanatory copy |
+| landing funnel metadata in `src/data/services/data-prep-for-ai.ts` | titles/descriptions contain mixed commercial English terms in DE/RO | DE, RO | `P1` | structured data / SEO | `case-by-case` | Normalize only where phrase-level professionalism is affected |
+| tools / blog / projects shells beyond current grep hits | no baseline proof of defects yet, but still in audit perimeter | all | `P2` | shared component copy | `inventory` | Review after P0/P1 shared surfaces are resolved |
+
+### P0 Priority Set
+
+- shared landing funnel components with hardcoded non-localized titles
+- EN/RO `about` pages with German strings
+- DE decorative English or sentence-level mix in commercial framing where it weakens professionalism
+
+### Intentionally Deferred in Inventory
+
+- authored blog post bodies
+- authored project narrative copy
+- technical tool logic labels unless they create a clear locale UX defect
+- job titles, company names, standards, format names, proper nouns
+
+---
+
 ## Task 3: Fix shared shell and reusable components first
 
 **Files:**
