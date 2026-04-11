@@ -24,6 +24,7 @@ export interface Translations {
     title: string;
     subtitle: string;
     description: string;
+    availabilityBadge: string;
     skillsLabel: string; // Hero skills section label
     heroSkills: string[]; // Short skills for Hero section
     cta: {
@@ -174,6 +175,7 @@ export interface Translations {
     description: string;
     copyright: string;
     madeWith: string;
+    deployedOn: string;
     quickLinks: string;
     language: string;
     legal: string;
@@ -191,7 +193,7 @@ export interface Translations {
 export const translations: Record<Language, Translations> = {
   de: {
     nav: {
-      home: 'Home',
+      home: 'Startseite',
       about: 'Über mich',
       experience: 'Berufserfahrung',
       education: 'Ausbildung',
@@ -204,6 +206,7 @@ export const translations: Record<Language, Translations> = {
       title: 'Mihai Adrian Mateescu',
       subtitle: 'Finanzbuchhalter · Tech & AI · Kreativproduzent',
       description: 'Engagierter Finanzbuchhalter mit Erfahrung in der Buchhaltung und Finanzverwaltung, spezialisiert auf die detaillierte Analyse von Geschäftsvorfällen und die steuerliche Berichterstattung. Mit einer ausgeprägten Leidenschaft für Zahlen und einem scharfen Auge für Details suche ich stets nach Möglichkeiten, meine beruflichen Fähigkeiten weiterzuentwickeln. Meine vielseitige Erfahrung, die von der Buchhaltung bis hin zum Management von Teams reicht, empfiehlt mich als einen flexiblen Fachmann, der in jeder finanziellen Umgebung einen Mehrwert schafft.',
+      availabilityBadge: 'Für Beratungen verfügbar',
       skillsLabel: 'Kompetenzen:',
       heroSkills: ['DATEV', 'Finanzbuchhaltung', 'AI/ML', 'Web Development', 'Kreativproduktion'],
       cta: {
@@ -403,8 +406,9 @@ export const translations: Record<Language, Translations> = {
     },
     footer: {
       description: 'Finanzbuchhalter mit Leidenschaft für Zahlen und kontinuierliches Lernen. Aktuell: Weiterbildung zum Bilanzbuchhalter (IHK). Hobby: Technologie-Exploration.',
-      copyright: '© 2025 Mihai Adrian Mateescu',
+      copyright: 'Alle Rechte vorbehalten.',
       madeWith: 'Erstellt mit',
+      deployedOn: 'bereitgestellt auf',
       quickLinks: 'Schnellzugriff',
       language: 'Sprache',
       legal: 'Rechtliches',
@@ -432,6 +436,7 @@ export const translations: Record<Language, Translations> = {
       title: 'Mihai Adrian Mateescu',
       subtitle: 'Financial Accountant · Tech & AI · Creative Producer',
       description: 'Dedicated Financial Accountant with experience in accounting and financial management, specializing in detailed analysis of business transactions and tax reporting. With a strong passion for numbers and a keen eye for detail, I constantly seek opportunities to further develop my professional skills. My diverse experience, ranging from accounting to team management, positions me as a flexible professional who creates value in any financial environment.',
+      availabilityBadge: 'Available for consulting',
       skillsLabel: 'Skills:',
       heroSkills: ['DATEV', 'Financial Accounting', 'AI/ML', 'Web Development', 'Creative Production'],
       cta: {
@@ -631,8 +636,9 @@ export const translations: Record<Language, Translations> = {
     },
     footer: {
       description: 'Financial Accountant with a passion for numbers and continuous learning. Currently: Further training to become a certified accountant (IHK). Hobby: Technology exploration.',
-      copyright: '© 2025 Mihai Adrian Mateescu',
+      copyright: 'All rights reserved.',
       madeWith: 'Made with',
+      deployedOn: 'deployed on',
       quickLinks: 'Quick Links',
       language: 'Language',
       legal: 'Legal',
@@ -660,6 +666,7 @@ export const translations: Record<Language, Translations> = {
       title: 'Mihai Adrian Mateescu',
       subtitle: 'Contabil Financiar',
       description: 'Contabil Financiar dedicat cu experiență în contabilitate și management financiar, specializat în analiza detaliată a tranzacțiilor comerciale și raportarea fiscală. Cu o pasiune puternică pentru cifre și un ochi atent la detalii, caut constant oportunități de a-mi dezvolta abilitățile profesionale. Experiența mea diversă, care variază de la contabilitate la managementul echipelor, mă poziționează ca un profesionist flexibil care creează valoare în orice mediu financiar.',
+      availabilityBadge: 'Disponibil pentru consultanță',
       skillsLabel: 'Competențe:',
       heroSkills: ['DATEV', 'Contabilitate Financiară', 'AI/ML', 'Web Development', 'Producție Creativă'],
       cta: {
@@ -859,8 +866,9 @@ export const translations: Record<Language, Translations> = {
     },
     footer: {
       description: 'Contabil Financiar cu pasiune pentru cifre și învățare continuă. În prezent: Formare pentru a deveni contabil certificat (IHK). Hobby: Explorare tehnologică.',
-      copyright: '© 2025 Mihai Adrian Mateescu',
-      madeWith: 'Creat cu',
+      copyright: 'Toate drepturile rezervate.',
+      madeWith: 'Realizat cu',
+      deployedOn: 'găzduit pe',
       quickLinks: 'Linkuri rapide',
       language: 'Limbă',
       legal: 'Legal',

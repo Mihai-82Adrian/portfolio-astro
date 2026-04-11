@@ -10,10 +10,14 @@
 
 import Button from '@components/ui/Button.astro';
 import Container from '@components/ui/Container.astro';
+import { translations } from '@data/translations';
+import type { Language } from '@utils/i18n';
 import { Image } from 'astro:assets';
 import heroImage from '@/../public/images/2025-2_50PM.webp';
 
 interface Props {
+  /** Active language */
+  lang?: Language;
   /** Hero title */
   title?: string;
   /** Hero subtitle/tagline */
@@ -34,23 +38,31 @@ interface Props {
   imageAlt?: string;
   /** Skills section label */
   skillsLabel?: string;
+  /** Availability badge text */
+  badgeText?: string;
   /** Skills array */
   skills?: string[];
 }
 
+const lang = (Astro.props.lang ?? 'de') as Language;
+const t = translations[lang];
+
 const {
-  title = 'Mihai Adrian Mateescu',
-  subtitle = 'Finanzbuchhalter',
-  description = 'Engagierter Finanzbuchhalter mit Erfahrung in der Buchhaltung und Finanzverwaltung, spezialisiert auf die detaillierte Analyse von Geschäftsvorfällen und die steuerliche Berichterstattung.',
-  primaryCta = 'View Projects',
+  title = t.home.title,
+  subtitle = t.home.subtitle,
+  description = t.home.description,
+  primaryCta = t.home.cta.viewProjects,
   primaryHref = '/projects',
-  secondaryCta = 'Read Blog',
+  secondaryCta = t.home.cta.readBlog,
   secondaryHref = '/blog',
   imageSrc,
   imageAlt = '',
-  skillsLabel = 'Kompetenzen:',
-  skills = ['DATEV', 'Finanzbuchhaltung', 'Umsatzsteuer', 'Jahresabschlüsse'],
+  badgeText = t.home.availabilityBadge,
+  skillsLabel = t.home.skillsLabel,
+  skills = t.home.heroSkills,
 } = Astro.props;
+
+const heroSkills = skills as string[];
 ---
 
 <section class="hero-section">
@@ -77,7 +89,7 @@ const {
         <!-- Animated Badge -->
         <div class="hero-badge">
           <span class="hero-badge-dot"></span>
-          <span class="hero-badge-text">Available for consulting</span>
+          <span class="hero-badge-text">{badgeText}</span>
         </div>
 
         <!-- Main Title with Accent -->
@@ -137,7 +149,7 @@ const {
         <div class="hero-tech-stack">
           <p class="hero-tech-label">{skillsLabel}</p>
           <div class="hero-tech-icons">
-            {skills.map((skill, index) => (
+            {heroSkills.map((skill: string, index: number) => (
               <>
                 <span class="hero-tech-item">{skill}</span>
                 {index < skills.length - 1 && <span class="hero-tech-separator">·</span>}

@@ -257,18 +257,18 @@ const languages = [
         <p
           class="text-sm text-text-secondary-light dark:text-text-secondary-dark"
         >
-          &copy; {currentYear} Mihai Adrian Mateescu. All rights reserved.
+          &copy; {currentYear} Mihai Adrian Mateescu. {t.footer.copyright}
         </p>
         <p
           class="text-sm text-text-tertiary-light dark:text-text-tertiary-dark"
         >
-          Built with <a
+          {t.footer.madeWith} <a
             href="https://astro.build"
             class="footer-link"
             target="_blank"
             rel="noopener">Astro</a
           >
-          {" "}& deployed on <a
+          {" "} & {t.footer.deployedOn} <a
             href="https://pages.cloudflare.com"
             class="footer-link"
             target="_blank"

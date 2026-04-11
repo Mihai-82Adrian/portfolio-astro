@@ -39,6 +39,7 @@ const structuredData = [personSchema, websiteSchema];
 <BaseLayout title={title} description={seoDescription} lang={lang} structuredData={structuredData}>
   <!-- Hero Section -->
   <Hero
+    lang={lang}
     title={t.home.title}
     subtitle={t.home.subtitle}
     description={t.home.description}
@@ -46,6 +47,7 @@ const structuredData = [personSchema, websiteSchema];
     skills={t.home.heroSkills}
     imageSrc="/images/2025-2_50PM.webp"
     imageAlt="Mihai Adrian Mateescu"
+    badgeText={t.home.availabilityBadge}
   >
     <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
       <Button href="/experience" variant="primary" size="lg">
