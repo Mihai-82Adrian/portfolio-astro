@@ -52,6 +52,7 @@ docs/PROJECT-AUDIT-*.md
 docs/planificare.md
 docs/chat.md
 docs/corpus-vlm-ingestion.md
+PRD-Landing_Page-new.md
 
 # Redundant plain-text copies of corpus/facts (use .jsonl/.json directly)
 public/corpus-jsonl.txt
