@@ -20,7 +20,15 @@ const lang = 'de';
 const t = translations[lang];
 
 const title = 'Finanzbuchhalter & KI-Entwickler';
-const seoDescription = 'Finanzbuchhalter & KI-Enthusiast im DACH-Raum. FinTech-Tools, Buchhaltungsautomatisierung und AI-gestützte Webentwicklung für Gründer und Freelancer.';
+const seoDescription = 'Finanzbuchhalter & KI-Enthusiast im DACH-Raum. FinTech-Tools, Buchhaltungsautomatisierung und KI-gestützte Webentwicklung für Gründer und Freelancer.';
+const dataPrepTeaser = {
+  title: 'Neu: KI-Datenaufbereitung für Finance-Workflows',
+  body: 'Eine eigenständige Landing Page für Teams, die PDFs, ERP-Exporte, XML und Compliance-Daten in saubere, strukturierte und KI-verwertbare Ergebnisse überführen müssen.',
+  primaryLabel: 'Zur Landing Page',
+  primaryHref: '/datenaufbereitung-fuer-ki',
+  secondaryLabel: 'Discovery Call',
+  secondaryHref: '/discovery-call',
+};
 
 // Generate structured data for homepage
 const personSchema = generatePersonSchema(lang);
@@ -57,6 +65,32 @@ const structuredData = [personSchema, websiteSchema];
 
   <!-- Contact Information -->
   <Container>
+    <section class="py-12">
+      <Card>
+        <div class="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-eucalyptus-700 dark:text-eucalyptus-300">
+              Strategisches Angebot
+            </p>
+            <h2 class="mt-3 text-3xl font-bold text-text-primary-light dark:text-text-primary-dark text-balance">
+              {dataPrepTeaser.title}
+            </h2>
+            <p class="mt-4 max-w-3xl text-text-secondary-light dark:text-text-secondary-dark text-pretty">
+              {dataPrepTeaser.body}
+            </p>
+          </div>
+          <div class="flex flex-col gap-3 lg:items-end">
+            <Button href={dataPrepTeaser.primaryHref} variant="primary" size="lg">
+              {dataPrepTeaser.primaryLabel}
+            </Button>
+            <Button href={dataPrepTeaser.secondaryHref} variant="outline" size="lg">
+              {dataPrepTeaser.secondaryLabel}
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </section>
+
     <section id="contact" class="py-12">
       <Card>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -91,7 +125,7 @@ const structuredData = [personSchema, websiteSchema];
               <p>
                 <strong>{t.contact.linkedin}:</strong>{' '}
                 <a
-                  href="https://www.linkedin.com/in/mihai-adrian-mateescu"
+                  href="https://www.linkedin.com/in/mihai-adrian-mateescu/"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/50 dark:decoration-eucalyptus-400/50 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300"
