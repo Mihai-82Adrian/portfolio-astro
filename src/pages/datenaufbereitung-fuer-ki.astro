@@ -2,7 +2,8 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { generateBreadcrumbSchema } from '@utils/structuredData';
 import {
-  dataPrepLandingContent,
+  buildAlternateUrls,
+  dataPrepLandingContentByLocale,
 } from '@data/services/data-prep-for-ai';
 import HeroSection from '@components/services/data-prep/HeroSection.astro';
 import ProblemSection from '@components/services/data-prep/ProblemSection.astro';
@@ -15,13 +16,12 @@ import PricingSection from '@components/services/data-prep/PricingSection.astro'
 import FinalCtaSection from '@components/services/data-prep/FinalCtaSection.astro';
 
 const { seo, hero, problem, services, outputs, process, trust, faq, pricing, finalCta } =
-  dataPrepLandingContent;
-const canonicalURL = 'https://me-mateescu.de/services/datenaufbereitung-fuer-ki';
-
-const breadcrumbSchema = generateBreadcrumbSchema([
-  { name: 'Home', url: 'https://me-mateescu.de/' },
-  { name: 'Services', url: 'https://me-mateescu.de/services' },
-  { name: 'Datenaufbereitung für KI', url: canonicalURL },
+  dataPrepLandingContentByLocale.de;
+const canonicalURL = 'https://me-mateescu.de/datenaufbereitung-fuer-ki';
+const alternates = buildAlternateUrls('landing');
+const structuredData = generateBreadcrumbSchema([
+  { name: 'Home', url: '/' },
+  { name: 'Datenaufbereitung für KI', url: '/datenaufbereitung-fuer-ki' },
 ]);
 ---
 
@@ -30,8 +30,9 @@ const breadcrumbSchema = generateBreadcrumbSchema([
   description={seo.description}
   ogImage={seo.ogImage}
   canonicalURL={canonicalURL}
+  alternates={alternates}
   lang="de"
-  structuredData={breadcrumbSchema}
+  structuredData={structuredData}
 >
   <main class="pb-20">
     <HeroSection content={hero} />

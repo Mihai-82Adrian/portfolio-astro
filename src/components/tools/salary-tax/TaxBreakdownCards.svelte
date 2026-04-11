@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AlertCircle, ChevronDown } from 'lucide-svelte';
+  import Icon from '@/components/ui/Icon.svelte';
   import type { BruttoNettoResult } from '@/lib/fin-core/salary-tax';
 
   let showSozialDetails = $state(false);
@@ -126,7 +126,7 @@
       class="mt-2.5 flex items-center gap-1 text-xs text-gray-600 transition-colors hover:text-gray-300"
       aria-expanded={showSozialDetails}
     >
-      <ChevronDown
+      <Icon name="ChevronDown"
         size={12}
         aria-hidden="true"
         class="transition-transform duration-200 {showSozialDetails ? 'rotate-180' : ''}"
@@ -181,7 +181,7 @@
 <!-- PKV-Schwelle Warning -->
 {#if result.exceedsVersicherungspflichtgrenze}
   <div class="mt-3 flex items-start gap-2 rounded-lg border border-blue-500/25 bg-blue-500/8 px-3 py-2.5 text-xs text-blue-300">
-    <AlertCircle size={13} class="mt-0.5 shrink-0 text-blue-400" aria-hidden="true" />
+    <Icon name="AlertCircle" size={13} class="mt-0.5 shrink-0 text-blue-400" aria-hidden="true" />
     <span>
       Gehalt überschreitet die Versicherungspflichtgrenze
       ({new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(result.versicherungspflichtgrenzeMonthly)}/Monat) —

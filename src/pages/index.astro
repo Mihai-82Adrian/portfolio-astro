@@ -14,7 +14,7 @@ import Card from '@components/ui/Card.astro';
 import Button from '@components/ui/Button.astro';
 import Icon from '@components/ui/Icon.astro';
 import { translations } from '@data/translations';
-import { generatePersonSchema, generateWebSiteSchema, generateMultipleSchemas } from '@utils/structuredData';
+import { generatePersonSchema, generateWebSiteSchema } from '@utils/structuredData';
 
 const lang = 'de';
 const t = translations[lang];
@@ -60,37 +60,36 @@ const structuredData = [personSchema, websiteSchema];
     </div>
   </Hero>
 
-  <!-- Hub Navigation: Bento Grid -->
-  <BentoGrid lang={lang} />
-
-  <!-- Contact Information -->
+  <!-- Contact Information & Quick Links -->
   <Container>
+    <!-- Strategic Offer -->
     <section class="py-12">
       <Card>
         <div class="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <div>
             <p class="text-xs font-semibold uppercase tracking-[0.18em] text-eucalyptus-700 dark:text-eucalyptus-300">
-              Strategisches Angebot
+              {t.home.dataPrepTeaser.label}
             </p>
             <h2 class="mt-3 text-3xl font-bold text-text-primary-light dark:text-text-primary-dark text-balance">
-              {dataPrepTeaser.title}
+              {t.home.dataPrepTeaser.title}
             </h2>
-            <p class="mt-4 max-w-3xl text-text-secondary-light dark:text-text-secondary-dark text-pretty">
-              {dataPrepTeaser.body}
+            <p class="mt-4 max-w-3xl text-text-secondary-light dark:text-text-secondary-dark text-pretty transition-all hover:text-text-primary-light dark:hover:text-text-primary-dark">
+              {t.home.dataPrepTeaser.body}
             </p>
           </div>
           <div class="flex flex-col gap-3 lg:items-end">
             <Button href={dataPrepTeaser.primaryHref} variant="primary" size="lg">
-              {dataPrepTeaser.primaryLabel}
+              {t.home.dataPrepTeaser.primaryLabel}
             </Button>
             <Button href={dataPrepTeaser.secondaryHref} variant="outline" size="lg">
-              {dataPrepTeaser.secondaryLabel}
+              {t.home.dataPrepTeaser.secondaryLabel}
             </Button>
           </div>
         </div>
       </Card>
     </section>
 
+    <!-- Contact Section -->
     <section id="contact" class="py-12">
       <Card>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -98,7 +97,7 @@ const structuredData = [personSchema, websiteSchema];
             <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6 text-balance">
               {t.contact.address}
             </h2>
-            <p class="text-text-secondary-light dark:text-text-secondary-dark text-pretty">
+            <p class="text-text-secondary-light dark:text-text-secondary-dark text-pretty leading-relaxed">
               Bahnhofstraße 65b<br />
               21218 Seevetal<br />
               Germany
@@ -109,26 +108,29 @@ const structuredData = [personSchema, websiteSchema];
             <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6 text-balance">
               {t.contact.heading}
             </h2>
-            <div class="space-y-3 text-text-secondary-light dark:text-text-secondary-dark">
-              <p>
+            <div class="space-y-4 text-text-secondary-light dark:text-text-secondary-dark">
+              <p class="flex items-center gap-2">
+                <Icon name="phone" class="h-4 w-4 text-eucalyptus-600 dark:text-eucalyptus-400" />
                 <strong>{t.contact.phone}:</strong>{' '}
-                <a href="tel:+491704740121" class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/50 dark:decoration-eucalyptus-400/50 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300">
+                <a href="tel:+491704740121" class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/30 dark:decoration-eucalyptus-400/30 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300 transition-all">
                   +49 170 474 0121
                 </a>
               </p>
-              <p>
+              <p class="flex items-center gap-2">
+                <Icon name="mail" class="h-4 w-4 text-eucalyptus-600 dark:text-eucalyptus-400" />
                 <strong>{t.contact.email}:</strong>{' '}
-                <a href="mailto:kontakt@me-mateescu.de" class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/50 dark:decoration-eucalyptus-400/50 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300">
+                <a href="mailto:kontakt@me-mateescu.de" class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/30 dark:decoration-eucalyptus-400/30 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300 transition-all">
                   kontakt@me-mateescu.de
                 </a>
               </p>
-              <p>
+              <p class="flex items-center gap-2">
+                <Icon name="linkedin" class="h-4 w-4 text-eucalyptus-600 dark:text-eucalyptus-400" />
                 <strong>{t.contact.linkedin}:</strong>{' '}
                 <a
                   href="https://www.linkedin.com/in/mihai-adrian-mateescu/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/50 dark:decoration-eucalyptus-400/50 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300"
+                  class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/30 dark:decoration-eucalyptus-400/30 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300 transition-all"
                 >
                   Mateescu Mihai
                 </a>
@@ -139,10 +141,10 @@ const structuredData = [personSchema, websiteSchema];
       </Card>
     </section>
 
-    <!-- Quick Links to Main Sections -->
+    <!-- Quick Links -->
     <section class="py-12">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
+        <Card variant="glass" hover>
           <h3 class="text-xl font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-3 text-balance">
             {t.nav.education}
           </h3>
@@ -154,7 +156,7 @@ const structuredData = [personSchema, websiteSchema];
           </Button>
         </Card>
 
-        <Card>
+        <Card variant="glass" hover>
           <h3 class="text-xl font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-3 text-balance">
             {t.nav.experience}
           </h3>
@@ -166,7 +168,7 @@ const structuredData = [personSchema, websiteSchema];
           </Button>
         </Card>
 
-        <Card>
+        <Card variant="glass">
           <h3 class="text-xl font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-3 text-balance">
             {t.nav.certifications}
           </h3>
@@ -179,6 +181,10 @@ const structuredData = [personSchema, websiteSchema];
         </Card>
       </div>
     </section>
+  </Container>
+
+  <!-- Overview Hub: Bento Grid (Lowered) -->
+  <BentoGrid lang={lang} />
 
     <!-- Skills Section -->
     <section class="py-12">

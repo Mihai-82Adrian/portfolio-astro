@@ -24,7 +24,7 @@ const { content } = Astro.props;
     <div class="mt-8 grid gap-6 lg:grid-cols-[1fr_0.92fr]">
       <Card>
         <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
-          Ergebnisse im Fokus
+          {content.resultsTitle}
         </h3>
         <ul class="mt-5 space-y-3">
           {content.bullets.map((bullet) => (
@@ -38,7 +38,7 @@ const { content } = Astro.props;
 
       <Card>
         <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
-          Geeignet für
+          {content.suitableForTitle}
         </h3>
         <div class="mt-4 flex flex-wrap gap-2">
           {content.suitableFor.map((item) => (

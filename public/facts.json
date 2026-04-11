@@ -1,16 +1,16 @@
 {
     "contact": {
         "de": {
-            "default": "📧 E-Mail: mihai.mateescu@web.de\n🔗 LinkedIn: linkedin.com/in/mateescu-mihai-adrian-922b3169\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (bei Hamburg), Deutschland",
-            "withPhone": "📧 E-Mail: mihai.mateescu@web.de\n📞 Telefon: +49 170 474 0121\n🔗 LinkedIn: linkedin.com/in/mateescu-mihai-adrian-922b3169\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (bei Hamburg), Deutschland"
+            "default": "📧 E-Mail: kontakt@me-mateescu.de\n🔗 LinkedIn: https://www.linkedin.com/in/mihai-adrian-mateescu/\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (bei Hamburg), Deutschland",
+            "withPhone": "📧 E-Mail: kontakt@me-mateescu.de\n📞 Telefon: +49 170 474 0121\n🔗 LinkedIn: https://www.linkedin.com/in/mihai-adrian-mateescu/\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (bei Hamburg), Deutschland"
         },
         "en": {
-            "default": "📧 Email: mihai.mateescu@web.de\n🔗 LinkedIn: linkedin.com/in/mateescu-mihai-adrian-922b3169\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (near Hamburg), Germany",
-            "withPhone": "📧 Email: mihai.mateescu@web.de\n📞 Phone: +49 170 474 0121\n🔗 LinkedIn: linkedin.com/in/mateescu-mihai-adrian-922b3169\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (near Hamburg), Germany"
+            "default": "📧 Email: kontakt@me-mateescu.de\n🔗 LinkedIn: https://www.linkedin.com/in/mihai-adrian-mateescu/\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (near Hamburg), Germany",
+            "withPhone": "📧 Email: kontakt@me-mateescu.de\n📞 Phone: +49 170 474 0121\n🔗 LinkedIn: https://www.linkedin.com/in/mihai-adrian-mateescu/\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (near Hamburg), Germany"
         },
         "ro": {
-            "default": "📧 Email: mihai.mateescu@web.de\n🔗 LinkedIn: linkedin.com/in/mateescu-mihai-adrian-922b3169\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (lângă Hamburg), Germania",
-            "withPhone": "📧 Email: mihai.mateescu@web.de\n📞 Telefon: +49 170 474 0121\n🔗 LinkedIn: linkedin.com/in/mateescu-mihai-adrian-922b3169\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (lângă Hamburg), Germania"
+            "default": "📧 Email: kontakt@me-mateescu.de\n🔗 LinkedIn: https://www.linkedin.com/in/mihai-adrian-mateescu/\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (lângă Hamburg), Germania",
+            "withPhone": "📧 Email: kontakt@me-mateescu.de\n📞 Telefon: +49 170 474 0121\n🔗 LinkedIn: https://www.linkedin.com/in/mihai-adrian-mateescu/\n🌐 Website: me-mateescu.de\n💻 GitHub: github.com/Mihai-82Adrian\n📍 Seevetal (lângă Hamburg), Germania"
         }
     },
     "current_role": {

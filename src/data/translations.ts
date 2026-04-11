@@ -49,6 +49,13 @@ export interface Translations {
       title: string;
       learnMore: string;
     };
+    dataPrepTeaser: {
+      label: string;
+      title: string;
+      body: string;
+      primaryLabel: string;
+      secondaryLabel: string;
+    };
   };
   // About Page
   about: {
@@ -232,7 +239,14 @@ export const translations: Record<Language, Translations> = {
       hobbies: {
         title: 'Hobbies',
         learnMore: 'Mehr über meine Hobbies'
-      }
+      },
+      dataPrepTeaser: {
+        label: 'Strategisches Angebot',
+        title: 'Neu: KI-Datenaufbereitung für Finance-Workflows',
+        body: 'Eine eigenständige Landing Page für Teams, die PDFs, ERP-Exporte, XML und Compliance-Daten in saubere, strukturierte und KI-verwertbare Ergebnisse überführen müssen.',
+        primaryLabel: 'Zur Landing Page',
+        secondaryLabel: 'Discovery Call',
+      },
     },
     about: {
       title: 'Über mich',
@@ -453,7 +467,14 @@ export const translations: Record<Language, Translations> = {
       hobbies: {
         title: 'Hobbies',
         learnMore: 'Learn more about my hobbies'
-      }
+      },
+      dataPrepTeaser: {
+        label: 'Strategic Offer',
+        title: 'New: AI Data Preparation for Finance Workflows',
+        body: 'A dedicated landing page for teams needing to transform PDFs, ERP exports, XML, and compliance data into clean, structured, and AI-ready results.',
+        primaryLabel: 'Open Landing Page',
+        secondaryLabel: 'Discovery Call',
+      },
     },
     about: {
       title: 'About Me',
@@ -628,7 +649,7 @@ export const translations: Record<Language, Translations> = {
     nav: {
       home: 'Acasă',
       about: 'Despre mine',
-      experience: 'Experiență',
+      experience: 'Experiențe',
       education: 'Educație',
       certifications: 'Certificări',
       services: 'Servicii',
@@ -674,7 +695,14 @@ export const translations: Record<Language, Translations> = {
       hobbies: {
         title: 'Hobby-uri',
         learnMore: 'Află mai multe despre hobby-urile mele'
-      }
+      },
+      dataPrepTeaser: {
+        label: 'Ofertă strategică',
+        title: 'Nou: Pregătire Date AI pentru procese financiare',
+        body: 'O landing page dedicată echipelor care trebuie să transforme PDF-uri, exporturi ERP, XML și date de conformitate în rezultate curate, structurate și pregătite pentru AI.',
+        primaryLabel: 'Deschide landing page-ul',
+        secondaryLabel: 'Discovery Call',
+      },
     },
     about: {
       title: 'Despre Mine',

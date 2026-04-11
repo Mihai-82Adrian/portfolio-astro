@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Info } from 'lucide-svelte';
+  import Icon from '@/components/ui/Icon.svelte';
 
   let open = false;
   let buttonEl: HTMLButtonElement;
@@ -36,7 +36,7 @@
     aria-label="Erklärung anzeigen"
     class="inline-flex items-center justify-center rounded-full p-0.5 text-text-muted-light transition-colors hover:text-eucalyptus-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus-500/60 dark:text-text-muted-dark dark:hover:text-eucalyptus-400"
   >
-    <Info size={14} aria-hidden="true" />
+    <Icon name="Info" size={14} aria-hidden="true" />
   </button>
 </span>
 

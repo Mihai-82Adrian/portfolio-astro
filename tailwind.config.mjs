@@ -126,6 +126,7 @@ export default {
         'subtle': '0 2px 8px rgba(0, 0, 0, 0.08)',
         'elevated': '0 8px 24px rgba(0, 0, 0, 0.12)',
         'card': '0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.08)',
+        'glass': 'var(--shadow-glass)',
         // Dark mode shadows
         'dark-subtle': '0 2px 8px rgba(0, 0, 0, 0.3)',
         'dark-elevated': '0 8px 24px rgba(0, 0, 0, 0.5)',

@@ -179,7 +179,7 @@ functions/api/             # Cloudflare Workers (AI endpoints)
 - **Website:** [me-mateescu.de](https://me-mateescu.de)
 - **Blog:** [me-mateescu.de/blog](https://me-mateescu.de/blog)
 - **Fin-Tools Hub:** [me-mateescu.de/tools](https://me-mateescu.de/tools)
-- **LinkedIn:** [Mihai Adrian Mateescu](https://linkedin.com/in/mihai-adrian-mateescu)
+- **LinkedIn:** [Mihai Adrian Mateescu](https://www.linkedin.com/in/mihai-adrian-mateescu/)
 
 ---
 

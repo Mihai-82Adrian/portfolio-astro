@@ -251,35 +251,52 @@ const t = content[lang] || content.de;
 
   /* Cards: shared */
   .bento-card {
-    @apply relative;
-    @apply rounded-2xl;
-    @apply p-6 sm:p-7 md:p-8;
-    @apply transition-[transform,border-color,box-shadow,background-color] duration-300 ease-out;
+    @apply relative @container;
+    @apply rounded-3xl;
+    @apply p-6 @md:p-8 @lg:p-10;
+    @apply transition-all duration-500;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     @apply no-underline;
     @apply border;
     @apply cursor-pointer;
-    border-color: color-mix(in srgb, var(--border-color) 85%, transparent);
-    background: color-mix(in srgb, var(--bg-elevated) 78%, transparent);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    border-color: color-mix(in srgb, var(--border-color) 40%, transparent);
+    background: linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--bg-elevated) 90%, transparent),
+      color-mix(in srgb, var(--bg-elevated) 70%, transparent)
+    );
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     overflow: hidden;
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+    box-shadow: 
+      0 4px 6px -1px rgba(0, 0, 0, 0.05),
+      0 2px 4px -1px rgba(0, 0, 0, 0.03);
   }
 
   :global(.dark) .bento-card {
-    border-color: rgba(255, 255, 255, 0.1);
-    background: color-mix(in srgb, var(--bg-elevated) 58%, transparent);
-    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
+    border-color: rgba(255, 255, 255, 0.08);
+    background: linear-gradient(
+      145deg,
+      rgba(40, 40, 40, 0.3),
+      rgba(20, 20, 20, 0.5)
+    );
+    box-shadow: 
+      0 10px 15px -3px rgba(0, 0, 0, 0.4),
+      0 4px 6px -2px rgba(0, 0, 0, 0.2);
   }
 
   .bento-card:hover {
-    transform: translateY(-3px);
-    border-color: color-mix(in srgb, var(--color-eucalyptus-500) 55%, transparent);
-    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.14);
+    transform: translateY(-8px) scale(1.02);
+    border-color: color-mix(in srgb, var(--color-eucalyptus-500) 60%, transparent);
+    box-shadow: 
+      0 20px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
   }
 
   :global(.dark) .bento-card:hover {
-    box-shadow: 0 24px 56px rgba(0, 0, 0, 0.40);
+    box-shadow: 
+      0 25px 50px -12px rgba(0, 0, 0, 0.7),
+      inset 0 1px 1px rgba(255, 255, 255, 0.1);
   }
 
   /* Card Glow */

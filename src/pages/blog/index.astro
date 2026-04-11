@@ -5,6 +5,8 @@ import Container from '@/components/ui/Container.astro';
 import PostList from '@/components/blog/PostList.astro';
 import Search from '@/components/Search.astro';
 import { calculateReadingTime } from '@/utils/readingTime';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
 // Get all published blog posts, sorted by date (newest first)
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);
@@ -12,11 +14,20 @@ const allPosts = await getCollection('blog', ({ data }) => !data.draft);
 // Add reading time to each post
 const postsWithReadingTime = await Promise.all(
   allPosts.map(async (post) => {
-    const readingTime = calculateReadingTime(post.body);
-    return {
-      ...post,
-      readingTime
-    };
+    // Astro v6 Content Layer: post.body is gone. 
+    // For now, we read the file manually for reading time on the index.
+    // In the future, this can be moved to a loader transform.
+    try {
+      const filePath = path.join(process.cwd(), 'src/content/blog', post.id);
+      const content = await fs.readFile(filePath, 'utf-8');
+      const readingTime = calculateReadingTime(content);
+      return { ...post, readingTime };
+    } catch (e) {
+      return { 
+        ...post, 
+        readingTime: { minutes: 1, text: '1 min read' }
+      };
+    }
   })
 );
 
@@ -67,7 +78,7 @@ const pageDescription = 'Research-driven articles on AI/ML in finance, FinTech c
             {featuredPosts.map(post => (
               <article class="border border-border-light dark:border-border-dark rounded-lg overflow-hidden hover:border-eucalyptus-500 transition-colors bg-surface-light dark:bg-surface-dark">
                 {post.data.heroImage && (
-                  <a href={`/blog/${post.slug}`} class="block aspect-video overflow-hidden">
+                  <a href={`/blog/${post.id}`} class="block aspect-video overflow-hidden">
                     <img
                       src={post.data.heroImage}
                       alt={post.data.title}
@@ -93,7 +104,7 @@ const pageDescription = 'Research-driven articles on AI/ML in finance, FinTech c
                     </span>
                   </div>
                   <h3 class="text-xl font-bold mb-2 text-text-primary-light dark:text-text-primary-dark">
-                    <a href={`/blog/${post.slug}`} class="hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400">
+                    <a href={`/blog/${post.id}`} class="hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400">
                       {post.data.title}
                     </a>
                   </h3>

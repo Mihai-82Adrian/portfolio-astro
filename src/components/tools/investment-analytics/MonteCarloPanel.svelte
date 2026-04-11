@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Play } from 'lucide-svelte';
+  import Icon from '@/components/ui/Icon.svelte';
   import type { MonteCarloResult } from '@/lib/investment/types';
   import InvestmentChart from './InvestmentChart.svelte';
 
@@ -56,7 +56,7 @@
           </svg>
           Simuliert…
         {:else}
-          <Play size={14} />
+          <Icon name="Play" size={14} />
           Simulation starten
         {/if}
       </button>

@@ -9,13 +9,24 @@
  * @example
  * <Card variant="default">
  *   <h3>Card Title</h3>
+---
+/**
+ * Card Component
+ *
+ * Flexible card container with variants, hover effects, and optional sections.
+ * Uses the design system's card utilities with additional customization options.
+ *
+ * @component
+ * @example
+ * <Card variant="default">
+ *   <h3>Card Title</h3>
  *   <p>Card content goes here.</p>
  * </Card>
  */
 
 interface Props {
   /** Card variant style */
-  variant?: 'default' | 'accented' | 'colored';
+  variant?: 'default' | 'accented' | 'colored' | 'glass';
   /** Enable hover effect */
   hover?: boolean;
   /** Additional CSS classes */
@@ -49,6 +60,7 @@ const variantClasses = {
   default: 'card-default',
   accented: 'card-accented',
   colored: 'card-colored',
+  glass: 'card-glass',
 };
 ---
 
@@ -77,7 +89,9 @@ const variantClasses = {
 
   {Astro.slots.has('footer') && (
     <div class="card-footer">
-      <slot name="footer" />
+      <div class="card-footer">
+        <slot name="footer" />
+      </div>
     </div>
   )}
 </Tag>
@@ -100,11 +114,17 @@ const variantClasses = {
     @apply dark:from-dark-surface dark:to-eucalyptus-950;
   }
 
+  .card-glass {
+    @apply bg-white/40 dark:bg-dark-surface/40;
+    @apply backdrop-blur-md;
+    @apply border border-white/20 dark:border-white/10;
+    @apply shadow-glass;
+  }
+
   /* Hover effect */
   .card-hover {
     @apply transition-transform duration-200;
   }
-
   .card-hover:hover {
     @apply shadow-elevated;
     transform: translateY(-2px);

@@ -1,0 +1,48 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { generateBreadcrumbSchema } from '@utils/structuredData';
+import {
+  buildAlternateUrls,
+  dataPrepLandingContentByLocale,
+} from '@data/services/data-prep-for-ai';
+import HeroSection from '@components/services/data-prep/HeroSection.astro';
+import ProblemSection from '@components/services/data-prep/ProblemSection.astro';
+import ServicesSection from '@components/services/data-prep/ServicesSection.astro';
+import OutputsSection from '@components/services/data-prep/OutputsSection.astro';
+import ProcessSection from '@components/services/data-prep/ProcessSection.astro';
+import TrustSection from '@components/services/data-prep/TrustSection.astro';
+import FaqSection from '@components/services/data-prep/FaqSection.astro';
+import PricingSection from '@components/services/data-prep/PricingSection.astro';
+import FinalCtaSection from '@components/services/data-prep/FinalCtaSection.astro';
+
+const { seo, hero, problem, services, outputs, process, trust, faq, pricing, finalCta } =
+  dataPrepLandingContentByLocale.ro;
+const canonicalURL = 'https://me-mateescu.de/ro/pregatire-date-ai';
+const alternates = buildAlternateUrls('landing');
+const structuredData = generateBreadcrumbSchema([
+  { name: 'Acasă', url: '/ro/' },
+  { name: 'Pregătire Date AI', url: '/ro/pregatire-date-ai' },
+]);
+---
+
+<BaseLayout
+  title={seo.title}
+  description={seo.description}
+  ogImage={seo.ogImage}
+  canonicalURL={canonicalURL}
+  alternates={alternates}
+  lang="ro"
+  structuredData={structuredData}
+>
+  <main class="pb-20">
+    <HeroSection content={hero} />
+    <ProblemSection content={problem} />
+    <ServicesSection content={services} />
+    <OutputsSection content={outputs} />
+    <ProcessSection content={process} />
+    <TrustSection content={trust} />
+    <FaqSection content={faq} />
+    <PricingSection content={pricing} />
+    <FinalCtaSection content={finalCta} />
+  </main>
+</BaseLayout>

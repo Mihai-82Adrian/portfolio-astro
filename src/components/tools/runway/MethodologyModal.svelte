@@ -1,7 +1,7 @@
 <script lang="ts">
   import { fly, fade } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
-  import { X, BookOpen, Users, Calculator, TrendingDown, HelpCircle } from 'lucide-svelte';
+  import Icon from '@/components/ui/Icon.svelte';
 
   export let open = false;
 
@@ -30,7 +30,7 @@
     <!-- Header -->
     <div class="flex shrink-0 items-center justify-between border-b border-white/10 px-6 py-4">
       <div class="flex items-center gap-2.5">
-        <BookOpen size={18} class="text-eucalyptus-400" aria-hidden="true" />
+        <Icon name="BookOpen" size={18} class="text-eucalyptus-400" aria-hidden="true" />
         <h2 class="text-base font-semibold text-white">Methodik & Guide</h2>
       </div>
       <button
@@ -39,7 +39,7 @@
         aria-label="Schließen"
         class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-white/8 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus-500"
       >
-        <X size={18} aria-hidden="true" />
+        <Icon name="X" size={18} aria-hidden="true" />
       </button>
     </div>
 
@@ -90,7 +90,7 @@
       <section>
         <div class="mb-3 flex items-center gap-2">
           <div class="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/20">
-            <Calculator size={13} class="text-blue-400" aria-hidden="true" />
+            <Icon name="Calculator" size={13} class="text-blue-400" aria-hidden="true" />
           </div>
           <h3 class="text-sm font-semibold text-white">Die Mathematik dahinter</h3>
         </div>
@@ -99,7 +99,7 @@
           <!-- Headcount Burn -->
           <div class="rounded-xl border border-white/8 bg-white/4 p-4">
             <div class="mb-2 flex items-center gap-2">
-              <Users size={13} class="text-gray-400" aria-hidden="true" />
+              <Icon name="Users" size={13} class="text-gray-400" aria-hidden="true" />
               <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Headcount-Burn</p>
             </div>
             <code class="block rounded-md bg-gray-900/80 px-3 py-2 font-mono text-sm text-eucalyptus-300">
@@ -113,7 +113,7 @@
           <!-- MRR Growth -->
           <div class="rounded-xl border border-white/8 bg-white/4 p-4">
             <div class="mb-2 flex items-center gap-2">
-              <TrendingDown size={13} class="text-gray-400" aria-hidden="true" />
+              <Icon name="TrendingDown" size={13} class="text-gray-400" aria-hidden="true" />
               <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">MRR-Wachstum (Compound)</p>
             </div>
             <code class="block rounded-md bg-gray-900/80 px-3 py-2 font-mono text-sm text-blue-300">
@@ -130,7 +130,7 @@
           <!-- Net Burn & Runway -->
           <div class="rounded-xl border border-white/8 bg-white/4 p-4">
             <div class="mb-2 flex items-center gap-2">
-              <Calculator size={13} class="text-gray-400" aria-hidden="true" />
+              <Icon name="Calculator" size={13} class="text-gray-400" aria-hidden="true" />
               <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Net Burn & Runway</p>
             </div>
             <div class="space-y-1.5">
@@ -155,7 +155,7 @@
       <section>
         <div class="mb-3 flex items-center gap-2">
           <div class="flex h-6 w-6 items-center justify-center rounded-md bg-amber-500/20">
-            <HelpCircle size={13} class="text-amber-400" aria-hidden="true" />
+            <Icon name="HelpCircle" size={13} class="text-amber-400" aria-hidden="true" />
           </div>
           <h3 class="text-sm font-semibold text-white">CFO-Glossar</h3>
         </div>

@@ -26,16 +26,16 @@ const { content } = Astro.props;
           <thead>
             <tr class="border-b border-black/10 bg-eucalyptus-50/70 dark:border-white/10 dark:bg-eucalyptus-950/20">
               <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
-                Richtung
+                {content.tableHeaders.direction}
               </th>
               <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
-                Problem
+                {content.tableHeaders.problem}
               </th>
               <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
-                Prozess
+                {content.tableHeaders.process}
               </th>
               <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
-                Output
+                {content.tableHeaders.output}
               </th>
             </tr>
           </thead>

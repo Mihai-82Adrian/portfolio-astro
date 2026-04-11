@@ -8,9 +8,24 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
 import svelte from '@astrojs/svelte';
+import { calculateReadingTime } from './src/utils/readingTime.ts';
+import fs from 'node:fs';
+
+// Custom Remark Plugin for Reading Time
+/**
+ * @returns {(tree: any, file: any) => void}
+ */
+function remarkReadingTime() {
+  return function (tree, file) {
+    const readingTime = calculateReadingTime(String(file.value));
+    if (!file.data.astro) file.data.astro = {};
+    if (!file.data.astro.frontmatter) file.data.astro.frontmatter = {};
+    file.data.astro.frontmatter.readingTime = readingTime;
+  };
+}
 
 // Shared Markdown pipeline (MDX will extend this by default)
-const remarkPlugins = [remarkMath];
+const remarkPlugins = [remarkMath, remarkReadingTime];
 /** @type {NonNullable<import('astro').AstroUserConfig['markdown']>['rehypePlugins']} */
 const rehypePlugins = [
   [

@@ -22,6 +22,8 @@ interface SampleReviewSubmission {
     consent: string;
     website: string;
     submittedAt: string;
+    successRedirect: string;
+    formPath: string;
 }
 
 const THROTTLE_WINDOW_MS = 60 * 1000;
@@ -32,25 +34,60 @@ const THROTTLE_KEY_PREFIX = '/__sample_review_throttle/';
 
 const ALLOWED_DATA_TYPES = new Set([
     'PDF / Scan-Dokumente',
+    'PDF / scanned documents',
+    'PDF / documente scanate',
     'DOCX / Policies / Handbücher',
+    'DOCX / policies / manuals',
+    'DOCX / politici / manuale',
     'ERP-Export / FiBu-Daten',
+    'ERP export / accounting data',
+    'Export ERP / date contabile',
     'XRechnung / XML / strukturierte Business-Dokumente',
+    'XRechnung / XML / structured business documents',
+    'XRechnung / XML / documente business structurate',
     'Andere',
+    'Other',
+    'Altul',
 ]);
 
 const ALLOWED_TARGET_USE_CASES = new Set([
     'RAG / Knowledge Base',
+    'RAG / knowledge base',
     'Document AI',
     'ERP & FiBu Cleanup',
+    'ERP & accounting cleanup',
     'Compliance Transformation',
+    'Compliance transformation',
     'Noch unklar',
+    'Still unclear',
+    'Încă neclar',
 ]);
 
 const ALLOWED_VOLUMES = new Set([
     'Einzelnes Dokument / kleiner Beispieldatensatz',
+    'Single document / small sample dataset',
+    'Document unic / eșantion mic',
     'Kleines Paket',
+    'Small package',
+    'Pachet mic',
     'Mittlerer Bestand',
+    'Medium inventory',
+    'Inventar mediu',
     'Größerer Bestand / noch unklar',
+    'Larger inventory / still unclear',
+    'Inventar mare / încă neclar',
+]);
+
+const ALLOWED_SUCCESS_REDIRECTS = new Set([
+    '/sample-struktur-pruefen/danke',
+    '/en/sample-structure-review/thank-you',
+    '/ro/revizuire-structura-esantion/multumesc',
+]);
+
+const ALLOWED_FORM_PATHS = new Set([
+    '/sample-struktur-pruefen',
+    '/en/sample-structure-review',
+    '/ro/revizuire-structura-esantion',
 ]);
 
 function normalize(value: FormDataEntryValue | null): string {
@@ -86,7 +123,7 @@ function wantsHtmlResponse(request: Request): boolean {
     return accept.includes('text/html') || accept.includes('application/xhtml+xml');
 }
 
-function renderErrorHtml(message: string, status: number): Response {
+function renderErrorHtml(message: string, status: number, formPath = '/sample-struktur-pruefen'): Response {
     const html = `<!doctype html>
 <html lang="de">
   <head>
@@ -137,7 +174,7 @@ function renderErrorHtml(message: string, status: number): Response {
       <section class="card" role="alert" aria-live="polite">
         <h1>Anfrage konnte nicht gesendet werden</h1>
         <p>${escapeHtml(message)}</p>
-        <a href="/sample-struktur-pruefen">Zurück zum Formular</a>
+        <a href="${escapeHtml(formPath)}">Zurück zum Formular</a>
       </section>
     </main>
   </body>
@@ -162,10 +199,20 @@ function renderJsonError(message: string, status: number, fields?: string[]): Re
     });
 }
 
-function errorResponse(request: Request, status: number, message: string, fields?: string[]): Response {
+function errorResponse(
+    request: Request,
+    status: number,
+    message: string,
+    fields?: string[],
+    formPath?: string,
+): Response {
     return wantsHtmlResponse(request)
-        ? renderErrorHtml(message, status)
+        ? renderErrorHtml(message, status, formPath)
         : renderJsonError(message, status, fields);
+}
+
+function normalizeAllowedPath(value: string, allowedPaths: Set<string>, fallback: string): string {
+    return allowedPaths.has(value) ? value : fallback;
 }
 
 function parseSubmittedAt(value: string): number | null {
@@ -339,10 +386,23 @@ export const onRequest = async (context: any) => {
         consent: normalize(formData.get('privacyConsent')),
         website: normalize(formData.get('website')),
         submittedAt: normalize(formData.get('submittedAt')),
+        successRedirect: normalize(formData.get('successRedirect')),
+        formPath: normalize(formData.get('formPath')),
     };
 
+    const successRedirect = normalizeAllowedPath(
+        submission.successRedirect,
+        ALLOWED_SUCCESS_REDIRECTS,
+        '/sample-struktur-pruefen/danke',
+    );
+    const formPath = normalizeAllowedPath(
+        submission.formPath,
+        ALLOWED_FORM_PATHS,
+        '/sample-struktur-pruefen',
+    );
+
     if (submission.website) {
-        return errorResponse(request, 400, 'Anfrage abgelehnt.');
+        return errorResponse(request, 400, 'Anfrage abgelehnt.', undefined, formPath);
     }
 
     const missingFields = [
@@ -356,35 +416,35 @@ export const onRequest = async (context: any) => {
     ].filter(Boolean) as string[];
 
     if (missingFields.length > 0) {
-        return errorResponse(request, 400, 'Bitte füllen Sie alle Pflichtfelder aus.', missingFields);
+        return errorResponse(request, 400, 'Bitte füllen Sie alle Pflichtfelder aus.', missingFields, formPath);
     }
 
     if (!isValidEmail(submission.workEmail)) {
-        return errorResponse(request, 400, 'Bitte geben Sie eine gültige Business-E-Mail an.');
+        return errorResponse(request, 400, 'Bitte geben Sie eine gültige Business-E-Mail an.', undefined, formPath);
     }
 
     if (!ALLOWED_DATA_TYPES.has(submission.dataType)) {
-        return errorResponse(request, 400, 'Ungültiger Daten-/Dokumenttyp.');
+        return errorResponse(request, 400, 'Ungültiger Daten-/Dokumenttyp.', undefined, formPath);
     }
 
     if (!ALLOWED_TARGET_USE_CASES.has(submission.targetUseCase)) {
-        return errorResponse(request, 400, 'Ungültiger Ziel-Use-Case.');
+        return errorResponse(request, 400, 'Ungültiger Ziel-Use-Case.', undefined, formPath);
     }
 
     if (!ALLOWED_VOLUMES.has(submission.estimatedVolume)) {
-        return errorResponse(request, 400, 'Ungültiger Umfang.');
+        return errorResponse(request, 400, 'Ungültiger Umfang.', undefined, formPath);
     }
 
     if (submission.notes.length > 4000) {
-        return errorResponse(request, 400, 'Zusätzliche Hinweise sind zu lang.');
+        return errorResponse(request, 400, 'Zusätzliche Hinweise sind zu lang.', undefined, formPath);
     }
 
     if (submission.submittedAt && !parseSubmittedAt(submission.submittedAt)) {
-        return errorResponse(request, 400, 'Anfrage wirkt automatisiert.');
+        return errorResponse(request, 400, 'Anfrage wirkt automatisiert.', undefined, formPath);
     }
 
     if (await hasThrottleEntry(request.url, ipHash)) {
-        return errorResponse(request, 429, 'Zu viele Anfragen. Bitte warten Sie kurz.');
+        return errorResponse(request, 429, 'Zu viele Anfragen. Bitte warten Sie kurz.', undefined, formPath);
     }
 
     const receivedAt = new Date().toISOString();
@@ -395,8 +455,8 @@ export const onRequest = async (context: any) => {
         await emailDelivery.send(buildSampleReviewEmail(submission, receivedAt));
     } catch (error) {
         console.error('[sample-review] email delivery failed:', error);
-        return errorResponse(request, 502, 'E-Mail-Versand fehlgeschlagen.');
+        return errorResponse(request, 502, 'E-Mail-Versand fehlgeschlagen.', undefined, formPath);
     }
 
-    return Response.redirect(new URL('/sample-struktur-pruefen/danke', request.url), 303);
+    return Response.redirect(new URL(successRedirect, request.url), 303);
 };

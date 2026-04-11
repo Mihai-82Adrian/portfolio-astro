@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AlertTriangle, AlertCircle, CheckCircle2, TrendingUp } from 'lucide-svelte';
+  import Icon from '@/components/ui/Icon.svelte';
   import InfoTooltip from '@/components/tools/ui/InfoTooltip.svelte';
   import type { RunwayProjection } from '@/lib/fin-core/runway';
   import { formatEURCompact } from '@/lib/fin-core/runway';
@@ -132,13 +132,13 @@
 <div class="mt-3 rounded-xl border {insightStyles[insight.level]} px-4 py-3">
   <div class="mb-1.5 flex items-center gap-2">
     {#if insight.level === 'critical'}
-      <AlertCircle size={14} class="shrink-0 text-red-400" aria-hidden="true" />
+      <Icon name="AlertCircle" size={14} class="shrink-0 text-red-400" aria-hidden="true" />
     {:else if insight.level === 'danger' || insight.level === 'warning'}
-      <AlertTriangle size={14} class="shrink-0 {insight.level === 'danger' ? 'text-orange-400' : 'text-amber-400'}" aria-hidden="true" />
+      <Icon name="AlertTriangle" size={14} class="shrink-0 {insight.level === 'danger' ? 'text-orange-400' : 'text-amber-400'}" aria-hidden="true" />
     {:else if insight.level === 'ok'}
-      <CheckCircle2 size={14} class="shrink-0 text-eucalyptus-400" aria-hidden="true" />
+      <Icon name="CheckCircle2" size={14} class="shrink-0 text-eucalyptus-400" aria-hidden="true" />
     {:else}
-      <TrendingUp size={14} class="shrink-0 text-blue-400" aria-hidden="true" />
+      <Icon name="TrendingUp" size={14} class="shrink-0 text-blue-400" aria-hidden="true" />
     {/if}
     <p class="text-xs font-semibold {insightTitleStyles[insight.level]}">
       {insight.title}

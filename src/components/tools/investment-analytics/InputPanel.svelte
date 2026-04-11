@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Plus, Trash2 } from 'lucide-svelte';
+  import Icon from '@/components/ui/Icon.svelte';
   import type { InvestmentInput, CashFlowEntry } from '@/lib/investment/types';
 
   let {
@@ -100,7 +100,7 @@
         disabled={input.cashFlows.length >= 30}
         class="flex items-center gap-1.5 rounded-lg bg-eucalyptus-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-eucalyptus-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-eucalyptus-500"
       >
-        <Plus size={12} />
+        <Icon name="Plus" size={12} />
         Jahr hinzufügen
       </button>
     </div>
@@ -149,7 +149,7 @@
             class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-black/10 text-text-muted-light transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 dark:border-white/10 dark:hover:bg-red-900/20 dark:hover:text-red-400"
             aria-label="Cashflow entfernen"
           >
-            <Trash2 size={14} />
+            <Icon name="Trash2" size={14} />
           </button>
         </div>
       {/each}

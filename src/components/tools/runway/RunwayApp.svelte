@@ -5,7 +5,7 @@
   import RunwayChart from './RunwayChart.svelte';
   import MetricsSummary from './MetricsSummary.svelte';
   import MethodologyModal from './MethodologyModal.svelte';
-  import { AlertTriangle, BookOpen } from 'lucide-svelte';
+  import Icon from '@/components/ui/Icon.svelte';
   import {
     projectRunway,
     createDefaultScenarios,
@@ -78,7 +78,7 @@
         on:click={() => (showGuide = true)}
         class="inline-flex items-center gap-1.5 text-xs text-text-muted-light dark:text-text-muted-dark transition-colors hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400"
       >
-        <BookOpen size={13} aria-hidden="true" />
+        <Icon name="BookOpen" size={13} aria-hidden="true" />
         Methodik & Guide
       </button>
       <span class="text-white/15" aria-hidden="true">|</span>
@@ -120,7 +120,7 @@
           <span>Runway-Projektion</span>
           {#if activeProjection?.deathValleyMonth !== null}
             <span class="inline-flex items-center gap-1.5 rounded-full bg-red-500/15 px-2 py-0.5 text-xs font-medium text-red-400">
-              <AlertTriangle size={11} aria-hidden="true" />
+              <Icon name="AlertTriangle" size={11} aria-hidden="true" />
               Death Valley
             </span>
           {/if}

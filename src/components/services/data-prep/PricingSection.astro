@@ -27,16 +27,16 @@ const { content } = Astro.props;
             <thead>
               <tr class="border-b border-black/10 bg-eucalyptus-50/70 dark:border-white/10 dark:bg-eucalyptus-950/20">
                 <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
-                  Leistung
+                  {content.tableHeaders.service}
                 </th>
                 <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
-                  Einstieg
+                  {content.tableHeaders.entryPoint}
                 </th>
                 <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
-                  Geeignet für
+                  {content.tableHeaders.suitableFor}
                 </th>
                 <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
-                  Umfang / Ergebnis
+                  {content.tableHeaders.scopeOutcome}
                 </th>
               </tr>
             </thead>
@@ -80,7 +80,7 @@ const { content } = Astro.props;
       <div class="grid gap-0 overflow-hidden rounded-3xl border border-black/10 bg-[var(--bg-elevated)] dark:border-white/10 lg:grid-cols-[1.1fr_0.9fr]">
         <div class="border-b border-black/10 p-6 dark:border-white/10 lg:border-b-0 lg:border-r">
           <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
-            Preislogik
+            {content.notesTitle}
           </h3>
           <ul class="mt-4 space-y-3">
             {content.notes.map((note) => (
@@ -94,7 +94,7 @@ const { content } = Astro.props;
 
         <div class="p-6">
           <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
-            Warum dieser Preisrahmen sinnvoll ist
+            {content.rationaleTitle}
           </h3>
           <ul class="mt-4 space-y-3">
             {content.premiumRationale.map((item) => (

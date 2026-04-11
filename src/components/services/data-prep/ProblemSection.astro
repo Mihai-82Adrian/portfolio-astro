@@ -35,7 +35,7 @@ const { content } = Astro.props;
       <div class="grid gap-6">
         <Card>
           <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
-            Typische Ursachen
+            {content.causesTitle}
           </h3>
           <ul class="mt-4 space-y-3">
             {content.missingElements.map((item) => (
@@ -49,7 +49,7 @@ const { content } = Astro.props;
 
         <Card>
           <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
-            Typische Folgen
+            {content.consequencesTitle}
           </h3>
           <ul class="mt-4 space-y-3">
             {content.consequences.map((item) => (

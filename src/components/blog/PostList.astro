@@ -54,10 +54,10 @@ const columnClasses = {
     {posts.map((post) => (
       <PostCard
         title={post.data.title}
-        slug={post.slug}
+        slug={post.id}
         description={post.data.description}
         pubDate={post.data.pubDate}
-        readingTime={(post as any).readingTime?.minutes}
+        readingTime={post.data.readingTime?.minutes}
         tags={post.data.tags}
         image={post.data.heroImage ? { src: post.data.heroImage, alt: post.data.title } : undefined}
         featured={post.data.featured}

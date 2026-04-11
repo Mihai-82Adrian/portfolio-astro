@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { FileDown, Sparkles, BookOpen } from 'lucide-svelte';
+  import Icon from '@/components/ui/Icon.svelte';
 
   import type { InvestmentInput, InvestmentState, MonteCarloResult } from '@/lib/investment/types';
   import {
@@ -275,7 +275,7 @@
         class="ml-1 flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs text-text-muted-light transition-colors hover:text-eucalyptus-600 dark:text-text-muted-dark dark:hover:text-eucalyptus-400"
         aria-label="Methodik & Guide öffnen"
       >
-        <BookOpen size={13} aria-hidden="true" />
+        <Icon name="BookOpen" size={13} aria-hidden="true" />
         <span class="hidden sm:inline">Methodik & Guide</span>
       </button>
     </div>
@@ -333,7 +333,7 @@
     {#if parsed}
       <div class="rounded-2xl border border-eucalyptus-500/30 bg-eucalyptus-50 p-5 dark:bg-eucalyptus-500/10">
         <div class="flex items-center gap-2 mb-3">
-          <Sparkles size={16} class="text-eucalyptus-600 dark:text-eucalyptus-400" />
+          <Icon name="Sparkles" size={16} class="text-eucalyptus-600 dark:text-eucalyptus-400" />
           <h3 class="text-sm font-semibold text-eucalyptus-800 dark:text-eucalyptus-200">KI-Analyse</h3>
         </div>
         <div class="space-y-3">
@@ -389,7 +389,7 @@
               </svg>
               Analysiert…
             {:else}
-              <Sparkles size={15} />
+              <Icon name="Sparkles" size={15} />
               KI-Analyse
             {/if}
           </button>
@@ -427,7 +427,7 @@
               </svg>
               PDF wird erstellt…
             {:else}
-              <FileDown size={15} />
+              <Icon name="FileDown" size={15} />
               Als PDF exportieren
             {/if}
           </button>

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Download, FileDown } from 'lucide-svelte';
+  import Icon from '@/components/ui/Icon.svelte';
   import type { CashflowBlock, CashflowState, StressScenarioResult } from '@/lib/cashflow/types';
   import {
     STORAGE_KEY,
@@ -288,7 +288,7 @@
           onclick={applyImport}
           class="flex items-center gap-1.5 rounded-lg bg-eucalyptus-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-eucalyptus-700 dark:bg-eucalyptus-500"
         >
-          <Download size={12} />
+          <Icon name="Download" size={12} />
           Importieren
         </button>
         <button
@@ -385,7 +385,7 @@
             </svg>
             PDF wird erstellt…
           {:else}
-            <FileDown size={15} />
+            <Icon name="FileDown" size={15} />
             Als PDF exportieren
           {/if}
         </button>
