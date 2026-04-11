@@ -1,3 +1,5 @@
+import { normalizeSiteUrl } from '@utils/i18n';
+
 export const dataPrepCalUrl = 'https://cal.eu/mihai-adrian.mateescu';
 export type DataPrepLocale = 'de' | 'en' | 'ro';
 
@@ -267,10 +269,10 @@ export const dataPrepRoutes: Record<DataPrepLocale, DataPrepRouteSet> = {
 
 export function buildAlternateUrls(routeKey: keyof DataPrepRouteSet): Record<string, string> {
   return {
-    de: `https://me-mateescu.de${dataPrepRoutes.de[routeKey]}`,
-    en: `https://me-mateescu.de${dataPrepRoutes.en[routeKey]}`,
-    ro: `https://me-mateescu.de${dataPrepRoutes.ro[routeKey]}`,
-    'x-default': `https://me-mateescu.de${dataPrepRoutes.de[routeKey]}`,
+    de: normalizeSiteUrl(`https://me-mateescu.de${dataPrepRoutes.de[routeKey]}`),
+    en: normalizeSiteUrl(`https://me-mateescu.de${dataPrepRoutes.en[routeKey]}`),
+    ro: normalizeSiteUrl(`https://me-mateescu.de${dataPrepRoutes.ro[routeKey]}`),
+    'x-default': normalizeSiteUrl(`https://me-mateescu.de${dataPrepRoutes.de[routeKey]}`),
   };
 }
 
