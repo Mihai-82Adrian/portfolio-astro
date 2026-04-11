@@ -9,6 +9,7 @@
  */
 
 import Badge from '@components/ui/Badge.astro';
+import { getLanguageFromPath, type Language } from '@utils/i18n';
 
 interface Props {
   /** Post title */
@@ -30,6 +31,7 @@ interface Props {
   };
   /** Featured post flag */
   featured?: boolean;
+  lang?: Language;
 }
 
 const {
@@ -41,9 +43,18 @@ const {
   tags = [],
   image,
   featured = false,
+  lang: langProp,
 } = Astro.props;
 
-const formattedDate = pubDate.toLocaleDateString('en-US', {
+const lang = langProp ?? getLanguageFromPath(Astro.url.pathname);
+const locale = lang === 'de' ? 'de-DE' : lang === 'ro' ? 'ro-RO' : 'en-US';
+const copy = {
+  de: { featured: 'Empfohlen', minRead: 'Min. Lesezeit', more: 'weitere', readMore: 'Mehr lesen' },
+  en: { featured: 'Featured', minRead: 'min read', more: 'more', readMore: 'Read more' },
+  ro: { featured: 'Recomandat', minRead: 'min de citit', more: 'în plus', readMore: 'Citește mai mult' },
+}[lang];
+
+const formattedDate = pubDate.toLocaleDateString(locale, {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
@@ -64,7 +75,7 @@ const formattedDate = pubDate.toLocaleDateString('en-US', {
         />
         {featured && (
           <div class="post-card-badge">
-            <Badge variant="warning" size="sm">Featured</Badge>
+            <Badge variant="warning" size="sm">{copy.featured}</Badge>
           </div>
         )}
       </div>
@@ -81,7 +92,7 @@ const formattedDate = pubDate.toLocaleDateString('en-US', {
           <>
             <span class="post-card-separator" aria-hidden="true">·</span>
             <span class="post-card-reading-time">
-              {readingTime} min read
+              {readingTime} {copy.minRead}
             </span>
           </>
         )}
@@ -106,8 +117,8 @@ const formattedDate = pubDate.toLocaleDateString('en-US', {
             <Badge size="sm">{tag}</Badge>
           ))}
           {tags.length > 3 && (
-            <span class="post-card-tags-more">
-              +{tags.length - 3} more
+              <span class="post-card-tags-more">
+              +{tags.length - 3} {copy.more}
             </span>
           )}
         </div>
@@ -116,7 +127,7 @@ const formattedDate = pubDate.toLocaleDateString('en-US', {
       <!-- Read More Link -->
       <div class="post-card-cta">
         <span class="post-card-cta-text">
-          Read more
+          {copy.readMore}
           <svg
             class="post-card-cta-icon"
             fill="none"

@@ -4,6 +4,7 @@ import TechStackBadge from './TechStackBadge.astro';
 import ProjectMetrics from './ProjectMetrics.astro';
 import Icon from '@components/ui/Icon.astro';
 import { Image } from 'astro:assets';
+import { getLanguageFromPath } from '@utils/i18n';
 
 interface Props {
   project: {
@@ -48,6 +49,30 @@ const { project, featured = false, showMetrics = true } = Astro.props;
 // Get primary external link
 const primaryLink = project.links.find(link => link.type === 'external') || project.links[0];
 const detailLink = `/projects/${project.slug}`;
+const lang = getLanguageFromPath(Astro.url.pathname);
+const copy = {
+  de: {
+    viewTitleDetails: `Details zu ${project.title} ansehen`,
+    moreTechnologies: `${project.techStack.length - 4} weitere Technologien`,
+    viewDetails: 'Details ansehen',
+    viewDetailsAbout: `Details zu ${project.title} ansehen`,
+    opensInNewTab: 'öffnet in neuem Tab',
+  },
+  en: {
+    viewTitleDetails: `View ${project.title} details`,
+    moreTechnologies: `${project.techStack.length - 4} more technologies`,
+    viewDetails: 'View Details',
+    viewDetailsAbout: `View details about ${project.title}`,
+    opensInNewTab: 'opens in new tab',
+  },
+  ro: {
+    viewTitleDetails: `Vezi detaliile pentru ${project.title}`,
+    moreTechnologies: `${project.techStack.length - 4} tehnologii în plus`,
+    viewDetails: 'Vezi detalii',
+    viewDetailsAbout: `Vezi detalii despre ${project.title}`,
+    opensInNewTab: 'se deschide într-o filă nouă',
+  },
+}[lang];
 ---
 
 <article 
@@ -57,7 +82,7 @@ const detailLink = `/projects/${project.slug}`;
 >
   <!-- Hero Image -->
   <div class="card-image">
-    <a href={detailLink} aria-label={`View ${project.title} details`}>
+    <a href={detailLink} aria-label={copy.viewTitleDetails}>
       <Image 
         src={project.heroImage}
         alt={`${project.title} - ${project.tagline}`}
@@ -92,7 +117,7 @@ const detailLink = `/projects/${project.slug}`;
         <TechStackBadge tech={tech} size="sm" />
       ))}
       {project.techStack.length > 4 && (
-        <span class="tech-more" title={`${project.techStack.length - 4} more technologies`}>
+        <span class="tech-more" title={copy.moreTechnologies}>
           +{project.techStack.length - 4}
         </span>
       )}
@@ -110,9 +135,9 @@ const detailLink = `/projects/${project.slug}`;
       <a 
         href={detailLink}
         class="btn btn-primary"
-        aria-label={`View details about ${project.title}`}
+        aria-label={copy.viewDetailsAbout}
       >
-        <span>View Details</span>
+        <span>{copy.viewDetails}</span>
         <span aria-hidden="true">→</span>
       </a>
       {primaryLink && primaryLink.url !== '#' && (
@@ -121,14 +146,14 @@ const detailLink = `/projects/${project.slug}`;
           class="btn btn-secondary"
           target={primaryLink.type === 'external' ? '_blank' : undefined}
           rel={primaryLink.type === 'external' ? 'noopener noreferrer' : undefined}
-          aria-label={`${primaryLink.label} for ${project.title}${primaryLink.type === 'external' ? ' (opens in new tab)' : ''}`}
+          aria-label={`${primaryLink.label} ${lang === 'de' ? 'für' : lang === 'ro' ? 'pentru' : 'for'} ${project.title}${primaryLink.type === 'external' ? ` (${copy.opensInNewTab})` : ''}`}
         >
           <span aria-hidden="true">
             <Icon name={primaryLink.icon} class="h-4 w-4" />
           </span>
           <span>{primaryLink.label}</span>
           {primaryLink.type === 'external' && (
-            <span class="sr-only">(opens in new tab)</span>
+            <span class="sr-only">({copy.opensInNewTab})</span>
           )}
         </a>
       )}

@@ -9,6 +9,7 @@
  */
 
 import Badge from '@components/ui/Badge.astro';
+import type { Language } from '@utils/i18n';
 
 interface Props {
   /** Available companies for filtering */
@@ -19,9 +20,50 @@ interface Props {
   minYear: number;
   /** Maximum year */
   maxYear: number;
+  /** Current locale */
+  lang?: Language;
 }
 
-const { companies, technologies, minYear, maxYear } = Astro.props;
+const { companies, technologies, minYear, maxYear, lang = 'en' } = Astro.props;
+
+const copy = {
+  de: {
+    title: 'Zeitleiste filtern',
+    toggle: 'Filter',
+    toggleAria: 'Filter ein- oder ausblenden',
+    clear: 'Alle löschen',
+    clearAria: 'Alle Filter zurücksetzen',
+    companies: 'Unternehmen',
+    technologies: 'Technologien & Skills',
+    yearRange: 'Zeitraum',
+    startYear: 'Startjahr',
+    endYear: 'Endjahr',
+  },
+  en: {
+    title: 'Filter timeline',
+    toggle: 'Filters',
+    toggleAria: 'Toggle filters',
+    clear: 'Clear all',
+    clearAria: 'Clear all filters',
+    companies: 'Companies',
+    technologies: 'Technologies & Skills',
+    yearRange: 'Year range',
+    startYear: 'Start year',
+    endYear: 'End year',
+  },
+  ro: {
+    title: 'Filtrează cronologia',
+    toggle: 'Filtre',
+    toggleAria: 'Afișează sau ascunde filtrele',
+    clear: 'Șterge tot',
+    clearAria: 'Resetează toate filtrele',
+    companies: 'Companii',
+    technologies: 'Tehnologii și competențe',
+    yearRange: 'Interval de ani',
+    startYear: 'An de început',
+    endYear: 'An de sfârșit',
+  },
+}[lang];
 
 // Sort companies and technologies alphabetically
 const sortedCompanies = [...companies].sort();
@@ -31,31 +73,31 @@ const sortedTechnologies = [...technologies].sort();
 <div class="timeline-filters" data-timeline-filters>
   <!-- Filter Header -->
   <div class="filter-header">
-    <h3 class="filter-title">Filter Timeline</h3>
+    <h3 class="filter-title">{copy.title}</h3>
     <button
       type="button"
       class="filter-toggle md:hidden"
       data-filter-toggle
-      aria-label="Toggle filters"
+      aria-label={copy.toggleAria}
       aria-expanded="false"
     >
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
       </svg>
-      <span class="ml-2">Filters</span>
+      <span class="ml-2">{copy.toggle}</span>
       <span class="filter-count" data-filter-count hidden></span>
     </button>
     <button
       type="button"
       class="filter-clear"
       data-filter-clear
-      aria-label="Clear all filters"
+      aria-label={copy.clearAria}
       hidden
     >
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
-      <span class="ml-1">Clear All</span>
+      <span class="ml-1">{copy.clear}</span>
     </button>
   </div>
 
@@ -63,7 +105,7 @@ const sortedTechnologies = [...technologies].sort();
   <div class="filter-content" data-filter-content hidden>
     <!-- Companies Filter -->
     <div class="filter-group">
-      <h4 class="filter-group-title">Companies</h4>
+      <h4 class="filter-group-title">{copy.companies}</h4>
       <div class="filter-options">
         {sortedCompanies.map((company) => (
           <label class="filter-option">
@@ -82,7 +124,7 @@ const sortedTechnologies = [...technologies].sort();
 
     <!-- Technologies Filter -->
     <div class="filter-group">
-      <h4 class="filter-group-title">Technologies & Skills</h4>
+      <h4 class="filter-group-title">{copy.technologies}</h4>
       <div class="filter-options filter-options-wrap">
         {sortedTechnologies.map((tech) => (
           <label class="filter-option-badge">
@@ -104,7 +146,7 @@ const sortedTechnologies = [...technologies].sort();
     <!-- Year Range Filter -->
     <div class="filter-group">
       <h4 class="filter-group-title">
-        Year Range
+        {copy.yearRange}
         <span class="filter-year-display" data-year-display>
           {minYear} - {maxYear}
         </span>
@@ -118,7 +160,7 @@ const sortedTechnologies = [...technologies].sort();
           value={minYear}
           class="filter-slider"
           data-filter-type="yearStart"
-          aria-label="Start year"
+          aria-label={copy.startYear}
         />
         <input
           type="range"
@@ -128,7 +170,7 @@ const sortedTechnologies = [...technologies].sort();
           value={maxYear}
           class="filter-slider"
           data-filter-type="yearEnd"
-          aria-label="End year"
+          aria-label={copy.endYear}
         />
       </div>
     </div>

@@ -25,6 +25,45 @@ const currentLang = currentPath.startsWith('/en/') || currentPath === '/en' ? 'e
 // Generate the base path for the current language
 const basePath = currentLang === 'de' ? '' : `/${currentLang}`;
 
+const headerCopy = {
+  de: {
+    askLabel: 'Ask Mihai',
+    askAria: 'Ask Mihai · KI – Chat-Assistent öffnen',
+    mobileMenuToggle: 'Mobiles Menü umschalten',
+    mobileNav: 'Mobile Navigation',
+    nudges: [
+      '💬 Fragen zu meinen Skills? Frag einfach →',
+      '📄 Eine JD zur Hand? Lass uns den Fit prüfen →',
+      '🎯 Skills · Zertifikate · Erfahrung an einem Ort',
+      '⚡ Schneller als den ganzen CV zu lesen 😉',
+    ],
+  },
+  en: {
+    askLabel: 'Ask Mihai',
+    askAria: 'Ask Mihai · AI – Open chat assistant',
+    mobileMenuToggle: 'Toggle mobile menu',
+    mobileNav: 'Mobile navigation',
+    nudges: [
+      '💬 Curious about my skills? Just ask →',
+      '📄 Got a JD? Let’s check the fit →',
+      '🎯 Skills · Certs · Experience — all in one place',
+      '⚡ Faster than reading my whole CV 😉',
+    ],
+  },
+  ro: {
+    askLabel: 'Ask Mihai',
+    askAria: 'Ask Mihai · AI – Deschide asistentul de chat',
+    mobileMenuToggle: 'Comută meniul mobil',
+    mobileNav: 'Navigație mobilă',
+    nudges: [
+      '💬 Vrei să afli rapid ce știu? Întreabă direct →',
+      '📄 Ai un JD? Hai să verificăm fit-ul →',
+      '🎯 Skills · Certificări · Experiență într-un singur loc',
+      '⚡ Mai rapid decât să citești tot CV-ul 😉',
+    ],
+  },
+}[currentLang];
+
 // Keep header trigger behavior aligned with global ChatDrawer gating.
 const isServicesRoute = new Set([
   '/services',
@@ -84,14 +123,14 @@ const isServicesRoute = new Set([
                 aria-haspopup="dialog"
                 aria-expanded="false"
                 aria-controls="chat-drawer"
-                aria-label="Ask Mihai · AI – Open chat assistant"
+                aria-label={headerCopy.askAria}
               >
                 <!-- Pulsing status dot -->
                 <span class="relative flex h-2 w-2 shrink-0">
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-eucalyptus-400 opacity-60"></span>
                   <span class="relative inline-flex rounded-full h-2 w-2 bg-eucalyptus-500"></span>
                 </span>
-                <span class="hidden md:inline font-semibold tracking-tight">Ask Mihai</span>
+                <span class="hidden md:inline font-semibold tracking-tight">{headerCopy.askLabel}</span>
                 <span class="hidden md:inline text-[10px] text-eucalyptus-600 dark:text-eucalyptus-400 font-medium opacity-70">AI</span>
               </button>
 
@@ -125,7 +164,7 @@ const isServicesRoute = new Set([
           id="mobile-menu-toggle"
           type="button"
           class="md:hidden p-3 rounded-lg focus-ring text-text-primary-light dark:text-text-primary-dark min-w-[44px] min-h-[44px] flex items-center justify-center"
-          aria-label="Toggle mobile menu"
+          aria-label={headerCopy.mobileMenuToggle}
           aria-expanded="false"
           aria-controls="mobile-menu"
         >
@@ -168,7 +207,7 @@ const isServicesRoute = new Set([
       id="mobile-menu"
       class="md:hidden hidden absolute left-0 right-0 top-full bg-light-bg dark:bg-dark-bg shadow-lg dark:shadow-2xl"
       role="navigation"
-      aria-label="Mobile navigation"
+      aria-label={headerCopy.mobileNav}
     >
       <div class="pb-4 pt-2 space-y-1 border-t border-light-border dark:border-dark-border max-h-[calc(100vh-5rem)] overflow-y-auto">
         <Navigation currentPath={currentPath} basePath={basePath} mobile />
@@ -191,12 +230,7 @@ const isServicesRoute = new Set([
     const nudgeEl = document.getElementById('ask-mihai-nudge');
     const nudgeText = document.getElementById('ask-mihai-nudge-text');
 
-    const nudgeMessages = [
-      '💬 Curious about my skills? Just ask →',
-      '📄 Got a JD? Let’s check the fit →',
-      '🎯 Skills · Certs · Experience — all in one place',
-      '⚡ Faster than reading my whole CV 😉',
-    ];
+    const nudgeMessages = JSON.parse('{JSON.stringify(headerCopy.nudges)}');
 
     let nudgeIndex = 0;
     let nudgeShows = 0;

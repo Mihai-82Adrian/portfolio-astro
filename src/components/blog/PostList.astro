@@ -10,6 +10,7 @@
 
 import type { CollectionEntry } from 'astro:content';
 import PostCard from './PostCard.astro';
+import { getLanguageFromPath, type Language } from '@utils/i18n';
 
 interface Props {
   /** Array of posts to display (from getCollection) */
@@ -20,14 +21,21 @@ interface Props {
   showEmptyState?: boolean;
   /** Empty state message */
   emptyMessage?: string;
+  lang?: Language;
 }
 
 const {
   posts = [],
   columns = '3',
   showEmptyState = true,
-  emptyMessage = 'No posts found.',
+  emptyMessage,
+  lang: langProp,
 } = Astro.props;
+
+const lang = langProp ?? getLanguageFromPath(Astro.url.pathname);
+const resolvedEmptyMessage = emptyMessage ?? (
+  lang === 'de' ? 'Keine Beiträge gefunden.' : lang === 'ro' ? 'Nu au fost găsite articole.' : 'No posts found.'
+);
 
 const columnClasses = {
   '1': 'grid-cols-1',
@@ -53,6 +61,7 @@ const columnClasses = {
         tags={post.data.tags}
         image={post.data.heroImage ? { src: post.data.heroImage, alt: post.data.title } : undefined}
         featured={post.data.featured}
+        lang={lang}
       />
     ))}
   </div>
@@ -72,7 +81,7 @@ const columnClasses = {
         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
       />
     </svg>
-    <p class="post-list-empty-message">{emptyMessage}</p>
+    <p class="post-list-empty-message">{resolvedEmptyMessage}</p>
   </div>
 ) : null}
 
