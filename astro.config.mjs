@@ -45,14 +45,15 @@ export default defineConfig({
   outDir: './dist',
 
   redirects: {
-    // Consolidate Blog and Projects to main (DE) version
+    // Consolidate Blog and Projects to main (DE) version.
+    // Keep exact routes before splat rules for clearer redirect resolution.
     '/en/blog': '/blog',
-    '/en/blog/*': '/blog/:splat',
     '/ro/blog': '/blog',
-    '/ro/blog/*': '/blog/:splat',
     '/en/projects': '/projects',
-    '/en/projects/*': '/projects/:splat',
     '/ro/projects': '/projects',
+    '/en/blog/*': '/blog/:splat',
+    '/ro/blog/*': '/blog/:splat',
+    '/en/projects/*': '/projects/:splat',
     '/ro/projects/*': '/projects/:splat',
   },
 

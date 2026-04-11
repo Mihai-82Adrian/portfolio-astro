@@ -62,14 +62,36 @@ npm run dev:copilot  # build + wrangler pages dev
 npm run kosit:setup && npm run kosit:validate
 ```
 
+If `npm run dev:copilot` fails locally with `EMFILE`, raise the shell file descriptor limit before starting the dev server:
+
+```bash
+ulimit -n 16384
+npm run dev:copilot
+```
+
+If that is still not enough on Linux, increase it further or raise the relevant inotify limits system-wide.
+
 ### Service funnel & local submit flow
 
-The services area now includes a dedicated funnel for the German offer **Datenaufbereitung für KI**:
+The site includes a dedicated multilingual funnel for the offer **Datenaufbereitung für KI / AI Data Preparation / Pregătire Date AI**:
 
-- `/services/datenaufbereitung-fuer-ki` — conversion-focused landing page for the service
-- `/discovery-call` — qualification page with final booking CTA to `https://cal.eu/mihai-adrian.mateescu`
-- `/sample-struktur-pruefen` — first-party sample-review form
-- `/sample-struktur-pruefen/danke` — noindex confirmation page after successful submit
+- `DE`:
+  - `/datenaufbereitung-fuer-ki`
+  - `/discovery-call`
+  - `/sample-struktur-pruefen`
+  - `/sample-struktur-pruefen/danke`
+- `EN`:
+  - `/en/ai-data-preparation`
+  - `/en/discovery-call`
+  - `/en/sample-structure-review`
+  - `/en/sample-structure-review/thank-you`
+- `RO`:
+  - `/ro/pregatire-date-ai`
+  - `/ro/discovery-call`
+  - `/ro/revizuire-structura-esantion`
+  - `/ro/revizuire-structura-esantion/multumesc`
+
+`/discovery-call` points to the public booking flow at `https://cal.eu/mihai-adrian.mateescu`, while the sample-review flow stays first-party via `functions/api/sample-review.ts`.
 
 To test the sample-review submit flow locally with `functions/api/sample-review.ts`, create a local `.dev.vars` file based on `.dev.vars.example` and provide:
 
