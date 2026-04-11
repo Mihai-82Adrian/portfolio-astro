@@ -1,0 +1,34 @@
+---
+interface Props {
+  label: string;
+  stages: [string, string, string];
+}
+
+const { label, stages } = Astro.props;
+---
+
+<div class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-5 shadow-sm dark:border-white/10">
+  <p class="text-xs font-semibold uppercase tracking-[0.22em] text-eucalyptus-700 dark:text-eucalyptus-300">
+    {label}
+  </p>
+
+  <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto_1fr_auto_1fr] sm:items-center">
+    {stages.map((stage, index) => (
+      <>
+        <div class="rounded-xl border border-eucalyptus-500/20 bg-eucalyptus-50/80 px-4 py-4 text-center shadow-sm dark:border-eucalyptus-400/20 dark:bg-eucalyptus-950/40">
+          <span class="block text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+            {stage}
+          </span>
+        </div>
+        {index < stages.length - 1 && (
+          <div class="flex items-center justify-center text-eucalyptus-500 dark:text-eucalyptus-300 sm:px-1">
+            <svg class="h-5 w-5 rotate-90 sm:rotate-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              <path d="M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+        )}
+      </>
+    ))}
+  </div>
+</div>

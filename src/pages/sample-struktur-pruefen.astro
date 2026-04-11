@@ -1,0 +1,148 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@components/ui/Button.astro';
+import Card from '@components/ui/Card.astro';
+import Container from '@components/ui/Container.astro';
+import SampleReviewForm from '@components/services/data-prep/SampleReviewForm.astro';
+import { generateBreadcrumbSchema } from '@utils/structuredData';
+import {
+  buildAlternateUrls,
+  dataPrepRoutes,
+  sampleReviewContentByLocale,
+} from '@data/services/data-prep-for-ai';
+
+const { seo, hero, commercial, pitch, requirements, form, submission, cta } = sampleReviewContentByLocale.de;
+const canonicalURL = 'https://me-mateescu.de/sample-struktur-pruefen';
+const alternates = buildAlternateUrls('sampleReview');
+const structuredData = generateBreadcrumbSchema([
+  { name: 'Home', url: '/' },
+  { name: 'Datenaufbereitung für KI', url: dataPrepRoutes.de.landing },
+  { name: 'Sample-Struktur prüfen', url: dataPrepRoutes.de.sampleReview },
+]);
+---
+
+<BaseLayout
+  title={seo.title}
+  description={seo.description}
+  ogImage={seo.ogImage}
+  canonicalURL={canonicalURL}
+  alternates={alternates}
+  lang="de"
+  structuredData={structuredData}
+>
+  <main class="pb-20">
+    <section class="mx-auto w-full max-w-6xl px-4 pt-20 md:px-6 md:pt-24">
+      <div class="mx-auto max-w-3xl text-center">
+        <p class="mb-4 inline-flex items-center rounded-full border border-black/10 bg-[var(--bg-elevated)] px-4 py-1.5 text-xs font-semibold tracking-wide text-eucalyptus-700 dark:border-white/15 dark:text-eucalyptus-300">
+          {hero.eyebrow}
+        </p>
+        <h1 class="text-balance text-4xl font-bold leading-tight text-text-primary-light dark:text-text-primary-dark sm:text-5xl">
+          {hero.title}
+        </h1>
+        <p class="mt-4 text-pretty text-base text-text-secondary-light dark:text-text-secondary-dark sm:text-lg">
+          {hero.subtitle}
+        </p>
+      </div>
+    </section>
+
+    <Container maxWidth="lg" paddingY="lg">
+      <div class="grid gap-6 lg:grid-cols-2">
+        <Card class="h-full">
+          <h2 class="text-2xl font-semibold tracking-tight text-text-primary-light dark:text-text-primary-dark">
+            {pitch.title}
+          </h2>
+          <div class="mt-4 space-y-4 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            {pitch.body.map((paragraph) => <p>{paragraph}</p>)}
+          </div>
+        </Card>
+
+        <Card class="h-full">
+          <h2 class="text-2xl font-semibold tracking-tight text-text-primary-light dark:text-text-primary-dark">
+            {requirements.title}
+          </h2>
+          <ul class="mt-4 space-y-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            {requirements.bullets.map((bullet) => (
+              <li class="flex items-start gap-3">
+                <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+                <span>{bullet}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </div>
+    </Container>
+
+    <section class="mx-auto w-full max-w-6xl px-4 md:px-6">
+      <div class="mb-6 rounded-3xl border border-eucalyptus-500/25 bg-eucalyptus-50/80 p-5 dark:border-eucalyptus-400/25 dark:bg-eucalyptus-950/20 md:p-6">
+        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div class="max-w-3xl">
+            <p class="text-xs font-semibold uppercase tracking-title text-eucalyptus-700 dark:text-eucalyptus-300">
+              {commercial.title}
+            </p>
+            <p class="mt-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark md:text-base">
+              {commercial.body}
+            </p>
+            <p class="mt-3 text-sm leading-relaxed text-text-muted-light dark:text-text-muted-dark">
+              {commercial.note}
+            </p>
+          </div>
+          <div class="shrink-0 rounded-2xl border border-black/10 bg-[var(--bg-elevated)] px-5 py-4 text-center dark:border-white/10">
+            <p class="text-xs font-semibold uppercase tracking-title text-eucalyptus-700 dark:text-eucalyptus-300">
+              Einstieg
+            </p>
+            <p class="mt-2 text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">
+              {commercial.price}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
+        <Card class="h-full">
+          <div class="space-y-4">
+            <h2 class="text-3xl font-bold tracking-tight text-text-primary-light dark:text-text-primary-dark">
+              {submission.title}
+            </h2>
+            {submission.body.map((paragraph) => (
+              <p class="text-pretty text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                {paragraph}
+              </p>
+            ))}
+          </div>
+        </Card>
+
+        <Card class="h-full border-black/10 bg-[var(--bg-surface)] dark:border-white/10 dark:bg-dark-surface">
+          <h2 class="text-xl font-semibold text-text-primary-light dark:text-text-primary-dark">
+            {cta.title}
+          </h2>
+          <p class="mt-4 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            {cta.body}
+          </p>
+          <div class="mt-6 rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-4 dark:border-white/10">
+            <p class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+              {cta.minimizationTitle}
+            </p>
+            <p class="mt-2 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+              {cta.minimizationBody}
+            </p>
+          </div>
+          <p class="mt-4 text-sm leading-relaxed text-text-muted-light dark:text-text-muted-dark">
+            {cta.reviewSummary}
+          </p>
+        </Card>
+      </div>
+    </section>
+
+    <Container maxWidth="lg" paddingY="lg">
+      <SampleReviewForm content={form} />
+    </Container>
+
+    <section class="mx-auto w-full max-w-6xl px-4 md:px-6">
+      <div class="mt-2 flex justify-center">
+        <Button href={dataPrepRoutes.de.landing} variant="outline" size="lg">
+          {cta.backLabel}
+        </Button>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

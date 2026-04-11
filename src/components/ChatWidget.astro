@@ -15,13 +15,85 @@ interface Props {
   id?: string;
   title?: string;
   subtitle?: string;
+  lang?: 'de' | 'en' | 'ro';
 }
 
 const props = Astro.props;
 const className = props.class || '';
 const id = props.id || 'ai-chat-widget';
-const title = props.title || 'Ask Mihai \u00b7 AI';
-const subtitle = props.subtitle || 'Powered by GPT-4.1';
+const lang = props.lang || 'de';
+const copy = {
+  de: {
+    title: 'Ask Mihai · KI',
+    subtitle: 'Bereitgestellt mit GPT-4.1',
+    responseLanguage: 'Antwortsprache',
+    chatTab: '💬 Chat',
+    jdTab: '📄 JD-Analyse',
+    welcome: "Hi! Ich bin Mihai's KI-Assistent. Ich beantworte Fragen zu Fähigkeiten, Erfahrung, Zertifikaten und Projekten.",
+    warning: '⚠️ Antworten werden generiert und können Fehler enthalten.',
+    chips: ['📋 Kontakt', '💼 Aktuelle Rolle', '🎓 Zertifikate', '🚀 Projekte'],
+    askPlaceholder: 'Eine Frage stellen...',
+    chatMessage: 'Chat-Nachricht',
+    sendMessage: 'Nachricht senden',
+    chatQuota: '💬 4/4 Fragen',
+    jdQuota: '📄 1/1 JD-Analyse',
+    hero: '📊 Professionelle Fit-Analyse',
+    heroBody: 'Füge eine Stellenbeschreibung ein, um eine detaillierte Passungsanalyse mit Scores und Empfehlungen zu erhalten.',
+    tips: '📋 Tipps für beste Ergebnisse',
+    tipsLead: 'Für die präziseste Analyse sollte enthalten sein:',
+    tipsItems: ['Jobtitel und Firmenname', 'Erforderliche Qualifikationen und Erfahrung', 'Wichtige Verantwortlichkeiten', 'Nice-to-haves und Bonus-Skills', 'Standort und Arbeitsmodell (remote / hybrid / vor Ort)'],
+    jdPlaceholder: 'Vollständige Stellenbeschreibung hier einfügen...',
+    jdInput: 'Eingabe Stellenbeschreibung',
+    analyze: 'Fit analysieren',
+  },
+  en: {
+    title: 'Ask Mihai · AI',
+    subtitle: 'Powered by GPT-4.1',
+    responseLanguage: 'Response language',
+    chatTab: '💬 Chat',
+    jdTab: '📄 JD Analysis',
+    welcome: "Hi! I'm Mihai's AI assistant. I can answer questions about his skills, experience, certifications, and projects.",
+    warning: '⚠️ Answers may be generated and could contain errors.',
+    chips: ['📋 Contact', '💼 Current Role', '🎓 Certifications', '🚀 Projects'],
+    askPlaceholder: 'Ask a question...',
+    chatMessage: 'Chat message',
+    sendMessage: 'Send message',
+    chatQuota: '💬 4/4 questions',
+    jdQuota: '📄 1/1 JD analysis',
+    hero: '📊 Professional Fit Analysis',
+    heroBody: 'Paste a job description to receive a detailed match analysis with scores and recommendations.',
+    tips: '📋 Tips for best results',
+    tipsLead: 'For the most accurate analysis, include:',
+    tipsItems: ['Job Title & Company name', 'Required Qualifications & Experience', 'Key Responsibilities', 'Nice-to-haves & Bonus skills', 'Location & Work model (remote/hybrid/onsite)'],
+    jdPlaceholder: 'Paste the full job description here...',
+    jdInput: 'Job description input',
+    analyze: 'Analyze Fit',
+  },
+  ro: {
+    title: 'Ask Mihai · AI',
+    subtitle: 'Cu GPT-4.1',
+    responseLanguage: 'Limba răspunsului',
+    chatTab: '💬 Chat',
+    jdTab: '📄 Analiză JD',
+    welcome: 'Salut! Sunt asistentul AI al lui Mihai. Pot răspunde la întrebări despre competențe, experiență, certificări și proiecte.',
+    warning: '⚠️ Răspunsurile sunt generate și pot conține erori.',
+    chips: ['📋 Contact', '💼 Rol curent', '🎓 Certificări', '🚀 Proiecte'],
+    askPlaceholder: 'Pune o întrebare...',
+    chatMessage: 'Mesaj chat',
+    sendMessage: 'Trimite mesajul',
+    chatQuota: '💬 4/4 întrebări',
+    jdQuota: '📄 1/1 analiză JD',
+    hero: '📊 Analiză profesională de potrivire',
+    heroBody: 'Lipește o descriere de job pentru a primi o analiză detaliată de potrivire, cu scoruri și recomandări.',
+    tips: '📋 Sfaturi pentru cele mai bune rezultate',
+    tipsLead: 'Pentru o analiză cât mai precisă, include:',
+    tipsItems: ['Titlul jobului și numele companiei', 'Calificări și experiență necesare', 'Responsabilități cheie', 'Cerințe opționale și bonusuri', 'Locația și modelul de lucru (remote / hybrid / on-site)'],
+    jdPlaceholder: 'Lipește aici descrierea completă a jobului...',
+    jdInput: 'Introducere descriere job',
+    analyze: 'Analizează potrivirea',
+  },
+}[lang];
+const title = props.title || copy.title;
 ---
 
 <div id={id} class:list={["chat-widget flex flex-col bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border overflow-hidden w-full h-full", className]} data-chat-widget>
@@ -31,14 +103,14 @@ const subtitle = props.subtitle || 'Powered by GPT-4.1';
       <span class="text-lg" aria-hidden="true">🤖</span>
       <div>
         <h3 class="font-bold text-lg leading-tight">{title}</h3>
-        <p class="text-xs text-eucalyptus-100">{subtitle}</p>
+        <p class="text-xs text-eucalyptus-100">{props.subtitle || copy.subtitle}</p>
       </div>
     </div>
     <div class="flex items-center gap-2">
       <!-- Language Selector -->
-      <select
+        <select
         class="chat-lang-select bg-eucalyptus-700 text-white text-xs rounded-lg px-2 py-1 border border-eucalyptus-500 focus:ring-2 focus:ring-white cursor-pointer"
-        aria-label="Response language"
+        aria-label={copy.responseLanguage}
       >
         <option value="auto">🌐 Auto</option>
         <option value="de">🇩🇪 DE</option>
@@ -58,7 +130,7 @@ const subtitle = props.subtitle || 'Powered by GPT-4.1';
       aria-controls="chat-panel-chat"
       data-tab="chat"
     >
-      💬 Chat
+      {copy.chatTab}
     </button>
     <button
       class="chat-tab flex-1 px-4 py-2.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-eucalyptus-500"
@@ -67,7 +139,7 @@ const subtitle = props.subtitle || 'Powered by GPT-4.1';
       aria-controls="chat-panel-jd"
       data-tab="jd"
     >
-      📄 JD Analysis
+      {copy.jdTab}
     </button>
   </div>
 
@@ -77,24 +149,24 @@ const subtitle = props.subtitle || 'Powered by GPT-4.1';
     <div class="chat-messages flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 dark:bg-dark-bg" aria-live="polite" aria-atomic="false">
       <!-- Welcome Message -->
       <div class="message ai bg-white dark:bg-dark-elevated p-3 rounded-lg rounded-tl-none shadow-subtle text-sm dark:text-gray-200 border border-gray-100 dark:border-dark-border max-w-88">
-        <p>Hi! I'm Mihai's AI assistant. I can answer questions about his skills, experience, certifications, and projects.</p>
-        <span class="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-2 block">⚠️ Answers may be generated and could contain errors.</span>
+        <p>{copy.welcome}</p>
+        <span class="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-2 block">{copy.warning}</span>
       </div>
 
       <!-- Quick Action Chips -->
       <div class="quick-chips flex flex-wrap gap-2 mt-1">
-        <button class="chip-btn" data-chip="contact" type="button">📋 Contact</button>
-        <button class="chip-btn" data-chip="current_role" type="button">💼 Current Role</button>
-        <button class="chip-btn" data-chip="certifications" type="button">🎓 Certifications</button>
-        <button class="chip-btn" data-chip="projects" type="button">🚀 Projects</button>
+        <button class="chip-btn" data-chip="contact" type="button">{copy.chips[0]}</button>
+        <button class="chip-btn" data-chip="current_role" type="button">{copy.chips[1]}</button>
+        <button class="chip-btn" data-chip="certifications" type="button">{copy.chips[2]}</button>
+        <button class="chip-btn" data-chip="projects" type="button">{copy.chips[3]}</button>
       </div>
     </div>
 
     <!-- Chat Input -->
     <form class="chat-form p-3 bg-white dark:bg-dark-surface border-t border-gray-200 dark:border-dark-border flex gap-2 items-end shrink-0">
       <textarea
-        placeholder="Ask a question..."
-        aria-label="Chat Message"
+        placeholder={copy.askPlaceholder}
+        aria-label={copy.chatMessage}
         rows="1"
         maxlength="4000"
         class="chat-input flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-eucalyptus-500 dark:bg-dark-elevated dark:text-white text-sm resize-none overflow-hidden max-h-32"
@@ -102,7 +174,7 @@ const subtitle = props.subtitle || 'Powered by GPT-4.1';
       ></textarea>
       <button
         type="submit"
-        aria-label="Send Message"
+        aria-label={copy.sendMessage}
         class="chat-send-btn bg-eucalyptus-600 hover:bg-eucalyptus-700 text-white p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 rotate-90" viewBox="0 0 20 20" fill="currentColor">
@@ -112,9 +184,9 @@ const subtitle = props.subtitle || 'Powered by GPT-4.1';
     </form>
     <!-- Quota Badge -->
     <div class="quota-badge px-3 py-1.5 text-xs text-text-tertiary-light dark:text-text-tertiary-dark flex items-center gap-3 border-t border-gray-100 dark:border-dark-border bg-white dark:bg-dark-surface shrink-0">
-      <span class="quota-chat-text">💬 4/4 questions</span>
+      <span class="quota-chat-text">{copy.chatQuota}</span>
       <span class="text-gray-300 dark:text-gray-600">|</span>
-      <span class="quota-jd-text">📄 1/1 JD analysis</span>
+      <span class="quota-jd-text">{copy.jdQuota}</span>
     </div>
   </div>
 
@@ -125,24 +197,20 @@ const subtitle = props.subtitle || 'Powered by GPT-4.1';
       <!-- JD Hero -->
       <div class="text-center mb-4">
         <div class="inline-flex items-center gap-2 bg-eucalyptus-50 dark:bg-eucalyptus-950 text-eucalyptus-700 dark:text-eucalyptus-300 px-3 py-1.5 rounded-full text-xs font-medium mb-2">
-          <span aria-hidden="true">📊</span> Professional Fit Analysis
+          <span aria-hidden="true">📊</span> {copy.hero}
         </div>
-        <p class="text-sm text-gray-600 dark:text-gray-400">Paste a job description to receive a detailed match analysis with scores and recommendations.</p>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{copy.heroBody}</p>
       </div>
 
       <!-- Structure Guide (collapsible) -->
       <details class="jd-guide mb-3 bg-white dark:bg-dark-elevated rounded-lg border border-gray-200 dark:border-dark-border">
         <summary class="px-3 py-2 text-xs font-medium text-gray-600 dark:text-gray-400 cursor-pointer hover:text-eucalyptus-600 transition-colors select-none">
-          📋 Tips for best results
+          {copy.tips}
         </summary>
         <div class="px-3 pb-3 text-xs text-gray-500 dark:text-gray-400 space-y-1">
-          <p>For the most accurate analysis, include:</p>
+          <p>{copy.tipsLead}</p>
           <ul class="list-disc pl-4 space-y-0.5">
-            <li>Job Title & Company name</li>
-            <li>Required Qualifications & Experience</li>
-            <li>Key Responsibilities</li>
-            <li>Nice-to-haves & Bonus skills</li>
-            <li>Location & Work model (remote/hybrid/onsite)</li>
+            {copy.tipsItems.map((item) => <li>{item}</li>)}
           </ul>
         </div>
       </details>
@@ -150,10 +218,10 @@ const subtitle = props.subtitle || 'Powered by GPT-4.1';
       <!-- JD Textarea -->
       <textarea
         class="jd-input w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-eucalyptus-500 dark:bg-dark-elevated dark:text-white text-sm resize-none"
-        placeholder="Paste the full job description here..."
+        placeholder={copy.jdPlaceholder}
         rows="10"
         maxlength="6000"
-        aria-label="Job Description Input"
+        aria-label={copy.jdInput}
       ></textarea>
 
       <!-- Character Counter -->
@@ -164,7 +232,7 @@ const subtitle = props.subtitle || 'Powered by GPT-4.1';
           class="jd-analyze-btn bg-eucalyptus-600 hover:bg-eucalyptus-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-subtle hover:shadow-elevated"
           disabled
         >
-          <span aria-hidden="true">🔍</span> Analyze Fit
+          <span aria-hidden="true">🔍</span> {copy.analyze}
         </button>
       </div>
 

@@ -33,6 +33,20 @@ const breadcrumbSchema = generateBreadcrumbSchema([
 ]);
 const structuredData = [personSchema, breadcrumbSchema];
 
+const nowFeature = {
+  eyebrow: 'Now',
+  title: 'Was ich gerade baue und priorisiere',
+  body:
+    'Meine Now-Seite bündelt den aktuellen Stand meiner Arbeit: aktive Produktmodule, Lernschwerpunkte und die Angebote, die ich gerade fokussiere.',
+  bullets: [
+    'Live-Status zu Fin-Tools, AI Copilot und neuen Modulen',
+    'aktuelle fachliche Schwerpunkte zwischen Finance, AI und Automatisierung',
+    'inklusive des neuen Angebotsmoduls zur KI-Datenaufbereitung für Finance-Workflows',
+  ],
+  ctaLabel: 'Zur Now-Seite',
+  ctaHref: '/now',
+};
+
 const hobbies = [
   {
     title: t.about.hobbies.photography.title,
@@ -190,10 +204,44 @@ const skillCategories = [
           </li>
           <li class="flex items-center gap-3">
             <span class="text-gray-600 dark:text-gray-400 italic">Learning / Research</span>
-            <span>In Entwicklung — Konzept teilweise validiert, nicht produktiv</span>
+            <span>In Entwicklung oder Forschung — konzeptionell validiert, noch nicht produktiv</span>
           </li>
         </ul>
       </div>
+    </section>
+
+    <!-- Now Feature -->
+    <section class="py-12">
+      <Card>
+        <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-title text-eucalyptus-700 dark:text-eucalyptus-300">
+              {nowFeature.eyebrow}
+            </p>
+            <h2 class="mt-3 text-3xl font-bold text-text-primary-light dark:text-text-primary-dark text-balance">
+              {nowFeature.title}
+            </h2>
+            <p class="mt-4 text-text-secondary-light dark:text-text-secondary-dark leading-relaxed text-pretty">
+              {nowFeature.body}
+            </p>
+          </div>
+          <div>
+            <ul class="space-y-3 text-text-secondary-light dark:text-text-secondary-dark">
+              {nowFeature.bullets.map((bullet) => (
+                <li class="flex items-start">
+                  <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2 inline-flex pt-1" aria-hidden="true">•</span>
+                  <span>{bullet}</span>
+                </li>
+              ))}
+            </ul>
+            <div class="mt-6">
+              <Button href={nowFeature.ctaHref} variant="outline" size="lg">
+                {nowFeature.ctaLabel}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Card>
     </section>
 
     <!-- Hobbies & Interests -->

@@ -20,7 +20,15 @@ const lang = 'ro';
 const t = translations[lang];
 
 const title = 'Contabil Financiar & FinTech Dev';
-const seoDescription = 'Contabil Financiar & pasionat de AI în zona DACH. Unelte FinTech open-source și soluții web AI-powered pentru fondatori și freelanceri.';
+const seoDescription = 'Contabil Financiar & pasionat de AI în zona DACH. Unelte FinTech open-source și soluții web bazate pe AI pentru fondatori și freelanceri.';
+const dataPrepTeaser = {
+  title: 'Nou: Pregătire Date AI pentru procese financiare',
+  body: 'O landing page dedicată echipelor care trebuie să transforme PDF-uri, exporturi ERP, XML și date de conformitate în rezultate curate, structurate și pregătite pentru AI.',
+  primaryLabel: 'Deschide landing page-ul',
+  primaryHref: '/ro/pregatire-date-ai',
+  secondaryLabel: 'Discovery Call',
+  secondaryHref: '/ro/discovery-call',
+};
 
 // Generate structured data for homepage
 const personSchema = generatePersonSchema(lang);
@@ -31,6 +39,7 @@ const structuredData = [personSchema, websiteSchema];
 <BaseLayout title={title} description={seoDescription} lang={lang} structuredData={structuredData}>
   <!-- Hero Section -->
   <Hero
+    lang={lang}
     title={t.home.title}
     subtitle={t.home.subtitle}
     description={t.home.description}
@@ -38,6 +47,7 @@ const structuredData = [personSchema, websiteSchema];
     skills={t.home.heroSkills}
     imageSrc="/images/2025-2_50PM.webp"
     imageAlt="Mihai Adrian Mateescu"
+    badgeText={t.home.availabilityBadge}
   >
     <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
       <Button href="/ro/experience" variant="primary" size="lg">
@@ -52,11 +62,36 @@ const structuredData = [personSchema, websiteSchema];
     </div>
   </Hero>
 
-  <!-- Hub Navigation: Bento Grid -->
-  <BentoGrid lang={lang} />
-
-  <!-- Contact Information -->
+  <!-- Contact Information & Quick Links -->
   <Container>
+    <!-- Strategic Offer -->
+    <section class="py-12">
+      <Card>
+        <div class="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-title text-eucalyptus-700 dark:text-eucalyptus-300">
+              {t.home.dataPrepTeaser.label}
+            </p>
+            <h2 class="mt-3 text-3xl font-bold text-text-primary-light dark:text-text-primary-dark text-balance">
+              {t.home.dataPrepTeaser.title}
+            </h2>
+            <p class="mt-4 max-w-3xl text-text-secondary-light dark:text-text-secondary-dark text-pretty transition-all hover:text-text-primary-light dark:hover:text-text-primary-dark">
+              {t.home.dataPrepTeaser.body}
+            </p>
+          </div>
+          <div class="flex flex-col gap-3 lg:items-end">
+            <Button href={dataPrepTeaser.primaryHref} variant="primary" size="lg">
+              {t.home.dataPrepTeaser.primaryLabel}
+            </Button>
+            <Button href={dataPrepTeaser.secondaryHref} variant="outline" size="lg">
+              {t.home.dataPrepTeaser.secondaryLabel}
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </section>
+
+    <!-- Contact Info -->
     <section id="contact" class="py-12">
       <Card>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -64,7 +99,7 @@ const structuredData = [personSchema, websiteSchema];
             <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6">
               {t.contact.address}
             </h2>
-            <p class="text-text-secondary-light dark:text-text-secondary-dark">
+            <p class="text-text-secondary-light dark:text-text-secondary-dark leading-relaxed">
               Bahnhofstraße 65b<br />
               21218 Seevetal<br />
               Germany
@@ -75,26 +110,29 @@ const structuredData = [personSchema, websiteSchema];
             <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6">
               {t.contact.heading}
             </h2>
-            <div class="space-y-3 text-text-secondary-light dark:text-text-secondary-dark">
-              <p>
+            <div class="space-y-4 text-text-secondary-light dark:text-text-secondary-dark">
+              <p class="flex items-center gap-2">
+                <Icon name="phone" class="h-4 w-4 text-eucalyptus-600 dark:text-eucalyptus-400" />
                 <strong>{t.contact.phone}:</strong>{' '}
-                <a href="tel:+491704740121" class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/50 dark:decoration-eucalyptus-400/50 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300">
+                <a href="tel:+491704740121" class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/30 dark:decoration-eucalyptus-400/30 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300 transition-all">
                   +49 170 474 0121
                 </a>
               </p>
-              <p>
+              <p class="flex items-center gap-2">
+                <Icon name="mail" class="h-4 w-4 text-eucalyptus-600 dark:text-eucalyptus-400" />
                 <strong>{t.contact.email}:</strong>{' '}
-                <a href="mailto:kontakt@me-mateescu.de" class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/50 dark:decoration-eucalyptus-400/50 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300">
+                <a href="mailto:kontakt@me-mateescu.de" class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/30 dark:decoration-eucalyptus-400/30 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300 transition-all">
                   kontakt@me-mateescu.de
                 </a>
               </p>
-              <p>
+              <p class="flex items-center gap-2">
+                <Icon name="linkedin" class="h-4 w-4 text-eucalyptus-600 dark:text-eucalyptus-400" />
                 <strong>{t.contact.linkedin}:</strong>{' '}
                 <a
-                  href="https://www.linkedin.com/in/mihai-adrian-mateescu"
+                  href="https://www.linkedin.com/in/mihai-adrian-mateescu/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/50 dark:decoration-eucalyptus-400/50 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300"
+                  class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/30 dark:decoration-eucalyptus-400/30 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300 transition-all"
                 >
                   Mateescu Mihai
                 </a>
@@ -105,14 +143,14 @@ const structuredData = [personSchema, websiteSchema];
       </Card>
     </section>
 
-    <!-- Quick Links to Main Sections -->
+    <!-- Quick Links -->
     <section class="py-12">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
+        <Card variant="glass" hover>
           <h3 class="text-xl font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-3">
             {t.nav.education}
           </h3>
-          <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4 text-pretty">
             {t.home.quickLinks.education}
           </p>
           <Button href="/ro/education" variant="ghost" size="sm">
@@ -120,11 +158,11 @@ const structuredData = [personSchema, websiteSchema];
           </Button>
         </Card>
 
-        <Card>
+        <Card variant="glass" hover>
           <h3 class="text-xl font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-3">
             {t.nav.experience}
           </h3>
-          <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4 text-pretty">
             {t.home.quickLinks.experience}
           </p>
           <Button href="/ro/experience" variant="ghost" size="sm">
@@ -132,65 +170,81 @@ const structuredData = [personSchema, websiteSchema];
           </Button>
         </Card>
 
-        <Card>
+        <Card variant="glass" hover>
           <h3 class="text-xl font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-3">
             {t.nav.certifications}
           </h3>
-          <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4 text-pretty">
             {t.home.quickLinks.certifications}
           </p>
-          <Button href="/ro/certifications" variant="ghost" size="sm">
+          <Button href="/ro/certifications" variant="primary" size="sm">
             {t.common.learnMore} →
           </Button>
         </Card>
       </div>
     </section>
+  </Container>
 
-    <!-- Skills Section -->
-    <section class="py-12">
-      <Card>
-        <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6">
-          {t.home.skills.title}
-        </h2>
-        <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-text-secondary-light dark:text-text-secondary-dark">
-          {t.home.skills.items.map((skill) => (
-            <li class="flex items-start">
-              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2 inline-flex pt-0.5" aria-hidden="true">
-                <Icon name="check-circle" class="h-4 w-4" />
-              </span>
-              <span>{skill}</span>
-            </li>
-          ))}
-        </ul>
-      </Card>
-    </section>
+  <!-- Overview Hub: Bento Grid (Lowered) -->
+  <BentoGrid lang={lang} />
 
-    <!-- Leadership Section -->
-    <section class="py-12">
-      <Card>
-        <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6">
-          {t.home.leadership.title}
-        </h2>
-        <ul class="space-y-3 text-text-secondary-light dark:text-text-secondary-dark">
-          {t.home.leadership.items.map((item) => (
-            <li class="flex items-start">
-              <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-2 inline-flex pt-1" aria-hidden="true">
-                <Icon name="circle" class="h-2.5 w-2.5" />
-              </span>
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      </Card>
+  <!-- Professional Expertise Hub: Skills & Leadership -->
+  <Container>
+    <section class="py-16 md:py-24">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        <!-- Skills Section -->
+        <Card variant="glass" hover>
+          <div class="flex items-center gap-4 mb-8">
+            <div class="p-3 rounded-2xl bg-eucalyptus-100 dark:bg-eucalyptus-900/30 text-eucalyptus-600 dark:text-eucalyptus-400">
+              <Icon name="check-circle" class="h-8 w-8" />
+            </div>
+            <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark tracking-tight">
+              {t.home.skills.title}
+            </h2>
+          </div>
+          <ul class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-x-6 gap-y-4">
+            {t.home.skills.items.map((skill) => (
+              <li class="flex items-start group">
+                <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-3 inline-flex pt-1 transition-transform group-hover:scale-110" aria-hidden="true">
+                  <Icon name="check-circle" class="h-5 w-5" />
+                </span>
+                <span class="text-text-secondary-light dark:text-text-secondary-dark text-pretty font-medium leading-relaxed">{skill}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+
+        <!-- Leadership Section -->
+        <Card variant="glass" hover>
+          <div class="flex items-center gap-4 mb-8">
+            <div class="p-3 rounded-2xl bg-eucalyptus-100 dark:bg-eucalyptus-900/30 text-eucalyptus-600 dark:text-eucalyptus-400">
+              <Icon name="users" class="h-8 w-8" />
+            </div>
+            <h3 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark tracking-tight">
+              {t.home.leadership.title}
+            </h3>
+          </div>
+          <ul class="space-y-4">
+            {t.home.leadership.items.map((item) => (
+              <li class="flex items-start group">
+                <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-3 inline-flex pt-1 transition-transform group-hover:scale-110" aria-hidden="true">
+                  <Icon name="check-circle" class="h-5 w-5" />
+                </span>
+                <span class="text-text-secondary-light dark:text-text-secondary-dark text-pretty font-medium leading-relaxed">{item}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </div>
     </section>
 
     <!-- Hobbies Teaser -->
-    <section class="py-12 text-center">
-      <Card>
+    <section class="py-12 mb-20 text-center">
+      <Card variant="glass" hover>
         <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-4">
           {t.home.hobbies.title}
         </h2>
-        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-6 max-w-2xl mx-auto">
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-6 max-w-2xl mx-auto text-pretty">
           {t.home.quickLinks.hobbiesText}
         </p>
         <Button href="/ro/about" variant="primary">

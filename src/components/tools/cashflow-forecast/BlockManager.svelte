@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Plus, Pencil, Trash2, TrendingUp, TrendingDown, Repeat, Zap } from 'lucide-svelte';
+  import Icon from '@/components/ui/Icon.svelte';
   import type { CashflowBlock, BlockCategory } from '@/lib/cashflow/types';
   import { CATEGORY_LABELS } from '@/lib/cashflow/types';
 
@@ -63,7 +63,7 @@
     {#each grouped as { cat, items }}
       <div>
         <div class="mb-2 flex items-center gap-1.5">
-          <svelte:component this={categoryIcon(cat)} size={13} class={categoryColor(cat)} />
+          <Icon name={categoryIcon(cat)} size={13} class={categoryColor(cat)} />
           <span class="text-xs font-semibold uppercase tracking-wide text-text-secondary-light dark:text-text-secondary-dark">
             {CATEGORY_LABELS[cat]}
           </span>
@@ -86,7 +86,7 @@
                   class="rounded-lg p-1.5 text-text-secondary-light hover:bg-black/5 hover:text-text-primary-light dark:text-text-secondary-dark dark:hover:bg-white/10 dark:hover:text-text-primary-dark"
                   aria-label="Block bearbeiten"
                 >
-                  <Pencil size={13} />
+                  <Icon name="Pencil" size={13} />
                 </button>
                 <button
                   type="button"
@@ -94,7 +94,7 @@
                   class="rounded-lg p-1.5 text-text-secondary-light hover:bg-red-50 hover:text-red-500 dark:text-text-secondary-dark dark:hover:bg-red-500/10"
                   aria-label="Block löschen"
                 >
-                  <Trash2 size={13} />
+                  <Icon name="Trash2" size={13} />
                 </button>
               </div>
             </div>
@@ -110,7 +110,7 @@
     onclick={onAdd}
     class="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-eucalyptus-500/40 px-4 py-2.5 text-sm font-medium text-eucalyptus-700 transition-colors hover:border-eucalyptus-500/70 hover:bg-eucalyptus-500/5 dark:border-eucalyptus-400/30 dark:text-eucalyptus-300 dark:hover:bg-eucalyptus-500/8"
   >
-    <Plus size={15} />
+    <Icon name="Plus" size={15} />
     Position hinzufügen
   </button>
 </div>

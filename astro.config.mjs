@@ -8,9 +8,24 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
 import svelte from '@astrojs/svelte';
+import { calculateReadingTime } from './src/utils/readingTime.ts';
+import fs from 'node:fs';
+
+// Custom Remark Plugin for Reading Time
+/**
+ * @returns {(tree: any, file: any) => void}
+ */
+function remarkReadingTime() {
+  return function (tree, file) {
+    const readingTime = calculateReadingTime(String(file.value));
+    if (!file.data.astro) file.data.astro = {};
+    if (!file.data.astro.frontmatter) file.data.astro.frontmatter = {};
+    file.data.astro.frontmatter.readingTime = readingTime;
+  };
+}
 
 // Shared Markdown pipeline (MDX will extend this by default)
-const remarkPlugins = [remarkMath];
+const remarkPlugins = [remarkMath, remarkReadingTime];
 /** @type {NonNullable<import('astro').AstroUserConfig['markdown']>['rehypePlugins']} */
 const rehypePlugins = [
   [
@@ -24,20 +39,82 @@ const rehypePlugins = [
   ],
 ];
 
+const NOINDEX_SITEMAP_PATHS = new Set([
+  '/en/datenschutz/',
+  '/ro/datenschutz/',
+  '/en/impressum/',
+  '/ro/impressum/',
+  '/sample-struktur-pruefen/danke/',
+  '/en/sample-structure-review/thank-you/',
+  '/ro/revizuire-structura-esantion/multumesc/',
+]);
+
+const CUSTOM_I18N_SITEMAP_LINKS = new Map([
+  [
+    'https://me-mateescu.de/datenaufbereitung-fuer-ki/',
+    [
+      { lang: 'de-DE', url: 'https://me-mateescu.de/datenaufbereitung-fuer-ki/' },
+      { lang: 'en-US', url: 'https://me-mateescu.de/en/ai-data-preparation/' },
+      { lang: 'ro-RO', url: 'https://me-mateescu.de/ro/pregatire-date-ai/' },
+    ],
+  ],
+  [
+    'https://me-mateescu.de/en/ai-data-preparation/',
+    [
+      { lang: 'de-DE', url: 'https://me-mateescu.de/datenaufbereitung-fuer-ki/' },
+      { lang: 'en-US', url: 'https://me-mateescu.de/en/ai-data-preparation/' },
+      { lang: 'ro-RO', url: 'https://me-mateescu.de/ro/pregatire-date-ai/' },
+    ],
+  ],
+  [
+    'https://me-mateescu.de/ro/pregatire-date-ai/',
+    [
+      { lang: 'de-DE', url: 'https://me-mateescu.de/datenaufbereitung-fuer-ki/' },
+      { lang: 'en-US', url: 'https://me-mateescu.de/en/ai-data-preparation/' },
+      { lang: 'ro-RO', url: 'https://me-mateescu.de/ro/pregatire-date-ai/' },
+    ],
+  ],
+  [
+    'https://me-mateescu.de/sample-struktur-pruefen/',
+    [
+      { lang: 'de-DE', url: 'https://me-mateescu.de/sample-struktur-pruefen/' },
+      { lang: 'en-US', url: 'https://me-mateescu.de/en/sample-structure-review/' },
+      { lang: 'ro-RO', url: 'https://me-mateescu.de/ro/revizuire-structura-esantion/' },
+    ],
+  ],
+  [
+    'https://me-mateescu.de/en/sample-structure-review/',
+    [
+      { lang: 'de-DE', url: 'https://me-mateescu.de/sample-struktur-pruefen/' },
+      { lang: 'en-US', url: 'https://me-mateescu.de/en/sample-structure-review/' },
+      { lang: 'ro-RO', url: 'https://me-mateescu.de/ro/revizuire-structura-esantion/' },
+    ],
+  ],
+  [
+    'https://me-mateescu.de/ro/revizuire-structura-esantion/',
+    [
+      { lang: 'de-DE', url: 'https://me-mateescu.de/sample-struktur-pruefen/' },
+      { lang: 'en-US', url: 'https://me-mateescu.de/en/sample-structure-review/' },
+      { lang: 'ro-RO', url: 'https://me-mateescu.de/ro/revizuire-structura-esantion/' },
+    ],
+  ],
+]);
+
 export default defineConfig({
   site: 'https://me-mateescu.de',
   output: 'static',
   outDir: './dist',
 
   redirects: {
-    // Consolidate Blog and Projects to main (DE) version
+    // Consolidate Blog and Projects to main (DE) version.
+    // Keep exact routes before splat rules for clearer redirect resolution.
     '/en/blog': '/blog',
-    '/en/blog/*': '/blog/:splat',
     '/ro/blog': '/blog',
-    '/ro/blog/*': '/blog/:splat',
     '/en/projects': '/projects',
-    '/en/projects/*': '/projects/:splat',
     '/ro/projects': '/projects',
+    '/en/blog/*': '/blog/:splat',
+    '/ro/blog/*': '/blog/:splat',
+    '/en/projects/*': '/projects/:splat',
     '/ro/projects/*': '/projects/:splat',
   },
 
@@ -56,7 +133,8 @@ export default defineConfig({
       filter: (page) =>
         !page.includes('/test/') &&
         !page.includes('/design-system-test') &&
-        !page.includes('/draft'),
+        !page.includes('/draft') &&
+        !NOINDEX_SITEMAP_PATHS.has(new URL(page).pathname),
       customPages: [
         'https://me-mateescu.de/',
         'https://me-mateescu.de/en/',
@@ -64,6 +142,15 @@ export default defineConfig({
       ],
       serialize(item) {
         const url = item.url;
+
+        if (NOINDEX_SITEMAP_PATHS.has(new URL(url).pathname)) {
+          return undefined;
+        }
+
+        const customLinks = CUSTOM_I18N_SITEMAP_LINKS.get(url);
+        if (customLinks) {
+          item.links = customLinks;
+        }
 
         // Homepage - exact matches only
         if (

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { fly } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
-  import { X } from 'lucide-svelte';
+  import Icon from '@/components/ui/Icon.svelte';
   import type { CashflowBlock, BlockCategory } from '@/lib/cashflow/types';
   import { SUBCATEGORIES, CATEGORY_LABELS } from '@/lib/cashflow/types';
 
@@ -82,7 +82,7 @@
       class="rounded-lg p-1.5 text-text-secondary-light hover:bg-black/5 dark:text-text-secondary-dark dark:hover:bg-white/10"
       aria-label="Schließen"
     >
-      <X size={16} />
+      <Icon name="X" size={16} />
     </button>
   </div>
 

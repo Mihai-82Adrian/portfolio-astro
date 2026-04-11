@@ -24,6 +24,7 @@ export interface Translations {
     title: string;
     subtitle: string;
     description: string;
+    availabilityBadge: string;
     skillsLabel: string; // Hero skills section label
     heroSkills: string[]; // Short skills for Hero section
     cta: {
@@ -48,6 +49,13 @@ export interface Translations {
     hobbies: {
       title: string;
       learnMore: string;
+    };
+    dataPrepTeaser: {
+      label: string;
+      title: string;
+      body: string;
+      primaryLabel: string;
+      secondaryLabel: string;
     };
   };
   // About Page
@@ -167,6 +175,7 @@ export interface Translations {
     description: string;
     copyright: string;
     madeWith: string;
+    deployedOn: string;
     quickLinks: string;
     language: string;
     legal: string;
@@ -184,7 +193,7 @@ export interface Translations {
 export const translations: Record<Language, Translations> = {
   de: {
     nav: {
-      home: 'Home',
+      home: 'Start',
       about: 'Über mich',
       experience: 'Berufserfahrung',
       education: 'Ausbildung',
@@ -197,10 +206,11 @@ export const translations: Record<Language, Translations> = {
       title: 'Mihai Adrian Mateescu',
       subtitle: 'Finanzbuchhalter · Tech & AI · Kreativproduzent',
       description: 'Engagierter Finanzbuchhalter mit Erfahrung in der Buchhaltung und Finanzverwaltung, spezialisiert auf die detaillierte Analyse von Geschäftsvorfällen und die steuerliche Berichterstattung. Mit einer ausgeprägten Leidenschaft für Zahlen und einem scharfen Auge für Details suche ich stets nach Möglichkeiten, meine beruflichen Fähigkeiten weiterzuentwickeln. Meine vielseitige Erfahrung, die von der Buchhaltung bis hin zum Management von Teams reicht, empfiehlt mich als einen flexiblen Fachmann, der in jeder finanziellen Umgebung einen Mehrwert schafft.',
+      availabilityBadge: 'Für Beratungsprojekte verfügbar',
       skillsLabel: 'Kompetenzen:',
-      heroSkills: ['DATEV', 'Finanzbuchhaltung', 'AI/ML', 'Web Development', 'Kreativproduktion'],
+      heroSkills: ['DATEV', 'Finanzbuchhaltung', 'AI/ML', 'Webentwicklung', 'Kreativproduktion'],
       cta: {
-        viewProjects: 'Projekte ansehen',
+        viewProjects: 'Berufserfahrung',
         readBlog: 'Blog lesen',
         contact: 'Kontakt aufnehmen'
       },
@@ -213,26 +223,34 @@ export const translations: Record<Language, Translations> = {
       skills: {
         title: 'Fähigkeiten und Kenntnisse',
         items: [
-          'Finanz- und Lohnbuchhaltung',
-          'MS Office Kenntnisse',
-          'DATEV / Agenda / Simba',
-          'Schnelles Schreiben',
-          'Gute Kommunikationsfähigkeiten',
-          'Führungserfahrung: bis zu 9 Mitarbeiter/innen'
+          'Finanzbuchhaltung (Debitoren, Kreditoren, Sachkonten)',
+          'UStVA, BWA & vorbereitende Abschlussarbeiten',
+          'Systeme: DATEV, Simba, SelectLine, ELO',
+          'Digitalisierung & Prozessoptimierung',
+          'IT: Excel (Advanced), XML (EN 16931), XRechnung',
+          'Entwicklung webbasierter Finanztools (AI-gestützt)'
         ]
       },
       leadership: {
         title: 'Führungs-Kompetenzen',
         items: [
-          'Kaufmännische Leitung mit Schwerpunkt auf betriebswirtschaftlicher Steuerung und operativer Umsetzung.',
-          'Bis zu 2 Jahre Erfahrung in der Leitung und Koordination von Geschäftsprozessen.',
-          'Verantwortlich für die Führung und Entwicklung von bis zu 9 Mitarbeiter/innen.'
+          'Gebietsverkaufsleiter: Führung & Koordination von Vertriebsteams',
+          'Filialleiter: Kaufmännische Leitung inkl. Rechnungswesen & Lohnabrechnung',
+          'Führung & Entwicklung von bis zu 9 Mitarbeiter/innen',
+          'Strategische Steuerung operativer Geschäftsprozesse'
         ]
       },
       hobbies: {
         title: 'Hobbies',
         learnMore: 'Mehr über meine Hobbies'
-      }
+      },
+      dataPrepTeaser: {
+        label: 'Strategisches Angebot',
+        title: 'Neu: KI-Datenaufbereitung für Finance-Workflows',
+        body: 'Eine eigenständige Landing Page für Teams, die PDFs, ERP-Exporte, XML und Compliance-Daten in saubere, strukturierte und KI-verwertbare Ergebnisse überführen müssen.',
+        primaryLabel: 'Zur Landing Page',
+        secondaryLabel: 'Discovery Call',
+      },
     },
     about: {
       title: 'Über mich',
@@ -389,8 +407,9 @@ export const translations: Record<Language, Translations> = {
     },
     footer: {
       description: 'Finanzbuchhalter mit Leidenschaft für Zahlen und kontinuierliches Lernen. Aktuell: Weiterbildung zum Bilanzbuchhalter (IHK). Hobby: Technologie-Exploration.',
-      copyright: '© 2025 Mihai Adrian Mateescu',
+      copyright: 'Alle Rechte vorbehalten.',
       madeWith: 'Erstellt mit',
+      deployedOn: 'bereitgestellt auf',
       quickLinks: 'Schnellzugriff',
       language: 'Sprache',
       legal: 'Rechtliches',
@@ -418,10 +437,11 @@ export const translations: Record<Language, Translations> = {
       title: 'Mihai Adrian Mateescu',
       subtitle: 'Financial Accountant · Tech & AI · Creative Producer',
       description: 'Dedicated Financial Accountant with experience in accounting and financial management, specializing in detailed analysis of business transactions and tax reporting. With a strong passion for numbers and a keen eye for detail, I constantly seek opportunities to further develop my professional skills. My diverse experience, ranging from accounting to team management, positions me as a flexible professional who creates value in any financial environment.',
+      availabilityBadge: 'Available for consulting',
       skillsLabel: 'Skills:',
       heroSkills: ['DATEV', 'Financial Accounting', 'AI/ML', 'Web Development', 'Creative Production'],
       cta: {
-        viewProjects: 'View Projects',
+        viewProjects: 'Experience',
         readBlog: 'Read Blog',
         contact: 'Get in Touch'
       },
@@ -434,26 +454,34 @@ export const translations: Record<Language, Translations> = {
       skills: {
         title: 'Skills and Expertise',
         items: [
-          'Financial and Payroll Accounting',
-          'MS Office Proficiency',
-          'DATEV / Agenda / Simba',
-          'Fast Typing',
-          'Excellent Communication Skills',
-          'Leadership Experience: up to 9 employees'
+          'Financial Accounting (AR, AP, GL)',
+          'VAT Returns, P&L & Preparatory Closing Tasks',
+          'Systems: DATEV, Simba, SelectLine, ELO',
+          'Digitalization & Process Optimization',
+          'IT: Excel (Advanced), XML (EN 16931), XRechnung',
+          'Development of Web-based AI Finance Tools'
         ]
       },
       leadership: {
         title: 'Leadership Competencies',
         items: [
-          'Commercial management with focus on business administration and operational implementation.',
-          'Up to 2 years of experience in leading and coordinating business processes.',
-          'Responsible for leading and developing up to 9 employees.'
+          'Regional Sales Manager: Leadership & coordination of sales teams',
+          'Branch Manager: Commercial management including accounting & payroll',
+          'Leadership & development of teams up to 9 employees',
+          'Strategic steering of operational business processes'
         ]
       },
       hobbies: {
         title: 'Hobbies',
         learnMore: 'Learn more about my hobbies'
-      }
+      },
+      dataPrepTeaser: {
+        label: 'Strategic Offer',
+        title: 'New: AI Data Preparation for Finance Workflows',
+        body: 'A dedicated landing page for teams needing to transform PDFs, ERP exports, XML, and compliance data into clean, structured, and AI-ready results.',
+        primaryLabel: 'Open Landing Page',
+        secondaryLabel: 'Discovery Call',
+      },
     },
     about: {
       title: 'About Me',
@@ -610,8 +638,9 @@ export const translations: Record<Language, Translations> = {
     },
     footer: {
       description: 'Financial Accountant with a passion for numbers and continuous learning. Currently: Further training to become a certified accountant (IHK). Hobby: Technology exploration.',
-      copyright: '© 2025 Mihai Adrian Mateescu',
+      copyright: 'All rights reserved.',
       madeWith: 'Made with',
+      deployedOn: 'deployed on',
       quickLinks: 'Quick Links',
       language: 'Language',
       legal: 'Legal',
@@ -628,7 +657,7 @@ export const translations: Record<Language, Translations> = {
     nav: {
       home: 'Acasă',
       about: 'Despre mine',
-      experience: 'Experiență',
+      experience: 'Experiențe',
       education: 'Educație',
       certifications: 'Certificări',
       services: 'Servicii',
@@ -639,10 +668,11 @@ export const translations: Record<Language, Translations> = {
       title: 'Mihai Adrian Mateescu',
       subtitle: 'Contabil Financiar',
       description: 'Contabil Financiar dedicat cu experiență în contabilitate și management financiar, specializat în analiza detaliată a tranzacțiilor comerciale și raportarea fiscală. Cu o pasiune puternică pentru cifre și un ochi atent la detalii, caut constant oportunități de a-mi dezvolta abilitățile profesionale. Experiența mea diversă, care variază de la contabilitate la managementul echipelor, mă poziționează ca un profesionist flexibil care creează valoare în orice mediu financiar.',
+      availabilityBadge: 'Disponibil pentru proiecte de consultanță',
       skillsLabel: 'Competențe:',
-      heroSkills: ['DATEV', 'Contabilitate Financiară', 'AI/ML', 'Web Development', 'Producție Creativă'],
+      heroSkills: ['DATEV', 'Contabilitate Financiară', 'AI/ML', 'Dezvoltare web', 'Producție Creativă'],
       cta: {
-        viewProjects: 'Vezi Proiecte',
+        viewProjects: 'Experiență',
         readBlog: 'Citește Blog',
         contact: 'Contactează-mă'
       },
@@ -655,26 +685,34 @@ export const translations: Record<Language, Translations> = {
       skills: {
         title: 'Competențe și Cunoștințe',
         items: [
-          'Contabilitate Financiară și Salarizare',
-          'Cunoștințe MS Office',
-          'DATEV / Agenda / Simba',
-          'Tastare Rapidă',
-          'Abilități Excelente de Comunicare',
-          'Experiență Leadership: până la 9 angajați'
+          'Contabilitate Financiară (Clienți, Furnizori, Registru Jurnal)',
+          'Deconturi TVA, BWA și Lucrări de Închidere',
+          'Sisteme: DATEV, Simba, SelectLine, ELO',
+          'Digitalizare și Optimizare de Procese',
+          'IT: Excel (Avansat), XML (EN 16931), XRechnung',
+          'Dezvoltare de Instrumente Financiare bazate pe AI'
         ]
       },
       leadership: {
         title: 'Competențe de Leadership',
         items: [
-          'Conducere comercială cu accent pe controlul administrației afacerii și implementarea operațională.',
-          'Până la 2 ani de experiență în conducerea și coordonarea proceselor de afaceri.',
-          'Responsabil pentru conducerea și dezvoltarea a până la 9 angajați.'
+          'Manager Regional de Vânzări: Conducerea și coordonarea echipelor de vânzări',
+          'Manager de Filială: Management comercial, incluzând contabilitatea și salarizarea',
+          'Conducerea și dezvoltarea unei echipe de până la 9 angajați',
+          'Pilotarea strategică a proceselor operaționale de afaceri'
         ]
       },
       hobbies: {
         title: 'Hobby-uri',
         learnMore: 'Află mai multe despre hobby-urile mele'
-      }
+      },
+      dataPrepTeaser: {
+        label: 'Ofertă strategică',
+        title: 'Nou: Pregătire Date AI pentru procese financiare',
+        body: 'O landing page dedicată echipelor care trebuie să transforme PDF-uri, exporturi ERP, XML și date de conformitate în rezultate curate, structurate și pregătite pentru AI.',
+        primaryLabel: 'Deschide landing page-ul',
+        secondaryLabel: 'Discovery Call',
+      },
     },
     about: {
       title: 'Despre Mine',
@@ -831,8 +869,9 @@ export const translations: Record<Language, Translations> = {
     },
     footer: {
       description: 'Contabil Financiar cu pasiune pentru cifre și învățare continuă. În prezent: Formare pentru a deveni contabil certificat (IHK). Hobby: Explorare tehnologică.',
-      copyright: '© 2025 Mihai Adrian Mateescu',
-      madeWith: 'Creat cu',
+      copyright: 'Toate drepturile rezervate.',
+      madeWith: 'Realizat cu',
+      deployedOn: 'găzduit pe',
       quickLinks: 'Linkuri rapide',
       language: 'Limbă',
       legal: 'Legal',

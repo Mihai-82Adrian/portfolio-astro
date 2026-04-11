@@ -5,6 +5,7 @@
 
 import type { Position } from '@data/experience';
 import type { CollectionEntry } from 'astro:content';
+import { normalizeSiteUrl } from '@utils/i18n';
 
 const SITE_URL = 'https://me-mateescu.de';
 const SITE_NAME = 'Mihai Adrian Mateescu Portfolio';
@@ -138,7 +139,7 @@ export function generatePersonSchema(lang: 'de' | 'en' | 'ro' = 'de'): PersonSch
       addressCountry: 'DE'
     },
     sameAs: [
-      'https://www.linkedin.com/in/mihai-adrian-mateescu',
+      'https://www.linkedin.com/in/mihai-adrian-mateescu/',
       'https://github.com/Mihai-82Adrian',
       'https://profit-minds.de'
     ],
@@ -205,7 +206,7 @@ export function generateBreadcrumbSchema(
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      item: `${SITE_URL}${item.url}`
+      item: normalizeSiteUrl(item.url.startsWith('http') ? item.url : `${SITE_URL}${item.url}`)
     }))
   };
 }

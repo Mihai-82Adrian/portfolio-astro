@@ -8,7 +8,7 @@ const description =
   'Brutto-Netto-Rechner 2026 nach BMF Programmablaufplan: Lohnsteuer, AN+AG-Sozialabgaben, Steuerkeil-Visualisierung, GKV-Kassenvergleich — direkt im Browser.';
 
 const breadcrumbSchema = generateBreadcrumbSchema([
-  { name: 'Home', url: 'https://me-mateescu.de/' },
+  { name: 'Startseite', url: 'https://me-mateescu.de/' },
   { name: 'Tools', url: 'https://me-mateescu.de/tools' },
   { name: 'Brutto-Netto-Rechner 2026', url: 'https://me-mateescu.de/tools/salary-tax' },
 ]);
@@ -32,6 +32,7 @@ const breadcrumbSchema = generateBreadcrumbSchema([
     </section>
 
     <section class="mx-auto mt-10 w-full max-w-6xl px-4 md:px-6">
+      <h2 class="sr-only">Rechner und Visualisierungen</h2>
       <SalaryTaxApp client:visible />
     </section>
   </main>

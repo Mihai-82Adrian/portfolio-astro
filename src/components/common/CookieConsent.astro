@@ -1,13 +1,39 @@
 ---
 import Icon from '@components/ui/Icon.astro';
 import tokens from '../../data/design-tokens.json';
+import type { Language } from '@utils/i18n';
 
 // Props (optional customization)
 interface Props {
   privacyPolicyUrl?: string;
+  lang?: Language;
 }
 
-const { privacyPolicyUrl = '/datenschutz' } = Astro.props;
+const { privacyPolicyUrl = '/datenschutz', lang = 'de' } = Astro.props;
+
+const copy = {
+  de: {
+    title: 'Datenschutz-Hinweis',
+    description: 'Ich nutze Local Storage, um deine Einstellungen wie Theme und Sprache zu speichern. Es werden keine Tracking-Cookies von Drittanbietern verwendet.',
+    learnMore: 'Mehr zum Datenschutz',
+    learnMoreAria: 'Mehr über Datenschutz und Cookie-Nutzung erfahren',
+    accept: 'Verstanden',
+  },
+  en: {
+    title: 'Privacy notice',
+    description: 'I use local storage to save your preferences such as theme and language. No third-party tracking cookies are used.',
+    learnMore: 'Learn more about privacy',
+    learnMoreAria: 'Learn more about privacy and cookie usage',
+    accept: 'Got it',
+  },
+  ro: {
+    title: 'Notă de confidențialitate',
+    description: 'Folosesc local storage pentru a salva preferințe precum tema și limba. Nu folosesc cookie-uri de tracking de la terți.',
+    learnMore: 'Mai multe despre confidențialitate',
+    learnMoreAria: 'Află mai multe despre confidențialitate și utilizarea cookie-urilor',
+    accept: 'Am înțeles',
+  },
+}[lang];
 ---
 
 <div id="cookie-consent-banner" class="cookie-banner" hidden>
@@ -16,23 +42,22 @@ const { privacyPolicyUrl = '/datenschutz' } = Astro.props;
       <Icon name="cookie" class="h-6 w-6" />
     </div>
     <div class="cookie-text">
-      <p class="cookie-title">Cookie Consent</p>
+      <p class="cookie-title">{copy.title}</p>
       <p class="cookie-description">
-        I use local storage to save your preferences (like theme and language).
-        No third-party tracking cookies are used.
+        {copy.description}
         <a
           href={privacyPolicyUrl}
           class="cookie-link"
-          aria-label="Learn more about data privacy and cookie usage"
+          aria-label={copy.learnMoreAria}
         >
-          Learn more about data privacy
+          {copy.learnMore}
         </a>
       </p>
     </div>
   </div>
   <div class="cookie-actions">
     <button id="accept-cookies" class="btn-accept">
-      Got it
+      {copy.accept}
     </button>
   </div>
 </div>

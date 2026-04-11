@@ -1,0 +1,47 @@
+---
+import Container from '@components/ui/Container.astro';
+import Card from '@components/ui/Card.astro';
+import type { LandingPageContent } from '@data/services/data-prep-for-ai';
+
+interface Props {
+  content: LandingPageContent['trust'];
+}
+
+const { content } = Astro.props;
+---
+
+<section>
+  <Container maxWidth="lg" paddingY="lg">
+    <div class="max-w-3xl">
+      <h2 class="text-3xl font-bold tracking-tight text-text-primary-light dark:text-text-primary-dark sm:text-4xl">
+        {content.title}
+      </h2>
+    </div>
+
+    <div class="mt-8 grid gap-6 lg:grid-cols-[1fr_0.95fr]">
+      <Card>
+        <ul class="space-y-3">
+          {content.bullets.map((bullet) => (
+            <li class="flex items-start gap-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+              <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+              <span>{bullet}</span>
+            </li>
+          ))}
+        </ul>
+      </Card>
+
+      <Card>
+        <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
+          {content.proofTitle}
+        </h3>
+        <div class="mt-4 flex flex-wrap gap-2">
+          {content.proof.map((item) => (
+            <span class="inline-flex rounded-full border border-black/10 bg-[var(--bg-surface)] px-3 py-1 text-sm text-text-secondary-light dark:border-white/10 dark:bg-dark-surface dark:text-text-secondary-dark">
+              {item}
+            </span>
+          ))}
+        </div>
+      </Card>
+    </div>
+  </Container>
+</section>

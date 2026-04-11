@@ -13,6 +13,28 @@
  */
 
 import ChatWidget from './ChatWidget.astro';
+import type { Language } from '@utils/i18n';
+
+interface Props {
+  lang?: Language;
+}
+
+const { lang = 'de' } = Astro.props;
+
+const copy = {
+  de: {
+    title: 'Ask Mihai · KI-Chatfenster',
+    close: 'KI-Chat schließen',
+  },
+  en: {
+    title: 'Ask Mihai · AI Chat Window',
+    close: 'Close AI chat',
+  },
+  ro: {
+    title: 'Ask Mihai · Fereastră chat AI',
+    close: 'Închide chatul AI',
+  },
+}[lang];
 ---
 
 <div
@@ -32,14 +54,14 @@ import ChatWidget from './ChatWidget.astro';
          flex flex-col border-l border-gray-200 dark:border-gray-700 hidden"
 >
   <!-- Screen Reader Title -->
-  <h2 id="chat-drawer-title" class="sr-only">Ask Mihai · AI Chat Window</h2>
+  <h2 id="chat-drawer-title" class="sr-only">{copy.title}</h2>
 
-  <ChatWidget class="h-full w-full" id="drawer-chat-widget">
+  <ChatWidget class="h-full w-full" id="drawer-chat-widget" lang={lang}>
     <button
       slot="header-actions"
       id="chat-drawer-close"
       class="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors focus:ring-2 focus:ring-white"
-      aria-label="Close AI Chat"
+      aria-label={copy.close}
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

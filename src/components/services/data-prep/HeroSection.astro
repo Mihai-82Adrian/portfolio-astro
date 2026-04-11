@@ -1,0 +1,79 @@
+---
+import Button from '@components/ui/Button.astro';
+import Container from '@components/ui/Container.astro';
+import FlowDiagram from './FlowDiagram.astro';
+import type { LandingPageContent } from '@data/services/data-prep-for-ai';
+
+interface Props {
+  content: LandingPageContent['hero'];
+}
+
+const { content } = Astro.props;
+---
+
+<section class="relative isolate overflow-hidden">
+  <div class="absolute inset-x-0 top-0 -z-10 h-[32rem] bg-[radial-gradient(70%_55%_at_50%_0%,rgba(107,142,111,0.18),transparent_72%)] dark:bg-[radial-gradient(70%_55%_at_50%_0%,rgba(139,194,153,0.14),transparent_72%)]"></div>
+
+  <Container maxWidth="lg" paddingY="xl">
+    <div class="grid items-start gap-8 lg:grid-cols-[1.35fr_0.95fr]">
+      <div class="rounded-3xl border border-black/10 bg-[var(--bg-elevated)] p-7 shadow-[0_20px_60px_rgba(0,0,0,0.08)] dark:border-white/10 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)] sm:p-10">
+        <p class="inline-flex rounded-full border border-eucalyptus-500/20 bg-eucalyptus-50 px-3 py-1 text-xs font-semibold tracking-[0.22em] text-eucalyptus-700 dark:border-eucalyptus-400/20 dark:bg-eucalyptus-950/35 dark:text-eucalyptus-300">
+          {content.eyebrow}
+        </p>
+
+        <h1 class="mt-5 text-balance text-4xl font-bold tracking-tight text-text-primary-light dark:text-text-primary-dark sm:text-5xl lg:text-6xl">
+          {content.title}
+        </h1>
+
+        <p class="mt-5 max-w-3xl text-pretty text-lg leading-relaxed text-text-secondary-light dark:text-text-secondary-dark sm:text-xl">
+          {content.subtitle}
+        </p>
+
+        <ul class="mt-7 space-y-3">
+          {content.bullets.map((bullet) => (
+            <li class="flex items-start gap-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark sm:text-base">
+              <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+              <span>{bullet.title}</span>
+            </li>
+          ))}
+        </ul>
+
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+          <Button
+            href={content.primaryCta.href}
+            variant="primary"
+            size="lg"
+            target={content.primaryCta.external ? '_blank' : undefined}
+            rel={content.primaryCta.external ? 'noopener noreferrer' : undefined}
+            ariaLabel={content.primaryCta.description}
+          >
+            {content.primaryCta.label}
+          </Button>
+          <Button
+            href={content.secondaryCta.href}
+            variant="outline"
+            size="lg"
+            target={content.secondaryCta.external ? '_blank' : undefined}
+            rel={content.secondaryCta.external ? 'noopener noreferrer' : undefined}
+            ariaLabel={content.secondaryCta.description}
+          >
+            {content.secondaryCta.label}
+          </Button>
+        </div>
+      </div>
+
+      <div class="space-y-5">
+        <FlowDiagram label={content.flowLabel} stages={content.flowStages} />
+
+        <div class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-5 dark:border-white/10">
+          <p class="text-sm font-semibold uppercase tracking-[0.18em] text-eucalyptus-700 dark:text-eucalyptus-300">
+            {content.outputFocusTitle}
+          </p>
+          <p class="mt-3 text-pretty text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            {content.outputFocusBody}
+          </p>
+        </div>
+      </div>
+    </div>
+  </Container>
+</section>

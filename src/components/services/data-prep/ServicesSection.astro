@@ -1,0 +1,80 @@
+---
+import Container from '@components/ui/Container.astro';
+import type { LandingPageContent } from '@data/services/data-prep-for-ai';
+
+interface Props {
+  content: LandingPageContent['services'];
+}
+
+const { content } = Astro.props;
+---
+
+<section>
+  <Container maxWidth="lg" paddingY="lg">
+    <div class="max-w-3xl">
+      <h2 class="text-3xl font-bold tracking-tight text-text-primary-light dark:text-text-primary-dark sm:text-4xl">
+        {content.title}
+      </h2>
+      <p class="mt-4 text-pretty text-lg leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+        {content.intro}
+      </p>
+    </div>
+
+    <div class="mt-8 overflow-hidden rounded-3xl border border-black/10 bg-[var(--bg-elevated)] dark:border-white/10">
+      <div class="overflow-x-auto">
+        <table class="min-w-[52rem] w-full border-collapse text-left">
+          <thead>
+            <tr class="border-b border-black/10 bg-eucalyptus-50/70 dark:border-white/10 dark:bg-eucalyptus-950/20">
+              <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+                {content.tableHeaders.direction}
+              </th>
+              <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+                {content.tableHeaders.problem}
+              </th>
+              <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+                {content.tableHeaders.process}
+              </th>
+              <th class="p-4 text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+                {content.tableHeaders.output}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {content.rows.map((row) => (
+              <tr class="border-b border-black/10 last:border-b-0 dark:border-white/10">
+                <th
+                  scope="row"
+                  class="w-[15rem] p-4 align-top text-sm font-semibold text-text-primary-light dark:text-text-primary-dark"
+                >
+                  {row.direction}
+                </th>
+                <td class="p-4 align-top text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                  {row.problem}
+                </td>
+                <td class="p-4 align-top text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                  {row.process}
+                </td>
+                <td class="p-4 align-top text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                  {row.output}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mt-6 grid gap-0 overflow-hidden rounded-3xl border border-black/10 bg-[var(--bg-elevated)] dark:border-white/10 md:grid-cols-3">
+      {content.details.map((detail) => (
+        <div class="border-b border-black/10 p-5 last:border-b-0 dark:border-white/10 md:border-b-0 md:border-r md:last:border-r-0">
+          <h3 class="text-base font-semibold text-text-primary-light dark:text-text-primary-dark">
+            {detail.title}
+          </h3>
+          <p class="mt-2 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            {detail.description}
+          </p>
+        </div>
+      ))}
+    </div>
+  </Container>
+</section>

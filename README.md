@@ -39,7 +39,7 @@ Local-first finance tools for DACH founders and freelancers. No accounts, no ser
 | AI Chat | Cloudflare Workers AI via `@cf/meta/llama-3.1-8b-instruct` |
 | AI Analysis | OpenAI o4-mini via Cloudflare Workers (structured JSON output) |
 | Deployment | Cloudflare Pages via GitHub Actions |
-| Icons | Lucide (`@lucide/astro`, `lucide-svelte`) |
+| Icons | Lucide (`@lucide/astro`, Local Icon Layer) |
 
 ---
 
@@ -61,6 +61,47 @@ npm run dev:copilot  # build + wrangler pages dev
 # XRechnung KoSIT validation (requires Java)
 npm run kosit:setup && npm run kosit:validate
 ```
+
+If `npm run dev:copilot` fails locally with `EMFILE`, raise the shell file descriptor limit before starting the dev server:
+
+```bash
+ulimit -n 16384
+npm run dev:copilot
+```
+
+If that is still not enough on Linux, increase it further or raise the relevant inotify limits system-wide.
+
+### Service funnel & local submit flow
+
+The site includes a dedicated multilingual funnel for the offer **Datenaufbereitung für KI / AI Data Preparation / Pregătire Date AI**:
+
+- `DE`:
+  - `/datenaufbereitung-fuer-ki`
+  - `/discovery-call`
+  - `/sample-struktur-pruefen`
+  - `/sample-struktur-pruefen/danke`
+- `EN`:
+  - `/en/ai-data-preparation`
+  - `/en/discovery-call`
+  - `/en/sample-structure-review`
+  - `/en/sample-structure-review/thank-you`
+- `RO`:
+  - `/ro/pregatire-date-ai`
+  - `/ro/discovery-call`
+  - `/ro/revizuire-structura-esantion`
+  - `/ro/revizuire-structura-esantion/multumesc`
+
+`/discovery-call` points to the public booking flow at `https://cal.eu/mihai-adrian.mateescu`, while the sample-review flow stays first-party via `functions/api/sample-review.ts`.
+
+To test the sample-review submit flow locally with `functions/api/sample-review.ts`, create a local `.dev.vars` file based on `.dev.vars.example` and provide:
+
+```env
+RESEND_API_KEY=
+SAMPLE_REVIEW_EMAIL_FROM=
+SAMPLE_REVIEW_EMAIL_TO=
+```
+
+`SAMPLE_REVIEW_EMAIL_TO` can be a comma-separated list if multiple recipients should receive the request email.
 
 ---
 
@@ -160,7 +201,7 @@ functions/api/             # Cloudflare Workers (AI endpoints)
 - **Website:** [me-mateescu.de](https://me-mateescu.de)
 - **Blog:** [me-mateescu.de/blog](https://me-mateescu.de/blog)
 - **Fin-Tools Hub:** [me-mateescu.de/tools](https://me-mateescu.de/tools)
-- **LinkedIn:** [Mihai Adrian Mateescu](https://linkedin.com/in/mihai-adrian-mateescu)
+- **LinkedIn:** [Mihai Adrian Mateescu](https://www.linkedin.com/in/mihai-adrian-mateescu/)
 
 ---
 

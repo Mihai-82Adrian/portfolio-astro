@@ -54,7 +54,7 @@ export function getRelatedPosts(
 ): CollectionEntry<'blog'>[] {
   return allPosts
     .filter(post => 
-      post.slug !== currentPost.slug && // Exclude current post
+      post.id !== currentPost.id && // Exclude current post
       !post.data.draft // Exclude drafts
     )
     .map(post => ({
@@ -77,21 +77,21 @@ export function getRelatedPosts(
  * Get posts from the same category
  * @param category - The category to filter by
  * @param allPosts - Array of all blog posts
- * @param excludeSlug - Post slug to exclude (usually current post)
+ * @param excludeId - Post ID to exclude (usually current post)
  * @param limit - Maximum number of posts to return (default: 3)
  * @returns Array of posts from the same category
  */
 export function getPostsByCategory(
   category: string,
   allPosts: CollectionEntry<'blog'>[],
-  excludeSlug?: string,
+  excludeId?: string,
   limit: number = 3
 ): CollectionEntry<'blog'>[] {
   return allPosts
     .filter(post => 
       post.data.category === category &&
       !post.data.draft &&
-      post.slug !== excludeSlug
+      post.id !== excludeId
     )
     .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
     .slice(0, limit);
@@ -101,21 +101,21 @@ export function getPostsByCategory(
  * Get posts with a specific tag
  * @param tag - The tag to filter by
  * @param allPosts - Array of all blog posts
- * @param excludeSlug - Post slug to exclude (usually current post)
+ * @param excludeId - Post ID to exclude (usually current post)
  * @param limit - Maximum number of posts to return (default: 3)
  * @returns Array of posts with the specified tag
  */
 export function getPostsByTag(
   tag: string,
   allPosts: CollectionEntry<'blog'>[],
-  excludeSlug?: string,
+  excludeId?: string,
   limit: number = 3
 ): CollectionEntry<'blog'>[] {
   return allPosts
     .filter(post => 
       (post.data.tags || []).includes(tag) &&
       !post.data.draft &&
-      post.slug !== excludeSlug
+      post.id !== excludeId
     )
     .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
     .slice(0, limit);

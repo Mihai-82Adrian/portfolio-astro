@@ -18,7 +18,7 @@ import { themeScript } from '@/utils/theme';
 import Header from '@components/layout/Header.astro';
 import Footer from '@components/layout/Footer.astro';
 import type { Language } from '@utils/i18n';
-import { getAlternateUrls } from '@utils/i18n';
+import { getAlternateUrls, normalizeSiteUrl } from '@utils/i18n';
 import '@/styles/global.css';
 import tokens from '@/data/design-tokens.json';
 import ChatDrawer from '@components/ChatDrawer.astro';
@@ -30,10 +30,12 @@ interface Props {
   ogImage?: string;
   ogType?: 'website' | 'article';
   canonicalURL?: string;
+  alternates?: Record<string, string>;
   lang?: Language;
   noindex?: boolean;
   structuredData?: Record<string, any>;
   math?: boolean;
+  hideChatDrawer?: boolean;
 }
 
 const {
@@ -42,10 +44,12 @@ const {
   ogImage = '/images/og-default.webp',
   ogType = 'website',
   canonicalURL,
+  alternates,
   lang: langProp,
   noindex = false,
   structuredData,
   math = false,
+  hideChatDrawer = false,
 } = Astro.props;
 
 const siteTitle = 'Mihai Adrian Mateescu';
@@ -77,7 +81,7 @@ const inferredLang: Language =
 const lang: Language = langProp ?? inferredLang;
 
 // Canonical should be stable (production origin), allow override from props
-const canonicalHref = canonicalURL ?? new URL(currentPath, siteUrl).href;
+const canonicalHref = normalizeSiteUrl(canonicalURL ?? new URL(currentPath, siteUrl).href);
 
 // Avoid double-appending if the title already contains the site name
 const fullTitle =
@@ -90,7 +94,12 @@ const fullImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage
 // For EN-only blog: emit only en + x-default to avoid claiming translations
 const alternateUrls = isBlog
   ? { en: canonicalHref, 'x-default': canonicalHref }
-  : getAlternateUrls(currentPath, siteUrl);
+  : Object.fromEntries(
+      Object.entries(alternates ?? getAlternateUrls(currentPath, siteUrl)).map(([hreflang, url]) => [
+        hreflang,
+        normalizeSiteUrl(url),
+      ])
+    );
 
 const ogLocale =
   lang === 'de' ? 'de_DE' :
@@ -116,7 +125,7 @@ const defaultStructuredData = {
   "telephone": "+491704740121",
   "url": siteUrl,
   "sameAs": [
-    "https://www.linkedin.com/in/mihai-adrian-mateescu",
+    "https://www.linkedin.com/in/mihai-adrian-mateescu/",
     "https://profit-minds.de"
   ],
   "knowsLanguage": ["de", "en", "ro"]
@@ -205,7 +214,7 @@ const defaultStructuredData = {
       href="#main-content"
       class="skip-link sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-eucalyptus-600 focus:text-white focus:rounded-md focus:shadow-lg focus:ring-2 focus:ring-eucalyptus-500 focus:ring-offset-2"
     >
-      Skip to main content
+      {lang === 'de' ? 'Zum Hauptinhalt springen' : lang === 'en' ? 'Skip to main content' : 'Sari la conținutul principal'}
     </a>
 
     <!-- Header: keep out of Pagefind index (optional safety) -->
@@ -216,7 +225,7 @@ const defaultStructuredData = {
     <!-- ✅ Pagefind body scope: once this exists anywhere, other pages need it too -->
     <main
       id="main-content"
-      class="pt-16 md:pt-20"
+      class="pt-0"
       data-pagefind-body
     >
       <slot />
@@ -227,8 +236,8 @@ const defaultStructuredData = {
       <Footer lang={lang} />
     </div>
     <!-- AI Chat Drawer (Global, excluded on Services routes) -->
-    {!isServicesRoute && <ChatDrawer />}
-    <CookieConsent />
+    {!isServicesRoute && !hideChatDrawer && <ChatDrawer lang={lang} />}
+    <CookieConsent lang={lang} privacyPolicyUrl={lang === 'de' ? '/datenschutz' : `/${lang}/datenschutz`} />
 
     <!-- Re-apply persisted theme after client-side route transitions -->
     <script is:inline>

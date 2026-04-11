@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Zap, Lock, AlertTriangle, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-svelte';
+  import Icon from '@/components/ui/Icon.svelte';
   import type { StressScenarioResult, MonthlyDataPoint } from '@/lib/cashflow/types';
   import { findInsolvencyMonth, additionalCapitalNeeded } from '@/lib/cashflow/types';
 
@@ -45,7 +45,7 @@
 
 <div class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-5 dark:border-white/10">
   <div class="mb-4 flex items-center gap-2">
-    <Zap size={16} class="text-eucalyptus-600 dark:text-eucalyptus-400" />
+    <Icon name="Zap" size={16} class="text-eucalyptus-600 dark:text-eucalyptus-400" />
     <h3 class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
       KI-Stresstest
     </h3>
@@ -60,7 +60,7 @@
   {#if !scenarioResult}
     {#if weeklyLocked}
       <div class="flex items-center gap-2 rounded-xl border border-black/10 bg-black/5 px-4 py-3 dark:border-white/10 dark:bg-white/5">
-        <Lock size={14} class="shrink-0 text-text-secondary-light dark:text-text-secondary-dark" />
+        <Icon name="Lock" size={14} class="shrink-0 text-text-secondary-light dark:text-text-secondary-dark" />
         <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">
           Wochenlimit erreicht. Nächste Auswertung in <strong>{cooldownLabel}</strong>.
         </p>
@@ -94,7 +94,7 @@
   <!-- Error -->
   {#if errorMessage}
     <p class="mt-3 flex items-center gap-1.5 rounded-xl border border-red-500/20 bg-red-50 px-3 py-2.5 text-xs text-red-600 dark:bg-red-500/10 dark:text-red-400">
-      <AlertTriangle size={13} class="shrink-0" />
+      <Icon name="AlertTriangle" size={13} class="shrink-0" />
       {errorMessage}
     </p>
   {/if}
@@ -121,13 +121,13 @@
                 {sc.narrative}
               </p>
             </div>
-            <svelte:component this={expanded[sc.type] ? ChevronUp : ChevronDown} size={15} class="mt-0.5 shrink-0 text-text-secondary-light dark:text-text-secondary-dark" />
+            <Icon name={expanded[sc.type] ? "ChevronUp" : "ChevronDown"} size={15} class="mt-0.5 shrink-0 text-text-secondary-light dark:text-text-secondary-dark" />
           </button>
 
           <!-- Insolvency warning -->
           {#if insolvencyIdx >= 0}
             <div class="mx-4 mb-3 flex items-start gap-2 rounded-lg border border-red-500/25 bg-red-50 px-3 py-2.5 dark:bg-red-500/10">
-              <AlertTriangle size={14} class="mt-0.5 shrink-0 text-red-600 dark:text-red-400" />
+              <Icon name="AlertTriangle" size={14} class="mt-0.5 shrink-0 text-red-600 dark:text-red-400" />
               <p class="text-xs font-medium text-red-600 dark:text-red-400">
                 Achtung: In diesem Szenario droht Insolvenz in Monat {insolvencyIdx + 1}
                 ({sc.monthlyData[insolvencyIdx].month}).
@@ -136,7 +136,7 @@
             </div>
           {:else}
             <div class="mx-4 mb-3 flex items-center gap-2 rounded-lg border border-eucalyptus-500/20 bg-eucalyptus-50 px-3 py-2 dark:bg-eucalyptus-500/10">
-              <CheckCircle2 size={13} class="shrink-0 text-eucalyptus-600 dark:text-eucalyptus-400" />
+              <Icon name="CheckCircle2" size={13} class="shrink-0 text-eucalyptus-600 dark:text-eucalyptus-400" />
               <p class="text-xs text-eucalyptus-700 dark:text-eucalyptus-300">
                 Liquidität bleibt in diesem Szenario positiv.
               </p>

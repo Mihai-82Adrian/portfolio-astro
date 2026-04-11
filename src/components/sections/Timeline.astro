@@ -11,6 +11,7 @@
 import Container from '@components/ui/Container.astro';
 import Badge from '@components/ui/Badge.astro';
 import Modal from '@components/ui/Modal.astro';
+import type { Language } from '@utils/i18n';
 
 interface TimelineItem {
   id?: string;
@@ -37,13 +38,46 @@ interface Props {
   title?: string;
   /** Section description */
   description?: string;
+  /** Current locale */
+  lang?: Language;
 }
 
 const {
   items = [],
-  title = 'Career Journey',
+  title,
   description = '', // No default description - pages should provide their own or none
+  lang = 'en',
 } = Astro.props;
+
+const copy = {
+  de: {
+    defaultTitle: 'Beruflicher Werdegang',
+    present: 'Heute',
+    detailsFor: 'Details ansehen für',
+    at: 'bei',
+    description: 'Beschreibung',
+    achievements: 'Wichtigste Erfolge',
+    technologies: 'Technologien & Skills',
+  },
+  en: {
+    defaultTitle: 'Career Journey',
+    present: 'Present',
+    detailsFor: 'View details for',
+    at: 'at',
+    description: 'Description',
+    achievements: 'Key Achievements',
+    technologies: 'Technologies & Skills',
+  },
+  ro: {
+    defaultTitle: 'Parcurs profesional',
+    present: 'Prezent',
+    detailsFor: 'Vezi detalii pentru',
+    at: 'la',
+    description: 'Descriere',
+    achievements: 'Realizări cheie',
+    technologies: 'Tehnologii și competențe',
+  },
+}[lang];
 
 // Default timeline items if none provided
 const defaultItems: TimelineItem[] = [
@@ -84,7 +118,7 @@ const displayItems = items.length > 0 ? items : defaultItems;
   <Container maxWidth="lg" paddingY="lg">
     <!-- Section Header -->
     <div class="section-header">
-      <h2 class="section-title">{title}</h2>
+      <h2 class="section-title">{title || copy.defaultTitle}</h2>
       <p class="section-description">{description}</p>
     </div>
 
@@ -111,7 +145,7 @@ const displayItems = items.length > 0 ? items : defaultItems;
             data-timeline-item
             data-modal-trigger={`timeline-modal-${item.id || index}`}
             onclick={`window.openModal('timeline-modal-${item.id || index}')`}
-            aria-label={`View details for ${item.role} at ${item.company}`}
+            aria-label={`${copy.detailsFor} ${item.role} ${copy.at} ${item.company}`}
           >
             <div class="timeline-header">
               {/* Company Logo */}
@@ -142,7 +176,7 @@ const displayItems = items.length > 0 ? items : defaultItems;
 
               <div class="timeline-meta">
                 <time class="timeline-date">
-                  {item.startDate} - {item.endDate || 'Present'}
+                  {item.startDate} - {item.endDate || copy.present}
                 </time>
               </div>
             </div>
@@ -171,7 +205,7 @@ const displayItems = items.length > 0 ? items : defaultItems;
 
     {/* Modals for each timeline item */}
     {displayItems.map((item, index) => (
-      <Modal id={`timeline-modal-${item.id || index}`} ariaLabel={`Details for ${item.role} at ${item.company}`} size="lg">
+      <Modal id={`timeline-modal-${item.id || index}`} ariaLabel={`${copy.detailsFor} ${item.role} ${copy.at} ${item.company}`} size="lg">
         <div class="modal-timeline-header">
           {item.icon && (
             <div class="modal-company-logo">
@@ -192,7 +226,7 @@ const displayItems = items.length > 0 ? items : defaultItems;
             </p>
             <div class="flex flex-wrap gap-4 text-sm text-text-secondary-light dark:text-text-secondary-dark">
               <time class="font-medium">
-                {item.startDate} - {item.endDate || 'Present'}
+                {item.startDate} - {item.endDate || copy.present}
               </time>
               {item.location && (
                 <span class="flex items-center gap-1">
@@ -211,7 +245,7 @@ const displayItems = items.length > 0 ? items : defaultItems;
         {item.description && (
           <div class="mt-6">
             <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark mb-3">
-              Description
+              {copy.description}
             </h3>
             {Array.isArray(item.description) ? (
               <ul class="list-disc list-inside space-y-2 text-text-secondary-light dark:text-text-secondary-dark">
@@ -231,7 +265,7 @@ const displayItems = items.length > 0 ? items : defaultItems;
         {item.achievements && item.achievements.length > 0 && (
           <div class="mt-6">
             <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark mb-3">
-              Key Achievements
+              {copy.achievements}
             </h3>
             <ul class="list-disc list-inside space-y-2">
               {item.achievements.map((achievement) => (
@@ -247,7 +281,7 @@ const displayItems = items.length > 0 ? items : defaultItems;
         {item.technologies && item.technologies.length > 0 && (
           <div class="mt-6">
             <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark mb-3">
-              Technologies & Skills
+              {copy.technologies}
             </h3>
             <div class="flex flex-wrap gap-2">
               {item.technologies.map((tech) => (

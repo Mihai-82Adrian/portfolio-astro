@@ -1,0 +1,44 @@
+---
+import Container from '@components/ui/Container.astro';
+import Card from '@components/ui/Card.astro';
+import type { LandingPageContent } from '@data/services/data-prep-for-ai';
+
+interface Props {
+  content: LandingPageContent['process'];
+}
+
+const { content } = Astro.props;
+---
+
+<section>
+  <Container maxWidth="lg" paddingY="lg">
+    <div class="max-w-3xl">
+      <h2 class="text-3xl font-bold tracking-tight text-text-primary-light dark:text-text-primary-dark sm:text-4xl">
+        {content.title}
+      </h2>
+      <p class="mt-4 text-pretty text-lg leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+        {content.intro}
+      </p>
+    </div>
+
+    <div class="mt-8 grid gap-4 lg:grid-cols-4">
+      {content.steps.map((step, index) => (
+        <Card padding="sm" class="h-full">
+          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-eucalyptus-700 dark:text-eucalyptus-300">
+            {content.stepLabel} {index + 1}
+          </p>
+          <h3 class="mt-3 text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
+            {step.title}
+          </h3>
+          <p class="mt-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            {step.description}
+          </p>
+        </Card>
+      ))}
+    </div>
+
+    <p class="mt-6 max-w-3xl text-sm leading-relaxed text-text-muted-light dark:text-text-muted-dark">
+      {content.microcopy}
+    </p>
+  </Container>
+</section>

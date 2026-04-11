@@ -1,0 +1,38 @@
+---
+import Container from '@components/ui/Container.astro';
+import type { LandingPageContent } from '@data/services/data-prep-for-ai';
+
+interface Props {
+  content: LandingPageContent['faq'];
+}
+
+const { content } = Astro.props;
+---
+
+<section>
+  <Container maxWidth="lg" paddingY="lg">
+    <div class="max-w-3xl">
+      <h2 class="text-3xl font-bold tracking-tight text-text-primary-light dark:text-text-primary-dark sm:text-4xl">
+        {content.title}
+      </h2>
+    </div>
+
+    <div class="mt-8 space-y-4">
+      {content.items.map((item) => (
+        <details class="group rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-5 dark:border-white/10">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-left">
+            <span class="text-base font-semibold text-text-primary-light dark:text-text-primary-dark">
+              {item.question}
+            </span>
+            <svg class="h-5 w-5 shrink-0 text-eucalyptus-600 transition-transform group-open:rotate-180 dark:text-eucalyptus-300" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </summary>
+          <div class="mt-4 max-w-3xl text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+            <p>{item.answer}</p>
+          </div>
+        </details>
+      ))}
+    </div>
+  </Container>
+</section>

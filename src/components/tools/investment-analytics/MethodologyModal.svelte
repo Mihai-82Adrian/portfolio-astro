@@ -1,7 +1,7 @@
 <script lang="ts">
   import { fly, fade } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
-  import { X, BookOpen, Calculator, TrendingUp, HelpCircle, ShieldAlert, Lightbulb } from 'lucide-svelte';
+  import Icon from '@/components/ui/Icon.svelte';
 
   let { open = $bindable(false) }: { open: boolean } = $props();
 
@@ -33,7 +33,7 @@
     <div class="shrink-0 border-b border-white/10">
       <div class="flex items-center justify-between px-6 py-4">
         <div class="flex items-center gap-2.5">
-          <BookOpen size={18} class="text-eucalyptus-400" aria-hidden="true" />
+          <Icon name="BookOpen" size={18} class="text-eucalyptus-400" aria-hidden="true" />
           <h2 class="text-base font-semibold text-white">Methodik & Guide</h2>
         </div>
         <button
@@ -42,7 +42,7 @@
           aria-label="Schließen"
           class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-white/8 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus-500"
         >
-          <X size={18} aria-hidden="true" />
+          <Icon name="X" size={18} aria-hidden="true" />
         </button>
       </div>
       <!-- Tab switcher -->
@@ -55,7 +55,7 @@
               ? 'bg-eucalyptus-500/20 text-eucalyptus-300'
               : 'text-gray-500 hover:bg-white/5 hover:text-gray-300'}"
         >
-          <Calculator size={12} aria-hidden="true" />
+          <Icon name="Calculator" size={12} aria-hidden="true" />
           Formeln & Methodik
         </button>
         <button
@@ -66,7 +66,7 @@
               ? 'bg-amber-500/20 text-amber-300'
               : 'text-gray-500 hover:bg-white/5 hover:text-gray-300'}"
         >
-          <Lightbulb size={12} aria-hidden="true" />
+          <Icon name="Lightbulb" size={12} aria-hidden="true" />
           Praxis-Beispiel
         </button>
       </div>
@@ -124,7 +124,7 @@
       <section>
         <div class="mb-3 flex items-center gap-2">
           <div class="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/20">
-            <Calculator size={13} class="text-blue-400" aria-hidden="true" />
+            <Icon name="Calculator" size={13} class="text-blue-400" aria-hidden="true" />
           </div>
           <h3 class="text-sm font-semibold text-white">Die Mathematik dahinter</h3>
         </div>
@@ -252,7 +252,7 @@
       <section>
         <div class="mb-3 flex items-center gap-2">
           <div class="flex h-6 w-6 items-center justify-center rounded-md bg-amber-500/20">
-            <TrendingUp size={13} class="text-amber-400" aria-hidden="true" />
+            <Icon name="TrendingUp" size={13} class="text-amber-400" aria-hidden="true" />
           </div>
           <h3 class="text-sm font-semibold text-white">Wie interpretiere ich die Ergebnisse?</h3>
         </div>
@@ -307,7 +307,7 @@
       <section>
         <div class="mb-3 flex items-center gap-2">
           <div class="flex h-6 w-6 items-center justify-center rounded-md bg-gray-500/20">
-            <HelpCircle size={13} class="text-gray-400" aria-hidden="true" />
+            <Icon name="HelpCircle" size={13} class="text-gray-400" aria-hidden="true" />
           </div>
           <h3 class="text-sm font-semibold text-white">Glossar</h3>
         </div>
@@ -405,7 +405,7 @@
       <section>
         <div class="mb-3 flex items-center gap-2">
           <div class="flex h-6 w-6 items-center justify-center rounded-md bg-red-500/20">
-            <ShieldAlert size={13} class="text-red-400" aria-hidden="true" />
+            <Icon name="ShieldAlert" size={13} class="text-red-400" aria-hidden="true" />
           </div>
           <h3 class="text-sm font-semibold text-white">Modellgrenzen & Hinweise</h3>
         </div>
@@ -443,7 +443,7 @@
       <section>
         <div class="mb-4 flex items-center gap-2">
           <div class="flex h-6 w-6 items-center justify-center rounded-md bg-amber-500/20">
-            <Lightbulb size={13} class="text-amber-400" aria-hidden="true" />
+            <Icon name="Lightbulb" size={13} class="text-amber-400" aria-hidden="true" />
           </div>
           <h3 class="text-sm font-semibold text-white">Praxis-Beispiel: Investition von privatem Vermögen</h3>
         </div>

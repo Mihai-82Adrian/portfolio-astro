@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { MonthlyDataPoint } from '@/lib/cashflow/types';
-  import { TrendingUp, TrendingDown, Target, AlertTriangle } from 'lucide-svelte';
+  import Icon from '@/components/ui/Icon.svelte';
 
   let { baseData, initialCash }: { baseData: MonthlyDataPoint[]; initialCash: number } = $props();
 
@@ -26,9 +26,9 @@
   <div class="rounded-xl border border-black/10 bg-[var(--bg-elevated)] p-4 dark:border-white/10">
     <div class="mb-1 flex items-center gap-1.5 text-xs text-text-secondary-light dark:text-text-secondary-dark">
       {#if endPositive}
-        <TrendingUp size={13} class="text-eucalyptus-500" />
+        <Icon name="TrendingUp" size={13} class="text-eucalyptus-500" />
       {:else}
-        <TrendingDown size={13} class="text-red-500" />
+        <Icon name="TrendingDown" size={13} class="text-red-500" />
       {/if}
       Endbestand (M12)
     </div>
@@ -40,7 +40,7 @@
   <!-- Minimum balance -->
   <div class="rounded-xl border border-black/10 bg-[var(--bg-elevated)] p-4 dark:border-white/10">
     <div class="mb-1 flex items-center gap-1.5 text-xs text-text-secondary-light dark:text-text-secondary-dark">
-      <AlertTriangle size={13} class="{minBalance < 0 ? 'text-red-500' : 'text-warning-DEFAULT'}" />
+      <Icon name="AlertTriangle" size={13} class="{minBalance < 0 ? 'text-red-500' : 'text-warning-DEFAULT'}" />
       Tiefpunkt
     </div>
     <p class="text-lg font-bold {minBalance < 0 ? 'text-red-500' : 'text-text-primary-light dark:text-text-primary-dark'}">
@@ -52,7 +52,7 @@
   <!-- Total revenue -->
   <div class="rounded-xl border border-black/10 bg-[var(--bg-elevated)] p-4 dark:border-white/10">
     <div class="mb-1 flex items-center gap-1.5 text-xs text-text-secondary-light dark:text-text-secondary-dark">
-      <TrendingUp size={13} class="text-eucalyptus-500" />
+      <Icon name="TrendingUp" size={13} class="text-eucalyptus-500" />
       Einnahmen (12M)
     </div>
     <p class="text-lg font-bold text-text-primary-light dark:text-text-primary-dark">
@@ -63,7 +63,7 @@
   <!-- First profitable month -->
   <div class="rounded-xl border border-black/10 bg-[var(--bg-elevated)] p-4 dark:border-white/10">
     <div class="mb-1 flex items-center gap-1.5 text-xs text-text-secondary-light dark:text-text-secondary-dark">
-      <Target size={13} class="text-eucalyptus-500" />
+      <Icon name="Target" size={13} class="text-eucalyptus-500" />
       Erster Gewinnmonat
     </div>
     <p class="text-lg font-bold text-text-primary-light dark:text-text-primary-dark">

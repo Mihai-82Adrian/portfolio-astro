@@ -1,0 +1,66 @@
+---
+import Container from '@components/ui/Container.astro';
+import Card from '@components/ui/Card.astro';
+import type { LandingPageContent } from '@data/services/data-prep-for-ai';
+
+interface Props {
+  content: LandingPageContent['problem'];
+}
+
+const { content } = Astro.props;
+---
+
+<section>
+  <Container maxWidth="lg" paddingY="lg">
+    <div class="max-w-3xl">
+      <h2 class="text-3xl font-bold tracking-tight text-text-primary-light dark:text-text-primary-dark sm:text-4xl">
+        {content.title}
+      </h2>
+      <p class="mt-4 text-pretty text-lg leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+        {content.intro}
+      </p>
+    </div>
+
+    <div class="mt-8 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+      <Card class="h-full">
+        <div class="space-y-4">
+          {content.body.map((paragraph) => (
+            <p class="text-pretty text-base leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+              {paragraph}
+            </p>
+          ))}
+        </div>
+      </Card>
+
+      <div class="grid gap-6">
+        <Card>
+          <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
+            {content.causesTitle}
+          </h3>
+          <ul class="mt-4 space-y-3">
+            {content.missingElements.map((item) => (
+              <li class="flex items-start gap-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+
+        <Card>
+          <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
+            {content.consequencesTitle}
+          </h3>
+          <ul class="mt-4 space-y-3">
+            {content.consequences.map((item) => (
+              <li class="flex items-start gap-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </div>
+    </div>
+  </Container>
+</section>

@@ -116,6 +116,10 @@ export default {
         '112': '28rem',   // 448px
         '128': '32rem',   // 512px
       },
+      letterSpacing: {
+        // Design token for title/overline letter spacing
+        'title': '0.18em',
+      },
       borderRadius: {
         DEFAULT: '0.5rem',  // 8px - professional, subtle
         'lg': '1rem',       // 16px - cards
@@ -126,6 +130,7 @@ export default {
         'subtle': '0 2px 8px rgba(0, 0, 0, 0.08)',
         'elevated': '0 8px 24px rgba(0, 0, 0, 0.12)',
         'card': '0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.08)',
+        'glass': 'var(--shadow-glass)',
         // Dark mode shadows
         'dark-subtle': '0 2px 8px rgba(0, 0, 0, 0.3)',
         'dark-elevated': '0 8px 24px rgba(0, 0, 0, 0.5)',

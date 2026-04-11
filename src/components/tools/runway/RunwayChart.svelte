@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { AlertTriangle, CheckCircle2 } from 'lucide-svelte';
+  import Icon from '@/components/ui/Icon.svelte';
   import type { RunwayProjection } from '@/lib/fin-core/runway';
 
   export let projection: RunwayProjection;
@@ -139,12 +139,12 @@
 
 {#if projection.deathValleyMonth !== null}
   <p class="mt-2 flex items-center gap-1.5 text-xs text-red-400">
-    <AlertTriangle size={13} aria-hidden="true" class="shrink-0" />
+    <Icon name="AlertTriangle" size={13} aria-hidden="true" class="shrink-0" />
     Fundraising-Alarm ab Monat {projection.deathValleyMonth + 1} — weniger als 3 Monate Runway verbleibend.
   </p>
 {:else if projection.runwayMonths >= 36}
   <p class="mt-2 flex items-center gap-1.5 text-xs text-eucalyptus-500 dark:text-eucalyptus-400">
-    <CheckCircle2 size={13} aria-hidden="true" class="shrink-0" />
+    <Icon name="CheckCircle2" size={13} aria-hidden="true" class="shrink-0" />
     Runway über 36 Monate — kein Death Valley im Projektionshorizont.
   </p>
 {/if}

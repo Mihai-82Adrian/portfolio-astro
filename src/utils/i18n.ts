@@ -44,6 +44,32 @@ export const isValidLanguage = (lang: string): lang is Language => {
   return languages.includes(lang as Language);
 };
 
+const FILE_LIKE_PATH_RE = /\/[^/]+\.[^/]+$/;
+
+export const normalizeSitePath = (path: string): string => {
+  if (!path) return '/';
+
+  const [pathnameWithMaybeQuery, hash = ''] = path.split('#');
+  const [pathnameRaw, query = ''] = pathnameWithMaybeQuery.split('?');
+
+  let pathname = pathnameRaw || '/';
+  if (!pathname.startsWith('/')) pathname = `/${pathname}`;
+
+  if (pathname !== '/' && !FILE_LIKE_PATH_RE.test(pathname) && !pathname.endsWith('/')) {
+    pathname = `${pathname}/`;
+  }
+
+  const queryPart = query ? `?${query}` : '';
+  const hashPart = hash ? `#${hash}` : '';
+  return `${pathname}${queryPart}${hashPart}`;
+};
+
+export const normalizeSiteUrl = (url: string): string => {
+  const parsed = new URL(url);
+  parsed.pathname = normalizeSitePath(parsed.pathname);
+  return parsed.toString();
+};
+
 // Get language from URL path
 export const getLanguageFromPath = (path: string): Language => {
   const match = path.match(/^\/(en|ro)\//);
@@ -60,10 +86,10 @@ export const getLocalizedPath = (path: string, lang: Language): string => {
 
   // Add language prefix for non-default languages
   if (lang === defaultLanguage) {
-    return cleanPath;
+    return normalizeSitePath(cleanPath);
   }
 
-  return `/${lang}${cleanPath}`;
+  return normalizeSitePath(`/${lang}${cleanPath}`);
 };
 
 // Get alternate language URLs for hreflang tags
@@ -72,11 +98,11 @@ export const getAlternateUrls = (path: string, siteUrl: string): Record<Language
 
   languages.forEach(lang => {
     const localizedPath = getLocalizedPath(path, lang);
-    urls[lang] = `${siteUrl}${localizedPath}`;
+    urls[lang] = normalizeSiteUrl(`${siteUrl}${localizedPath}`);
   });
 
   // Add x-default (usually points to default language)
-  urls['x-default'] = `${siteUrl}${getLocalizedPath(path, defaultLanguage)}`;
+  urls['x-default'] = normalizeSiteUrl(`${siteUrl}${getLocalizedPath(path, defaultLanguage)}`);
 
   return urls;
 };
