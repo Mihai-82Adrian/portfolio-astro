@@ -116,6 +116,10 @@ export default {
         '112': '28rem',   // 448px
         '128': '32rem',   // 512px
       },
+      letterSpacing: {
+        // Design token for title/overline letter spacing
+        'title': '0.18em',
+      },
       borderRadius: {
         DEFAULT: '0.5rem',  // 8px - professional, subtle
         'lg': '1rem',       // 16px - cards
