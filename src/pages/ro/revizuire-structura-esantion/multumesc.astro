@@ -5,8 +5,8 @@ import Card from '@components/ui/Card.astro';
 import Container from '@components/ui/Container.astro';
 import { buildAlternateUrls, thankYouPageContentByLocale } from '@data/services/data-prep-for-ai';
 
-const content = thankYouPageContentByLocale.de;
-const canonicalURL = 'https://me-mateescu.de/sample-struktur-pruefen/danke';
+const content = thankYouPageContentByLocale.ro;
+const canonicalURL = 'https://me-mateescu.de/ro/revizuire-structura-esantion/multumesc';
 const alternates = buildAlternateUrls('thankYou');
 ---
 
@@ -16,7 +16,7 @@ const alternates = buildAlternateUrls('thankYou');
   ogImage={content.seo.ogImage}
   canonicalURL={canonicalURL}
   alternates={alternates}
-  lang="de"
+  lang="ro"
   noindex={true}
 >
   <main class="pb-20">

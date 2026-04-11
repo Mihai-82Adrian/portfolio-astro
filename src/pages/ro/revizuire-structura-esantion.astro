@@ -11,13 +11,13 @@ import {
   sampleReviewContentByLocale,
 } from '@data/services/data-prep-for-ai';
 
-const { seo, hero, commercial, pitch, requirements, form, submission, cta } = sampleReviewContentByLocale.de;
-const canonicalURL = 'https://me-mateescu.de/sample-struktur-pruefen';
+const { seo, hero, commercial, pitch, requirements, form, submission, cta } = sampleReviewContentByLocale.ro;
+const canonicalURL = 'https://me-mateescu.de/ro/revizuire-structura-esantion';
 const alternates = buildAlternateUrls('sampleReview');
 const structuredData = generateBreadcrumbSchema([
-  { name: 'Home', url: '/' },
-  { name: 'Datenaufbereitung für KI', url: dataPrepRoutes.de.landing },
-  { name: 'Sample-Struktur prüfen', url: dataPrepRoutes.de.sampleReview },
+  { name: 'Acasă', url: '/ro/' },
+  { name: 'Pregătire Date AI', url: dataPrepRoutes.ro.landing },
+  { name: 'Revizuire Structură Eșantion', url: dataPrepRoutes.ro.sampleReview },
 ]);
 ---
 
@@ -27,7 +27,7 @@ const structuredData = generateBreadcrumbSchema([
   ogImage={seo.ogImage}
   canonicalURL={canonicalURL}
   alternates={alternates}
-  lang="de"
+  lang="ro"
   structuredData={structuredData}
 >
   <main class="pb-20">
@@ -88,7 +88,7 @@ const structuredData = generateBreadcrumbSchema([
           </div>
           <div class="shrink-0 rounded-2xl border border-black/10 bg-[var(--bg-elevated)] px-5 py-4 text-center dark:border-white/10">
             <p class="text-xs font-semibold uppercase tracking-[0.18em] text-eucalyptus-700 dark:text-eucalyptus-300">
-              Einstieg
+              Punct de intrare
             </p>
             <p class="mt-2 text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">
               {commercial.price}
@@ -139,7 +139,7 @@ const structuredData = generateBreadcrumbSchema([
 
     <section class="mx-auto w-full max-w-6xl px-4 md:px-6">
       <div class="mt-2 flex justify-center">
-        <Button href={dataPrepRoutes.de.landing} variant="outline" size="lg">
+        <Button href={dataPrepRoutes.ro.landing} variant="outline" size="lg">
           {cta.backLabel}
         </Button>
       </div>

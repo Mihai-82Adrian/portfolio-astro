@@ -25,7 +25,7 @@ const { content } = Astro.props;
       {content.steps.map((step, index) => (
         <Card padding="sm" class="h-full">
           <p class="text-xs font-semibold uppercase tracking-[0.22em] text-eucalyptus-700 dark:text-eucalyptus-300">
-            Step {index + 1}
+            {content.stepLabel} {index + 1}
           </p>
           <h3 class="mt-3 text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
             {step.title}

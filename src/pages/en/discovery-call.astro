@@ -11,13 +11,13 @@ import {
   discoveryCallContentByLocale,
 } from '@data/services/data-prep-for-ai';
 
-const { seo, hero, fit, agenda, expectations, cta } = discoveryCallContentByLocale.de;
-const canonicalURL = 'https://me-mateescu.de/discovery-call';
+const { seo, hero, fit, agenda, expectations, cta } = discoveryCallContentByLocale.en;
+const canonicalURL = 'https://me-mateescu.de/en/discovery-call';
 const alternates = buildAlternateUrls('discovery');
 const structuredData = generateBreadcrumbSchema([
-  { name: 'Home', url: '/' },
-  { name: 'Datenaufbereitung für KI', url: dataPrepRoutes.de.landing },
-  { name: 'Discovery Call', url: dataPrepRoutes.de.discovery },
+  { name: 'Home', url: '/en/' },
+  { name: 'AI Data Preparation', url: dataPrepRoutes.en.landing },
+  { name: 'Discovery Call', url: dataPrepRoutes.en.discovery },
 ]);
 ---
 
@@ -27,7 +27,7 @@ const structuredData = generateBreadcrumbSchema([
   ogImage={seo.ogImage}
   canonicalURL={canonicalURL}
   alternates={alternates}
-  lang="de"
+  lang="en"
   structuredData={structuredData}
 >
   <main class="pb-20">
@@ -112,7 +112,7 @@ const structuredData = generateBreadcrumbSchema([
               >
                 {cta.button.label}
               </Button>
-              <Button href={dataPrepRoutes.de.landing} variant="outline" size="lg">
+              <Button href={dataPrepRoutes.en.landing} variant="outline" size="lg">
                 {cta.backLabel}
               </Button>
             </div>
