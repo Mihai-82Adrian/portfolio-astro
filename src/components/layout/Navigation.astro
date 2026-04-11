@@ -7,6 +7,7 @@
  *
  * @component
  */
+import { translations } from '@data/translations';
 
 interface Props {
   currentPath?: string;
@@ -15,18 +16,32 @@ interface Props {
 }
 
 const { currentPath = '', mobile = false, basePath = '' } = Astro.props;
+const currentLang = basePath === '/en' ? 'en' : basePath === '/ro' ? 'ro' : 'de';
+const t = translations[currentLang];
+
+const dataPrepLinkByLang = {
+  de: { href: '/datenaufbereitung-fuer-ki', label: 'KI-Daten' },
+  en: { href: '/en/ai-data-preparation', label: 'AI Data' },
+  ro: { href: '/ro/pregatire-date-ai', label: 'Date AI' },
+} as const;
+
+const activeDataPrepPathsByLang = {
+  de: ['/datenaufbereitung-fuer-ki', '/discovery-call', '/sample-struktur-pruefen', '/sample-struktur-pruefen/danke'],
+  en: ['/en/ai-data-preparation', '/en/discovery-call', '/en/sample-structure-review', '/en/sample-structure-review/thank-you'],
+  ro: ['/ro/pregatire-date-ai', '/ro/discovery-call', '/ro/revizuire-structura-esantion', '/ro/revizuire-structura-esantion/multumesc'],
+} as const;
 
 // Tools, Blog, Projects, and Now are language-independent and link to main version
 // Other pages use language-specific paths
 const navigationLinks = [
-  { href: `${basePath}/`, label: 'Home' },
+  { href: `${basePath}/`, label: t.nav.home },
   { href: `/tools`, label: 'Tools' }, // Global hub route
-  { href: `${basePath}/about`, label: 'About' },
-  { href: `${basePath}/experience`, label: 'Experience' },
-  { href: `/projects`, label: 'Projects' }, // Always main version
-  { href: `${basePath}/services`, label: 'Services' }, // i18n-aware (DE/EN/RO)
-  { href: `/blog`, label: 'Blog' }, // Always main version
-  { href: `/now`, label: 'Now' }, // Always main version
+  { href: `${basePath}/about`, label: t.nav.about },
+  { href: `${basePath}/experience`, label: t.nav.experience },
+  { href: `/projects`, label: currentLang === 'de' ? 'Projekte' : currentLang === 'ro' ? 'Proiecte' : 'Projects' }, // Always main version
+  { href: `${basePath}/services`, label: t.nav.services }, // i18n-aware (DE/EN/RO)
+  dataPrepLinkByLang[currentLang],
+  { href: `/blog`, label: t.nav.blog }, // Always main version
   // Contact info is inline on homepage at #contact
 ];
 
@@ -42,6 +57,13 @@ const normalizePath = (path: string): string => {
 const isActive = (href: string): boolean => {
   const current = normalizePath(currentPath);
   const target = normalizePath(href);
+
+  if (target === normalizePath(dataPrepLinkByLang[currentLang].href)) {
+    return activeDataPrepPathsByLang[currentLang].some((path) => {
+      const normalizedPath = normalizePath(path);
+      return current === normalizedPath || current.startsWith(`${normalizedPath}/`);
+    });
+  }
 
   if (target === '/') {
     return current === '/';
@@ -93,6 +115,24 @@ const isActive = (href: string): boolean => {
     const matches = (currentPath, href) => {
       const current = normalizePath(currentPath);
       const target = normalizePath(href);
+      const dataPrepHref = normalizePath(
+        current.startsWith('/en')
+          ? '/en/ai-data-preparation'
+          : current.startsWith('/ro')
+            ? '/ro/pregatire-date-ai'
+            : '/datenaufbereitung-fuer-ki'
+      );
+      const dataPrepActivePaths = current.startsWith('/en')
+        ? ['/en/ai-data-preparation', '/en/discovery-call', '/en/sample-structure-review', '/en/sample-structure-review/thank-you']
+        : current.startsWith('/ro')
+          ? ['/ro/pregatire-date-ai', '/ro/discovery-call', '/ro/revizuire-structura-esantion', '/ro/revizuire-structura-esantion/multumesc']
+          : ['/datenaufbereitung-fuer-ki', '/discovery-call', '/sample-struktur-pruefen', '/sample-struktur-pruefen/danke'];
+      if (target === dataPrepHref) {
+        return dataPrepActivePaths.some((path) => {
+          const normalizedPath = normalizePath(path);
+          return current === normalizedPath || current.startsWith(`${normalizedPath}/`);
+        });
+      }
       if (target === '/') return current === '/';
       return current === target || current.startsWith(`${target}/`);
     };

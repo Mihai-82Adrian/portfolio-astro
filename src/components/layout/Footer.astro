@@ -8,36 +8,53 @@
  * @component
  */
 
-import { translations } from '@data/translations';
-import type { Language } from '@utils/i18n';
+import { translations } from "@data/translations";
+import type { Language } from "@utils/i18n";
 
 // Get language from parent layout
 interface Props {
   lang?: Language;
 }
 
-const { lang = 'de' } = Astro.props;
+const { lang = "de" } = Astro.props;
 
 const currentYear = new Date().getFullYear();
+const socialAria = {
+  de: {
+    linkedin: 'Mein LinkedIn-Profil öffnen',
+    github: 'Mein GitHub-Profil öffnen',
+    email: 'Mir eine E-Mail senden',
+  },
+  en: {
+    linkedin: 'Visit my LinkedIn profile',
+    github: 'Visit my GitHub profile',
+    email: 'Send me an email',
+  },
+  ro: {
+    linkedin: 'Deschide profilul meu de LinkedIn',
+    github: 'Deschide profilul meu de GitHub',
+    email: 'Trimite-mi un email',
+  },
+} as const;
 
 const socialLinks = [
   {
-    name: 'LinkedIn',
-    href: 'https://www.linkedin.com/in/mihai-adrian-mateescu/',
-    icon: 'linkedin',
-    ariaLabel: 'Visit my LinkedIn profile',
+    name: "LinkedIn",
+    href: "https://www.linkedin.com/in/mihai-adrian-mateescu/",
+    icon: "linkedin",
+    ariaLabel: socialAria[lang].linkedin,
   },
   {
-    name: 'GitHub',
-    href: 'https://github.com/Mihai-82Adrian',
-    icon: 'github',
-    ariaLabel: 'Visit my GitHub profile',
+    name: "GitHub",
+    href: "https://github.com/Mihai-82Adrian",
+    icon: "github",
+    ariaLabel: socialAria[lang].github,
   },
   {
-    name: 'Email',
-    href: 'mailto:kontakt@me-mateescu.de',
-    icon: 'email',
-    ariaLabel: 'Send me an email',
+    name: "Email",
+    href: "mailto:kontakt@me-mateescu.de",
+    icon: "email",
+    ariaLabel: socialAria[lang].email,
   },
 ];
 
@@ -49,26 +66,30 @@ const currentLang = lang;
 const t = translations[currentLang];
 
 // Generate the base path for the current language
-const basePath = currentLang === 'de' ? '' : `/${currentLang}`;
+const basePath = currentLang === "de" ? "" : `/${currentLang}`;
 
 // Blog and Projects are English-only content, always link to main (DE) version
 const footerLinks = [
-  { href: `${basePath}/`, label: 'Home' },
-  { href: `${basePath}/about`, label: 'About' },
-  { href: `/projects`, label: 'Projects' }, // Always main version
-  { href: `/blog`, label: 'Blog' }, // Always main version
+  { href: `${basePath}/`, label: t.nav.home },
+  { href: `${basePath}/about`, label: t.nav.about },
+  { href: `/projects`, label: currentLang === "de" ? "Projekte" : currentLang === "ro" ? "Proiecte" : "Projects" }, // Always main version
+  {
+    href: currentLang === "de" ? "/datenaufbereitung-fuer-ki" : currentLang === "en" ? "/en/ai-data-preparation" : "/ro/pregatire-date-ai",
+    label: currentLang === "de" ? "KI-Daten" : currentLang === "en" ? "AI Data" : "Date AI",
+  },
+  { href: `/blog`, label: t.nav.blog }, // Always main version
   // Contact info is inline on homepage at #contact
 ];
 
 const legalLinks = [
-  { href: `${basePath}/impressum`, label: 'Impressum' },
-  { href: `${basePath}/datenschutz`, label: 'Datenschutz' },
+  { href: `${basePath}/impressum`, label: "Impressum" },
+  { href: `${basePath}/datenschutz`, label: "Datenschutz" },
 ];
 
 const languages = [
-  { code: 'de', label: 'Deutsch', active: currentLang === 'de' },
-  { code: 'en', label: 'English', active: currentLang === 'en' },
-  { code: 'ro', label: 'Română', active: currentLang === 'ro' },
+  { code: "de", label: "Deutsch", active: currentLang === "de" },
+  { code: "en", label: "English", active: currentLang === "en" },
+  { code: "ro", label: "Română", active: currentLang === "ro" },
 ];
 ---
 
@@ -84,7 +105,9 @@ const languages = [
         <div class="mb-4">
           <span class="text-2xl font-bold text-gradient">MAM</span>
         </div>
-        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-6 max-w-md">
+        <p
+          class="text-text-secondary-light dark:text-text-secondary-dark mb-6 max-w-md"
+        >
           {t.footer.description}
         </p>
 
@@ -99,7 +122,7 @@ const languages = [
                 class="social-link focus-ring rounded-lg"
                 aria-label={link.ariaLabel}
               >
-                {link.icon === 'linkedin' && (
+                {link.icon === "linkedin" && (
                   <svg
                     class="w-6 h-6"
                     fill="currentColor"
@@ -109,7 +132,7 @@ const languages = [
                     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                   </svg>
                 )}
-                {link.icon === 'github' && (
+                {link.icon === "github" && (
                   <svg
                     class="w-6 h-6"
                     fill="currentColor"
@@ -123,7 +146,7 @@ const languages = [
                     />
                   </svg>
                 )}
-                {link.icon === 'email' && (
+                {link.icon === "email" && (
                   <svg
                     class="w-6 h-6"
                     fill="none"
@@ -147,17 +170,16 @@ const languages = [
 
       <!-- Quick Links -->
       <div>
-        <h3 class="font-semibold text-text-primary-light dark:text-text-primary-dark mb-4">
+        <h3
+          class="font-semibold text-text-primary-light dark:text-text-primary-dark mb-4"
+        >
           {t.footer.quickLinks}
         </h3>
         <ul class="space-y-2">
           {
             footerLinks.map((link) => (
               <li>
-                <a
-                  href={link.href}
-                  class="footer-link"
-                >
+                <a href={link.href} class="footer-link">
                   {link.label}
                 </a>
               </li>
@@ -168,7 +190,9 @@ const languages = [
 
       <!-- Language & Legal -->
       <div>
-        <h3 class="font-semibold text-text-primary-light dark:text-text-primary-dark mb-4">
+        <h3
+          class="font-semibold text-text-primary-light dark:text-text-primary-dark mb-4"
+        >
           {t.footer.language}
         </h3>
         <ul class="space-y-2 mb-6">
@@ -176,20 +200,25 @@ const languages = [
             languages.map((lang) => {
               // Blog and Projects are language-independent (English-only)
               // When on these pages, stay on same path regardless of language selection
-              const isBlogOrProjects = currentPath.startsWith('/blog') || currentPath.startsWith('/projects');
-              const languageHref = isBlogOrProjects 
-                ? currentPath  // Stay on same blog/project page
-                : (lang.code === 'de' ? '/' : `/${lang.code}/`); // Normal language switching
-              
+              const isBlogOrProjects =
+                currentPath.startsWith("/blog") ||
+                currentPath.startsWith("/projects");
+              const languageHref = isBlogOrProjects
+                ? currentPath // Stay on same blog/project page
+                : lang.code === "de"
+                  ? "/"
+                  : `/${lang.code}/`; // Normal language switching
+
               return (
                 <li>
                   <a
                     href={languageHref}
                     class:list={[
-                      'footer-link',
-                      lang.active && 'font-medium text-eucalyptus-700 dark:text-eucalyptus-300',
+                      "footer-link",
+                      lang.active &&
+                        "font-medium text-eucalyptus-700 dark:text-eucalyptus-300",
                     ]}
-                    aria-current={lang.active ? 'page' : undefined}
+                    aria-current={lang.active ? "page" : undefined}
                   >
                     {lang.label}
                   </a>
@@ -199,7 +228,9 @@ const languages = [
           }
         </ul>
 
-        <h3 class="font-semibold text-text-primary-light dark:text-text-primary-dark mb-4">
+        <h3
+          class="font-semibold text-text-primary-light dark:text-text-primary-dark mb-4"
+        >
           {t.footer.legal}
         </h3>
         <ul class="space-y-2">
@@ -217,14 +248,32 @@ const languages = [
     </div>
 
     <!-- Bottom Section -->
-    <div class="mt-12 pt-8 border-t border-light-border dark:border-dark-border">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-        <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+    <div
+      class="mt-12 pt-8 border-t border-light-border dark:border-dark-border"
+    >
+      <div
+        class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0"
+      >
+        <p
+          class="text-sm text-text-secondary-light dark:text-text-secondary-dark"
+        >
           &copy; {currentYear} Mihai Adrian Mateescu. All rights reserved.
         </p>
-        <p class="text-sm text-text-tertiary-light dark:text-text-tertiary-dark">
-          Built with <a href="https://astro.build" class="footer-link" target="_blank" rel="noopener">Astro</a>
-          {' '}& deployed on <a href="https://pages.cloudflare.com" class="footer-link" target="_blank" rel="noopener">Cloudflare Pages</a>
+        <p
+          class="text-sm text-text-tertiary-light dark:text-text-tertiary-dark"
+        >
+          Built with <a
+            href="https://astro.build"
+            class="footer-link"
+            target="_blank"
+            rel="noopener">Astro</a
+          >
+          {" "}& deployed on <a
+            href="https://pages.cloudflare.com"
+            class="footer-link"
+            target="_blank"
+            rel="noopener">Cloudflare Pages</a
+          >
         </p>
       </div>
     </div>
@@ -232,7 +281,7 @@ const languages = [
 </footer>
 
 <style>
-@reference "../../styles/global.css";
+  @reference "../../styles/global.css";
   .footer-link {
     @apply text-eucalyptus-800 dark:text-eucalyptus-200;
     @apply underline decoration-eucalyptus-600/50 dark:decoration-eucalyptus-400/50;
@@ -240,7 +289,12 @@ const languages = [
     @apply hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300;
     @apply transition-colors duration-150;
     @apply rounded;
-    &:focus-visible { outline: none; ring: 2px solid; ring-color: var(--color-eucalyptus-500); ring-offset: 2px; }
+    &:focus-visible {
+      outline: none;
+      ring: 2px solid;
+      ring-color: var(--color-eucalyptus-500);
+      ring-offset: 2px;
+    }
   }
 
   .social-link {
@@ -251,4 +305,3 @@ const languages = [
     @apply transition-colors duration-150;
   }
 </style>
-
