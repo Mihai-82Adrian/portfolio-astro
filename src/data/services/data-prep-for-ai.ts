@@ -15,6 +15,16 @@ export interface BulletItem {
   description?: string;
 }
 
+export interface ComparisonItem {
+  title: string;
+  description: string;
+}
+
+export interface CollaborationCard {
+  title: string;
+  body: string;
+}
+
 export interface FaqItem {
   question: string;
   answer: string;
@@ -66,6 +76,7 @@ export interface LandingPageContent {
     title: string;
     subtitle: string;
     bullets: BulletItem[];
+    trustStrip: string[];
     primaryCta: CtaLink;
     secondaryCta: CtaLink;
     flowLabel: string;
@@ -73,9 +84,15 @@ export interface LandingPageContent {
     outputFocusTitle: string;
     outputFocusBody: string;
   };
+  collaboration: {
+    title: string;
+    intro: string;
+    cards: CollaborationCard[];
+  };
   problem: {
     title: string;
     intro: string;
+    bridgeSentence: string;
     causesTitle: string;
     consequencesTitle: string;
     body: string[];
@@ -111,9 +128,23 @@ export interface LandingPageContent {
   };
   trust: {
     title: string;
+    intro: string;
     proofTitle: string;
     bullets: string[];
     proof: string[];
+  };
+  whatItIs: {
+    title: string;
+    intro: string;
+    isTitle: string;
+    is: ComparisonItem[];
+    isNotTitle: string;
+    isNot: ComparisonItem[];
+  };
+  bridgeFit: {
+    title: string;
+    intro: string;
+    bullets: string[];
   };
   faq: {
     title: string;
@@ -139,6 +170,7 @@ export interface LandingPageContent {
     body: string;
     primaryCta: CtaLink;
     secondaryCta: CtaLink;
+    asideLabel: string;
     microcopy: string;
   };
 }
@@ -303,21 +335,47 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
       subtitle:
         'Für Teams, die unstrukturierte Dokumente und Finanzdaten in belastbare, KI-verwertbare Datenprodukte überführen müssen.',
       bullets: [
-        { title: 'Finanznahes Prozessverständnis aus Buchhaltung und Rechnungswesen' },
-        { title: 'KI-verwertbare Ergebnisse für RAG, Automatisierung und Weiterverarbeitung' },
-        { title: 'Nachvollziehbare, datenschutzbewusste und compliance-orientierte Umsetzung' },
+        { title: 'Expertengeführte Aufbereitung mit Blick auf Buchhaltung, Rechnungswesen und Prozesslogik' },
+        { title: 'Saubere Ergebnisse für RAG, Analyse, Document AI und nachgelagerte Umsetzung' },
+        { title: 'Nachvollziehbare, datenschutzbewusste und compliance-orientierte Lieferung' },
+      ],
+      trustStrip: [
+        'Begrenzter Validierungsumfang zum Einstieg',
+        'Auf Wunsch mit anonymisierten Beispielen oder in Ihrer Umgebung',
+        'Nachvollziehbare, finanznahe Ergebnisse statt Black-Box-Versprechen',
       ],
       primaryCta: { label: 'Discovery Call', href: deRoutes.discovery },
-      secondaryCta: { label: 'Sample-Struktur prüfen', href: deRoutes.sampleReview },
+      secondaryCta: { label: 'Sample Review besprechen', href: deRoutes.sampleReview },
       flowLabel: 'Input -> Struktur -> Ergebnis',
       flowStages: ['Input', 'Struktur', 'Ergebnis'],
       outputFocusTitle: 'Ergebnisfokus',
       outputFocusBody:
-        'Saubere Strukturen, nachvollziehbare Felder und KI-verwertbare Ergebnisse für Finanz-, Compliance- und Dokumenten-Workflows.',
+        'Saubere Strukturen, nachvollziehbare Felder und verwertbare Ergebnisse für finanznahe Dokumenten-, Compliance- und AI-Workflows.',
+    },
+    collaboration: {
+      title: 'Wie die Zusammenarbeit starten kann',
+      intro:
+        'Ein sinnvoller Einstieg erfordert nicht zwingend den sofortigen Austausch sensibler Rohdaten. Je nach Umfeld kann die Zusammenarbeit bewusst risikoarm beginnen.',
+      cards: [
+        {
+          title: 'Anonymisierter Auszug',
+          body: 'Für viele Vorprüfungen reicht ein anonymisierter Beispieldatensatz oder ein bereinigter Dokumentauszug, um Struktur, Feldlogik und Risiken belastbar einzuordnen.',
+        },
+        {
+          title: 'Repräsentative oder synthetische Struktur',
+          body: 'Wenn echte Daten noch nicht geteilt werden sollen, kann eine repräsentative Struktur oder ein synthetisches Beispiel genügen, um Zielbild, Mapping und Validierungslogik abzustimmen.',
+        },
+        {
+          title: 'Zusammenarbeit in Ihrer Umgebung',
+          body: 'Wenn Governance oder Datenschutz es erfordern, kann die Arbeit auch in Ihrer Umgebung oder in einem eng definierten sicheren Rahmen erfolgen.',
+        },
+      ],
     },
     problem: {
       title: 'Warum AI-Projekte an unstrukturierten Daten scheitern',
       intro: 'Viele AI-Initiativen starten mit Modell- und Toolfragen und verlieren die Datenrealität aus dem Blick.',
+      bridgeSentence:
+        'Das ist oft weder nur ein Modellproblem noch nur ein Engineering-Thema, sondern eine Vorbereitungs- und Validierungsaufgabe zwischen Fachlogik und technischer Umsetzung.',
       causesTitle: 'Typische Ursachen',
       consequencesTitle: 'Typische Folgen',
       body: [
@@ -329,7 +387,8 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
     },
     services: {
       title: 'Drei typische Einsatzfelder',
-      intro: 'Die Leistung ist klar umrissen: Daten- und Dokumentaufbereitung für AI-, RAG- und Automatisierungsanwendungen im finanznahen Kontext.',
+      intro:
+        'Die Leistung ist bewusst fokussiert: expertengeführte Aufbereitung und Validierung für dokumentenlastige, finanznahe Workflows, damit nachgelagerte AI- und Implementierungsarbeit belastbar wird.',
       tableHeaders: {
         direction: 'Richtung',
         problem: 'Problem',
@@ -349,24 +408,27 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
     },
     outputs: {
       title: 'Was Sie konkret erhalten',
-      intro: 'Kein abstraktes AI-Consulting, sondern nachvollziehbare und operativ nutzbare Arbeitsergebnisse.',
+      intro:
+        'Kein abstraktes AI-Consulting und kein Black-Box-Service, sondern nachvollziehbare, operativ nutzbare Arbeitsergebnisse.',
       resultsTitle: 'Ergebnisse im Fokus',
       suitableForTitle: 'Geeignet für',
       bullets: [
-        'Bereinigte Rohdaten oder Dokumentinhalte',
+        'Bereinigte Rohdaten oder Dokumentinhalte mit klarer Zielstruktur',
         'Strukturierte Datensätze in JSONL, CSV oder Parquet',
         'Optional validierte XML-Ergebnisse im Compliance-Kontext',
+        'Dokumentierte Feldentscheidungen und Mapping-Klärungen, wo relevant',
+        'Nachvollziehbar dokumentierte Aufbereitung für sensible oder regulierte Datenkontexte, wo diese Sorgfalt relevant ist',
+        'Validierungshinweise, Qualitätschecks und Auffälligkeiten',
         'Chunking-Struktur für RAG- oder Search-Implementierungen',
-        'Felddefinitionen und Mapping-Logik',
-        'Metadaten-Konzept für Dokumente und Datensätze',
-        'Validierungsregeln und Qualitätschecks',
-        'Übergabedokumentation für interne Teams oder Implementierungspartner',
+        'Handover-fähige Ergebnisse für interne Teams oder Implementierungspartner',
+        'Keine abstrakten Versprechen, sondern konkrete und prüfbare Ergebnisse',
       ],
       suitableFor: ['RAG / Knowledge Bases', 'Document AI', 'interne Suchsysteme', 'Datenmigration', 'Workflow-Automatisierung', 'Analyse- und Forecasting-Vorbereitung'],
     },
     process: {
       title: 'So läuft ein Projekt ab',
-      intro: 'Klein anfangen ist ausdrücklich möglich. Viele Projekte starten mit einem begrenzten Beispieldatensatz oder einem eng umrissenen Pilot.',
+      intro:
+        'Klein anfangen ist ausdrücklich möglich. Viele Projekte starten als begrenzte Validierungsleistung mit engem Umfang, um Strukturqualität, Feldkonsistenz und nachgelagerte Nutzbarkeit sauber zu prüfen.',
       stepLabel: 'Schritt',
       steps: [
         { title: 'Intake & Zielbild', description: 'Datenlage verstehen, Quellen und Zielsysteme erfassen, Risiken und Ausschlusskriterien identifizieren.' },
@@ -374,10 +436,13 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
         { title: 'Aufbereitung & Validierung', description: 'Bereinigung, Mapping, Deduplizierung und Segmentierung durchführen, Metadaten ergänzen, Qualitätschecks anwenden.' },
         { title: 'Übergabe & nächste Schritte', description: 'Finales Ergebnispaket bereitstellen, Dokumentation und Empfehlungen übergeben, optional RAG- oder Automatisierungs-Setup vorbereiten.' },
       ],
-      microcopy: 'Klein anfangen ist ausdrücklich möglich. Viele Projekte starten mit einem klar abgegrenzten Mini-Pilot.',
+      microcopy:
+        'Ein Scoped Sample Review oder eine begrenzte Validierungsleistung ist oft der sinnvollste Weg, um Risiken früh sichtbar zu machen, ohne den Umfang künstlich aufzublähen.',
     },
     trust: {
-      title: 'Warum diese Arbeit bei mir gut aufgehoben ist',
+      title: 'Typische Ausgangslagen und Projektrealität',
+      intro:
+        'Die Stärke dieser Leistung liegt genau zwischen fachlicher Präzision und technischer Umsetzbarkeit. Dort entsteht in finance- und compliance-nahen Projekten oft der eigentliche Hebel.',
       proofTitle: 'Typische Ausgangslagen',
       bullets: [
         'Finanznaher Hintergrund mit Fokus auf Rechnungswesen und Prozessqualität',
@@ -388,13 +453,71 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
       ],
       proof: ['uneinheitliche ERP-Exporte', 'heterogene PDF-/DOCX-Bestände', 'fehlende Metadaten', 'manuelle Vorarbeit vor AI-Projekten', 'XRechnung-/XML-nahe Validierungsanforderungen'],
     },
+    whatItIs: {
+      title: 'Was diese Leistung ist – und was nicht',
+      intro:
+        'Die Positionierung ist bewusst klar: keine generische Data-Labeling-Leistung, sondern strukturierte Vorarbeit und Validierung für anspruchsvolle Business- und Dokumentenkontexte.',
+      isTitle: 'Was diese Leistung ist',
+      is: [
+        {
+          title: 'Expertengeführte Aufbereitung und Validierung',
+          description: 'Kein anonymer Bulk-Prozess, sondern fachlich geführte Strukturarbeit mit Blick auf Risiken, Felder und Nutzbarkeit.',
+        },
+        {
+          title: 'Finanznahe Dokument- und Datenstrukturierung',
+          description: 'Geeignet für Buchhaltungs-, Reporting-, Compliance- und andere dokumentenlastige Geschäftsumfelder.',
+        },
+        {
+          title: 'Nachvollziehbare Ergebnisse für nachgelagerte Teams',
+          description: 'Saubere Outputs, klare Mapping-Entscheidungen und verwertbare Ergebnisse für interne Teams oder Implementierungspartner.',
+        },
+        {
+          title: 'Passend für sensible Umgebungen',
+          description: 'Der Einstieg kann über anonymisierte Beispiele, repräsentative Strukturen oder sichere Zusammenarbeit in Ihrer Umgebung erfolgen.',
+        },
+      ],
+      isNotTitle: 'Was diese Leistung nicht ist',
+      isNot: [
+        {
+          title: 'Kein generisches Bulk-Labeling',
+          description: 'Die Arbeit ist nicht auf mengengetriebenes Tagging ohne fachliche Struktur- und Qualitätsprüfung ausgelegt.',
+        },
+        {
+          title: 'Kein Black-Box-AI-Service',
+          description: 'Sie erhalten keine schwer nachvollziehbaren Ergebnisse ohne Sicht auf Feldlogik, Validierung und Grenzen.',
+        },
+        {
+          title: 'Kein blindes Automatisierungsversprechen',
+          description: 'Die Leistung überspringt keine Datenrealität und verkauft keine technische Abkürzung an der Qualitätsprüfung vorbei.',
+        },
+        {
+          title: 'Kein Ersatz für interne Review-Verantwortung',
+          description: 'Gerade in finance- und compliance-nahen Kontexten bleiben fachliche Freigaben und Kontrollschritte entscheidend.',
+        },
+      ],
+    },
+    bridgeFit: {
+      title: 'Warum diese Arbeit zu meinem Profil passt',
+      intro:
+        'Ich arbeite an genau der Schnittstelle, an der viele Projekte unklar werden: zwischen kaufmännischer Präzision, Dokumentrealität und technischer Umsetzung.',
+      bullets: [
+        'Finance-adjacent Hintergrund mit Fokus auf Buchhaltung, Reporting und Prozessqualität',
+        'Praxisverständnis für strukturierte und unstrukturierte Geschäftsdokumente',
+        'Arbeitsweise mit Nachvollziehbarkeit statt Black-Box-Versprechen',
+        'Brücke zwischen Business-Logik, Datenstruktur und technischer Implementierung',
+      ],
+    },
     faq: {
       title: 'Häufige Fragen',
       items: [
-        { question: 'Arbeiten Sie auch mit sensiblen Finanzdaten?', answer: 'Ja. Für Pilotphasen bevorzuge ich anonymisierte oder reduzierte Beispieldaten und einen klar definierten sicheren Austausch erst nach Umfangsklärung.' },
+        { question: 'Brauchen Sie sofort Zugriff auf echte Finanzdaten?', answer: 'Nicht zwingend. Für viele erste Einschätzungen reichen anonymisierte Beispiele, repräsentative Strukturen oder eine Zusammenarbeit in Ihrer Umgebung aus.' },
+        { question: 'Ist das eine generische Data-Labeling- oder Automatisierungsleistung?', answer: 'Nein. Die Leistung ist bewusst expertengeführt, finanznah und auf Strukturierung, Validierung und belastbare Ergebnisse ausgerichtet.' },
+        { question: 'Was passiert nach einem Scoped Sample Review?', answer: 'Sie erhalten eine klare Einschätzung zu Strukturqualität, Risiken, Nutzbarkeit und zum sinnvollsten nächsten Schritt für interne Teams oder Implementierungspartner.' },
+        { question: 'Wie kann die Zusammenarbeit in sensiblen Umgebungen starten?', answer: 'Je nach Umfeld mit anonymisierten Auszügen, synthetischen Strukturen oder direkt in einem definierten sicheren Arbeitsrahmen auf Ihrer Seite.' },
+        { question: 'Hilft diese Leistung bei EU AI Act Readiness?', answer: 'Wo Pflichten aus dem EU AI Act relevant werden, vor allem in höher riskanten AI-Kontexten, unterstützt diese Arbeit die Art von Daten-Governance, Nachvollziehbarkeit und Dokumentationsdisziplin, die rund um Aufbereitung und Validierung erwartet wird. Sie ist jedoch kein Ersatz für Rechts- oder Compliance-Beratung und zertifiziert keine organisatorische Konformität.' },
         { question: 'Ist das nur für große AI-Projekte relevant?', answer: 'Nein. Gerade kleine Pilotprojekte profitieren stark von sauberer Datenstruktur, bevor größere Investitionen erfolgen.' },
         { question: 'Welche Formate können verarbeitet werden?', answer: 'Typisch sind PDF, DOCX, Tabellenexporte, CSV, ERP-Listen und strukturierte Formate wie XML.' },
-        { question: 'Ersetzen Sie ein komplettes Data-Engineering-Team?', answer: 'Nein. Die Leistung ist bewusst fokussiert: Daten- und Dokumentaufbereitung für AI-, RAG- und Automatisierungsanwendungen.' },
+        { question: 'Ersetzen Sie ein komplettes Data-Engineering-Team?', answer: 'Nein. Die Leistung ist bewusst fokussiert: Aufbereitung, Validierung und belastbare Ergebnisse zwischen Fachlogik und technischer Implementierung.' },
       ],
     },
     pricing: {
@@ -409,7 +532,7 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
       notesTitle: 'Preislogik',
       rationaleTitle: 'Warum dieser Preisrahmen sinnvoll ist',
       tiers: [
-        { name: 'Mini-Pilot / Strukturprüfung', price: 'ab 350 €', description: 'Für Unternehmen, die vorab prüfen möchten, ob ihre Dokumente oder Datenbestände für AI, RAG oder Automatisierung geeignet sind.', scope: ['1 Beispieldatensatz oder kleines Dokumentenpaket', 'Erste Analyse von Struktur, Qualität und Risiken', 'Einschätzung zu Format, Feldlogik und Verwendbarkeit', 'Kurze Empfehlung für den sinnvollsten nächsten Schritt'], duration: '0,5 bis 2 Arbeitstage', note: 'Wird bei Folgeprojekt vollständig angerechnet.' },
+        { name: 'Begrenzte Strukturvalidierung', price: 'ab 350 €', description: 'Für Unternehmen, die mit geringem Risiko prüfen möchten, ob Dokumente oder Datenbestände für AI, RAG oder nachgelagerte Umsetzung tragfähig vorbereitet werden können.', scope: ['1 anonymisierter Auszug, repräsentative Struktur oder kleines Dokumentenpaket', 'Erste Analyse von Struktur, Qualität und Risiken', 'Einschätzung zu Feldlogik, Mapping und Verwendbarkeit', 'Kurze Empfehlung für den sinnvollsten nächsten Schritt'], duration: '0,5 bis 2 Arbeitstage', note: 'Wird bei Folgeprojekt vollständig angerechnet.' },
         { name: 'RAG Corpus Ingestion', price: 'ab 1.800 €', description: 'Für Dokumentbestände, die für RAG, interne Wissensdatenbanken oder AI-gestützte Suche vorbereitet werden sollen.', scope: ['Text-Extraktion und Bereinigung', 'Dokumentsegmentierung', 'Metadaten-Struktur', 'Retrieval-ready Ergebnis'], duration: '4 bis 8 Arbeitstage' },
         { name: 'ERP & FiBu Cleanup', price: 'ab 2.500 €', description: 'Für ERP-Exporte, Buchhaltungsdaten und Reporting-Dateien, die vor Analyse oder AI-Nutzung strukturiert und geprüft werden müssen.', scope: ['Normalisierung und Feldzuordnung', 'Deduplizierung und Plausibilitätsprüfung', 'Saubere Zielstruktur', 'Dokumentierte Validierungslogik'], duration: '5 bis 10 Arbeitstage' },
         { name: 'Compliance Transformation', price: 'ab 3.500 €', description: 'Für strukturierte Geschäftsdokumente mit hohem Anspruch an Nachvollziehbarkeit und Standardkonformität.', scope: ['Struktur- und Feldmapping', 'Validierungslogik', 'Transformationsregeln', 'Technisch sauberes Ergebnis'], duration: '7 bis 15 Arbeitstage' },
@@ -424,10 +547,13 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
     },
     finalCta: {
       title: 'Der nächste sinnvolle Schritt',
-      body: 'Wenn Sie bereits Dokumente oder Datenbestände haben, die für AI, RAG oder Automatisierung genutzt werden sollen, beginnt die eigentliche Arbeit meist vor dem Modell.',
+      body:
+        'Wenn bereits dokumenten- oder datenlastige Prozesse für AI, RAG oder Analyse vorbereitet werden sollen, beginnt der belastbare Teil der Arbeit meist vor dem Modell.',
       primaryCta: { label: 'Discovery Call', href: deRoutes.discovery },
-      secondaryCta: { label: 'Sample-Struktur prüfen', href: deRoutes.sampleReview },
-      microcopy: 'Auf Wunsch zunächst mit anonymisiertem Beispieldatensatz oder klar abgegrenztem Mini-Pilot.',
+      secondaryCta: { label: 'Sample Review besprechen', href: deRoutes.sampleReview },
+      asideLabel: 'Nächster Schritt',
+      microcopy:
+        'Auf Wunsch zunächst mit anonymisiertem Auszug, repräsentativer Struktur oder klar begrenzter Validierungsleistung.',
     },
   },
   en: {
@@ -442,21 +568,47 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
       title: 'AI Data Preparation for Finance Workflows',
       subtitle: 'For teams that need to turn messy documents and finance data into reliable, AI-ready data products.',
       bullets: [
-        { title: 'Finance-aware process understanding from accounting and reporting' },
-        { title: 'AI-ready outputs for RAG, automation and downstream systems' },
+        { title: 'Expert-led preparation informed by accounting, reporting and process logic' },
+        { title: 'Reliable outputs for RAG, analytics, Document AI and downstream implementation' },
         { title: 'Traceable, privacy-aware and compliance-minded delivery' },
       ],
+      trustStrip: [
+        'Low-risk validation scope',
+        'Anonymized samples or in-environment collaboration',
+        'Traceable, finance-aware delivery',
+      ],
       primaryCta: { label: 'Discovery Call', href: enRoutes.discovery },
-      secondaryCta: { label: 'Review Sample Structure', href: enRoutes.sampleReview },
+      secondaryCta: { label: 'Discuss Sample Review', href: enRoutes.sampleReview },
       flowLabel: 'Input -> Structure -> Output',
       flowStages: ['Input', 'Structure', 'Output'],
       outputFocusTitle: 'Output focus',
       outputFocusBody:
         'Clean structures, traceable fields and AI-ready outputs for finance, compliance and document-heavy workflows.',
     },
+    collaboration: {
+      title: 'How collaboration can start',
+      intro:
+        'A sensible first step does not always require immediate access to raw sensitive finance data. The initial collaboration mode can be chosen to fit the environment.',
+      cards: [
+        {
+          title: 'Anonymized sample',
+          body: 'For many first assessments, an anonymized sample or reduced document excerpt is enough to evaluate structure, field logic and likely risks.',
+        },
+        {
+          title: 'Representative or synthetic structure',
+          body: 'If real data cannot be shared yet, a representative structure or synthetic example can still be enough to align on target format, mapping and validation logic.',
+        },
+        {
+          title: 'In-environment collaboration',
+          body: 'Where governance or confidentiality requires it, the work can start within your environment or a tightly controlled secure setup.',
+        },
+      ],
+    },
     problem: {
       title: 'Why AI projects fail on unstructured data',
       intro: 'Many AI initiatives start with model questions and underestimate the reality of the source data.',
+      bridgeSentence:
+        'This is often not only a model problem and not only an engineering problem, but a preparation and validation problem between business logic and technical implementation.',
       causesTitle: 'Typical causes',
       consequencesTitle: 'Typical consequences',
       body: [
@@ -468,7 +620,8 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
     },
     services: {
       title: 'Three common use cases',
-      intro: 'The offer is deliberately narrow: data and document preparation for AI, RAG and automation use cases in finance-adjacent environments.',
+      intro:
+        'The offer is deliberately narrow: expert-led preparation and validation for finance-adjacent, document-heavy workflows so downstream AI and implementation work becomes more reliable.',
       tableHeaders: {
         direction: 'Direction',
         problem: 'Problem',
@@ -488,24 +641,27 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
     },
     outputs: {
       title: 'What you actually receive',
-      intro: 'Not abstract AI consulting, but concrete and operationally usable deliverables.',
+      intro:
+        'Not abstract AI consulting and not a black-box service, but concrete deliverables that internal teams or implementation partners can actually use.',
       resultsTitle: 'Deliverables in focus',
       suitableForTitle: 'Suitable for',
       bullets: [
-        'Cleaned raw data or document content',
+        'Cleaned raw data or document content with a clear target structure',
         'Structured datasets in JSONL, CSV or Parquet',
         'Optional validated XML outputs in compliance contexts',
+        'Documented field decisions and mapping clarifications where relevant',
+        'Traceable, well-documented preparation where sensitive or regulated workflows require that extra discipline',
+        'Validation notes, quality checks and important caveats',
         'Chunking structures for RAG or search implementations',
-        'Field definitions and mapping logic',
-        'Metadata concepts for documents and datasets',
-        'Validation rules and quality checks',
-        'Handover documentation for internal teams or implementation partners',
+        'Handover-ready results for internal teams or implementation partners',
+        'Concrete deliverables instead of generic automation promises',
       ],
       suitableFor: ['RAG / knowledge bases', 'Document AI', 'internal search systems', 'data migration', 'workflow automation', 'analytics and forecasting preparation'],
     },
     process: {
       title: 'How a project works',
-      intro: 'Starting small is explicitly possible. Many engagements begin with a limited sample dataset or a tightly scoped pilot.',
+      intro:
+        'Starting small is explicitly possible. Many engagements begin as a limited-scope validation engagement to test structure quality, field consistency and downstream usability before more is built.',
       stepLabel: 'Step',
       steps: [
         { title: 'Intake & target picture', description: 'Understand the data landscape, source systems and targets, and identify risks and exclusions.' },
@@ -513,10 +669,13 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
         { title: 'Preparation & validation', description: 'Clean, map, deduplicate and segment the data, enrich metadata and apply quality checks.' },
         { title: 'Handover & next steps', description: 'Deliver the final output package, documentation and recommendations, with optional support for the next implementation step.' },
       ],
-      microcopy: 'A narrow pilot is often the fastest way to de-risk a later AI implementation.',
+      microcopy:
+        'A scoped sample review is often the fastest way to de-risk later AI or implementation work without inflating the scope too early.',
     },
     trust: {
-      title: 'Why this work fits my profile',
+      title: 'Typical starting points and project reality',
+      intro:
+        'The value of this work sits at the point where business precision and technical implementation need to meet. That is exactly where many finance-heavy AI projects become fragile.',
       proofTitle: 'Typical starting points',
       bullets: [
         'Finance-adjacent background with a focus on accounting and process quality',
@@ -527,13 +686,71 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
       ],
       proof: ['messy ERP exports', 'mixed PDF/DOCX inventories', 'missing metadata', 'manual prep before AI projects', 'XML/XRechnung-style validation requirements'],
     },
+    whatItIs: {
+      title: 'What this is – and what it is not',
+      intro:
+        'The positioning is intentionally precise: not a generic outsourcing service, but expert-led preparation and validation for sensitive document and data contexts.',
+      isTitle: 'What this is',
+      is: [
+        {
+          title: 'Expert-led preparation and validation',
+          description: 'The work is guided by structure quality, field consistency and downstream usability, not by volume alone.',
+        },
+        {
+          title: 'Finance-aware document and data structuring',
+          description: 'Suitable for accounting-adjacent, compliance-heavy and document-heavy business environments.',
+        },
+        {
+          title: 'Traceable outputs for downstream use',
+          description: 'Internal teams or implementation partners receive structured outputs, mapping clarity and documented validation context.',
+        },
+        {
+          title: 'A low-risk way to start',
+          description: 'Collaboration can begin with anonymized samples, representative structures or tightly controlled in-environment work.',
+        },
+      ],
+      isNotTitle: 'What this is not',
+      isNot: [
+        {
+          title: 'Not generic bulk labeling',
+          description: 'The service is not designed as volume-only tagging without business-aware structure review.',
+        },
+        {
+          title: 'Not a black-box AI service',
+          description: 'You do not receive opaque outputs without field logic, validation context or reviewability.',
+        },
+        {
+          title: 'Not a blind automation promise',
+          description: 'The work does not pretend that poor structure can be skipped over with tooling alone.',
+        },
+        {
+          title: 'Not a shortcut around review',
+          description: 'In finance and compliance contexts, validation and internal review remain part of the serious path forward.',
+        },
+      ],
+    },
+    bridgeFit: {
+      title: 'Why this work fits my profile',
+      intro:
+        'I work in the layer where business logic, document reality and technical implementation need to align. That bridge is where this kind of work becomes useful.',
+      bullets: [
+        'Finance-adjacent background with a focus on accounting and process quality',
+        'Hands-on understanding of structured and unstructured business documents',
+        'Traceability over black-box promises',
+        'A practical bridge between business precision and technical implementation',
+      ],
+    },
     faq: {
       title: 'Frequently asked questions',
       items: [
-        { question: 'Do you work with sensitive finance data?', answer: 'Yes. For pilot phases I prefer anonymized or reduced samples and a clearly defined secure exchange only after scope alignment.' },
+        { question: 'Do you need access to real finance data immediately?', answer: 'Not necessarily. Many first assessments can begin with anonymized samples, representative structures or work performed inside your environment.' },
+        { question: 'Is this a generic labeling or automation service?', answer: 'No. The service is intentionally expert-led, finance-aware and focused on preparation, validation and downstream reliability.' },
+        { question: 'What happens after the pilot or sample review?', answer: 'You receive a clear assessment of structure quality, risks, downstream usability and the most sensible next step for internal teams or implementation partners.' },
+        { question: 'How can collaboration start in sensitive environments?', answer: 'Depending on the setup, with anonymized excerpts, synthetic structures or tightly controlled in-environment collaboration.' },
+        { question: 'Does this help with EU AI Act readiness?', answer: 'Where EU AI Act obligations are relevant, especially in higher-risk AI contexts, this work supports the kind of data governance, traceability and documentation discipline expected around data preparation and validation. It does not replace legal or compliance advice and does not by itself certify organisational compliance.' },
         { question: 'Is this only relevant for large AI projects?', answer: 'No. Smaller pilots often benefit the most from proper structure before larger investments are made.' },
         { question: 'What formats can be processed?', answer: 'Typical inputs include PDF, DOCX, spreadsheet exports, CSV, ERP lists and structured formats such as XML.' },
-        { question: 'Do you replace a full data engineering team?', answer: 'No. The service is intentionally focused on data and document preparation for AI, RAG and automation use cases.' },
+        { question: 'Do you replace a full data engineering team?', answer: 'No. The service is intentionally focused on preparation, validation and reliable handover between business precision and technical implementation.' },
       ],
     },
     pricing: {
@@ -548,7 +765,7 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
       notesTitle: 'Pricing logic',
       rationaleTitle: 'Why this pricing range makes sense',
       tiers: [
-        { name: 'Mini Pilot / Sample Review', price: 'from €350', description: 'For teams that want to evaluate whether their documents or datasets are suitable for AI, RAG or automation before committing to a larger scope.', scope: ['1 sample dataset or small document package', 'Initial assessment of structure, quality and risks', 'Evaluation of format, field logic and usability', 'Short recommendation for the next sensible step'], duration: '0.5 to 2 work days', note: 'Fully credited if a follow-up project starts.' },
+        { name: 'Scoped Sample Review', price: 'from €350', description: 'For teams that want a low-risk first step to validate whether their documents or datasets can support AI, RAG or downstream implementation work.', scope: ['1 anonymized sample, representative structure or small document package', 'Initial assessment of structure, quality and risks', 'Review of field logic, mapping clarity and usability', 'Short recommendation for the next sensible step'], duration: '0.5 to 2 work days', note: 'Fully credited if a follow-up project starts.' },
         { name: 'RAG Corpus Ingestion', price: 'from €1,800', description: 'For document inventories that need to be prepared for RAG, internal knowledge bases or AI-powered search.', scope: ['Text extraction and cleanup', 'Document segmentation', 'Metadata structure', 'Retrieval-ready output'], duration: '4 to 8 work days' },
         { name: 'ERP & Accounting Cleanup', price: 'from €2,500', description: 'For ERP exports, accounting datasets and reporting files that must be standardized before analytics or AI usage.', scope: ['Normalization and field mapping', 'Deduplication and plausibility checks', 'Clean target structure', 'Documented validation logic'], duration: '5 to 10 work days' },
         { name: 'Compliance Transformation', price: 'from €3,500', description: 'For structured business documents that require field-level traceability, validation and standards alignment.', scope: ['Structure and field mapping', 'Validation logic', 'Transformation rules', 'Technically clean downstream output'], duration: '7 to 15 work days' },
@@ -563,10 +780,13 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
     },
     finalCta: {
       title: 'The next sensible step',
-      body: 'If you already have documents or datasets intended for AI, RAG or automation, the real work usually starts before the model does.',
+      body:
+        'If you already have document-heavy or finance-adjacent data that should become usable for AI, RAG or analytics, the reliable work usually starts before the model does.',
       primaryCta: { label: 'Discovery Call', href: enRoutes.discovery },
-      secondaryCta: { label: 'Review Sample Structure', href: enRoutes.sampleReview },
-      microcopy: 'If needed, start with an anonymized sample or a tightly scoped mini pilot.',
+      secondaryCta: { label: 'Discuss Sample Review', href: enRoutes.sampleReview },
+      asideLabel: 'Next step',
+      microcopy:
+        'If needed, start with an anonymized sample, representative structure or a tightly scoped validation engagement.',
     },
   },
   ro: {
@@ -581,21 +801,47 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
       title: 'Pregătire Date pentru AI în Procese Financiare',
       subtitle: 'Pentru echipe care trebuie să transforme documente și date financiare dezordonate în produse de date fiabile și utilizabile de AI.',
       bullets: [
-        { title: 'Înțelegere practică a proceselor financiare și contabile' },
-        { title: 'Rezultate pregătite pentru AI, RAG, automatizare și sistemele următoare' },
-        { title: 'Implementare trasabilă, atentă la confidențialitate și conformitate' },
+        { title: 'Pregătire expert-led, cu înțelegere practică a logicii contabile și de proces' },
+        { title: 'Rezultate fiabile pentru RAG, analiză, Document AI și pașii tehnici următori' },
+        { title: 'Livrare trasabilă, atentă la confidențialitate și conformitate' },
+      ],
+      trustStrip: [
+        'Scope limitat pentru validare',
+        'Exemple anonimizate sau colaborare în mediul tău',
+        'Livrare trasabilă, atentă la contextul financiar',
       ],
       primaryCta: { label: 'Discovery Call', href: roRoutes.discovery },
-      secondaryCta: { label: 'Revizuire structură eșantion', href: roRoutes.sampleReview },
+      secondaryCta: { label: 'Discută Sample Review', href: roRoutes.sampleReview },
       flowLabel: 'Input -> Structură -> Rezultat',
       flowStages: ['Input', 'Structură', 'Rezultat'],
       outputFocusTitle: 'Focus pe rezultat',
       outputFocusBody:
         'Structuri curate, câmpuri trasabile și rezultate pregătite pentru AI în fluxuri financiare, de conformitate și cu volum mare de documente.',
     },
+    collaboration: {
+      title: 'Cum poate începe colaborarea',
+      intro:
+        'Un început solid nu cere automat schimbul imediat de date financiare sensibile. Modul de colaborare poate fi ales în funcție de constrângerile reale ale mediului tău.',
+      cards: [
+        {
+          title: 'Eșantion anonimizat',
+          body: 'Pentru multe evaluări inițiale este suficient un eșantion anonimizat sau un extras redus, ca să verificăm structura, logica de câmpuri și riscurile probabile.',
+        },
+        {
+          title: 'Structură reprezentativă sau sintetică',
+          body: 'Dacă datele reale nu pot fi împărtășite încă, o structură reprezentativă sau un exemplu sintetic poate fi suficient pentru alinierea asupra formatului țintă și a regulilor de validare.',
+        },
+        {
+          title: 'Colaborare în mediul tău',
+          body: 'Când guvernanța sau confidențialitatea o cer, lucrul poate începe direct în mediul tău sau într-un cadru securizat strict controlat.',
+        },
+      ],
+    },
     problem: {
       title: 'De ce proiectele AI eșuează din cauza datelor nestructurate',
       intro: 'Multe inițiative AI pornesc de la întrebări despre model și subestimează realitatea datelor sursă.',
+      bridgeSentence:
+        'De multe ori nu este doar o problemă de model și nici doar o problemă de engineering, ci o problemă de pregătire și validare între logica de business și implementarea tehnică.',
       causesTitle: 'Cauze tipice',
       consequencesTitle: 'Consecințe tipice',
       body: [
@@ -607,7 +853,8 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
     },
     services: {
       title: 'Trei cazuri tipice de utilizare',
-      intro: 'Oferta este delimitată clar: pregătirea datelor și documentelor pentru AI, RAG și automatizare în contexte apropiate de procesele financiare.',
+      intro:
+        'Oferta rămâne clar delimitată: pregătire și validare expert-led pentru fluxuri document-heavy și contexte apropiate de procesele financiare, astfel încât pașii tehnici și AI care urmează să devină mai fiabili.',
       tableHeaders: {
         direction: 'Direcție',
         problem: 'Problemă',
@@ -627,24 +874,27 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
     },
     outputs: {
       title: 'Ce primești concret',
-      intro: 'Nu consultanță AI abstractă, ci livrabile clare și utilizabile operațional.',
+      intro:
+        'Nu consultanță AI abstractă și nici un serviciu opac de tip black-box, ci livrabile clare, verificabile și utilizabile operațional.',
       resultsTitle: 'Livrabile în prim-plan',
       suitableForTitle: 'Potrivit pentru',
       bullets: [
-        'Date brute sau conținut de documente curățate',
+        'Date brute sau conținut de documente curățate, cu structură țintă clară',
         'Seturi de date structurate în JSONL, CSV sau Parquet',
         'Opțional rezultate XML validate în contexte de conformitate',
+        'Decizii documentate de câmpuri și clarificări de mapping, unde este relevant',
+        'Pregătire trasabilă și bine documentată acolo unde fluxurile sensibile sau reglementate cer acest nivel de rigoare',
+        'Note de validare, controale de calitate și observații importante',
         'Structură de chunking pentru implementări RAG sau search',
-        'Definiții de câmpuri și logică de mapping',
-        'Concept de metadate pentru documente și seturi de date',
-        'Reguli de validare și controale de calitate',
-        'Documentație de handover pentru echipe interne sau parteneri de implementare',
+        'Rezultate pregătite de handover pentru echipe interne sau parteneri de implementare',
+        'Livrabile concrete, nu promisiuni generice de automatizare',
       ],
       suitableFor: ['RAG / baze de cunoștințe', 'Document AI', 'sisteme interne de căutare', 'migrare de date', 'automatizare de fluxuri', 'pregătire pentru analiză și prognoză'],
     },
     process: {
       title: 'Cum decurge un proiect',
-      intro: 'Un start mic este perfect legitim. Multe colaborări încep cu un eșantion limitat sau cu un pilot foarte bine delimitat.',
+      intro:
+        'Un start mic este perfect legitim. Multe colaborări încep ca o validare cu scope limitat, pentru a testa calitatea structurii, consistența câmpurilor și utilitatea downstream înainte de o anvergură mai mare.',
       stepLabel: 'Pas',
       steps: [
         { title: 'Clarificare & imagine-țintă', description: 'Înțeleg sursele de date, sistemele țintă și identific riscurile și excluderile.' },
@@ -652,10 +902,13 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
         { title: 'Pregătire & validare', description: 'Curăț, mapez, deduplic și segmentez datele, completez metadatele și aplic verificări de calitate.' },
         { title: 'Predare & pașii următori', description: 'Livrez pachetul final, documentația și recomandările și pot pregăti și pasul următor de implementare.' },
       ],
-      microcopy: 'Un pilot îngust este adesea cea mai rapidă cale de a reduce riscul înaintea unei implementări AI mai ample.',
+      microcopy:
+        'Un Scoped Sample Review este adesea cea mai rapidă cale de a reduce riscul înainte ca o inițiativă AI sau de implementare să devină mai mare.',
     },
     trust: {
-      title: 'De ce acest tip de muncă se potrivește profilului meu',
+      title: 'Situații tipice de pornire și realitatea proiectului',
+      intro:
+        'Valoarea reală a acestui serviciu apare exact acolo unde precizia de business și implementarea tehnică trebuie să se întâlnească. Acolo devin multe proiecte fragile.',
       proofTitle: 'Situații tipice de pornire',
       bullets: [
         'Background apropiat de finance, cu accent pe contabilitate și calitatea proceselor',
@@ -666,13 +919,71 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
       ],
       proof: ['exporturi ERP dezordonate', 'inventare mixte PDF/DOCX', 'metadate lipsă', 'muncă manuală înainte de proiecte AI', 'cerințe de validare în stil XML/XRechnung'],
     },
+    whatItIs: {
+      title: 'Ce este acest serviciu – și ce nu este',
+      intro:
+        'Poziționarea este intenționat clară: nu un serviciu generic de outsourcing, ci pregătire și validare ghidată de expertiză pentru contexte sensibile, document-heavy și atente la realitatea financiară.',
+      isTitle: 'Ce este',
+      is: [
+        {
+          title: 'Pregătire și validare expert-led',
+          description: 'Munca este ghidată de calitatea structurii, consistența câmpurilor și utilitatea downstream, nu doar de volum.',
+        },
+        {
+          title: 'Structurare a datelor și documentelor cu sensibilitate financiară',
+          description: 'Potrivit pentru medii apropiate de contabilitate, reporting, conformitate și documente de business.',
+        },
+        {
+          title: 'Rezultate trasabile pentru pașii următori',
+          description: 'Echipele interne sau partenerii de implementare primesc output-uri structurate, claritate de mapping și context de validare.',
+        },
+        {
+          title: 'Un mod cu risc redus de a începe',
+          description: 'Colaborarea poate porni cu eșantioane anonimizate, structuri reprezentative sau lucru în mediul tău.',
+        },
+      ],
+      isNotTitle: 'Ce nu este',
+      isNot: [
+        {
+          title: 'Nu este bulk labeling generic',
+          description: 'Serviciul nu este gândit ca tagging orientat doar pe volum, fără review de structură și logică de business.',
+        },
+        {
+          title: 'Nu este un serviciu AI black-box',
+          description: 'Nu primești output-uri opace, fără logică de câmpuri, context de validare sau posibilitate de review.',
+        },
+        {
+          title: 'Nu este o promisiune oarbă de automatizare',
+          description: 'Serviciul nu pretinde că instrumentele pot ocoli realitatea structurii și a calității datelor.',
+        },
+        {
+          title: 'Nu este o scurtătură peste review',
+          description: 'În contexte financiare și de conformitate, validarea și aprobările interne rămân parte din traseul serios.',
+        },
+      ],
+    },
+    bridgeFit: {
+      title: 'De ce această muncă se potrivește profilului meu',
+      intro:
+        'Lucrez exact în stratul în care trebuie să se alinieze logica de business, realitatea documentelor și implementarea tehnică. Acolo devine util acest tip de serviciu.',
+      bullets: [
+        'Background apropiat de zona financiară, cu accent pe contabilitate și calitatea proceselor',
+        'Înțelegere practică a documentelor business structurate și nestructurate',
+        'Trasabilitate în loc de promisiuni opace de tip black-box',
+        'Punte reală între precizia business și implementarea tehnică',
+      ],
+    },
     faq: {
       title: 'Întrebări frecvente',
       items: [
-        { question: 'Lucrezi și cu date financiare sensibile?', answer: 'Da. Pentru fazele pilot prefer mostre anonimizate sau reduse și un schimb securizat clar definit doar după alinierea anvergurii.' },
+        { question: 'Ai nevoie imediat de date financiare reale?', answer: 'Nu neapărat. Multe evaluări inițiale pot începe cu eșantioane anonimizate, structuri reprezentative sau lucru direct în mediul tău.' },
+        { question: 'Este acesta un serviciu generic de labeling sau automatizare?', answer: 'Nu. Serviciul este intenționat ghidat de expertiză, atent la realitatea financiară și concentrat pe pregătire, validare și fiabilitate în pașii următori.' },
+        { question: 'Ce se întâmplă după pilot sau Sample Review?', answer: 'Primești o evaluare clară despre calitatea structurii, riscuri, utilizabilitatea downstream și următorul pas rezonabil pentru echipe interne sau parteneri de implementare.' },
+        { question: 'Cum poate începe colaborarea în medii sensibile?', answer: 'În funcție de context, cu extrase anonimizate, structuri sintetice sau colaborare controlată direct în mediul tău.' },
+        { question: 'Ajută acest serviciu la pregătirea pentru EU AI Act?', answer: 'Acolo unde obligațiile din EU AI Act devin relevante, mai ales în contexte AI cu risc mai ridicat, acest tip de muncă sprijină disciplina de guvernanță a datelor, trasabilitate și documentare așteptată în jurul pregătirii și validării datelor. Nu înlocuiește consultanța juridică sau de conformitate și nu certifică, prin sine, conformitatea organizațională.' },
         { question: 'Este relevant doar pentru proiecte AI mari?', answer: 'Nu. Tocmai proiectele pilot mai mici beneficiază de structură bună înainte de investiții mai mari.' },
         { question: 'Ce formate poți procesa?', answer: 'Tipic: PDF, DOCX, exporturi tabelare, CSV, liste ERP și formate structurate precum XML.' },
-        { question: 'Înlocuiești o echipă completă de data engineering?', answer: 'Nu. Serviciul este intenționat focalizat pe pregătirea datelor și documentelor pentru AI, RAG și automatizare.' },
+        { question: 'Înlocuiești o echipă completă de data engineering?', answer: 'Nu. Serviciul este intenționat focalizat pe pregătire, validare și handover fiabil între precizia de business și implementarea tehnică.' },
       ],
     },
     pricing: {
@@ -687,7 +998,7 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
       notesTitle: 'Logica de preț',
       rationaleTitle: 'De ce acest interval de preț este justificat',
       tiers: [
-        { name: 'Mini Pilot / Revizuire Eșantion', price: 'de la 350 €', description: 'Pentru echipe care vor să verifice dacă documentele sau seturile lor de date sunt potrivite pentru AI, RAG sau automatizare înainte de o anvergură mai mare.', scope: ['1 set de date exemplu sau un pachet mic de documente', 'Evaluare inițială a structurii, calității și riscurilor', 'Analiză a formatului, logicii de câmpuri și utilizabilității', 'Recomandare scurtă pentru următorul pas rezonabil'], duration: '0,5 până la 2 zile de lucru', note: 'Se deduce integral dacă pornește un proiect ulterior.' },
+        { name: 'Scoped Sample Review', price: 'de la 350 €', description: 'Pentru echipe care vor un prim pas cu risc redus, ca să valideze dacă documentele sau datele lor pot susține AI, RAG sau implementarea ulterioară.', scope: ['1 eșantion anonimizat, structură reprezentativă sau pachet mic de documente', 'Evaluare inițială a structurii, calității și riscurilor', 'Review al logicii de câmpuri, mapping-ului și utilizabilității', 'Recomandare scurtă pentru următorul pas rezonabil'], duration: '0,5 până la 2 zile de lucru', note: 'Se deduce integral dacă pornește un proiect ulterior.' },
         { name: 'RAG Corpus Ingestion', price: 'de la 1.800 €', description: 'Pentru inventare de documente care trebuie pregătite pentru RAG, baze interne de cunoștințe sau căutare asistată de AI.', scope: ['Extracție și curățare de text', 'Segmentare de documente', 'Structură de metadate', 'Rezultat pregătit pentru retrieval'], duration: '4 până la 8 zile de lucru' },
         { name: 'ERP & Accounting Cleanup', price: 'de la 2.500 €', description: 'Pentru exporturi ERP, date contabile și fișiere de reporting care trebuie standardizate înainte de analiză sau utilizare AI.', scope: ['Normalizare și mapping de câmpuri', 'Deduplicare și verificări de plauzibilitate', 'Structură țintă curată', 'Logică de validare documentată'], duration: '5 până la 10 zile de lucru' },
         { name: 'Compliance Transformation', price: 'de la 3.500 €', description: 'Pentru documente de business structurate care cer trasabilitate la nivel de câmp, validare și aliniere la standarde.', scope: ['Structură și mapare de câmpuri', 'Logică de validare', 'Reguli de transformare', 'Rezultat tehnic curat pentru procesare ulterioară'], duration: '7 până la 15 zile de lucru' },
@@ -702,10 +1013,13 @@ export const dataPrepLandingContentByLocale: Record<DataPrepLocale, LandingPageC
     },
     finalCta: {
       title: 'Următorul pas rezonabil',
-      body: 'Dacă ai deja documente sau date destinate AI, RAG sau automatizării, munca reală începe de obicei înainte de alegerea modelului.',
+      body:
+        'Dacă ai deja documente sau date finance-adjacent care trebuie să devină utilizabile pentru AI, RAG sau analiză, partea fiabilă a muncii începe de obicei înainte de model.',
       primaryCta: { label: 'Discovery Call', href: roRoutes.discovery },
-      secondaryCta: { label: 'Revizuire structură eșantion', href: roRoutes.sampleReview },
-      microcopy: 'La nevoie, putem începe cu un eșantion anonimizat sau cu un mini pilot bine delimitat.',
+      secondaryCta: { label: 'Discută Sample Review', href: roRoutes.sampleReview },
+      asideLabel: 'Pasul următor',
+      microcopy:
+        'La nevoie, poți începe cu un eșantion anonimizat, o structură reprezentativă sau o validare cu scope limitat.',
     },
   },
 };
@@ -719,13 +1033,13 @@ export const discoveryCallContentByLocale: Record<DataPrepLocale, DiscoveryCallC
     },
     hero: {
       eyebrow: 'Discovery Call',
-      title: 'Vorqualifizieren, bevor wir bauen',
-      subtitle: 'Der Call ist für Entscheider gedacht, die klären möchten, ob ihre Dokumente oder Finanzdaten genug Struktur für einen AI-, RAG- oder Automatisierungs-Pilot haben.',
+      title: 'Problem und Startpunkt fachlich klären',
+      subtitle: 'Der Call ist für Entscheider gedacht, die klären möchten, ob Dokumente oder Finanzdaten mit einem risikoarmen, expertengeführten Einstieg sinnvoll bewertet werden können.',
     },
-    fit: { title: 'Für wen der Call sinnvoll ist', bullets: ['CFOs, Leiter Rechnungswesen und Finance Ops', 'ERP-/DMS-nahe Verantwortliche mit heterogenen Datenbeständen', 'Interne Teams oder Beratungen mit RAG-, Document-AI- oder Automatisierungsprojekten'] },
-    agenda: { title: 'Was wir im Call klären', bullets: ['Datenquellen, Formate und Zielsysteme', 'Risiken, Sonderfälle und Ausschlusskriterien', 'Welche Ergebnisse realistisch sind', 'Ob ein Mini-Pilot oder direkt ein größeres Projekt sinnvoll ist'] },
+    fit: { title: 'Für wen der Call sinnvoll ist', bullets: ['CFOs, Leiter Rechnungswesen und Finance Ops', 'ERP-/DMS-nahe Verantwortliche mit heterogenen Datenbeständen', 'Interne Teams oder Beratungen, die zwischen Fachlogik und technischer Umsetzung Klarheit brauchen'] },
+    agenda: { title: 'Was wir im Call klären', bullets: ['Datenquellen, Formate und sensible Rahmenbedingungen', 'Ob anonymisierte Samples, repräsentative Strukturen oder Arbeit in Ihrer Umgebung sinnvoll sind', 'Welche Ergebnisse realistisch und nachgelagert nutzbar sind', 'Ob ein Scoped Sample Review oder direkt ein größerer Umfang der richtige nächste Schritt ist'] },
     expectations: { title: 'Was der Call nicht ist', bullets: ['kein allgemeines AI-Strategiegespräch ohne Datenbezug', 'kein Sales-Pitch mit Buzzwords', 'keine technische Deep-Dive-Session ohne Vorabkontext'] },
-    cta: { title: 'Termin buchen', body: 'Wenn der Fit klar ist, führen Sie den Call direkt über Cal.com fort.', button: { label: 'Discovery Call auf Cal.com', href: dataPrepCalUrl, external: true }, microcopy: 'Wenn Sie noch unsicher sind, starten Sie stattdessen mit einer Strukturprüfung auf Basis eines Samples.', backLabel: 'Zur Landing Page', quickCheckTitle: 'Schnellprüfung', quickCheckItems: ['Konkrete Datenquellen und Zielsysteme', 'Realistischer Ergebnisumfang', 'Risiken, Sonderfälle und Pilot-Eignung'] },
+    cta: { title: 'Termin buchen', body: 'Wenn der Fit klar ist, führen Sie den Call direkt über Cal.com fort.', button: { label: 'Discovery Call auf Cal.com', href: dataPrepCalUrl, external: true }, microcopy: 'Wenn Sie zuerst den sensiblen Rahmen und die Datenbasis validieren möchten, starten Sie stattdessen mit einem Scoped Sample Review.', backLabel: 'Zur Landing Page', quickCheckTitle: 'Schnellprüfung', quickCheckItems: ['Konkrete Datenquellen, Zielsysteme und sensible Rahmenbedingungen', 'Realistischer Ergebnisumfang und downstream Nutzbarkeit', 'Risiken, Sonderfälle und Eignung für einen risikoarmen Einstieg'] },
   },
   en: {
     seo: {
@@ -735,13 +1049,13 @@ export const discoveryCallContentByLocale: Record<DataPrepLocale, DiscoveryCallC
     },
     hero: {
       eyebrow: 'Discovery Call',
-      title: 'Qualify the problem before building',
-      subtitle: 'This call is for decision-makers who want to understand whether their documents or finance data have enough structure for an AI, RAG or automation pilot.',
+      title: 'Clarify the problem before building',
+      subtitle: 'This call is for decision-makers who want to understand whether their documents or finance data are suitable for a low-risk, expert-led starting scope.',
     },
-    fit: { title: 'Who this call is for', bullets: ['CFOs, heads of accounting and finance operations', 'ERP- or DMS-adjacent owners of heterogeneous datasets', 'Internal teams or consultancies preparing RAG, Document AI or automation projects'] },
-    agenda: { title: 'What we clarify in the call', bullets: ['Data sources, formats and target systems', 'Risks, edge cases and exclusions', 'What outputs are realistic', 'Whether a mini pilot or larger scope is the right next step'] },
+    fit: { title: 'Who this call is for', bullets: ['CFOs, heads of accounting and finance operations', 'ERP- or DMS-adjacent owners of heterogeneous datasets', 'Internal teams or consultancies that need clarity between business logic and technical implementation'] },
+    agenda: { title: 'What we clarify in the call', bullets: ['Data sources, formats and sensitive-environment constraints', 'Whether anonymized samples, representative structures or in-environment work make sense', 'What outputs are realistic and usable downstream', 'Whether a scoped sample review or a broader engagement is the right next step'] },
     expectations: { title: 'What the call is not', bullets: ['not a generic AI strategy chat without data context', 'not a buzzword-heavy sales pitch', 'not a technical deep dive without upfront context'] },
-    cta: { title: 'Book the call', body: 'If the fit looks clear, continue directly through Cal.com.', button: { label: 'Book on Cal.com', href: dataPrepCalUrl, external: true }, microcopy: 'If the scope is still unclear, start with a sample structure review instead.', backLabel: 'Back to landing page', quickCheckTitle: 'Quick check', quickCheckItems: ['Concrete data sources and target systems', 'Realistic scope of deliverables', 'Risks, edge cases and pilot fit'] },
+    cta: { title: 'Book the call', body: 'If the fit looks clear, continue directly through Cal.com.', button: { label: 'Book on Cal.com', href: dataPrepCalUrl, external: true }, microcopy: 'If the scope still needs validation, start with a scoped sample review instead.', backLabel: 'Back to landing page', quickCheckTitle: 'Quick check', quickCheckItems: ['Concrete data sources, target systems and sensitive-environment constraints', 'Realistic deliverable scope and downstream usability', 'Risks, edge cases and fit for a low-risk starting engagement'] },
   },
   ro: {
     seo: {
@@ -751,13 +1065,13 @@ export const discoveryCallContentByLocale: Record<DataPrepLocale, DiscoveryCallC
     },
     hero: {
       eyebrow: 'Discovery Call',
-      title: 'Califică problema înainte să construim',
-      subtitle: 'Această discuție este pentru decidenți care vor să înțeleagă dacă documentele sau datele lor financiare au suficientă structură pentru un pilot AI, RAG sau de automatizare.',
+      title: 'Clarifică problema înainte să construim',
+      subtitle: 'Această discuție este pentru decidenți care vor să înțeleagă dacă documentele sau datele lor financiare se potrivesc unui start cu risc redus și ghidare expert-led.',
     },
-    fit: { title: 'Pentru cine este util acest call', bullets: ['CFO, responsabili de contabilitate sau finance operations', 'Responsabili ERP / DMS cu seturi de date eterogene', 'Echipe interne sau consultanțe care pregătesc proiecte RAG, Document AI sau automatizare'] },
-    agenda: { title: 'Ce clarificăm în call', bullets: ['Surse de date, formate și sisteme țintă', 'Riscuri, cazuri speciale și excluderi', 'Ce rezultate sunt realist posibile', 'Dacă următorul pas corect este un mini pilot sau un proiect mai amplu'] },
+    fit: { title: 'Pentru cine este util acest call', bullets: ['CFO, responsabili de contabilitate sau finance operations', 'Responsabili ERP / DMS cu seturi de date eterogene', 'Echipe interne sau consultanțe care au nevoie de claritate între logica de business și implementarea tehnică'] },
+    agenda: { title: 'Ce clarificăm în call', bullets: ['Surse de date, formate și constrângeri din medii sensibile', 'Dacă au sens eșantioane anonimizate, structuri reprezentative sau lucru în mediul tău', 'Ce rezultate sunt realist posibile și utile downstream', 'Dacă următorul pas corect este un Scoped Sample Review sau o colaborare mai amplă'] },
     expectations: { title: 'Ce nu este acest call', bullets: ['nu este o discuție generică de strategie AI fără context de date', 'nu este o prezentare de vânzare plină de buzzwords', 'nu este o analiză tehnică în profunzime fără context prealabil'] },
-    cta: { title: 'Programează discuția', body: 'Dacă potrivirea este clară, continuă direct prin Cal.com.', button: { label: 'Programează pe Cal.com', href: dataPrepCalUrl, external: true }, microcopy: 'Dacă direcția este încă neclară, începe mai întâi cu o revizuire de structură pe eșantion.', backLabel: 'Înapoi la landing page', quickCheckTitle: 'Verificare rapidă', quickCheckItems: ['Surse concrete de date și sisteme țintă', 'Volum realist al rezultatelor', 'Riscuri, cazuri speciale și potrivirea pentru pilot'] },
+    cta: { title: 'Programează discuția', body: 'Dacă potrivirea este clară, continuă direct prin Cal.com.', button: { label: 'Programează pe Cal.com', href: dataPrepCalUrl, external: true }, microcopy: 'Dacă scope-ul trebuie validat mai întâi, începe cu un Scoped Sample Review.', backLabel: 'Înapoi la landing page', quickCheckTitle: 'Verificare rapidă', quickCheckItems: ['Surse concrete de date, sisteme țintă și constrângeri din medii sensibile', 'Volum realist al rezultatelor și utilitatea downstream', 'Riscuri, cazuri speciale și potrivirea pentru un început cu risc redus'] },
   },
 };
 
@@ -765,27 +1079,27 @@ export const sampleReviewContentByLocale: Record<DataPrepLocale, SampleReviewCon
   de: {
     seo: {
       title: 'Sample-Struktur prüfen | Datenaufbereitung für KI',
-      description: 'Kostenpflichtiger Mini-Pilot zur fachlichen Vorprüfung Ihrer Datenbasis für AI, RAG oder Automatisierungs-Piloten.',
+      description: 'Begrenzte, kostenpflichtige Validierungsleistung zur fachlichen Vorprüfung Ihrer Datenbasis für AI, RAG oder nachgelagerte Umsetzung.',
       ogImage: '/images/og-default.webp',
     },
     hero: {
-      eyebrow: 'Mini-Pilot',
+      eyebrow: 'Scoped Sample Review',
       title: 'Sample-Struktur prüfen',
-      subtitle: 'Mit einem kostenpflichtigen, klar abgegrenzten Mini-Pilot prüfen wir, ob Ihre Daten oder Dokumente für einen realistischen AI-Pilot geeignet sind.',
+      subtitle: 'Mit einer kostenpflichtigen, klar abgegrenzten Validierungsleistung prüfen wir, ob Ihre Daten oder Dokumente für einen realistischen AI-Einstieg tragfähig sind.',
     },
     commercial: {
-      title: 'Mini-Pilot mit echter B2B-Selektion',
+      title: 'Begrenzte Validierungsleistung mit echter B2B-Selektion',
       price: 'ab 350 €',
-      body: 'Die Strukturprüfung des Samples ist keine kostenlose Anfrageform, sondern ein bezahlter Einstieg zur fachlichen Vorprüfung von Struktur, Risiken und realistischer Umsetzbarkeit.',
-      note: 'Der Betrag wird bei Beauftragung eines Folgeprojekts vollständig angerechnet. Kein Datei-Upload in V1; der erste Schritt dient der Umfangsklärung, bevor sensible Finanzdaten sicher ausgetauscht werden.',
+      body: 'Die Strukturprüfung des Samples ist keine kostenlose Anfrageform, sondern ein bezahlter Einstieg zur Vorprüfung von Struktur, Risiken, Feldkonsistenz und realistischer Umsetzbarkeit.',
+      note: 'Der Betrag wird bei Beauftragung eines Folgeprojekts vollständig angerechnet. Kein Datei-Upload in V1; der erste Schritt dient einer risikoarmen Umfangsklärung, bevor sensible Finanzdaten sicher ausgetauscht werden.',
     },
     pitch: {
-      title: 'Warum der Einstieg als Mini-Pilot sinnvoll ist',
-      body: ['Viele AI- und Automatisierungsprojekte scheitern nicht am Modell, sondern an der Datenrealität.', 'Ein kleiner, klar abgegrenzter Mini-Pilot schafft früh Klarheit über Nutzbarkeit, Risiken, Zielstruktur und passende Ergebnisformate.'],
+      title: 'Warum ein Scoped Sample Review sinnvoll ist',
+      body: ['Viele AI- und Automatisierungsprojekte scheitern nicht am Modell, sondern an der Datenrealität.', 'Eine kleine, klar abgegrenzte Validierungsleistung schafft früh Klarheit über Nutzbarkeit, Risiken, Zielstruktur und passende Ergebnisformate.'],
     },
     requirements: {
-      title: 'Was Sie im Mini-Pilot erhalten',
-      bullets: ['eine kurze fachliche und technische Einschätzung', 'Hinweise zu Risiken, Datenqualität und Struktur', 'einen realistischen Projektvorschlag', 'eine belastbare Grundlage für Budget und Umfang', 'auf Wunsch zunächst mit anonymisiertem Beispieldatensatz'],
+      title: 'Was Sie im Scoped Sample Review erhalten',
+      bullets: ['eine kurze fachliche und technische Einschätzung', 'Hinweise zu Risiken, Datenqualität, Feldkonsistenz und Struktur', 'einen realistischen Projektvorschlag', 'eine belastbare Grundlage für Budget und Umfang', 'auf Wunsch zunächst mit anonymisiertem Beispieldatensatz'],
     },
     form: {
       title: 'Anfrageformular',
@@ -803,7 +1117,7 @@ export const sampleReviewContentByLocale: Record<DataPrepLocale, SampleReviewCon
         'große Datei-Anhänge in V1',
       ],
       securityNote: 'Auf Wunsch können Sie die Daten zuerst anonymisiert oder nur mit einem beschreibenden Auszug einreichen.',
-      footerNote: 'Kein Datei-Upload in V1. Die Anfrage dient der Umfangsklärung für einen kostenpflichtigen Mini-Pilot, bevor sensible Daten sicher ausgetauscht werden.',
+      footerNote: 'Kein Datei-Upload in V1. Die Anfrage dient der Umfangsklärung für eine kostenpflichtige Validierungsleistung, bevor sensible Daten sicher ausgetauscht werden.',
       selectPlaceholder: 'Bitte wählen',
       fields: [
         { name: 'name', label: 'Name', type: 'text', required: true, autocomplete: 'name' },
@@ -816,47 +1130,47 @@ export const sampleReviewContentByLocale: Record<DataPrepLocale, SampleReviewCon
         ...hiddenFields(deRoutes.thankYou),
       ],
       consentLabel: 'Ich stimme zu, dass meine Angaben zur Bearbeitung dieser geschäftlichen Anfrage verarbeitet werden.',
-      submitLabel: 'Kostenpflichtige Analyse anfragen',
+      submitLabel: 'Scoped Sample Review anfragen',
       successRedirect: deRoutes.thankYou,
     },
     submission: {
       title: 'Nach dem Absenden',
-      body: ['Ich prüfe die Angaben fachlich und melde mich mit einer klaren Einschätzung.', 'Wenn der Umfang passt, erhalten Sie einen Vorschlag für den nächsten sinnvollen Schritt.'],
+      body: ['Ich prüfe die Angaben fachlich und melde mich mit einer klaren Einschätzung.', 'Wenn der Umfang passt, erhalten Sie einen Vorschlag für den nächsten sinnvollen Schritt und den passenden Arbeitsmodus.'],
       guarantee: 'Der Einstieg kann bewusst klein gehalten werden.',
     },
     cta: {
       title: 'Bereit für den ersten Check?',
-      body: 'Wenn Sie bereits konkrete Dateien oder Datenmuster haben, startet hier die fachliche Vorprüfung über das Formular auf dieser Website.',
+      body: 'Wenn Sie bereits konkrete Datenmuster, Dokumenttypen oder Strukturfragen haben, startet hier die fachliche Vorprüfung über das Formular auf dieser Website.',
       minimizationTitle: 'Anonymisierung',
       minimizationBody: 'Wenn die Daten sensibel sind, reicht für V1 ein anonymisierter Auszug oder eine beschreibende Zusammenfassung.',
-      reviewSummary: 'Nach dem Absenden erhalten Sie eine klare Einordnung zu Umfang, Risiken und dem sinnvollsten nächsten Schritt für einen bezahlten Mini-Pilot.',
+      reviewSummary: 'Nach dem Absenden erhalten Sie eine klare Einordnung zu Umfang, Risiken und dem sinnvollsten nächsten Schritt für eine begrenzte Validierungsleistung.',
       backLabel: 'Zur Landing Page',
     },
   },
   en: {
     seo: {
       title: 'Review Sample Structure | AI Data Preparation',
-      description: 'Paid mini pilot to assess whether your data foundation is suitable for AI, RAG or automation use cases.',
+      description: 'A paid, limited-scope validation engagement to assess whether your data foundation is suitable for AI, RAG or downstream implementation.',
       ogImage: '/images/og-default.webp',
     },
     hero: {
-      eyebrow: 'Mini Pilot',
+      eyebrow: 'Scoped Sample Review',
       title: 'Review Sample Structure',
-      subtitle: 'With a paid, tightly scoped mini pilot, we validate whether your data or documents are realistic candidates for an AI project.',
+      subtitle: 'With a paid, tightly scoped validation engagement, we assess whether your data or documents are realistic candidates for an AI initiative.',
     },
     commercial: {
-      title: 'Mini pilot with deliberate B2B filtering',
+      title: 'Limited-scope validation with deliberate B2B filtering',
       price: 'from €350',
-      body: 'This is not a free lead magnet. It is a paid first step to assess structure, risks and realistic implementation potential.',
-      note: 'The amount is fully credited if a follow-up project starts. No file upload in V1; the first step is scope clarification before any sensitive finance data is exchanged securely.',
+      body: 'This is not a free lead magnet. It is a paid first step to assess structure, risks, field consistency and realistic implementation potential.',
+      note: 'The amount is fully credited if a follow-up project starts. No file upload in V1; the first step is a low-risk scope clarification before any sensitive finance data is exchanged securely.',
     },
     pitch: {
-      title: 'Why a mini pilot is the right starting point',
-      body: ['Many AI and automation initiatives fail because of the data foundation, not because of the model.', 'A tightly scoped pilot creates early clarity on usability, risks, target structure and realistic output formats.'],
+      title: 'Why a scoped sample review is the right starting point',
+      body: ['Many AI and automation initiatives fail because of the data foundation, not because of the model.', 'A tightly scoped validation engagement creates early clarity on usability, risks, target structure and realistic output formats.'],
     },
     requirements: {
-      title: 'What you receive in the mini pilot',
-      bullets: ['a short business and technical assessment', 'notes on risks, data quality and structure', 'a realistic project recommendation', 'a sound basis for budget and scope', 'optionally based on anonymized examples first'],
+      title: 'What you receive in the scoped sample review',
+      bullets: ['a short business and technical assessment', 'notes on risks, data quality, field consistency and structure', 'a realistic project recommendation', 'a sound basis for budget and scope', 'optionally based on anonymized examples first'],
     },
     form: {
       title: 'Inquiry form',
@@ -874,7 +1188,7 @@ export const sampleReviewContentByLocale: Record<DataPrepLocale, SampleReviewCon
         'large file attachments in V1',
       ],
       securityNote: 'If needed, you can start with anonymized data or a descriptive excerpt only.',
-      footerNote: 'No file upload in V1. This request is used to clarify scope for a paid mini pilot before sensitive data is exchanged securely.',
+      footerNote: 'No file upload in V1. This request is used to clarify scope for a paid validation engagement before sensitive data is exchanged securely.',
       selectPlaceholder: 'Please select',
       fields: [
         { name: 'name', label: 'Name', type: 'text', required: true, autocomplete: 'name' },
@@ -887,12 +1201,12 @@ export const sampleReviewContentByLocale: Record<DataPrepLocale, SampleReviewCon
         ...hiddenFields(enRoutes.thankYou),
       ],
       consentLabel: 'I agree that my information may be processed to handle this business inquiry.',
-      submitLabel: 'Request paid analysis',
+      submitLabel: 'Request scoped sample review',
       successRedirect: enRoutes.thankYou,
     },
     submission: {
       title: 'After submitting',
-      body: ['I review the request and come back with a clear assessment.', 'If the scope fits, you receive a recommendation for the most sensible next step.'],
+      body: ['I review the request and come back with a clear assessment.', 'If the scope fits, you receive a recommendation for the most sensible next step and collaboration mode.'],
       guarantee: 'The initial scope can stay intentionally small.',
     },
     cta: {
@@ -900,34 +1214,34 @@ export const sampleReviewContentByLocale: Record<DataPrepLocale, SampleReviewCon
       body: 'If you already have a concrete sample dataset or document pattern, this is where the structured review starts.',
       minimizationTitle: 'Data minimization',
       minimizationBody: 'If the data is sensitive, an anonymized excerpt or descriptive summary is sufficient for V1.',
-      reviewSummary: 'After submission, you receive a clear view on scope, risks and the most sensible next step for a paid mini pilot.',
+      reviewSummary: 'After submission, you receive a clear view on scope, risks and the most sensible next step for a limited-scope validation engagement.',
       backLabel: 'Back to landing page',
     },
   },
   ro: {
     seo: {
       title: 'Revizuire Structură Eșantion | Pregătire Date AI',
-      description: 'Mini pilot plătit pentru a evalua dacă baza ta de date este potrivită pentru AI, RAG sau automatizare.',
+      description: 'O validare plătită, cu scope limitat, pentru a evalua dacă baza ta de date este potrivită pentru AI, RAG sau implementarea ulterioară.',
       ogImage: '/images/og-default.webp',
     },
     hero: {
-      eyebrow: 'Mini Pilot',
+      eyebrow: 'Scoped Sample Review',
       title: 'Revizuire Structură Eșantion',
-      subtitle: 'Printr-un mini pilot plătit și bine delimitat verificăm dacă datele sau documentele tale sunt candidați realiști pentru un proiect AI.',
+      subtitle: 'Printr-o validare plătită și bine delimitată verificăm dacă datele sau documentele tale sunt candidați realiști pentru o inițiativă AI.',
     },
     commercial: {
-      title: 'Mini pilot cu filtrare B2B reală',
+      title: 'Validare cu scope limitat și filtrare B2B reală',
       price: 'de la 350 €',
-      body: 'Aceasta nu este o solicitare gratuită de captare, ci un prim pas plătit pentru a evalua structura, riscurile și fezabilitatea reală.',
-      note: 'Suma se deduce integral dacă începe un proiect ulterior. Fără încărcare de fișiere în V1; primul pas este clarificarea anvergurii înainte de schimbul securizat de date sensibile.',
+      body: 'Aceasta nu este o solicitare gratuită de captare, ci un prim pas plătit pentru a evalua structura, riscurile, consistența câmpurilor și fezabilitatea reală.',
+      note: 'Suma se deduce integral dacă începe un proiect ulterior. Fără încărcare de fișiere în V1; primul pas este o clarificare cu risc redus înainte de schimbul securizat de date sensibile.',
     },
     pitch: {
-      title: 'De ce mini pilotul este punctul corect de plecare',
-      body: ['Multe inițiative AI și de automatizare eșuează din cauza bazei de date, nu din cauza modelului.', 'Un pilot îngust oferă claritate timpurie despre utilizabilitate, riscuri, structură țintă și rezultate realiste.'],
+      title: 'De ce un Scoped Sample Review este punctul corect de plecare',
+      body: ['Multe inițiative AI și de automatizare eșuează din cauza bazei de date, nu din cauza modelului.', 'O validare îngustă și bine delimitată oferă claritate timpurie despre utilizabilitate, riscuri, structură țintă și rezultate realiste.'],
     },
     requirements: {
-      title: 'Ce primești în mini pilot',
-      bullets: ['o evaluare scurtă de business și tehnică', 'observații despre riscuri, calitatea datelor și structură', 'o recomandare realistă de proiect', 'o bază solidă pentru buget și anvergură', 'la nevoie, pornind de la exemple anonimizate'],
+      title: 'Ce primești în acest Scoped Sample Review',
+      bullets: ['o evaluare scurtă de business și tehnică', 'observații despre riscuri, calitatea datelor, consistența câmpurilor și structură', 'o recomandare realistă de proiect', 'o bază solidă pentru buget și anvergură', 'la nevoie, pornind de la exemple anonimizate'],
     },
     form: {
       title: 'Formular de solicitare',
@@ -945,7 +1259,7 @@ export const sampleReviewContentByLocale: Record<DataPrepLocale, SampleReviewCon
         'atașamente mari în V1',
       ],
       securityNote: 'Dacă este nevoie, poți începe cu date anonimizate sau doar cu un extras descriptiv.',
-      footerNote: 'Fără încărcare de fișiere în V1. Cererea servește clarificării anvergurii pentru un mini pilot plătit, înainte de schimbul securizat al datelor sensibile.',
+      footerNote: 'Fără încărcare de fișiere în V1. Cererea servește clarificării anvergurii pentru o validare plătită, înainte de schimbul securizat al datelor sensibile.',
       selectPlaceholder: 'Te rog selectează',
       fields: [
         { name: 'name', label: 'Nume', type: 'text', required: true, autocomplete: 'name' },
@@ -958,12 +1272,12 @@ export const sampleReviewContentByLocale: Record<DataPrepLocale, SampleReviewCon
         ...hiddenFields(roRoutes.thankYou),
       ],
       consentLabel: 'Sunt de acord ca informațiile mele să fie procesate pentru gestionarea acestei cereri de business.',
-      submitLabel: 'Solicită analiză plătită',
+      submitLabel: 'Solicită Scoped Sample Review',
       successRedirect: roRoutes.thankYou,
     },
     submission: {
       title: 'După trimitere',
-      body: ['Analizez solicitarea și revin cu o evaluare clară.', 'Dacă anvergura se potrivește, primești o recomandare pentru următorul pas rezonabil.'],
+      body: ['Analizez solicitarea și revin cu o evaluare clară.', 'Dacă anvergura se potrivește, primești o recomandare pentru următorul pas rezonabil și modul de colaborare potrivit.'],
       guarantee: 'Anvergura inițială poate rămâne intenționat mică.',
     },
     cta: {
@@ -971,7 +1285,7 @@ export const sampleReviewContentByLocale: Record<DataPrepLocale, SampleReviewCon
       body: 'Dacă ai deja un eșantion concret de date sau documente, aici începe revizuirea structurii.',
       minimizationTitle: 'Minimizarea datelor',
       minimizationBody: 'Dacă datele sunt sensibile, pentru V1 este suficient un extras anonimizat sau un rezumat descriptiv.',
-      reviewSummary: 'După trimitere, primești o imagine clară asupra anvergurii, riscurilor și următorului pas rezonabil pentru un mini pilot plătit.',
+      reviewSummary: 'După trimitere, primești o imagine clară asupra anvergurii, riscurilor și următorului pas rezonabil pentru o validare cu scope limitat.',
       backLabel: 'Înapoi la landing page',
     },
   },
@@ -988,11 +1302,11 @@ export const thankYouPageContentByLocale: Record<DataPrepLocale, ThankYouPageCon
     title: 'Danke für Ihre Anfrage',
     body: 'Ihre Angaben sind eingegangen. Ich prüfe die Datenbasis und melde mich mit einer ersten Einschätzung.',
     nextStepTitle: 'Nächster Schritt',
-    nextStepBody: 'Wenn der Mini-Pilot sinnvoll ist, erhalten Sie eine klare Einordnung zu Umfang, Risiken und sinnvoller Ausgangslage.',
+    nextStepBody: 'Wenn eine begrenzte Validierungsleistung sinnvoll ist, erhalten Sie eine klare Einordnung zu Umfang, Risiken und sinnvoller Ausgangslage.',
     replyTitle: 'Direkte Rückmeldung per E-Mail',
     replyBody: 'Ich antworte auf dieselbe Business-E-Mail-Adresse, die Sie im Formular angegeben haben.',
     reviewTitle: 'Was ich jetzt prüfe',
-    reviewItems: ['Struktur und Verwertbarkeit der angegebenen Datenbasis', 'Risiken, Sonderfälle und notwendige Vorarbeit', 'Ob ein Mini-Pilot oder ein direkter nächster Schritt sinnvoll ist'],
+    reviewItems: ['Struktur und Verwertbarkeit der angegebenen Datenbasis', 'Risiken, Sonderfälle und notwendige Vorarbeit', 'Ob ein Scoped Sample Review oder ein direkter nächster Schritt sinnvoll ist'],
     reviewNote: 'Der Einstieg kann bewusst klein gehalten werden.',
     backLink: { label: 'Zur Landing Page', href: deRoutes.landing },
   },
@@ -1006,11 +1320,11 @@ export const thankYouPageContentByLocale: Record<DataPrepLocale, ThankYouPageCon
     title: 'Thanks for your request',
     body: 'Your information has been received. I am reviewing the data context and will come back with an initial assessment.',
     nextStepTitle: 'Next step',
-    nextStepBody: 'If a mini pilot makes sense, you will receive a clear view on scope, risks and the right starting point.',
+    nextStepBody: 'If a limited-scope validation engagement makes sense, you will receive a clear view on scope, risks and the right starting point.',
     replyTitle: 'Direct reply window',
     replyBody: 'I reply to the same business email address you submitted through the form.',
     reviewTitle: 'What I review now',
-    reviewItems: ['Structure and usability of the data foundation you described', 'Risks, edge cases and required preparation work', 'Whether a mini pilot or another next step makes sense'],
+    reviewItems: ['Structure and usability of the data foundation you described', 'Risks, edge cases and required preparation work', 'Whether a scoped sample review or another next step makes sense'],
     reviewNote: 'The initial entry point can stay intentionally small.',
     backLink: { label: 'Back to landing page', href: enRoutes.landing },
   },
@@ -1024,11 +1338,11 @@ export const thankYouPageContentByLocale: Record<DataPrepLocale, ThankYouPageCon
     title: 'Mulțumesc pentru solicitare',
     body: 'Informațiile au fost primite. Analizez contextul datelor și revin cu o primă evaluare.',
     nextStepTitle: 'Pasul următor',
-    nextStepBody: 'Dacă mini pilotul are sens, vei primi o imagine clară asupra anvergurii, riscurilor și punctului corect de pornire.',
+    nextStepBody: 'Dacă o validare cu scope limitat are sens, vei primi o imagine clară asupra anvergurii, riscurilor și punctului corect de pornire.',
     replyTitle: 'Răspuns direct pe e-mail',
     replyBody: 'Răspund pe aceeași adresă de business pe care ai trimis-o prin formular.',
     reviewTitle: 'Ce verific acum',
-    reviewItems: ['Structura și utilizabilitatea bazei de date descrise', 'Riscuri, cazuri speciale și pregătirea necesară', 'Dacă un mini pilot sau alt pas următor are sens'],
+    reviewItems: ['Structura și utilizabilitatea bazei de date descrise', 'Riscuri, cazuri speciale și pregătirea necesară', 'Dacă un Scoped Sample Review sau alt pas următor are sens'],
     reviewNote: 'Punctul de intrare poate rămâne intenționat mic.',
     backLink: { label: 'Înapoi la landing page', href: roRoutes.landing },
   },

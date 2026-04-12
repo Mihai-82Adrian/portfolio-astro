@@ -1,0 +1,68 @@
+---
+import Container from '@components/ui/Container.astro';
+import Card from '@components/ui/Card.astro';
+import type { LandingPageContent } from '@data/services/data-prep-for-ai';
+
+interface Props {
+  content: LandingPageContent['whatItIs'];
+}
+
+const { content } = Astro.props;
+---
+
+<section>
+  <Container maxWidth="lg" paddingY="lg">
+    <div class="max-w-3xl">
+      <h2 class="text-3xl font-bold tracking-tight text-text-primary-light dark:text-text-primary-dark sm:text-4xl">
+        {content.title}
+      </h2>
+      <p class="mt-4 text-pretty text-lg leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+        {content.intro}
+      </p>
+    </div>
+
+    <div class="mt-8 grid gap-6 lg:grid-cols-2">
+      <Card class="h-full">
+        <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
+          {content.isTitle}
+        </h3>
+        <ul class="mt-5 space-y-4">
+          {content.is.map((item) => (
+            <li class="flex items-start gap-3">
+              <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-eucalyptus-500" aria-hidden="true"></span>
+              <div>
+                <p class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+                  {item.title}
+                </p>
+                <p class="mt-1 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                  {item.description}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Card>
+
+      <Card class="h-full">
+        <h3 class="text-lg font-semibold text-text-primary-light dark:text-text-primary-dark">
+          {content.isNotTitle}
+        </h3>
+        <ul class="mt-5 space-y-4">
+          {content.isNot.map((item) => (
+            <li class="flex items-start gap-3">
+              <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-black/35 dark:bg-white/35" aria-hidden="true"></span>
+              <div>
+                <p class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
+                  {item.title}
+                </p>
+                <p class="mt-1 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+                  {item.description}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Card>
+    </div>
+  </Container>
+</section>
