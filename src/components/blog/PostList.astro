@@ -22,6 +22,7 @@ interface Props {
   /** Empty state message */
   emptyMessage?: string;
   lang?: Language;
+  featuredSlugs?: string[];
 }
 
 const {
@@ -30,6 +31,7 @@ const {
   showEmptyState = true,
   emptyMessage,
   lang: langProp,
+  featuredSlugs = [],
 } = Astro.props;
 
 const lang = langProp ?? getLanguageFromPath(Astro.url.pathname);
@@ -57,10 +59,10 @@ const columnClasses = {
         slug={post.id}
         description={post.data.description}
         pubDate={post.data.pubDate}
-        readingTime={post.data.readingTime?.minutes}
+        readingTime={(post as typeof post & { readingTime?: { minutes: number } }).readingTime?.minutes ?? post.data.readingTime?.minutes}
         tags={post.data.tags}
         image={post.data.heroImage ? { src: post.data.heroImage, alt: post.data.title } : undefined}
-        featured={post.data.featured}
+        featured={featuredSlugs.includes(post.id) || post.data.featured}
         lang={lang}
       />
     ))}

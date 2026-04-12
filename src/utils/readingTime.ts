@@ -17,8 +17,8 @@ export function calculateReadingTime(
     .replace(/```[\s\S]*?```/g, '')
     // Remove inline code
     .replace(/`[^`]*`/g, '')
-    // Remove HTML tags
-    .replace(/<[^>]*>/g, '')
+    // Remove actual HTML tags, but keep technical prose like "<40%" or type syntax
+    .replace(/<\/?[a-zA-Z][^>]*>/g, '')
     // Remove markdown links
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
     // Remove markdown images

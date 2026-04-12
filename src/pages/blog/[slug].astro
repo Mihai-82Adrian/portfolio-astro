@@ -9,7 +9,7 @@ import TableOfContents from '@/components/blog/TableOfContents.astro';
 import LearningDisclaimer from '@/components/blog/LearningDisclaimer.astro';
 import ShareButtons from '@/components/blog/ShareButtons.astro';
 import Comments from '@/components/blog/Comments.astro';
-import { calculateReadingTime } from '@/utils/readingTime';
+import { decoratePostsWithReadingTime, getBlogReadingTimeById } from '@/utils/blogContent';
 import { generateBlogPostingSchema } from '@/utils/structuredData';
 import { getRelatedPosts } from '@/lib/utils/relatedPosts';
 
@@ -29,14 +29,14 @@ const { post } = Astro.props;
 const { title, description, pubDate, updatedDate, category, tags, author } = post.data;
 const { Content, headings } = await render(post);
 
-// Calculate reading time - use pre-calculated data if available, or fallback
-const readingTime = post.data.readingTime?.minutes ?? calculateReadingTime(post.id).minutes;
+// Calculate reading time from the actual source file
+const readingTime = post.data.readingTime?.minutes ?? (await getBlogReadingTimeById(post.id)).minutes;
 
 // Get all posts for related posts calculation
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);
 
 // Get related posts using similarity algorithm (category + tags + recency)
-const relatedPosts = getRelatedPosts(post, allPosts, 3);
+const relatedPosts = await decoratePostsWithReadingTime(getRelatedPosts(post, allPosts, 3));
 
 const pageTitle = title;
 
@@ -163,7 +163,7 @@ const blogPostingSchema = generateBlogPostingSchema(post, Astro.url.toString());
         </h2>
         <div class="grid md:grid-cols-3 gap-6">
           {relatedPosts.map((relatedPost) => {
-            const readingTimeText = relatedPost.data.readingTime?.text || '1 min read';
+            const readingTimeText = relatedPost.readingTime?.text || relatedPost.data.readingTime?.text || '1 min read';
             return (
               <Card>
                 <div class="flex items-center gap-2 text-sm text-text-secondary-light dark:text-text-secondary-dark mb-3">
