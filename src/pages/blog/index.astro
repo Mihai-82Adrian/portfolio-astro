@@ -4,32 +4,13 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Container from '@/components/ui/Container.astro';
 import PostList from '@/components/blog/PostList.astro';
 import Search from '@/components/Search.astro';
-import { calculateReadingTime } from '@/utils/readingTime';
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import { decoratePostsWithReadingTime } from '@/utils/blogContent';
 
 // Get all published blog posts, sorted by date (newest first)
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);
 
-// Add reading time to each post
-const postsWithReadingTime = await Promise.all(
-  allPosts.map(async (post) => {
-    // Astro v6 Content Layer: post.body is gone. 
-    // For now, we read the file manually for reading time on the index.
-    // In the future, this can be moved to a loader transform.
-    try {
-      const filePath = path.join(process.cwd(), 'src/content/blog', post.id);
-      const content = await fs.readFile(filePath, 'utf-8');
-      const readingTime = calculateReadingTime(content);
-      return { ...post, readingTime };
-    } catch (e) {
-      return { 
-        ...post, 
-        readingTime: { minutes: 1, text: '1 min read' }
-      };
-    }
-  })
-);
+// Add reading time to each post from the actual source file
+const postsWithReadingTime = await decoratePostsWithReadingTime(allPosts);
 
 const sortedPosts = postsWithReadingTime.sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
@@ -44,8 +25,9 @@ const paginatedPosts = sortedPosts.slice(0, postsPerPage);
 // Get unique categories for filter
 const categories = [...new Set(allPosts.map(post => post.data.category))];
 
-// Get featured posts
-const featuredPosts = sortedPosts.filter(post => post.data.featured).slice(0, 3);
+// Rotate featured posts automatically: newest 3 published posts replace the oldest slot
+const featuredPosts = sortedPosts.slice(0, 3);
+const featuredSlugs = featuredPosts.map(post => post.id);
 
 const pageTitle = 'Blog — AI, Finance & FinTech';
 const pageDescription = 'Research-driven articles on AI/ML in finance, FinTech compliance, and software engineering — at the intersection of technology and accounting.';
@@ -144,7 +126,7 @@ const pageDescription = 'Research-driven articles on AI/ML in finance, FinTech c
       </div>
 
       <!-- All Posts -->
-      <PostList posts={paginatedPosts} />
+      <PostList posts={paginatedPosts} featuredSlugs={featuredSlugs} />
 
       <!-- Pagination -->
       {totalPages > 1 && (
@@ -165,24 +147,36 @@ const pageDescription = 'Research-driven articles on AI/ML in finance, FinTech c
         </div>
       )}
 
-      <!-- RSS Subscribe -->
+      <!-- Feed Subscribe -->
       <div class="mt-16 p-6 bg-eucalyptus-50 dark:bg-eucalyptus-900 rounded-lg">
         <h2 class="text-xl font-bold mb-2 text-text-primary-light dark:text-text-primary-dark">
-          Subscribe via RSS
+          Subscribe via Feed
         </h2>
         <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
-          Get notified of new posts in your RSS reader
+          Get notified of new posts in your feed reader via RSS or Atom
         </p>
-        <a
-          href="/rss.xml"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-eucalyptus-600 text-white rounded-md font-semibold hover:bg-eucalyptus-700 transition-colors"
-        >
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M5 3a1 1 0 000 2c5.523 0 10 4.477 10 10a1 1 0 102 0C17 8.373 11.627 3 5 3z" />
-            <path d="M4 9a1 1 0 011-1 7 7 0 017 7 1 1 0 11-2 0 5 5 0 00-5-5 1 1 0 01-1-1zM3 15a2 2 0 114 0 2 2 0 01-4 0z" />
-          </svg>
-          Subscribe to RSS Feed
-        </a>
+        <div class="flex flex-wrap gap-3">
+          <a
+            href="/rss.xml"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-eucalyptus-600 text-white rounded-md font-semibold hover:bg-eucalyptus-700 transition-colors"
+          >
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M5 3a1 1 0 000 2c5.523 0 10 4.477 10 10a1 1 0 102 0C17 8.373 11.627 3 5 3z" />
+              <path d="M4 9a1 1 0 011-1 7 7 0 017 7 1 1 0 11-2 0 5 5 0 00-5-5 1 1 0 01-1-1zM3 15a2 2 0 114 0 2 2 0 01-4 0z" />
+            </svg>
+            Subscribe via RSS
+          </a>
+          <a
+            href="/atom.xml"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-surface-light dark:bg-surface-dark text-text-primary-light dark:text-text-primary-dark rounded-md font-semibold border border-border-light dark:border-border-dark hover:bg-eucalyptus-100 dark:hover:bg-eucalyptus-900 transition-colors"
+          >
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M5 3a1 1 0 000 2c5.523 0 10 4.477 10 10a1 1 0 102 0C17 8.373 11.627 3 5 3z" />
+              <path d="M4 9a1 1 0 011-1 7 7 0 017 7 1 1 0 11-2 0 5 5 0 00-5-5 1 1 0 01-1-1zM3 15a2 2 0 114 0 2 2 0 01-4 0z" />
+            </svg>
+            Subscribe via Atom
+          </a>
+        </div>
       </div>
     </main>
   </Container>

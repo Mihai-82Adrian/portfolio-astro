@@ -149,6 +149,8 @@ const defaultStructuredData = {
 
     <!-- Canonical URL -->
     <link rel="canonical" href={canonicalHref} />
+    <link rel="alternate" type="application/rss+xml" title="Mihai Adrian Mateescu RSS Feed" href={`${siteUrl}/rss.xml`} />
+    <link rel="alternate" type="application/atom+xml" title="Mihai Adrian Mateescu Atom Feed" href={`${siteUrl}/atom.xml`} />
 
     <!-- Alternate Language Links (hreflang) -->
     {Object.entries(alternateUrls).map(([hreflang, url]) => (
