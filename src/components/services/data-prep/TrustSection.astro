@@ -16,6 +16,9 @@ const { content } = Astro.props;
       <h2 class="text-3xl font-bold tracking-tight text-text-primary-light dark:text-text-primary-dark sm:text-4xl">
         {content.title}
       </h2>
+      <p class="mt-4 text-pretty text-lg leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
+        {content.intro}
+      </p>
     </div>
 
     <div class="mt-8 grid gap-6 lg:grid-cols-[1fr_0.95fr]">

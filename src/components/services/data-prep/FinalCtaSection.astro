@@ -34,7 +34,7 @@ const { content } = Astro.props;
 
         <div class="rounded-2xl border border-eucalyptus-500/20 bg-[linear-gradient(180deg,rgba(107,142,111,0.08),rgba(107,142,111,0.02))] p-5 dark:border-eucalyptus-400/20">
           <p class="text-sm font-semibold uppercase tracking-[0.18em] text-eucalyptus-700 dark:text-eucalyptus-300">
-            Next step
+            {content.asideLabel}
           </p>
           <p class="mt-3 text-sm leading-relaxed text-text-secondary-light dark:text-text-secondary-dark">
             {content.microcopy}

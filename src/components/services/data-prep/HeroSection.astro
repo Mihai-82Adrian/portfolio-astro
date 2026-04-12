@@ -60,6 +60,14 @@ const { content } = Astro.props;
             {content.secondaryCta.label}
           </Button>
         </div>
+
+        <div class="mt-6 grid gap-3 border-t border-black/10 pt-5 dark:border-white/10 md:grid-cols-3">
+          {content.trustStrip.map((item) => (
+            <p class="text-sm leading-relaxed text-text-muted-light dark:text-text-muted-dark">
+              {item}
+            </p>
+          ))}
+        </div>
       </div>
 
       <div class="space-y-5">
