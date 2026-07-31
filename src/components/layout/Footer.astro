@@ -86,6 +86,9 @@ const legalLinks = [
   { href: `${basePath}/datenschutz`, label: "Datenschutz" },
 ];
 
+const privacySettingsLabel =
+  currentLang === "de" ? "Datenschutz-Einstellungen" : currentLang === "en" ? "Privacy settings" : "Setări confidențialitate";
+
 const languages = [
   { code: "de", label: "Deutsch", active: currentLang === "de" },
   { code: "en", label: "English", active: currentLang === "en" },
@@ -243,6 +246,11 @@ const languages = [
               </li>
             ))
           }
+          <li>
+            <button type="button" class="footer-link cursor-pointer text-left" data-privacy-settings-trigger>
+              {privacySettingsLabel}
+            </button>
+          </li>
         </ul>
       </div>
     </div>
@@ -279,6 +287,27 @@ const languages = [
     </div>
   </div>
 </footer>
+
+<script is:inline>
+  (() => {
+    const bindPrivacyTriggers = () => {
+      document.querySelectorAll('[data-privacy-settings-trigger]').forEach((btn) => {
+        if (btn.dataset.privacyBound) return;
+        btn.dataset.privacyBound = 'true';
+        btn.addEventListener('click', () => {
+          window.dispatchEvent(new Event('open-privacy-preferences'));
+        });
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bindPrivacyTriggers, { once: true });
+    } else {
+      bindPrivacyTriggers();
+    }
+    document.addEventListener('astro:page-load', bindPrivacyTriggers);
+  })();
+</script>
 
 <style>
   @reference "../../styles/global.css";

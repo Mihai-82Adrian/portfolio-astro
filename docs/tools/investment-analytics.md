@@ -18,7 +18,7 @@ Investment Analytics is the most complex tool in the Fin-Tools Hub. It evaluates
 | **Monte Carlo**  | 1,000 lognormal paths → P5 / P50 / P95 per year              |
 | **DACH Tax**     | Abgeltungsteuer 26.375 %, Freistellungsauftrag, Vorabpauschale, Teilfreistellung, Kirchensteuer |
 
-All calculations run **entirely in the browser** (no data transmission). The optional AI analysis calls a Cloudflare Worker that proxies OpenAI o4-mini and is rate-limited to **1 call per IP per 7 days** in production.
+All calculations run **entirely in the browser** (no data transmission). The optional AI analysis calls a Cloudflare Worker that proxies OpenAI's Responses API (`gpt-5.6-sol`, stateless `store: false`) and is rate-limited to **1 call per IP per 7 days** in production.
 
 ---
 
@@ -64,7 +64,7 @@ Stores `{ input, aiNarrative, lastAiAt }`. Restored on `onMount`; writes gated b
 | `RISK_FREE_RATE`          | `0.025`  | Deutsche Bundesanleihe 10Y ~2.5 %  |
 | `TAX_RATE`                | `0.26375`| 25 % Abgeltungsteuer + 1.375 % Soli|
 | `FREISTELLUNGSAUFTRAG`    | `1000`   | EUR/year per person (§ 20 Abs. 9 EStG) |
-| `VORABPAUSCHALE_RATE_2026`| `0.0224` | Basiszins × 0.7 (2026 rate)        |
+| `BASISZINS_2026`          | `0.032`  | Official Basiszins per BMF-Schreiben IV C 1 - S 1980/00230/012/001 (13.01.2026, reference date 2.1.2026) — used per-year in `calcVorabpauschale`, not as a flat pre-multiplied rate |
 | `WEEKLY_COOLDOWN_MS`      | `604800000` | 7 × 24 × 60 × 60 × 1000 ms     |
 
 ### Default Input (verified from source)
@@ -156,28 +156,41 @@ adjustedGain   = grossGain × 0.7  (else = grossGain)
 teilfreistellungReduction = grossGain − adjustedGain
 
 taxableGain    = max(0, adjustedGain − personalFreibetrag)
-taxAmount      = taxableGain × 0.26375
 
-// Kirchensteuer
-kirchensteuerAmount = taxAmount × (kirchensteuer / 100)  // 0, 8, or 9 %
+// KESt + Soli + Kirchensteuer — § 32d Abs. 1 Satz 3–5 EStG (calcKESt)
+kest                = taxableGain / (4 + k)     // k = Kirchensteuersatz as decimal (0, 0.08, 0.09)
+kirchensteuerAmount = k × kest
+soli                = 0.055 × kest
+taxAmount           = kest + soli               // "Abgeltungsteuer" line, excludes Kirchensteuer
+totalTax            = kest + soli + kirchensteuerAmount
 
-netGain        = grossGain − taxAmount − kirchensteuerAmount
-effectiveTaxRate = ((taxAmount + kirchensteuerAmount) / grossGain) × 100   [if grossGain > 0]
+netGain        = grossGain − totalTax
+effectiveTaxRate = (totalTax / grossGain) × 100   [if grossGain > 0]
 
-vorabpauschale = initial × VORABPAUSCHALE_RATE_2026 × (1 − ter/100)
-                 [only if isFund && isAccumulating]
-                 NOTE: Worst-case estimate (assumes positive annual return)
+// Vorabpauschale (§ 18 InvStG) — only if isFund && isAccumulating, computed per year
+// of the holding period via calcVorabpauschale(initial, years, initial + grossGain, basiszins, teilfreistellung):
+//   Basisertrag_year = Fondswert(Jahresanfang) × Basiszins × 0.7
+//   Vorabpauschale_year = max(0, min(Basisertrag_year, Fondswert(Jahresende) − Fondswert(Jahresanfang)))
+// The per-year Fondswert path is derived from the CAGR implied by initial → final value
+// (the tool has no real intra-holding NAV curve) — this is the one remaining disclosed
+// simplification; the cap/floor mechanism itself is the exact statutory formula.
+// vorabpauschaleTax = calcKESt(Σ taxable Vorabpauschale, kirchensteuer).total
 ```
 
-**Function signature:**
+**Function signatures:**
 ```ts
+calcKESt(taxableAmount, kirchensteuerPercent)
+calcVorabpauschale(initial, years, finalValue, basiszins, teilfreistellung)
 calcTax(initial, cashFlows, isFund, isAccumulating, ter,
-        personalFreibetrag, teilfreistellung, kirchensteuer)
+        personalFreibetrag, teilfreistellung, kirchensteuer, basiszins = BASISZINS_2026)
 ```
 
 **Remaining simplifications (documented in MethodologyModal section E):**
 - No multi-year loss carryforward
-- Vorabpauschale is a worst-case estimate (no actual performance adjustment)
+- Vorabpauschale's per-year Fondswert path is smoothed from the overall CAGR, not a real
+  month-by-month NAV curve — the cap-at-actual-appreciation mechanism itself is exact
+- TER is not netted against Vorabpauschale (fund costs are already reflected in the fund's own
+  NAV appreciation; netting it again would double-count the fee effect)
 
 ---
 
@@ -332,7 +345,7 @@ Filename: `Investment-Analytics_YYYY-MM-DD.pdf`
 ## 7. AI Worker (`functions/api/investment-analysis.ts`)
 
 **Endpoint:** `POST /api/investment-analysis`
-**Model:** OpenAI o4-mini, `reasoning_effort: 'low'`, `role: 'developer'`
+**Model:** OpenAI `gpt-5.6-sol` via the Responses API, `reasoning.effort: 'medium'`, `text.verbosity: 'medium'`, `role: 'developer'`, `store: false`
 
 ### Security layers (production only — localhost bypassed)
 
@@ -355,7 +368,7 @@ Required fields: `initialInvestment` (number), `returnMetrics` (object), `riskMe
   "recommendation": "string"
 }
 ```
-Enforced via `response_format.json_schema` (strict mode). The frontend stores the raw JSON string in `aiNarrative` state and renders it parsed.
+Enforced via the Responses API's `text.format` (`type: 'json_schema'`, `strict: true`). The frontend stores the raw JSON string in `aiNarrative` state and renders it parsed.
 
 ### System prompt tone
 "CFO-Berater und Portfoliomanager, DACH-Expertise, direkt, professionell, faktenbasiert. Keine Allgemeinplätze." All output in German, 2–3 sentences per field max.
@@ -395,9 +408,13 @@ These are explicitly documented in MethodologyModal section E and known by desig
 
 1. **Sparse data risk:** Sharpe / VaR statistically unreliable with < 4 cashflow years
 2. **Fat tails:** Monte Carlo uses lognormal (not fat-tailed) distribution — underweights crisis scenarios (v2 feature: Student-T or stress shock)
-3. **Tax simplification:** No multi-year Verlustvortrag. Kirchensteuer (8/9 %) and Teilfreistellung (30 % Aktienfonds) are now supported.
+3. **Tax simplification:** No multi-year Verlustvortrag. Kirchensteuer (8/9 %, via the correct § 32d
+   Abs. 1 EStG reduced-KESt formula) and Teilfreistellung (30 % Aktienfonds) are supported.
 4. **CAGR scope:** Valid only for single-cashflow exit; displayed as `—` for multi-cashflow scenarios (use IRR)
-5. **Vorabpauschale estimate:** Worst-case calculation — actual amount may be lower or zero in negative return years
+5. **Vorabpauschale per-year path:** Computed year-by-year per § 18 InvStG (Basisertrag capped at
+   actual appreciation, floored at 0), but the intra-holding Fondswert path is smoothed from the
+   overall CAGR rather than a real month-by-month NAV curve — a real year with a temporary loss can
+   still differ from this smoothed estimate.
 
 ---
 

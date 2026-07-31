@@ -97,12 +97,12 @@ const isServicesRoute = new Set([
       </a>
 
       <!-- Desktop Navigation -->
-      <div class="hidden md:block">
+      <div class="hidden lg:block">
         <Navigation currentPath={currentPath} basePath={basePath} />
       </div>
 
       <!-- Right Section: Theme Toggle & Mobile Menu -->
-      <div class="flex items-center space-x-3 md:space-x-4">
+      <div class="header-controls flex min-w-0 items-center gap-3 md:gap-4">
         
         {!isServicesRoute && (
           <>
@@ -164,7 +164,7 @@ const isServicesRoute = new Set([
         <button
           id="mobile-menu-toggle"
           type="button"
-          class="md:hidden p-3 rounded-lg focus-ring text-text-primary-light dark:text-text-primary-dark min-w-[44px] min-h-[44px] flex items-center justify-center"
+          class="lg:hidden p-3 rounded-lg focus-ring text-text-primary-light dark:text-text-primary-dark min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label={headerCopy.mobileMenuToggle}
           aria-expanded="false"
           aria-controls="mobile-menu"
@@ -206,7 +206,7 @@ const isServicesRoute = new Set([
     <!-- Mobile Menu -->
     <div
       id="mobile-menu"
-      class="md:hidden hidden absolute left-0 right-0 top-full bg-light-bg dark:bg-dark-bg shadow-lg dark:shadow-2xl"
+      class="lg:hidden hidden absolute left-0 right-0 top-full bg-light-bg dark:bg-dark-bg shadow-lg dark:shadow-2xl"
       role="navigation"
       aria-label={headerCopy.mobileNav}
     >
@@ -341,6 +341,28 @@ const isServicesRoute = new Set([
   /* Smooth transitions for mobile menu */
   #mobile-menu {
     animation: slideDown 0.2s ease-out;
+  }
+
+  @media (max-width: 40rem) {
+    .header-controls {
+      gap: 4px;
+    }
+
+    #ask-mihai-trigger,
+    #mobile-menu-toggle,
+    :global(#theme-toggle) {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
+      padding: 10px;
+    }
+
+    #mobile-menu-toggle svg,
+    :global(#theme-toggle svg) {
+      width: 20px;
+      height: 20px;
+    }
   }
 
   @keyframes slideDown {

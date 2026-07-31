@@ -15,6 +15,9 @@
     pvChildrenRebates = $bindable<0|1|2|3|4>(0),
     kinderfreibetraege = $bindable(0),
     jahresfreibetragEuro = $bindable(0),
+    kirchensteuerSatz = $bindable(0.09),
+    pkpvMonthlyEuro = $bindable(0),
+    pkpvAgZuschussEuro = $bindable(0),
   } = $props();
 
   // String bindings for legacy SelectField components (which use string values)
@@ -104,6 +107,27 @@
         description="Kirchensteuer 8 % (BY/BW) bzw. 9 % (übrige Länder)"
         bind:checked={churchMember}
       />
+      {#if churchMember}
+        <div class="rounded-lg border border-black/10 bg-[var(--bg-elevated)] p-3 dark:border-white/10">
+          <p class="mb-2 text-sm font-medium text-text-primary-light dark:text-text-primary-dark">
+            Kirchensteuersatz
+          </p>
+          <div class="flex gap-2">
+            {#each [[0.08, '8 % (BY/BW)'], [0.09, '9 % (übrige Länder)']] as [rate, lbl]}
+              <button
+                type="button"
+                onclick={() => { kirchensteuerSatz = rate as number; }}
+                aria-pressed={kirchensteuerSatz === rate}
+                class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors {kirchensteuerSatz === rate
+                  ? 'bg-eucalyptus-500/20 text-eucalyptus-300 ring-1 ring-eucalyptus-500/40'
+                  : 'text-gray-400 hover:text-gray-200'}"
+              >
+                {lbl}
+              </button>
+            {/each}
+          </div>
+        </div>
+      {/if}
     </div>
   </section>
 
@@ -144,8 +168,23 @@
         />
       {:else}
         <p class="rounded-lg border border-white/8 bg-white/3 px-3 py-2.5 text-xs text-gray-400">
-          PKV: Sozialabgaben für KV/PV entfallen. Lohnsteuerberechnung bleibt unverändert.
+          PKV: Sozialabgaben für KV/PV entfallen. Für die Vorsorgepauschale (Lohnsteuerberechnung)
+          bitte den tatsächlichen PKV-Beitrag angeben.
         </p>
+        <MoneyField
+          id="pkpv"
+          label="PKV-Beitrag AN-Anteil (monatlich)"
+          bind:value={pkpvMonthlyEuro}
+          min={0}
+          step={10}
+        />
+        <MoneyField
+          id="pkpvagz"
+          label="AG-Zuschuss zur PKV (monatlich)"
+          bind:value={pkpvAgZuschussEuro}
+          min={0}
+          step={10}
+        />
       {/if}
 
     </div>

@@ -3,6 +3,7 @@
   import { cubicOut } from 'svelte/easing';
   import type { QuizAnswer } from '@/lib/founder-compass/types';
   import { QUESTIONS } from './questions';
+  import AIDisclosureNote from '@/components/tools/ui/AIDisclosureNote.svelte';
 
   let {
     answers = [] as QuizAnswer[],
@@ -13,13 +14,11 @@
     cooldownLabel = '',
   } = $props();
 
-  let consentChecked = $state(false);
-
   let answeredCount = $derived(
     answers.filter((a) => a.selectedKey !== null).length
   );
 
-  let canSubmit = $derived(consentChecked && !submitting && !weeklyLocked);
+  let canSubmit = $derived(!submitting && !weeklyLocked);
 
   function getAnswerSummary(answer: QuizAnswer): string {
     const q = QUESTIONS.find((q) => q.id === answer.questionId);
@@ -60,7 +59,7 @@
     </h2>
     <p class="mb-5 text-sm text-text-secondary-light dark:text-text-secondary-dark text-pretty">
       Sie haben alle {answeredCount} Fragen beantwortet. Bevor wir Ihr personalisiertes
-      Gründerprofil erstellen, bitten wir um Ihre Zustimmung zur Datenübermittlung.
+      Gründerprofil erstellen, informieren wir Sie zur Datenübermittlung.
     </p>
 
     <!-- Answer summary -->
@@ -126,19 +125,8 @@
       </ul>
     </div>
 
-    <!-- Consent checkbox -->
-    <label class="mb-6 flex items-start gap-3 cursor-pointer">
-      <input
-        type="checkbox"
-        bind:checked={consentChecked}
-        disabled={weeklyLocked}
-        class="mt-0.5 h-4 w-4 rounded border-black/20 text-eucalyptus-600 focus:ring-eucalyptus-500 dark:border-white/20"
-      />
-      <span class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
-        Ich stimme der einmaligen Übermittlung meiner Antworten zur KI-gestützten
-        Auswertung zu.
-      </span>
-    </label>
+    <!-- AI processing disclosure (same pattern as chat, cashflow and investment tools) -->
+    <AIDisclosureNote />
 
     <!-- Navigation -->
     <div class="flex items-center justify-between">

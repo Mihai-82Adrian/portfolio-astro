@@ -419,7 +419,7 @@ fn return_leaked() -> &'static str {
 
 > **When to Return Owned vs. Borrowed Data**
 >
-> - **Return `&str`** when the data already exists and you're returning a slice of it [config parser, substring extraction][13](15)
+> - **Return `&str`** when the data already exists and you're returning a slice of it [config parser, substring extraction][13][15]
 > - **Return `String`** when you're creating new data, transforming input, or the lifetime relationships are complex[35][38]
 > - **Return `Cow<'a, str>`** when you sometimes borrow, sometimes own, and want the caller to handle both uniformly[35][38][41]
 > - **Return `Option<&str>`** when the data might not exist, avoiding mixing borrowed and `'static` lifetimes implicitly
@@ -563,7 +563,7 @@ The learning curve is steep, but the payoff is memory safety without garbage col
 
 ### Primary Sources
 
-- **The Rust Programming Language (official book)**: Lifetimes chapter [10.3][15](27)[28]
+- **The Rust Programming Language (official book)**: Lifetimes chapter [10.3][15][27][28]
 - **The Rust Reference**: Lifetime elision[19][25], subtyping and variance[14][29]
 - **RFC 141 (Lifetime Elision)**: Formal specification of elision rules[13]
 
@@ -583,7 +583,7 @@ No `unsafe` blocks were used. All slicing operations use bounds-checked methods 
 ### Additional Reading
 
 - Earthly.dev: "Rust Lifetimes: A Complete Guide"[16]
-- Near.org: "Understanding Rust Lifetimes" [subtyping](17)
+- Near.org: "Understanding Rust Lifetimes"[17]
 - The Rustonomicon: Advanced lifetime topics[21][22][23]
 - Easy Rust: Cow explained with examples[35]
 

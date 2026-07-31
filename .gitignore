@@ -5,6 +5,10 @@ dist/
 # local temp artifacts
 .tmp/
 .wrangler/
+.artifacts/release/
+.artifacts/release-candidate/
+.artifacts/firefox/
+functions/_generated/
 
 # dependencies
 node_modules/
@@ -37,9 +41,8 @@ tests/invoice_*_xrechnung_*.xml
 # jetbrains setting folder
 .idea/
 
-# Claude Code Configuration (local tooling — never public)
+# Claude Code local configuration
 .claude/
-CLAUDE.md
 
 # AI agent tooling — never public
 .agent/

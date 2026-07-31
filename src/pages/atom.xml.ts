@@ -14,7 +14,7 @@ export async function GET(context: APIContext) {
   const site = context.site?.toString().replace(/\/$/, '') || 'https://me-mateescu.de';
   const posts = await getCollection('blog', ({ data }) => !data.draft);
   const sortedPosts = posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-  const updated = sortedPosts[0]?.data.updatedDate ?? sortedPosts[0]?.data.pubDate ?? new Date();
+  const updated = sortedPosts[0]?.data.updatedDate ?? sortedPosts[0]?.data.pubDate ?? new Date(0);
 
   const entries = sortedPosts
     .map((post) => {
@@ -61,4 +61,3 @@ ${entries}
     },
   });
 }
-

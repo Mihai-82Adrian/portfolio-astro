@@ -1,5 +1,6 @@
 <script lang="ts">
   import Icon from '@/components/ui/Icon.svelte';
+  import AIDisclosureNote from '@/components/tools/ui/AIDisclosureNote.svelte';
   import type { StressScenarioResult, MonthlyDataPoint } from '@/lib/cashflow/types';
   import { findInsolvencyMonth, additionalCapitalNeeded } from '@/lib/cashflow/types';
 
@@ -66,6 +67,7 @@
         </p>
       </div>
     {:else}
+      <AIDisclosureNote />
       <button
         type="button"
         onclick={onGenerate}

@@ -13,25 +13,28 @@ const { privacyPolicyUrl = '/datenschutz', lang = 'de' } = Astro.props;
 
 const copy = {
   de: {
-    title: 'Datenschutz-Hinweis',
-    description: 'Ich nutze Local Storage, um deine Einstellungen wie Theme und Sprache zu speichern. Es werden keine Tracking-Cookies von Drittanbietern verwendet.',
+    title: 'Datenschutz-Einstellungen',
+    description: 'Notwendige Einstellungen (Theme, Sprache) werden immer lokal gespeichert. Ahrefs Web Analytics ist optional und läuft nur, wenn du zustimmst.',
     learnMore: 'Mehr zum Datenschutz',
-    learnMoreAria: 'Mehr über Datenschutz und Cookie-Nutzung erfahren',
-    accept: 'Verstanden',
+    learnMoreAria: 'Mehr über Datenschutz und Analyse-Einstellungen erfahren',
+    accept: 'Analyse zulassen',
+    reject: 'Nur Notwendiges',
   },
   en: {
-    title: 'Privacy notice',
-    description: 'I use local storage to save your preferences such as theme and language. No third-party tracking cookies are used.',
+    title: 'Privacy settings',
+    description: 'Necessary preferences (theme, language) are always stored locally. Ahrefs Web Analytics is optional and only runs if you agree.',
     learnMore: 'Learn more about privacy',
-    learnMoreAria: 'Learn more about privacy and cookie usage',
-    accept: 'Got it',
+    learnMoreAria: 'Learn more about privacy and analytics settings',
+    accept: 'Allow analytics',
+    reject: 'Essential only',
   },
   ro: {
-    title: 'Notă de confidențialitate',
-    description: 'Folosesc local storage pentru a salva preferințe precum tema și limba. Nu folosesc cookie-uri de tracking de la terți.',
+    title: 'Setări de confidențialitate',
+    description: 'Preferințele necesare (temă, limbă) sunt salvate mereu local. Ahrefs Web Analytics este opțional și pornește doar dacă ești de acord.',
     learnMore: 'Mai multe despre confidențialitate',
-    learnMoreAria: 'Află mai multe despre confidențialitate și utilizarea cookie-urilor',
-    accept: 'Am înțeles',
+    learnMoreAria: 'Află mai multe despre confidențialitate și setările de analiză',
+    accept: 'Permite analiza',
+    reject: 'Doar necesare',
   },
 }[lang];
 ---
@@ -56,40 +59,57 @@ const copy = {
     </div>
   </div>
   <div class="cookie-actions">
-    <button id="accept-cookies" class="btn-accept">
+    <button id="reject-analytics" class="btn-reject" type="button">
+      {copy.reject}
+    </button>
+    <button id="accept-analytics" class="btn-accept" type="button">
       {copy.accept}
     </button>
   </div>
 </div>
 
 <script>
-  // Check for existing consent
-  const CONSENT_KEY = 'cookie-consent';
+  import { readPreferences, writePreferences } from '@/lib/consent';
+
   const banner = document.getElementById('cookie-consent-banner');
-  const acceptBtn = document.getElementById('accept-cookies');
+  const acceptBtn = document.getElementById('accept-analytics');
+  const rejectBtn = document.getElementById('reject-analytics');
 
-  if (banner && !localStorage.getItem(CONSENT_KEY)) {
-    // Show banner with a slight delay for animation
+  function showBanner() {
+    if (!banner) return;
+    banner.hidden = false;
+    // Force reflow to trigger transition
+    void banner.offsetWidth;
+    banner.classList.add('visible');
+  }
+
+  function hideBanner() {
+    if (!banner) return;
+    banner.classList.remove('visible');
+    // Wait for animation to finish before hiding
     setTimeout(() => {
-      banner.hidden = false;
-      // Force reflow to trigger transition
-      void banner.offsetWidth;
-      banner.classList.add('visible');
-    }, 1000);
+      banner.hidden = true;
+    }, 400);
   }
 
-  if (acceptBtn) {
-    acceptBtn.addEventListener('click', () => {
-      localStorage.setItem(CONSENT_KEY, 'true');
-      if (banner) {
-        banner.classList.remove('visible');
-        // Wait for animation to finish before hiding
-        setTimeout(() => {
-          banner.hidden = true;
-        }, 400);
-      }
-    });
+  const prefs = readPreferences(window.localStorage);
+  if (!prefs.decided) {
+    setTimeout(showBanner, 1000);
   }
+
+  acceptBtn?.addEventListener('click', () => {
+    writePreferences(true, window.localStorage);
+    hideBanner();
+  });
+
+  rejectBtn?.addEventListener('click', () => {
+    writePreferences(false, window.localStorage);
+    hideBanner();
+  });
+
+  // Reopened later via the "Privacy settings" control in the footer, to allow
+  // withdrawing analytics consent at any time.
+  window.addEventListener('open-privacy-preferences', showBanner);
 </script>
 
 <style define:vars={{
@@ -104,6 +124,9 @@ const copy = {
     bottom: 2rem;
     right: 2rem;
     width: min(calc(100% - 4rem), 400px);
+    max-height: calc(100dvh - 4rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     background: rgba(var(--color-bg-rgb), 0.8);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -133,6 +156,7 @@ const copy = {
 
   .cookie-content {
     display: flex;
+    min-width: 0;
     gap: 1rem;
     align-items: flex-start;
   }
@@ -147,6 +171,8 @@ const copy = {
 
   .cookie-text {
     flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .cookie-title {
@@ -177,19 +203,30 @@ const copy = {
 
   .cookie-actions {
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    min-width: 0;
     justify-content: flex-end;
   }
 
-  .btn-accept {
-    background: var(--colorAccent);
-    color: white;
-    border: none;
+  .btn-accept,
+  .btn-reject {
     padding: 0.625rem 1.5rem;
     border-radius: 0.5rem;
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .btn-accept {
+    background: var(--colorAccent);
+    color: white;
+    border: none;
   }
 
   .btn-accept:hover {
@@ -202,12 +239,24 @@ const copy = {
     transform: translateY(0);
   }
 
+  .btn-reject {
+    background: transparent;
+    color: var(--colorText);
+    border: 1px solid color-mix(in srgb, var(--colorText) 25%, transparent);
+  }
+
+  .btn-reject:hover {
+    border-color: var(--colorAccent);
+    color: var(--colorAccent);
+  }
+
   @media (max-width: 640px) {
     .cookie-banner {
       bottom: 1rem;
       right: 1rem;
       left: 1rem;
       width: auto;
+      max-height: calc(100dvh - 2rem);
     }
   }
 </style>

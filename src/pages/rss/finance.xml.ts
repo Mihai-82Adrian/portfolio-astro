@@ -10,6 +10,7 @@ export async function GET(context: APIContext) {
   const sortedPosts = posts.sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
   );
+  const feedDate = sortedPosts[0]?.data.updatedDate ?? sortedPosts[0]?.data.pubDate ?? new Date(0);
 
   return rss({
     // RSS feed metadata
@@ -48,13 +49,11 @@ export async function GET(context: APIContext) {
     // Additional RSS customization
     customData: `
       <language>en-us</language>
-      <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+      <lastBuildDate>${feedDate.toUTCString()}</lastBuildDate>
       <atom:link href="${context.site}rss/finance.xml" rel="self" type="application/rss+xml" />
       <category>Finance</category>
       <category>FinTech</category>
     `,
 
-    // Generate full content in RSS
-    stylesheet: '/rss-styles.xsl',
   });
 }

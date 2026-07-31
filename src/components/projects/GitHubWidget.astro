@@ -172,6 +172,7 @@ import Icon from '@components/ui/Icon.astro';
   /* Header */
   .widget-header {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 1rem;
     margin-bottom: 2rem;
@@ -191,6 +192,8 @@ import Icon from '@components/ui/Icon.astro';
     color: var(--color-text-primary);
     margin: 0;
     flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .header-link {
@@ -200,6 +203,8 @@ import Icon from '@components/ui/Icon.astro';
     @apply hover:text-eucalyptus-800 dark:hover:text-eucalyptus-200;
     text-decoration: none;
     transition: all 0.2s ease;
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   .header-link:hover {
@@ -209,7 +214,7 @@ import Icon from '@components/ui/Icon.astro';
   /* Stats Grid */
   .stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
   }
@@ -221,6 +226,9 @@ import Icon from '@components/ui/Icon.astro';
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 0.75rem;
     transition: all 0.3s ease;
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   .stat-item:hover {
@@ -388,7 +396,7 @@ import Icon from '@components/ui/Icon.astro';
     }
 
     .stats-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: 1rem;
     }
 

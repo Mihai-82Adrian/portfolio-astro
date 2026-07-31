@@ -68,8 +68,13 @@ const shapeClasses = {
   /* Base badge styles */
   .badge {
     @apply inline-flex items-center justify-center;
-    @apply font-medium whitespace-nowrap;
+    @apply font-medium;
     @apply transition-colors duration-150;
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
   }
 
   /* Default variant (eucalyptus green) */

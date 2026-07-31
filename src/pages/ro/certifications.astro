@@ -32,6 +32,7 @@ const structuredData = [personSchema, breadcrumbSchema];
 
 // Group certifications by category
 const professionalCerts = getCertificationsByCategory('professional');
+const aiProfessionalDevelopmentCerts = getCertificationsByCategory('ai-professional-development');
 const languageCerts = getCertificationsByCategory('language');
 const referenceCerts = getCertificationsByCategory('reference');
 const otherCerts = getCertificationsByCategory('other');
@@ -89,11 +90,11 @@ const categoryLabels = t.certifications.categories;
 
                 <div class="flex flex-col gap-2 w-full mt-auto">
                   <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
-                    <strong>Aussteller:</strong> {cert.issuer}
+                    <strong>{t.certifications.issuer}:</strong> {cert.issuer}
                   </div>
                   {cert.dateObtained && (
                     <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
-                      <strong>Erhalten:</strong> {cert.dateObtained}
+                      <strong>{t.certifications.obtained}:</strong> {cert.dateObtained}
                     </div>
                   )}
 
@@ -102,6 +103,74 @@ const categoryLabels = t.certifications.categories;
                       {t.certifications.download}
                     </Button>
                   )}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- AI & Professional Development -->
+    {aiProfessionalDevelopmentCerts.length > 0 && (
+      <section class="py-12">
+        <h2 class="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark mb-8">
+          {categoryLabels.aiProfessionalDevelopment}
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {aiProfessionalDevelopmentCerts.map((cert) => (
+            <Card>
+              <div class="flex flex-col items-center text-center">
+                <h3 class="text-xl font-semibold text-eucalyptus-700 dark:text-eucalyptus-300 mb-2">
+                  {cert.title[lang]}
+                </h3>
+
+                {cert.credentialType && (
+                  <Badge variant="secondary" size="sm" class="mb-4">
+                    {cert.credentialType[lang]}
+                  </Badge>
+                )}
+
+                {cert.image && (
+                  <img
+                    src={cert.image}
+                    alt={cert.title[lang]}
+                    width={cert.imageWidth}
+                    height={cert.imageHeight}
+                    class="w-48 h-auto rounded-lg shadow-md mb-4"
+                    loading="lazy"
+                  />
+                )}
+
+                {cert.description && (
+                  <p class="text-text-secondary-light dark:text-text-secondary-dark mb-3">
+                    {cert.description[lang]}
+                  </p>
+                )}
+
+                {cert.attribution && (
+                  <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-4">
+                    <strong>{t.certifications.partnership}:</strong> {cert.attribution[lang]}
+                  </p>
+                )}
+
+                <div class="flex flex-col gap-2 w-full mt-auto">
+                  <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                    <strong>{t.certifications.issuer}:</strong> {cert.issuer}
+                  </div>
+                  {cert.dateObtained && (
+                    <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                      <strong>{t.certifications.obtained}:</strong> {cert.dateObtained}
+                    </div>
+                  )}
+
+                  <div class="flex flex-col sm:flex-row gap-2 mt-4">
+                    {cert.pdfUrl && (
+                      <Button href={cert.pdfUrl} variant="primary" size="sm" class="flex-1">
+                        {t.certifications.download}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </Card>
@@ -141,7 +210,7 @@ const categoryLabels = t.certifications.categories;
 
                 <div class="flex flex-col gap-2 w-full mt-auto">
                   <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
-                    <strong>Aussteller:</strong> {cert.issuer}
+                    <strong>{t.certifications.issuer}:</strong> {cert.issuer}
                   </div>
 
                   {cert.pdfUrl && (
@@ -182,7 +251,7 @@ const categoryLabels = t.certifications.categories;
 
                 <div class="flex flex-col gap-2 w-full mt-auto">
                   <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
-                    <strong>Von:</strong> {cert.issuer}
+                    <strong>{t.certifications.from}:</strong> {cert.issuer}
                   </div>
 
                   {cert.pdfUrl && (
@@ -219,6 +288,17 @@ const categoryLabels = t.certifications.categories;
                     class="w-48 h-auto rounded-lg shadow-md mb-4"
                     loading="lazy"
                   />
+                )}
+
+                {cert.issuer && (
+                  <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                    <strong>{t.certifications.issuer}:</strong> {cert.issuer}
+                  </div>
+                )}
+                {cert.dateObtained && (
+                  <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                    <strong>{t.certifications.obtained}:</strong> {cert.dateObtained}
+                  </div>
                 )}
 
                 {cert.pdfUrl && (

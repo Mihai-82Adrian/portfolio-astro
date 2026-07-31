@@ -32,9 +32,23 @@
     subcategory = SUBCATEGORIES[category][0].value;
   });
 
+  // Enforce the same bounds the number inputs advertise via min/max — those
+  // HTML attributes are advisory only and don't block a typed-in out-of-range
+  // value, so growthRate/varPercent were previously saveable unbounded (e.g.
+  // a negative growthRate, or a variablePercent > 100 %).
+  const growthRateValid = $derived(
+    category !== 'revenue' || (Number.isFinite(growthRate) && growthRate >= 0 && growthRate <= 100)
+  );
+  const varPercentValid = $derived(
+    category !== 'variable_cost' || !useVarPct ||
+    (Number.isFinite(varPercent) && varPercent > 0 && varPercent <= 100)
+  );
+
   const isValid = $derived(
     label.trim().length >= 2 &&
-    (category !== 'variable_cost' || !useVarPct ? amount > 0 : varPercent > 0)
+    (category !== 'variable_cost' || !useVarPct ? amount > 0 : varPercent > 0) &&
+    growthRateValid &&
+    varPercentValid
   );
 
   const isEdit = !!block.id;
@@ -160,8 +174,13 @@
           max="100"
           step="0.5"
           placeholder="0"
-          class="w-full rounded-xl border border-black/10 bg-[var(--bg-primary)] px-3 py-2.5 text-sm text-text-primary-light focus:outline-none focus:ring-2 focus:ring-eucalyptus-500/40 dark:border-white/10 dark:text-text-primary-dark"
+          aria-invalid={!growthRateValid}
+          aria-describedby={growthRateValid ? undefined : 'growth-rate-error'}
+          class="w-full rounded-xl border border-black/10 bg-[var(--bg-primary)] px-3 py-2.5 text-sm text-text-primary-light focus:outline-none focus:ring-2 focus:ring-eucalyptus-500/40 dark:border-white/10 dark:text-text-primary-dark aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-red-500/40"
         />
+        {#if !growthRateValid}
+          <p id="growth-rate-error" class="mt-1 text-xs text-red-500">Bitte einen Wert zwischen 0 und 100 % eingeben.</p>
+        {/if}
       </div>
     {/if}
 
@@ -189,8 +208,13 @@
             min="0.1"
             max="100"
             step="0.5"
-            class="w-full rounded-xl border border-black/10 bg-[var(--bg-primary)] px-3 py-2.5 text-sm text-text-primary-light focus:outline-none focus:ring-2 focus:ring-eucalyptus-500/40 dark:border-white/10 dark:text-text-primary-dark"
+            aria-invalid={!varPercentValid}
+            aria-describedby={varPercentValid ? undefined : 'var-percent-error'}
+            class="w-full rounded-xl border border-black/10 bg-[var(--bg-primary)] px-3 py-2.5 text-sm text-text-primary-light focus:outline-none focus:ring-2 focus:ring-eucalyptus-500/40 dark:border-white/10 dark:text-text-primary-dark aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-red-500/40"
           />
+          {#if !varPercentValid}
+            <p id="var-percent-error" class="mt-1 text-xs text-red-500">Bitte einen Wert zwischen 0,1 und 100 % eingeben.</p>
+          {/if}
         </div>
       {/if}
     {/if}

@@ -5,13 +5,13 @@
       "slug": "gds",
       "title": "GDS - Geometrodynamic Semantics",
       "tagline": "Physics-Inspired Semantic Reasoning for German Legal AI",
-      "description": "Research exploration modeling meaning as a physical phenomenon using hyperdimensional computing and BabelNet integration. Combines geometric principles with semantic understanding for advanced legal AI applications.",
+      "description": "Private research prototype modeling meaning as a physical phenomenon using hyperdimensional computing and BabelNet integration. Combines geometric principles with semantic understanding for exploratory legal-AI research. Not independently audited or publicly reproduced; figures below are internal, unaudited measurements from the project's own last recorded update.",
       "category": "ai-research",
       "status": {
-        "label": "Active Research",
-        "indicator": "active",
+        "label": "Private Research Prototype",
+        "indicator": "research",
         "progress": 71.6,
-        "detail": "Model training 71.6% complete (8,954/12,500 iterations)"
+        "detail": "Internal, unaudited training benchmark as of the last recorded update: 71.6% (8,954/12,500 iterations)"
       },
       "heroImage": "/images/projects/gds-hero.svg",
       "themeColor": "#6B8E6F",
@@ -70,7 +70,7 @@
         "Enterprise-scale processing with 330K+ integrated lexemes",
         "AMD Ryzen optimized achieving 23+ GFLOPS performance",
         "BabelNet semantic knowledge integration for multilingual support",
-        "Zero-hallucination framework through geometric constraints",
+        "Designed to reduce hallucination through geometric constraints (internal, unaudited evaluation)",
         "Real-time semantic similarity computation"
       ],
       "links": [
@@ -123,9 +123,9 @@
           },
           {
             "phase": "Model Training",
-            "date": "2025-09 - Present",
+            "date": "2025-09 – 2025-11 (last recorded update)",
             "status": "in-progress",
-            "description": "71.6% complete (8,954/12,500 iterations)"
+            "description": "71.6% complete (8,954/12,500 iterations) as of the last recorded update"
           },
           {
             "phase": "Performance Optimization",
@@ -155,20 +155,21 @@
         "language": "Rust",
         "stars": 0,
         "visibility": "Private research repository"
-      }
+      },
+      "ogImage": "/images/projects/gds-hero-og.webp"
     },
     {
       "id": "genesis",
       "slug": "genesis",
       "title": "GENESIS - Cognitive Computing Platform",
-      "tagline": "World's First Multi-Technology Cognitive Computing Platform",
-      "description": "Breakthrough innovations in semantic-guided tokenization, quantum-enhanced HDC systems, and neural-symbolic integration. Combines multiple cutting-edge technologies for zero-hallucination AI with real-time knowledge transfer capabilities.",
+      "tagline": "Multi-Technology Cognitive Computing Research Platform",
+      "description": "Private research prototype exploring semantic-guided tokenization, quantum-inspired HDC systems, and neural-symbolic integration. Combines multiple experimental techniques with a research goal of reducing hallucination and enabling real-time knowledge transfer. Not independently audited or publicly reproduced; figures below are internal, unaudited measurements from the project's own last recorded update.",
       "category": "ai-research",
       "status": {
-        "label": "Production Ready",
-        "indicator": "production",
+        "label": "Private Research Prototype",
+        "indicator": "research",
         "progress": 100,
-        "detail": "Semantic tokenizer complete, HDC system in research phase"
+        "detail": "Internal, unaudited status as of the last recorded update: semantic tokenizer component complete, HDC system in research phase"
       },
       "heroImage": "/images/projects/genesis-hero.svg",
       "themeColor": "#8BB4FF",
@@ -221,10 +222,10 @@
         }
       ],
       "features": [
-        "World's first semantic-aware BPE tokenizer with breakthrough architecture",
+        "A semantic-aware BPE tokenizer architecture (internal research, not independently verified as novel)",
         "S-P-A framework: Subject-Predicate-Attribute semantic roles",
         "20,000-dimensional hypervectors with quantum enhancement concepts",
-        "Zero-hallucination framework through symbolic reasoning constraints",
+        "Designed to reduce hallucination through symbolic reasoning constraints (internal, unaudited evaluation)",
         "Real-time knowledge transfer during training (71.6% complete)",
         "Local deployment optimized for consumer hardware (<100MB memory)",
         "Cross-lingual native understanding (German/English/Romanian)",
@@ -271,7 +272,7 @@
             "phase": "Semantic Tokenizer Development",
             "date": "2025-06 - 2025-08",
             "status": "completed",
-            "description": "World's first semantic-aware BPE tokenizer"
+            "description": "Semantic-aware BPE tokenizer (internal research)"
           },
           {
             "phase": "Julia Performance Optimization",
@@ -332,7 +333,8 @@
         ],
         "totalStars": 0,
         "visibility": "Multiple private repositories"
-      }
+      },
+      "ogImage": "/images/projects/genesis-hero-og.webp"
     },
     {
       "id": "profitminds",
@@ -476,7 +478,8 @@
         "costs": "Zero inventory, pay-per-product printing",
         "scalability": "Unlimited product variety without upfront investment",
         "sustainability": "Environmentally friendly on-demand production"
-      }
+      },
+      "ogImage": "/images/projects/profitminds-hero-og.webp"
     },
     {
       "id": "mindhafen",
@@ -614,7 +617,8 @@
         "genres": "Ambient, Lo-Fi, Instrumental, Motivational",
         "philosophy": "Stoicism — Marcus Aurelius, Seneca, Epictetus",
         "workflow": "Human creative direction + AI composition + professional mastering"
-      }
+      },
+      "ogImage": "/images/projects/mindhafen-hero-og.webp"
     }
   ],
   "categories": [

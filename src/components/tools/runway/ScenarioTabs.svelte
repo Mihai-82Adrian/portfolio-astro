@@ -8,6 +8,34 @@
 
   const dispatch = createEventDispatcher<{ change: number }>();
 
+  function handleKeydown(event: KeyboardEvent, index: number) {
+    let nextIndex: number;
+
+    switch (event.key) {
+      case 'ArrowRight':
+        nextIndex = (index + 1) % scenarios.length;
+        break;
+      case 'ArrowLeft':
+        nextIndex = (index - 1 + scenarios.length) % scenarios.length;
+        break;
+      case 'Home':
+        nextIndex = 0;
+        break;
+      case 'End':
+        nextIndex = scenarios.length - 1;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    const tabs = (event.currentTarget as HTMLElement)
+      .closest('[role="tablist"]')
+      ?.querySelectorAll<HTMLElement>('[role="tab"]');
+    dispatch('change', nextIndex);
+    tabs?.[nextIndex]?.focus();
+  }
+
   const scenarioColors = [
     // pessimistisch
     'border-red-500/50 text-red-600 dark:text-red-400',
@@ -25,7 +53,7 @@
 </script>
 
 <div
-  class="flex gap-1 rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-1 dark:border-white/10"
+  class="grid min-w-0 grid-cols-1 gap-1 rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-1 dark:border-white/10 sm:grid-cols-3"
   role="tablist"
   aria-label="Szenarien"
 >
@@ -35,9 +63,13 @@
     <button
       type="button"
       role="tab"
+      id={`runway-tab-${scenario.id}`}
+      aria-controls={`runway-panel-${scenario.id}`}
       aria-selected={isActive}
+      tabindex={isActive ? 0 : -1}
       onclick={() => dispatch('change', i)}
-      class="flex flex-1 flex-col items-center gap-0.5 rounded-xl px-3 py-2.5 text-center transition-all duration-200 {isActive
+      onkeydown={(event) => handleKeydown(event, i)}
+      class="flex min-w-0 flex-col items-center gap-0.5 rounded-xl px-3 py-2.5 text-center transition-all duration-200 [overflow-wrap:anywhere] {isActive
         ? `border ${scenarioColors[i]} ${scenarioBadgeColors[i]} font-semibold shadow-sm`
         : 'text-text-muted-light hover:text-text-secondary-light dark:text-text-muted-dark dark:hover:text-text-secondary-dark'}"
     >
