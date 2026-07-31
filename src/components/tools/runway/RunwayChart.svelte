@@ -133,7 +133,7 @@
   }
 </script>
 
-<div class="relative h-64 w-full">
+<div class="relative h-64 min-w-0 w-full">
   <canvas bind:this={canvas} aria-label="Runway-Projektion Chart" role="img"></canvas>
 </div>
 
@@ -148,3 +148,10 @@
     Runway über 36 Monate — kein Death Valley im Projektionshorizont.
   </p>
 {/if}
+
+<style>
+  canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+</style>

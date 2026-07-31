@@ -1,5 +1,56 @@
+import {
+    classifyProviderFailure,
+    jsonError,
+    jsonSuccess,
+    methodGuard,
+    originGuard,
+    readJsonBody,
+    type FetchLike,
+} from '../_lib/http.ts';
+import {
+    buildResponsesBody,
+    callResponses,
+    extractResponsesOutcome,
+    parseStructuredJSON,
+    type ResponsesInputItem,
+} from '../_lib/responses.ts';
+import { readFeatureControl } from '../_lib/feature-controls.ts';
+import {
+    createOperationalHandler,
+    getOperationalState,
+    recordQuotaDecision,
+    type OperationalHandlerOptions,
+} from '../_lib/operational-context.ts';
+
 interface Env {
     OPENAI_API_KEY: string;
+    AI_INVESTMENT_ENABLED?: string;
+}
+
+// ─── Transport limits ───────────────────────────────────────────────────────
+const MAX_BODY_BYTES = 8 * 1024;
+// Non-streaming: the full generation must complete before headers return, so this bound
+// covers the whole medium-reasoning turn, not just time-to-first-byte.
+const PROVIDER_TIMEOUT_MS = 35_000;
+
+// ─── Model policy (R10.3b/R7.2 — approved, do not drift silently) ──
+export const INVESTMENT_MODEL = 'gpt-5.6-sol';
+export const INVESTMENT_REASONING_EFFORT = 'medium' as const;
+export const INVESTMENT_TEXT_VERBOSITY = 'medium' as const;
+export const INVESTMENT_MAX_OUTPUT_TOKENS = 5000;
+export const INVESTMENT_SCHEMA_NAME = 'investment_analysis';
+
+export function buildInvestmentRequestBody(input: ResponsesInputItem[]) {
+    return buildResponsesBody({
+        model: INVESTMENT_MODEL,
+        input,
+        reasoning: { effort: INVESTMENT_REASONING_EFFORT },
+        text: {
+            verbosity: INVESTMENT_TEXT_VERBOSITY,
+            format: { type: 'json_schema', name: INVESTMENT_SCHEMA_NAME, strict: true, schema: ANALYSIS_SCHEMA },
+        },
+        max_output_tokens: INVESTMENT_MAX_OUTPUT_TOKENS,
+    });
 }
 
 // ─── Rate limiting (burst protection) ──────────────────────────────────────
@@ -80,69 +131,91 @@ function validateInput(raw: unknown): Record<string, any> | null {
 }
 
 // ─── Request handler ────────────────────────────────────────────────────────
-export const onRequestPost = async (context: any) => {
-    const request = context.request as Request;
-    const env     = context.env as Env;
+export function createHandler(deps: { fetchImpl?: FetchLike } & OperationalHandlerOptions = {}) {
+    const fetchImpl = deps.fetchImpl ?? ((input: string, init: RequestInit) => fetch(input, init));
 
-    const isLocal = request.url.includes('localhost') || request.url.includes('127.0.0.1');
+    return createOperationalHandler('/api/investment-analysis', async (context: any) => {
+        const request = context.request as Request;
+        const env     = context.env as Env;
+        const operational = getOperationalState(request);
+        const requestId = operational.context.requestId;
 
-    // ── Burst rate limit ────────────────────────────────────────────────────
-    const clientIP = request.headers.get('CF-Connecting-IP') ?? 'unknown';
-    if (!isLocal) {
-        const now       = Date.now();
-        const rateEntry = rateLimitMap.get(clientIP);
-        if (rateEntry) {
-            if (now < rateEntry.resetTime) {
-                if (rateEntry.count >= MAX_REQUESTS_PER_WINDOW) {
-                    return new Response(JSON.stringify({ message: 'Zu viele Anfragen. Bitte warten Sie kurz.' }), {
-                        status: 429, headers: { 'Content-Type': 'application/json' },
+        const methodError = methodGuard(request, ['POST'], requestId);
+        if (methodError) return methodError;
+
+        const originError = originGuard(request, requestId);
+        if (originError) return originError;
+
+        const feature = readFeatureControl(env, 'AI_INVESTMENT_ENABLED');
+        if (!feature.enabled) {
+            return jsonError(
+                503,
+                feature.state === 'INVALID' ? 'CONFIGURATION_INVALID' : 'FEATURE_DISABLED',
+                'Investment analysis is temporarily unavailable.',
+                requestId,
+            );
+        }
+
+        if (!env.OPENAI_API_KEY) {
+            return jsonError(503, 'FEATURE_NOT_CONFIGURED', 'Investment analysis is temporarily unavailable.', requestId);
+        }
+
+        const isLocal = request.url.includes('localhost') || request.url.includes('127.0.0.1');
+        recordQuotaDecision(operational, isLocal ? 'BYPASSED_LOCAL' : 'ALLOWED');
+
+        try {
+            // ── Burst rate limit ────────────────────────────────────────────────────
+            const clientIP = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+            if (!isLocal) {
+                const now       = Date.now();
+                const rateEntry = rateLimitMap.get(clientIP);
+                if (rateEntry) {
+                    if (now < rateEntry.resetTime) {
+                        if (rateEntry.count >= MAX_REQUESTS_PER_WINDOW) {
+                            recordQuotaDecision(operational, 'REJECTED_LIMIT');
+                            return jsonError(429, 'RATE_LIMITED', 'Zu viele Anfragen. Bitte warten Sie kurz.', requestId, {
+                                retryable: true,
+                            });
+                        }
+                        rateEntry.count++;
+                    } else {
+                        rateLimitMap.set(clientIP, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+                    }
+                } else {
+                    rateLimitMap.set(clientIP, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+                }
+            }
+
+            // ── Weekly quota ────────────────────────────────────────────────────────
+            if (!isLocal) {
+                const ipHash = await hashIP(clientIP);
+                if (await hasWeeklyQuota(ipHash, request.url)) {
+                    recordQuotaDecision(operational, 'REJECTED_COOLDOWN');
+                    return jsonError(429, 'QUOTA_EXCEEDED', 'Wochenlimit erreicht. Nächste Auswertung in 7 Tagen verfügbar.', requestId, {
+                        retryable: false,
                     });
                 }
-                rateEntry.count++;
-            } else {
-                rateLimitMap.set(clientIP, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
             }
-        } else {
-            rateLimitMap.set(clientIP, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
-        }
-    }
 
-    // ── Weekly quota ────────────────────────────────────────────────────────
-    if (!isLocal) {
-        const ipHash = await hashIP(clientIP);
-        if (await hasWeeklyQuota(ipHash, request.url)) {
-            return new Response(JSON.stringify({ message: 'Wochenlimit erreicht. Nächste Auswertung in 7 Tagen verfügbar.' }), {
-                status: 429, headers: { 'Content-Type': 'application/json' },
-            });
-        }
-    }
+            // ── Parse & validate ────────────────────────────────────────────────────
+            const bodyResult = await readJsonBody<unknown>(request, requestId, MAX_BODY_BYTES);
+            if (!bodyResult.ok) return bodyResult.response;
 
-    // ── Parse & validate ────────────────────────────────────────────────────
-    let body: unknown;
-    try { body = await request.json(); }
-    catch {
-        return new Response(JSON.stringify({ message: 'Ungültiger JSON-Body.' }), {
-            status: 400, headers: { 'Content-Type': 'application/json' },
-        });
-    }
+            const validated = validateInput(bodyResult.data);
+            if (!validated) {
+                return jsonError(422, 'VALIDATION_FAILED', 'Ungültige Eingabedaten.', requestId);
+            }
 
-    const validated = validateInput(body);
-    if (!validated) {
-        return new Response(JSON.stringify({ message: 'Ungültige Eingabedaten.' }), {
-            status: 400, headers: { 'Content-Type': 'application/json' },
-        });
-    }
+            const { initialInvestment, returnMetrics, riskMetrics, taxResult, mcResult } = validated;
+            const rm = returnMetrics;
+            const risk = riskMetrics;
 
-    const { initialInvestment, returnMetrics, riskMetrics, taxResult, mcResult } = validated;
-    const rm = returnMetrics;
-    const risk = riskMetrics;
+            // ── Build context for LLM ───────────────────────────────────────────────
+            const mcSummary = mcResult
+                ? `\nMonte Carlo (1.000 Pfade): Gewinnwahrscheinlichkeit ${pct(mcResult.probPositive)}, Erwarteter Schlusswert ${eur(mcResult.expectedFinalValue)}, P5=${eur(mcResult.p5Final)}, P95=${eur(mcResult.p95Final)}`
+                : '';
 
-    // ── Build context for LLM ───────────────────────────────────────────────
-    const mcSummary = mcResult
-        ? `\nMonte Carlo (1.000 Pfade): Gewinnwahrscheinlichkeit ${pct(mcResult.probPositive)}, Erwarteter Schlusswert ${eur(mcResult.expectedFinalValue)}, P5=${eur(mcResult.p5Final)}, P95=${eur(mcResult.p95Final)}`
-        : '';
-
-    const userMessage = `Investitionsbetrag: ${eur(initialInvestment)}
+            const userMessage = `Investitionsbetrag: ${eur(initialInvestment)}
 
 Rendite-Kennzahlen:
 - ROI: ${pct(rm.roi)}
@@ -163,72 +236,56 @@ Steuer (Abgeltungsteuer): Bruttogewinn ${eur(taxResult?.grossGain ?? 0)}, Netto 
 
 Bitte analysiere diese Investition und gib eine strukturierte Bewertung.`;
 
-    // ── Call o4-mini ────────────────────────────────────────────────────────
-    try {
-        const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${env.OPENAI_API_KEY}`,
-                'Content-Type':  'application/json',
-            },
-            body: JSON.stringify({
-                model:            'o4-mini',
-                reasoning_effort: 'low',
-                messages: [
-                    { role: 'developer', content: buildSystemPrompt() },
-                    { role: 'user',      content: userMessage },
-                ],
-                response_format: {
-                    type:        'json_schema',
-                    json_schema: {
-                        name:   'investment_analysis',
-                        strict: true,
-                        schema: ANALYSIS_SCHEMA,
-                    },
-                },
-                max_completion_tokens: 2000,
-            }),
-        });
+            // ── Call Responses API with strict structured output ─────────────────────
+            const input: ResponsesInputItem[] = [
+                { role: 'developer', content: buildSystemPrompt() },
+                { role: 'user', content: userMessage },
+            ];
 
-        if (!openAIResponse.ok) {
-            const errText = await openAIResponse.text();
-            console.error('OpenAI HTTP error:', openAIResponse.status, errText);
-            return new Response(JSON.stringify({ message: 'KI-Analyse fehlgeschlagen. Bitte später erneut versuchen.' }), {
-                status: 502, headers: { 'Content-Type': 'application/json' },
-            });
+            let openAIResponse: Response;
+            try {
+                openAIResponse = await callResponses(
+                    fetchImpl,
+                    env.OPENAI_API_KEY,
+                    buildInvestmentRequestBody(input),
+                    PROVIDER_TIMEOUT_MS,
+                    { state: operational, modelTier: 'sol' },
+                );
+            } catch (err) {
+                return classifyProviderFailure(err, requestId);
+            }
+
+            if (!openAIResponse.ok) {
+                await openAIResponse.text();
+                return jsonError(502, 'PROVIDER_REJECTED', 'KI-Analyse fehlgeschlagen. Bitte später erneut versuchen.', requestId, {
+                    retryable: true,
+                });
+            }
+
+            const data = await openAIResponse.json() as unknown;
+            const outcome = extractResponsesOutcome(data, operational);
+
+            if (outcome.kind !== 'completed') {
+                return jsonError(502, 'PROVIDER_REJECTED', 'Keine Antwort vom KI-Modell erhalten.', requestId, { retryable: true });
+            }
+
+            const parsed = parseStructuredJSON(outcome.text, operational);
+            if (!parsed.ok) {
+                return jsonError(502, 'PROVIDER_REJECTED', 'Ungültige Antwort vom KI-Modell erhalten.', requestId, { retryable: true });
+            }
+            const result = parsed.data;
+
+            if (!isLocal) {
+                const ipHash = await hashIP(clientIP);
+                await setWeeklyQuota(ipHash, request.url);
+            }
+
+            return jsonSuccess(result, requestId);
+
+        } catch {
+            return jsonError(500, 'INTERNAL_ERROR', 'Interner Serverfehler.', requestId, { retryable: true });
         }
+    }, deps);
+}
 
-        const data       = await openAIResponse.json() as any;
-        const choice     = data.choices?.[0];
-        const content    = choice?.message?.content;
-        const refusal    = choice?.message?.refusal;
-        const finishReason = choice?.finish_reason;
-
-        console.log('[investment-analysis] finish_reason:', finishReason, '| has_content:', !!content, '| has_refusal:', !!refusal);
-
-        if (!content) {
-            console.error('[investment-analysis] null content — refusal:', refusal, '| full choice:', JSON.stringify(choice));
-            return new Response(JSON.stringify({ message: 'Keine Antwort vom KI-Modell erhalten.' }), {
-                status: 502, headers: { 'Content-Type': 'application/json' },
-            });
-        }
-
-        const result = JSON.parse(content);
-
-        if (!isLocal) {
-            const ipHash = await hashIP(clientIP);
-            await setWeeklyQuota(ipHash, request.url);
-        }
-
-        return new Response(JSON.stringify(result), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-        });
-
-    } catch (e) {
-        console.error('Investment analysis error:', e);
-        return new Response(JSON.stringify({ message: 'Interner Serverfehler.' }), {
-            status: 500, headers: { 'Content-Type': 'application/json' },
-        });
-    }
-};
+export const onRequest = createHandler();

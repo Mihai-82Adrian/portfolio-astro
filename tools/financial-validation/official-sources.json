@@ -1,0 +1,96 @@
+{
+  "$schema_note": "Provenance manifest for the 2026 financial-correctness validation wave. Categories: 'official-source-artifact' = an official file committed to this repo and verified against the authority's publication; 'official-reference-output' = a value read directly from an official publication, not derived; 'derived-fixture' = computed locally from official inputs (formulas verified against primary law text); no entry in this file is labeled 'official' unless independently retrieved from the issuing authority listed.",
+  "retrieved_by": "financial-correctness-reliability wave, 2026-07-22",
+  "sources": [
+    {
+      "id": "bmf-pap-2026",
+      "category": "official-source-artifact",
+      "title": "Programmablaufpläne zur Lohnsteuer für/ab 2026",
+      "authority": "Bundesministerium der Finanzen (BMF)",
+      "reference_number": "IV C 5 - S 2361/00025/016/028",
+      "publication_date": "2025-11-12",
+      "applicable_year": 2026,
+      "url": "https://www.bundesfinanzministerium.de/Content/DE/Downloads/Steuern/Steuerarten/Lohnsteuer/Programmablaufplan/2025-11-12-PAP-2026.html",
+      "xml_pseudocode_source": "https://www.bmf-steuerrechner.de/interface/pseudocodes.xhtml",
+      "local_artifact": "docs/Lohnsteuer2026.xml",
+      "local_sha256": "4f98d47e15af1a0a61ec8fe3cd398f51c1afb39b58571157412bf2a8c88deba1",
+      "verification_note": "Fetched the official XML pseudocode (Stand 2025-10-23 12:40, ITZBund Berlin, PAP name Lohnsteuer2026 v1.0) and diffed it character-for-character (whitespace-normalized) against the committed docs/Lohnsteuer2026.xml. The only difference found was a single space inside one XML comment (decorative, stripped by the generator before transpilation) — the executable PAP content is identical.",
+      "retrieval_date": "2026-07-22"
+    },
+    {
+      "id": "sv-rechengroessen-2026",
+      "category": "official-reference-output",
+      "title": "Sozialversicherungsrechengrößen-Verordnung 2026 (Kabinettbeschluss)",
+      "authority": "Bundesministerium für Arbeit und Soziales (BMAS) / Deutsche Rentenversicherung",
+      "publication_date": "2025-10-08",
+      "applicable_year": 2026,
+      "url": "https://www.deutsche-rentenversicherung.de/DRV/DE/Ueber-uns-und-Presse/Presse/Meldungen/2025/25-10-08-bundeskabinett-sv-rechengroessen-vo-2026.html",
+      "values": {
+        "bbg_kv_pv_monthly_eur": 5812.50,
+        "bbg_kv_pv_yearly_eur": 69750,
+        "bbg_rv_av_monthly_eur": 8450.00,
+        "bbg_rv_av_yearly_eur": 101400,
+        "bbg_rv_av_note": "Ost/West unified for 2026 — no separate Beitragsbemessungsgrenze Ost remains",
+        "jahresarbeitsentgeltgrenze_monthly_eur": 6450.00,
+        "jahresarbeitsentgeltgrenze_yearly_eur": 77400
+      },
+      "local_derived_fixture": "docs/Rechengroessen_2026.md",
+      "local_derived_fixture_sha256": "a430a3feb0d14eefc01cf75e0283c2afade7a887e84fd96a003b393595449e88",
+      "cross_checked_against": "src/lib/fin-core/salary-tax.ts (BBG_KV_PV_MONTHLY, BBG_RV_AV_MONTHLY, VERSICHERUNGSPFLICHTGRENZE_MONTHLY) and bmf-engine-2026.generated.ts (BBGKVPV, BBGRVALV)",
+      "retrieval_date": "2026-07-22"
+    },
+    {
+      "id": "pv-beitragssatz-2026",
+      "category": "official-reference-output",
+      "title": "Pflegeversicherung Beitragssätze 2026 (§ 55 SGB XI Grundbeitrag, Kinderlosenzuschlag, § 58 SGB XI Sachsen-Sonderregelung)",
+      "authority": "Bundesministerium für Gesundheit (BMG) / GKV-Spitzenverband",
+      "applicable_year": 2026,
+      "values": {
+        "pv_base_percent": 3.6,
+        "pv_base_an_percent": 1.8,
+        "pv_base_ag_percent": 1.8,
+        "pv_kinderlosenzuschlag_an_percent": 0.6,
+        "pv_kinderlosenzuschlag_note": "Employee-only, from age 23, § 55 Abs. 3 SGB XI",
+        "pv_sachsen_an_percent": 2.3,
+        "pv_sachsen_ag_percent": 1.3,
+        "pv_sachsen_shift_percent": 0.5
+      },
+      "cross_checked_against": "src/lib/fin-core/salary-tax.ts (PV_BASE_AN, PV_BASE_AG, PV_KINDERLOS_ZUSCHLAG, PV_SACHSEN_SHIFT) and bmf-engine-2026.generated.ts (MPARA)",
+      "retrieval_date": "2026-07-22"
+    },
+    {
+      "id": "basiszins-2026",
+      "category": "official-source-artifact",
+      "title": "Basiszins zur Berechnung der Vorabpauschale gemäß § 18 Absatz 4 InvStG; Basiszins zum 2. Januar 2026",
+      "authority": "Bundesministerium der Finanzen (BMF), rate calculated by Deutsche Bundesbank",
+      "reference_number": "IV C 1 - S 1980/00230/012/001",
+      "publication_date": "2026-01-13",
+      "reference_date": "2026-01-02",
+      "applicable_year": 2026,
+      "url": "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Investmentsteuer/2026-01-13-basiszins-berechnung-vorabpauschale.pdf?__blob=publicationFile&v=3",
+      "value_percent": 3.20,
+      "local_constant": "BASISZINS_2026 in src/lib/investment/types.ts",
+      "retrieval_date": "2026-07-22"
+    },
+    {
+      "id": "vorabpauschale-mechanism",
+      "category": "official-reference-output",
+      "title": "§ 18 InvStG — Vorabpauschale (Basisertrag, Kappungsgrenze, Erwerbsjahr-Zwölftelung, Zuflussfiktion)",
+      "authority": "Gesetze im Internet (Bundesministerium der Justiz) — Investmentsteuergesetz 2018",
+      "url": "https://www.gesetze-im-internet.de/invstg_2018/__18.html",
+      "formula": "Basisertrag = Rücknahmepreis(Jahresanfang) × Basiszins × 0.7; Vorabpauschale = max(0, Basisertrag − Ausschüttungen); Basisertrag ist begrenzt auf den Mehrbetrag zwischen erstem und letztem Rücknahmepreis im Kalenderjahr zzgl. Ausschüttungen.",
+      "implemented_in": "src/lib/investment/analytics.ts (calcVorabpauschale)",
+      "retrieval_date": "2026-07-22"
+    },
+    {
+      "id": "kest-kirchensteuer-formula",
+      "category": "official-reference-output",
+      "title": "§ 32d Absatz 1 Satz 3–5 EStG — Kapitalertragsteuer-Ermäßigung bei Kirchensteuerpflicht",
+      "authority": "Gesetze im Internet (Bundesministerium der Justiz) — Einkommensteuergesetz",
+      "url": "https://www.gesetze-im-internet.de/estg/__32d.html",
+      "formula": "Einkommensteuer = (e − 4q) / (4 + k), mit e = Einkünfte nach § 20 EStG, q = anrechenbare ausländische Steuer, k = Kirchensteuersatz (Dezimalform). Kirchensteuer = k × Einkommensteuer nach dieser Formel; Solidaritätszuschlag = 5,5 % dieser (reduzierten) Einkommensteuer.",
+      "implemented_in": "src/lib/investment/analytics.ts (calcKESt)",
+      "retrieval_date": "2026-07-22"
+    }
+  ]
+}

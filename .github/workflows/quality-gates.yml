@@ -1,69 +1,56 @@
-name: Quality Gates
+name: Release candidate quality
 
 on:
-  push:
-    branches: [main, master]
-    paths-ignore:
-      - 'README.md'
-      - 'LICENSE'
-      - 'docs/**'
-      - '*.md'
-      - '.gitignore'
   pull_request:
-    branches: [main, master]
-    paths-ignore:
-      - 'README.md'
-      - 'LICENSE'
-      - 'docs/**'
-      - '*.md'
-      - '.gitignore'
+  push:
+    branches:
+      - master
+      - 'release/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  quality:
-    name: Design System & Build Quality
+  normalize-ref:
     runs-on: ubuntu-latest
-    env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
+    outputs:
+      ref: ${{ steps.ref.outputs.value }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - id: ref
+        env:
+          RAW_REF: ${{ github.ref }}
+        run: |
+          normalized="$(printf '%s' "$RAW_REF" | tr -c 'A-Za-z0-9._-' '-')"
+          printf 'value=%s\n' "$normalized" >> "$GITHUB_OUTPUT"
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+  quality:
+    name: Quality Checks
+    needs: normalize-ref
+    runs-on: ubuntu-latest
+    concurrency:
+      group: quality-${{ needs.normalize-ref.outputs.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: 22
-          cache: "npm"
-
-      - name: Install Dependencies
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - name: Install exact npm
+        run: npm install --global npm@11.16.0
+      - name: Verify exact toolchain
+        run: npm run verify:toolchain
+      - name: Install locked dependencies
         run: npm ci
-
-      - name: Design System Audit
-        run: npm run lint:design-system:strict
-
-      - name: Content Audit
-        run: npm run lint:content -- --strict
-
-      - name: Type Check
-        run: npm run check
-
-      - name: Build Project
-        run: npm run build
-
-      - name: Start local Pages runtime for SSE verify
-        if: env.OPENAI_API_KEY != ''
-        run: |
-          npx wrangler pages dev dist --compatibility-date=2024-01-01 --port 8788 > /tmp/wrangler-pages.log 2>&1 &
-          echo $! > /tmp/wrangler-pages.pid
-          sleep 10
-
-      - name: Verify SSE contract
-        if: env.OPENAI_API_KEY != ''
-        run: ./scripts/verify-sse.sh http://localhost:8788
-
-      - name: Stop local Pages runtime
-        if: always() && env.OPENAI_API_KEY != ''
-        run: |
-          if [ -f /tmp/wrangler-pages.pid ]; then
-            kill "$(cat /tmp/wrangler-pages.pid)" || true
-          fi
+      - name: Prepare checksum-pinned KoSIT cache
+        env:
+          KOSIT_ALLOW_DOWNLOAD: '1'
+        run: npm run setup:xrechnung:kosit:download -- --confirm-download
+      - name: Prepare checksum-pinned Firefox runtime
+        run: npm run setup:firefox:release
+      - name: Run complete local release-candidate gate
+        run: npm run verify:release-candidate

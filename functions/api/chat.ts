@@ -1,6 +1,36 @@
+import {
+    classifyProviderFailure,
+    jsonError,
+    jsonSuccess,
+    methodGuard,
+    originGuard,
+    readJsonBody,
+    type FetchLike,
+} from '../_lib/http.ts';
+import {
+    buildResponsesBody,
+    callResponses,
+    extractResponsesOutcome,
+    parseStructuredJSON,
+    ResponsesSSEDecoder,
+    type ResponsesInputItem,
+    type StructuredFormat,
+} from '../_lib/responses.ts';
+import { readFeatureControl } from '../_lib/feature-controls.ts';
+import { RECRUITER_RESULT_SCHEMA, RECRUITER_RESULT_SCHEMA_NAME, validateRecruiterResult } from '../_lib/recruiter-schema.ts';
+import {
+    createOperationalHandler,
+    getOperationalState,
+    recordFailure,
+    recordProviderOutcome,
+    recordQuotaDecision,
+    type OperationalHandlerOptions,
+    type OperationalState,
+} from '../_lib/operational-context.ts';
 
 interface Env {
     OPENAI_API_KEY: string;
+    AI_CHAT_ENABLED?: string;
 }
 
 interface Doc {
@@ -44,34 +74,82 @@ const MAX_CHAT_QUESTIONS = 4;
 const MAX_JD_ANALYSES = 1;
 const QUOTA_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
 
+// ─── Transport limits ──────────────────────────────────────────────
+const MAX_BODY_BYTES = 32 * 1024;
+const PROVIDER_TIMEOUT_MS = 30_000;
+
+// ─── Model policy (R10.3b/R7.2 — approved, do not drift silently) ──
+export const CHAT_MODEL = 'gpt-5.6-terra';
+export const CHAT_REASONING_EFFORT = 'low' as const;
+export const CHAT_TEXT_VERBOSITY = 'medium' as const;
+export const CHAT_MAX_OUTPUT_TOKENS = 2500;
+
+export function buildChatRequestBody(input: ResponsesInputItem[], opts: { stream: boolean; format?: StructuredFormat }) {
+    return buildResponsesBody({
+        model: CHAT_MODEL,
+        input,
+        reasoning: { effort: CHAT_REASONING_EFFORT },
+        text: { verbosity: CHAT_TEXT_VERBOSITY, format: opts.format },
+        max_output_tokens: CHAT_MAX_OUTPUT_TOKENS,
+        stream: opts.stream,
+    });
+}
+
 interface SessionQuota {
     q: number;   // chat questions used
     jd: number;  // JD analyses used
     ts: number;  // session start timestamp
 }
 
-function parseQuotaCookie(cookieHeader: string | null): SessionQuota {
-    if (!cookieHeader) return { q: 0, jd: 0, ts: Date.now() };
+// ─── Server-side quota enforcement (IP-hash + Cache API) ────────────
+// Authoritative, unconditional — no client-supplied header can influence it. Same
+// pattern as the weekly quota in compass.ts/cashflow-scenario.ts/investment-analysis.ts,
+// but with an incrementing count (0..4) rather than a boolean, and a 24h TTL.
+async function hashChatIP(ip: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(`chat:${ip}:salt_24h`);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+}
 
-    const match = cookieHeader.match(/chat_session=([^;]+)/);
-    if (!match) return { q: 0, jd: 0, ts: Date.now() };
-
+async function getQuotaCount(
+    kind: 'q' | 'jd',
+    ipHash: string,
+    requestUrl: string,
+    operational: OperationalState,
+): Promise<number> {
     try {
-        const data = JSON.parse(decodeURIComponent(match[1])) as SessionQuota;
-        // Reset if expired
-        if (Date.now() - data.ts > QUOTA_EXPIRY_MS) {
-            return { q: 0, jd: 0, ts: Date.now() };
-        }
-        return data;
+        const cache = await caches.open('chat-quota');
+        const cacheKey = new Request(new URL(`/__chat_quota/${kind}/${ipHash}`, requestUrl).toString());
+        const cached = await cache.match(cacheKey);
+        if (!cached) return 0;
+        const n = parseInt(await cached.text(), 10);
+        return Number.isFinite(n) ? n : 0;
     } catch {
-        return { q: 0, jd: 0, ts: Date.now() };
+        // Fail open: an unavailable quota store must not take the chat feature down.
+        recordQuotaDecision(operational, 'STATE_UNAVAILABLE_FAIL_OPEN');
+        return 0;
     }
 }
 
-function buildQuotaCookie(quota: SessionQuota): string {
-    const value = encodeURIComponent(JSON.stringify(quota));
-    const maxAge = Math.floor(QUOTA_EXPIRY_MS / 1000);
-    return `chat_session=${value}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+async function setQuotaCount(
+    kind: 'q' | 'jd',
+    ipHash: string,
+    requestUrl: string,
+    count: number,
+    operational: OperationalState,
+): Promise<void> {
+    try {
+        const cache = await caches.open('chat-quota');
+        const cacheKey = new Request(new URL(`/__chat_quota/${kind}/${ipHash}`, requestUrl).toString());
+        const response = new Response(String(count), {
+            headers: { 'Cache-Control': `public, max-age=${Math.floor(QUOTA_EXPIRY_MS / 1000)}` },
+        });
+        await cache.put(cacheKey, response);
+    } catch {
+        recordQuotaDecision(operational, 'STATE_UNAVAILABLE_FAIL_OPEN');
+    }
 }
 
 // ─── Stopwords ─────────────────────────────────────────────────────
@@ -363,31 +441,46 @@ const LANG_NAMES: Record<Lang, string> = {
 
 // ─── Main Handler ──────────────────────────────────────────────────
 
-export const onRequestPost = async (context: any) => {
-    const request = context.request;
-    const env = context.env as Env;
+export function createHandler(deps: { fetchImpl?: FetchLike } & OperationalHandlerOptions = {}) {
+    const fetchImpl = deps.fetchImpl ?? ((input: string, init: RequestInit) => fetch(input, init));
 
-    if (!env.OPENAI_API_KEY) {
-        return new Response(JSON.stringify({ error: 'AI service is not configured.', code: 'OPENAI_KEY_MISSING' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
-    }
+    return createOperationalHandler('/api/chat', async (context: any) => {
+        const request = context.request as Request;
+        const env = context.env as Env;
+        const operational = getOperationalState(request);
+        const requestId = operational.context.requestId;
 
-    // 1. Rate Limiting
-    const clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
-    const now = Date.now();
-    let limitData = rateLimitMap.get(clientIp);
+        const methodError = methodGuard(request, ['POST'], requestId);
+        if (methodError) return methodError;
 
-    if (!limitData || now > limitData.resetTime) {
-        limitData = { count: 0, resetTime: now + RATE_LIMIT_WINDOW };
-        rateLimitMap.set(clientIp, limitData);
-    }
+        const originError = originGuard(request, requestId);
+        if (originError) return originError;
 
-    if (limitData.count >= MAX_REQUESTS_PER_WINDOW) {
-        return new Response(JSON.stringify({ error: 'Too many requests. Please try again later.', code: 'RATE_LIMIT' }), { status: 429, headers: { 'Content-Type': 'application/json' } });
-    }
-    limitData.count++;
+        try {
+        // 1. Rate Limiting
+        const clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
+        const now = Date.now();
+        let limitData = rateLimitMap.get(clientIp);
 
-    try {
-        const body = await request.json() as { message: unknown; lang?: string; tab?: string; intent?: string };
+        if (!limitData || now > limitData.resetTime) {
+            limitData = { count: 0, resetTime: now + RATE_LIMIT_WINDOW };
+            rateLimitMap.set(clientIp, limitData);
+        }
+
+        if (limitData.count >= MAX_REQUESTS_PER_WINDOW) {
+            recordQuotaDecision(operational, 'REJECTED_LIMIT');
+            return jsonError(429, 'RATE_LIMITED', 'Too many requests. Please try again later.', requestId, { retryable: true });
+        }
+        limitData.count++;
+
+        const bodyResult = await readJsonBody<{ message: unknown; lang?: string; tab?: string; intent?: string }>(
+            request,
+            requestId,
+            MAX_BODY_BYTES,
+        );
+        if (!bodyResult.ok) return bodyResult.response;
+
+        const body = bodyResult.data;
         const message = body.message;
         const uiLang = body.lang as string | undefined;
         const tab = body.tab as string | undefined;
@@ -395,21 +488,36 @@ export const onRequestPost = async (context: any) => {
 
         // 2. Input Validation
         if (!message || typeof message !== 'string' || message.trim().length === 0) {
-            return new Response(JSON.stringify({ error: 'Message cannot be empty.', code: 'INPUT_EMPTY' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+            return jsonError(422, 'VALIDATION_FAILED', 'Message cannot be empty.', requestId, { fields: ['message'] });
         }
         const maxChars = tab === 'jd' ? 6000 : 4000;
         if ((message as string).length > maxChars) {
-            return new Response(JSON.stringify({ error: `Message too long (max ${maxChars} characters).`, code: 'INPUT_TOO_LONG' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+            return jsonError(422, 'VALIDATION_FAILED', `Message too long (max ${maxChars} characters).`, requestId, {
+                fields: ['message'],
+            });
         }
 
         // 3. Detect Language
         const acceptLang = request.headers.get('accept-language') || '';
-        const lang = detectLanguage(message as string, uiLang, acceptLang);
+        // A deterministic fact-chip request carries a fixed, non-user-authored display label as
+        // `message` (e.g. "Show contact info"), not organic user text — sniffing its language
+        // would silently override the caller's own selected UI language whenever the label's
+        // wording happens to match another language's pattern list (e.g. "skills",
+        // "certifications", "contact" are themselves English detection keywords). For these
+        // requests, language must come from the explicit `lang` field only.
+        const lang = detectLanguage(explicitIntent ? '' : (message as string), uiLang, acceptLang);
 
-        // 3b. Parse Quota only when cookie consent is granted
-        const hasCookieConsent = request.headers.get('x-cookie-consent') === 'granted';
-        const quota = hasCookieConsent
-            ? parseQuotaCookie(request.headers.get('cookie'))
+        // 3b. Server-side quota (hashed IP + Cache API), enforced regardless of consent.
+        // Bypassed on localhost/wrangler dev, consistent with the other AI endpoints.
+        const isLocal = request.url.includes('localhost') || request.url.includes('127.0.0.1');
+        recordQuotaDecision(operational, isLocal ? 'BYPASSED_LOCAL' : 'ALLOWED');
+        const ipHash = isLocal ? null : await hashChatIP(clientIp);
+        const quota: SessionQuota = ipHash
+            ? {
+                q: await getQuotaCount('q', ipHash, request.url, operational),
+                jd: await getQuotaCount('jd', ipHash, request.url, operational),
+                ts: Date.now(),
+            }
             : { q: 0, jd: 0, ts: Date.now() };
 
         // 4. Intent Routing (only for chat tab, not JD analysis)
@@ -422,7 +530,7 @@ export const onRequestPost = async (context: any) => {
                 if (!cachedFacts) {
                     const url = new URL(request.url);
                     const factsUrl = `${url.origin}/facts.json`;
-                    const factsResponse = await fetch(factsUrl);
+                    const factsResponse = await fetchImpl(factsUrl, {});
                     if (factsResponse.ok) {
                         cachedFacts = await factsResponse.json() as FactsData;
                     }
@@ -431,38 +539,54 @@ export const onRequestPost = async (context: any) => {
                 if (cachedFacts) {
                     const factAnswer = buildFactResponse(intent, cachedFacts, lang);
                     if (factAnswer) {
-                        return new Response(JSON.stringify({
-                            answer: factAnswer,
-                            sources: [],
-                            mode: 'fact',
-                            intent: intent,
-                            lang: lang,
-                            quota: { q: quota.q, jd: quota.jd, maxQ: MAX_CHAT_QUESTIONS, maxJd: MAX_JD_ANALYSES },
-                        }), {
-                            headers: { 'Content-Type': 'application/json' }
-                        });
+                        return jsonSuccess(
+                            {
+                                answer: factAnswer,
+                                sources: [],
+                                mode: 'fact',
+                                intent: intent,
+                                lang: lang,
+                                quota: { q: quota.q, jd: quota.jd, maxQ: MAX_CHAT_QUESTIONS, maxJd: MAX_JD_ANALYSES },
+                            },
+                            requestId,
+                        );
                     }
                 }
             }
+        }
+
+        // 4b. Provider gate — only reached for requests that actually need the LLM (no
+        // deterministic fact answer above). Deterministic intents must never be rejected by
+        // a disabled or unconfigured provider.
+        const feature = readFeatureControl(env, 'AI_CHAT_ENABLED');
+        if (!feature.enabled) {
+            return jsonError(
+                503,
+                feature.state === 'INVALID' ? 'CONFIGURATION_INVALID' : 'FEATURE_DISABLED',
+                'The AI assistant is temporarily unavailable.',
+                requestId,
+            );
+        }
+
+        if (!env.OPENAI_API_KEY) {
+            return jsonError(503, 'FEATURE_NOT_CONFIGURED', 'The AI assistant is temporarily unavailable.', requestId);
         }
 
         // 5. Quota Check (only for LLM calls, not facts)
         const isJdTab = tab === 'jd';
 
         if (isJdTab && quota.jd >= MAX_JD_ANALYSES) {
-            return new Response(JSON.stringify({
-                error: 'JD analysis limit reached for this session. Come back tomorrow!',
-                code: 'QUOTA_JD_EXCEEDED',
-                quota: { q: quota.q, jd: quota.jd, maxQ: MAX_CHAT_QUESTIONS, maxJd: MAX_JD_ANALYSES },
-            }), { status: 429, headers: { 'Content-Type': 'application/json' } });
+            recordQuotaDecision(operational, 'REJECTED_LIMIT');
+            return jsonError(429, 'QUOTA_EXCEEDED', 'JD analysis limit reached for this session. Come back tomorrow!', requestId, {
+                retryable: false,
+            });
         }
 
         if (!isJdTab && quota.q >= MAX_CHAT_QUESTIONS) {
-            return new Response(JSON.stringify({
-                error: 'Chat question limit reached for this session. Come back tomorrow!',
-                code: 'QUOTA_CHAT_EXCEEDED',
-                quota: { q: quota.q, jd: quota.jd, maxQ: MAX_CHAT_QUESTIONS, maxJd: MAX_JD_ANALYSES },
-            }), { status: 429, headers: { 'Content-Type': 'application/json' } });
+            recordQuotaDecision(operational, 'REJECTED_LIMIT');
+            return jsonError(429, 'QUOTA_EXCEEDED', 'Chat question limit reached for this session. Come back tomorrow!', requestId, {
+                retryable: false,
+            });
         }
 
         // Increment quota
@@ -477,10 +601,12 @@ export const onRequestPost = async (context: any) => {
             const url = new URL(request.url);
             const corpusUrl = `${url.origin}/corpus.jsonl`;
 
-            const response = await fetch(corpusUrl);
+            const response = await fetchImpl(corpusUrl, {});
             if (!response.ok) {
-                console.error('Corpus fetch failed:', response.status, corpusUrl);
-                return new Response(JSON.stringify({ error: 'Knowledge base is unavailable. Please try again later.', code: 'CORPUS_LOAD_FAILED' }), { status: 503, headers: { 'Content-Type': 'application/json' } });
+                recordFailure(operational, 'INTERNAL_FAILURE');
+                return jsonError(503, 'PROVIDER_UNAVAILABLE', 'Knowledge base is unavailable. Please try again later.', requestId, {
+                    retryable: true,
+                });
             }
 
             const text = await response.text();
@@ -504,7 +630,7 @@ export const onRequestPost = async (context: any) => {
             ? `MIHAI'S PORTFOLIO EVIDENCE:\n${contextText}\n\nRECRUITER'S INPUT:\n${message}`
             : `EVIDENCE:\n${contextText}\n\nQUESTION: ${message}`;
 
-        const input = [
+        const input: ResponsesInputItem[] = [
             { role: "developer", content: systemPrompt },
             { role: "user", content: userMessage }
         ];
@@ -512,165 +638,201 @@ export const onRequestPost = async (context: any) => {
         // 8. Call OpenAI Responses API
         const useStreaming = !isJobMatch; // Stream for chat, not for JD (JD needs full JSON)
 
-        const openAIResponse = await fetch('https://api.openai.com/v1/responses', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${env.OPENAI_API_KEY}`
-            },
-            body: JSON.stringify({
-                model: 'gpt-4.1-mini',
-                input: input,
-                temperature: isJobMatch ? 0.4 : 0.3,
-                max_output_tokens: isJobMatch ? 1500 : 600,
-                ...(useStreaming ? { stream: true } : {}),
-            })
-        });
+        let openAIResponse: Response;
+        try {
+            openAIResponse = await callResponses(
+                fetchImpl,
+                env.OPENAI_API_KEY,
+                buildChatRequestBody(input, {
+                    stream: useStreaming,
+                    format: isJobMatch
+                        ? { type: 'json_schema', name: RECRUITER_RESULT_SCHEMA_NAME, strict: true, schema: RECRUITER_RESULT_SCHEMA }
+                        : undefined,
+                }),
+                PROVIDER_TIMEOUT_MS,
+                { state: operational, modelTier: 'terra' },
+            );
+        } catch (err) {
+            return classifyProviderFailure(err, requestId);
+        }
 
         if (!openAIResponse.ok) {
             const errText = await openAIResponse.text();
             const status = openAIResponse.status;
-            console.error('OpenAI Error:', status, errText);
-
             // Granular error mapping
             if (status === 402) {
-                return new Response(JSON.stringify({
-                    error: 'AI assistant is temporarily on a break. Please try again later.',
-                    code: 'AI_BILLING_EXHAUSTED',
-                    recoverable: false,
-                }), { status: 503, headers: { 'Content-Type': 'application/json' } });
+                return jsonError(503, 'PROVIDER_UNAVAILABLE', 'AI assistant is temporarily on a break. Please try again later.', requestId, {
+                    retryable: true,
+                });
             }
 
             if (status === 429) {
                 const isQuota = errText.includes('quota') || errText.includes('billing');
-                return new Response(JSON.stringify({
-                    error: isQuota
+                return jsonError(
+                    429,
+                    isQuota ? 'QUOTA_EXCEEDED' : 'RATE_LIMITED',
+                    isQuota
                         ? 'AI assistant has reached its daily limit. Please try again tomorrow.'
                         : 'Too many requests — please wait a moment and retry.',
-                    code: isQuota ? 'AI_QUOTA_EXCEEDED' : 'AI_RATE_LIMITED',
-                    recoverable: !isQuota,
-                }), { status: 429, headers: { 'Content-Type': 'application/json' } });
+                    requestId,
+                    { retryable: !isQuota },
+                );
             }
 
             // 500, 502, 503, etc.
-            return new Response(JSON.stringify({
-                error: 'AI assistant is temporarily unavailable. Please try again shortly.',
-                code: 'AI_SERVICE_DOWN',
-                recoverable: true,
-            }), { status: 502, headers: { 'Content-Type': 'application/json' } });
+            return jsonError(502, 'PROVIDER_REJECTED', 'AI assistant is temporarily unavailable. Please try again shortly.', requestId, {
+                retryable: true,
+            });
         }
 
         // ── Streaming path (regular chat) ──────────────────────────
         if (useStreaming && openAIResponse.body) {
             const encoder = new TextEncoder();
-            const decoder = new TextDecoder();
 
             const meta = JSON.stringify({
                 sources: topDocs.map(d => ({ title: d.title, url: d.url })),
                 mode: 'qa',
                 lang: lang,
                 quota: { q: quota.q, jd: quota.jd, maxQ: MAX_CHAT_QUESTIONS, maxJd: MAX_JD_ANALYSES },
+                requestId,
             });
 
             const { readable, writable } = new TransformStream();
             const writer = writable.getWriter();
 
-            // Process the SSE stream from OpenAI in the background
+            // Process the SSE stream from OpenAI in the background, translating provider
+            // events into the site's own stable meta/delta/done/error contract. Raw OpenAI
+            // frames, response IDs and reasoning items are never forwarded to the browser.
             (async () => {
+                const sse = new ResponsesSSEDecoder(operational);
+                let terminated = false;
                 try {
-                    // Send metadata first
                     await writer.write(encoder.encode(`event: meta\ndata: ${meta}\n\n`));
 
                     const reader = openAIResponse.body!.getReader();
-                    let buffer = '';
 
-                    while (true) {
+                    while (!terminated) {
                         const { done, value } = await reader.read();
-                        if (done) break;
+                        const events = done ? sse.flush() : sse.push(value);
 
-                        buffer += decoder.decode(value, { stream: true });
-                        const lines = buffer.split('\n');
-                        buffer = lines.pop() || ''; // Keep incomplete line
-
-                        for (const line of lines) {
-                            if (!line.startsWith('data: ')) continue;
-                            const payload = line.slice(6).trim();
-                            if (!payload || payload === '[DONE]') continue;
-
-                            try {
-                                const event = JSON.parse(payload);
-                                // Extract text deltas from Responses API events
-                                if (event.type === 'response.output_text.delta' && event.delta) {
-                                    const deltaData = JSON.stringify({ text: event.delta });
-                                    await writer.write(encoder.encode(`event: delta\ndata: ${deltaData}\n\n`));
-                                }
-                            } catch {
-                                // Skip malformed events
+                        for (const event of events) {
+                            if (event.type === 'delta') {
+                                const deltaData = JSON.stringify({ text: event.text });
+                                await writer.write(encoder.encode(`event: delta\ndata: ${deltaData}\n\n`));
+                            } else if (event.type === 'completed') {
+                                await writer.write(encoder.encode(`event: done\ndata: {}\n\n`));
+                                terminated = true;
+                                break;
+                            } else if (event.type === 'refusal' || event.type === 'incomplete' || event.type === 'failed') {
+                                const errData = JSON.stringify({ error: 'Stream interrupted' });
+                                await writer.write(encoder.encode(`event: error\ndata: ${errData}\n\n`));
+                                terminated = true;
+                                break;
                             }
                         }
-                    }
 
-                    await writer.write(encoder.encode(`event: done\ndata: {}\n\n`));
-                } catch (err) {
-                    console.error('Stream processing error:', err);
+                        if (done && !terminated) {
+                            // Connection ended without an explicit response.completed — a
+                            // truncated stream must fail safely, never silently claim success.
+                            recordProviderOutcome(operational, {
+                                providerOutcome: 'FAILED',
+                                streamOutcome: 'FAILED',
+                            });
+                            const errData = JSON.stringify({ error: 'Stream interrupted' });
+                            await writer.write(encoder.encode(`event: error\ndata: ${errData}\n\n`));
+                            terminated = true;
+                        }
+                    }
+                } catch {
+                    recordProviderOutcome(operational, {
+                        providerOutcome: 'FAILED',
+                        streamOutcome: 'FAILED',
+                    });
                     const errData = JSON.stringify({ error: 'Stream interrupted' });
-                    await writer.write(encoder.encode(`event: error\ndata: ${errData}\n\n`));
+                    try {
+                        await writer.write(encoder.encode(`event: error\ndata: ${errData}\n\n`));
+                    } catch {
+                        // The client may already have cancelled the response stream.
+                    }
                 } finally {
-                    await writer.close();
+                    try {
+                        await writer.close();
+                    } catch {
+                        // Closing an already-cancelled stream is expected.
+                    }
                 }
             })();
+
+            if (ipHash) {
+                await setQuotaCount('q', ipHash, request.url, quota.q, operational);
+            }
 
             const responseHeaders = new Headers({
                 'Content-Type': 'text/event-stream',
                 'Cache-Control': 'no-store, no-cache, must-revalidate',
+                'X-Content-Type-Options': 'nosniff',
                 'Connection': 'keep-alive',
-                'Vary': 'Cookie, X-Cookie-Consent',
             });
-            if (hasCookieConsent) {
-                responseHeaders.set('Set-Cookie', buildQuotaCookie(quota));
-            }
 
             return new Response(readable, { headers: responseHeaders });
         }
 
         // ── Non-streaming path (JD analysis) ───────────────────────
-        const data: any = await openAIResponse.json();
-        // Responses API: extract text from output array
-        const answer = data.output?.find((o: any) => o.type === 'message')?.content?.find((c: any) => c.type === 'output_text')?.text
-            || data.output?.[0]?.content?.[0]?.text
-            || 'No response generated.';
+        const data: unknown = await openAIResponse.json();
+        const outcome = extractResponsesOutcome(data, operational);
 
-        // 10. Return Response with quota cookie
-        const responseHeaders = new Headers({
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-store, no-cache, must-revalidate',
-            'Vary': 'Cookie, X-Cookie-Consent',
-        });
-        if (hasCookieConsent) {
-            responseHeaders.set('Set-Cookie', buildQuotaCookie(quota));
+        if (outcome.kind !== 'completed') {
+            return jsonError(502, 'PROVIDER_REJECTED', 'AI assistant did not return a usable response.', requestId, {
+                retryable: true,
+            });
         }
 
-        return new Response(JSON.stringify({
-            answer,
-            sources: topDocs.map(d => ({ title: d.title, url: d.url })),
-            mode: isJobMatch ? 'job-match' : 'qa',
-            lang: lang,
-            quota: { q: quota.q, jd: quota.jd, maxQ: MAX_CHAT_QUESTIONS, maxJd: MAX_JD_ANALYSES },
-        }), {
-            headers: responseHeaders
-        });
+        // This non-streaming path is only reached for job-match analyses (see `useStreaming`
+        // above) — the recruiter result must be a valid, complete, HTML-free structured object
+        // before it is ever returned to the client. A schema-noncompliant or incomplete provider
+        // payload is rejected here rather than forwarded raw, regardless of whether the provider
+        // actually honored the strict json_schema format requested above.
+        const parsedAnswer = parseStructuredJSON(outcome.text, operational);
+        if (!parsedAnswer.ok) {
+            return jsonError(502, 'PROVIDER_REJECTED', 'AI assistant returned an unusable analysis. Please try again.', requestId, {
+                retryable: true,
+            });
+        }
+        const validatedResult = validateRecruiterResult(parsedAnswer.data, operational);
+        if (!validatedResult) {
+            return jsonError(502, 'PROVIDER_REJECTED', 'AI assistant returned an incomplete analysis. Please try again.', requestId, {
+                retryable: true,
+            });
+        }
+        const answer = JSON.stringify(validatedResult);
 
-    } catch (err: any) {
-        console.error('Chat API Error:', err);
+        // 10. Return Response
+        const successResponse = jsonSuccess(
+            {
+                answer,
+                sources: topDocs.map(d => ({ title: d.title, url: d.url })),
+                mode: isJobMatch ? 'job-match' : 'qa',
+                lang: lang,
+                quota: { q: quota.q, jd: quota.jd, maxQ: MAX_CHAT_QUESTIONS, maxJd: MAX_JD_ANALYSES },
+            },
+            requestId,
+        );
 
-        // Network-level failure (e.g., DNS, timeout)
-        const isNetwork = err.message?.includes('fetch') || err.message?.includes('network');
-        return new Response(JSON.stringify({
-            error: isNetwork
-                ? 'Unable to reach the AI service. Please check back later.'
-                : 'An unexpected error occurred.',
-            code: isNetwork ? 'AI_UNREACHABLE' : 'INTERNAL_ERROR',
-            recoverable: true,
-        }), { status: 500, headers: { 'Content-Type': 'application/json' } });
-    }
-};
+        if (ipHash) {
+            await setQuotaCount(
+                isJdTab ? 'jd' : 'q',
+                ipHash,
+                request.url,
+                isJdTab ? quota.jd : quota.q,
+                operational,
+            );
+        }
+
+        return successResponse;
+        } catch {
+            return jsonError(500, 'INTERNAL_ERROR', 'An unexpected error occurred.', requestId, { retryable: true });
+        }
+    }, deps);
+}
+
+export const onRequest = createHandler();

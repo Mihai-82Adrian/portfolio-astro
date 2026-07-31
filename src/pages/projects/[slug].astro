@@ -41,7 +41,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
   title={`${project.title} - Projects`}
   description={seoDescription}
   lang="en"
-  ogImage={project.heroImage}
+  ogImage={project.ogImage ?? project.heroImage}
 >
   <main class="project-detail" data-project-id={project.id}>
     <!-- Hero Section -->
@@ -517,7 +517,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
   /* Related Projects */
   .related-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
     gap: 2rem;
   }
 

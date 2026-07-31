@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "toolchain": {
+    "node": "22.22.3",
+    "npm": "11.16.0"
+  },
+  "platform": {
+    "os": "linux",
+    "arch": "x64",
+    "libc": "glibc"
+  },
+  "exceptions": []
+}

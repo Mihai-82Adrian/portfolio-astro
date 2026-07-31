@@ -10,7 +10,7 @@
  * The PAP engine works in cents internally — conversion is handled here.
  */
 
-import { calculateLohnsteuerPAP } from './bmf-engine-2026.generated';
+import { calculateLohnsteuerPAP } from './bmf-engine-2026.generated.ts';
 
 // ── 2026 Sozialabgaben constants ───────────────────────────────────────────
 // Sources:
@@ -242,8 +242,11 @@ export interface BruttoNettoResult {
 // ── Main calculation ───────────────────────────────────────────────────────
 
 export function calculateBruttoNetto(input: SalaryTaxInput): BruttoNettoResult {
+  if (!Number.isInteger(input.taxClass) || input.taxClass < 1 || input.taxClass > 6) {
+    throw new Error(`calculateBruttoNetto: invalid taxClass ${input.taxClass} — must be an integer 1–6.`);
+  }
+
   const {
-    grossMonthly,
     taxClass,
     churchMember,
     healthInsurance,
@@ -257,6 +260,10 @@ export function calculateBruttoNetto(input: SalaryTaxInput): BruttoNettoResult {
     pkpvMonthlyEuro = 0,
     pkpvAgZuschussEuro = 0,
   } = input;
+
+  // Negative gross has no economic meaning here; clamp rather than let it flow
+  // into BBG caps (min(negative, BBG) = negative) and produce inverted deductions.
+  const grossMonthly = Math.max(0, input.grossMonthly);
 
   // Resolve KV Zusatzbeitragssatz: kvProvider hat Vorrang
   const effectiveKvZusatzbeitragPercent = resolveKvZusatzbeitrag(
