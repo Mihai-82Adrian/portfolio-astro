@@ -13,6 +13,11 @@ export async function getStaticPaths() {
     params: { category },
     props: {
       category,
+      // Only categories with at least one published post get a built route;
+      // the in-page category filter below must only ever link to these, or it
+      // creates a same-origin link to a page that was never generated (Phase
+      // 2D-C Wave 1, PHASE_2D_B route-integrity finding).
+      allCategories: categories,
       posts: allPosts
         .filter(post => post.data.category === category)
         .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()),
@@ -22,10 +27,11 @@ export async function getStaticPaths() {
 
 interface Props {
   category: string;
+  allCategories: string[];
   posts: CollectionEntry<'blog'>[];
 }
 
-const { category, posts } = Astro.props;
+const { category, allCategories, posts } = Astro.props;
 
 const categoryDisplayOverrides: Record<string, string> = {
   'ai-ml': 'AI & ML',
@@ -100,7 +106,7 @@ const description = categoryDescriptions[category] || `Articles about ${category
         >
           All Posts
         </a>
-        {['finance', 'ai-ml', 'fintech', 'personal'].map(cat => (
+        {allCategories.map(cat => (
           <a
             href={`/blog/category/${cat}`}
             aria-current={cat === category ? 'page' : undefined}

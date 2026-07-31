@@ -1,0 +1,34 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    target-branch: master
+    open-pull-requests-limit: 8
+    labels:
+      - dependencies
+      - security
+    groups:
+      framework-runtime:
+        patterns:
+          - astro
+          - "@astrojs/*"
+          - svelte
+      security-sensitive:
+        patterns:
+          - wrangler
+          - dompurify
+          - marked
+          - katex
+          - rehype-katex
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    target-branch: master
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - security

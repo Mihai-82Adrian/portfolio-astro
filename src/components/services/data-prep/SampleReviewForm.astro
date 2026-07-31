@@ -2,12 +2,20 @@
 import Button from '@components/ui/Button.astro';
 import Card from '@components/ui/Card.astro';
 import type { SampleReviewContent } from '@data/services/data-prep-for-ai';
+import { FEATURE_CONTROLS } from '../../../../functions/_lib/feature-controls.ts';
 
 interface Props {
   content: SampleReviewContent['form'];
 }
 
 const { content } = Astro.props;
+
+// Phase 2D-C Wave 1 / Decision 3 (HIDE-FROM-LAUNCH): render a static, non-JS-dependent
+// disabled notice instead of the live form whenever the feature is off, using the same
+// compiled default the Function reads (functions/_lib/feature-controls.ts). This must
+// stay in sync manually if a future wave introduces a per-environment runtime override —
+// the static build cannot see request-time env vars.
+const isEnabled = FEATURE_CONTROLS.SAMPLE_REVIEW_ENABLED;
 ---
 
 <Card class="border-black/10 dark:border-white/10">
@@ -43,6 +51,19 @@ const { content } = Astro.props;
       </p>
     </div>
 
+    {!isEnabled && (
+      <div
+        class="flex flex-col justify-center gap-4 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-6 text-sm leading-relaxed text-amber-900 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200"
+        data-sample-review-disabled-notice
+      >
+        <p class="font-semibold">{content.disabledNotice}</p>
+        <Button href="mailto:kontakt@me-mateescu.de" variant="secondary" size="md" class="w-fit">
+          kontakt@me-mateescu.de
+        </Button>
+      </div>
+    )}
+
+    {isEnabled && (
     <form
       method="POST"
       action="/api/sample-review"
@@ -127,6 +148,18 @@ const { content } = Astro.props;
         </label>
       </div>
 
+      <div
+        data-sample-review-status
+        role="status"
+        aria-live="polite"
+        tabindex="-1"
+        class="hidden rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm leading-relaxed text-amber-900 focus:outline-none dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200"
+        data-msg-unavailable={content.unavailableMessage}
+        data-msg-validation={content.validationMessage}
+        data-msg-generic={content.genericErrorMessage}
+      >
+      </div>
+
       <div class="space-y-3">
         <Button type="submit" variant="primary" size="lg" class="w-full">
           {content.submitLabel}
@@ -136,6 +169,7 @@ const { content } = Astro.props;
         </p>
       </div>
     </form>
+    )}
   </div>
 </Card>
 
@@ -150,9 +184,73 @@ const { content } = Astro.props;
       submittedAt.value = String(Date.now());
     }
 
-    form.addEventListener('submit', () => {
+    const status = form.querySelector('[data-sample-review-status]');
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    function showStatus(message) {
+      if (!(status instanceof HTMLElement)) return;
+      status.textContent = message;
+      status.classList.remove('hidden');
+      status.focus();
+    }
+
+    function messageForCode(code) {
+      if (!(status instanceof HTMLElement)) return '';
+      if (code === 'FEATURE_NOT_CONFIGURED' || code === 'FEATURE_DISABLED' || code === 'CONFIGURATION_INVALID') {
+        return status.dataset.msgUnavailable || '';
+      }
+      if (code === 'VALIDATION_FAILED') return status.dataset.msgValidation || '';
+      return status.dataset.msgGeneric || '';
+    }
+
+    form.addEventListener('submit', async (event) => {
       if (submittedAt instanceof HTMLInputElement && !submittedAt.value) {
         submittedAt.value = String(Date.now());
+      }
+
+      // Progressive enhancement: intercept when fetch is available, otherwise fall back
+      // to the native full-page form POST (still handled correctly server-side).
+      if (typeof window.fetch !== 'function') return;
+
+      event.preventDefault();
+
+      if (status instanceof HTMLElement) {
+        status.classList.add('hidden');
+        status.textContent = '';
+      }
+      if (submitButton instanceof HTMLButtonElement) {
+        submitButton.disabled = true;
+        submitButton.setAttribute('aria-busy', 'true');
+      }
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+
+        let payload = null;
+        try {
+          payload = await response.json();
+        } catch {
+          payload = null;
+        }
+
+        if (response.ok && payload && payload.ok && payload.data && payload.data.redirectTo) {
+          window.location.href = payload.data.redirectTo;
+          return;
+        }
+
+        const code = payload && payload.error && payload.error.code;
+        showStatus(messageForCode(code));
+      } catch {
+        showStatus(messageForCode(null));
+      } finally {
+        if (submitButton instanceof HTMLButtonElement) {
+          submitButton.disabled = false;
+          submitButton.removeAttribute('aria-busy');
+        }
       }
     });
   })();

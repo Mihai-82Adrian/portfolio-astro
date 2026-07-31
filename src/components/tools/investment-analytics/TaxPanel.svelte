@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TaxResult, InvestmentInput } from '@/lib/investment/types';
-  import { TAX_RATE, VORABPAUSCHALE_RATE_2026 } from '@/lib/investment/types';
+  import { TAX_RATE, BASISZINS_2026 } from '@/lib/investment/types';
 
   let {
     taxResult,
@@ -136,16 +136,19 @@
         </h3>
         <span
           class="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-400"
-          title="Berechnung nimmt positives Jahresergebnis an. Die tatsächliche Vorabpauschale entfällt, wenn der Fonds keine positive Rendite erzielt hat."
+          title="Jahr für Jahr auf die tatsächliche Wertsteigerung begrenzt (§ 18 Abs. 1 InvStG). Der jährliche Wertverlauf wird dabei aus der Gesamtrendite (CAGR) geglättet angenommen, nicht aus dem realen untermonatigen Kursverlauf — echte Jahre mit Verlust oder Stillstand können daher abweichen."
         >
-          Schätzwert · Worst Case
+          Geglätteter Jahresverlauf
         </span>
       </div>
       <p class="mb-3 text-xs text-text-muted-light dark:text-text-muted-dark">
-        Jährliche fiktive Ausschüttung nach § 18 InvStG. Basiert auf dem Basiszins 2026
-        ({pct(VORABPAUSCHALE_RATE_2026 * 100)} × TER-Korrektur).
-        Der Freistellungsauftrag wird hier <strong>nicht</strong> angerechnet, da er mit anderen
-        Kapitalerträgen geteilt wird — die tatsächliche Steuerlast kann daher niedriger ausfallen.
+        Jährlicher Basisertrag nach § 18 InvStG: Fondswert (Jahresanfang) × Basiszins 2026
+        ({pct(BASISZINS_2026 * 100)}) × 70 %, begrenzt auf die tatsächliche Wertsteigerung des
+        jeweiligen Jahres (nie negativ, nie höher als der reale Kursanstieg). Der reale
+        untermonatige Kursverlauf ist im Tool nicht hinterlegt — der Jahresverlauf wird aus der
+        Gesamtrendite geglättet angenommen. Der Freistellungsauftrag wird hier <strong>nicht</strong>
+        angerechnet, da er mit anderen Kapitalerträgen geteilt wird — die tatsächliche Steuerlast
+        kann daher niedriger ausfallen.
       </p>
 
       <div class="flex items-center justify-between rounded-xl border border-black/10 bg-[var(--bg-primary)] p-4 dark:border-white/10">

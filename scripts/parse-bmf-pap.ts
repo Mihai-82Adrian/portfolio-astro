@@ -1,10 +1,10 @@
-#!/usr/bin/env npx tsx
+#!/usr/bin/env node
 /**
  * BMF PAP Transpiler — converts Lohnsteuer<YYYY>.xml to TypeScript engine.
  *
  * Usage:
- *   npx tsx scripts/parse-bmf-pap.ts
- *   npx tsx scripts/parse-bmf-pap.ts --input docs/Lohnsteuer2027.xml --output src/lib/fin-core/bmf-engine-2027.generated.ts
+ *   node scripts/parse-bmf-pap.ts
+ *   node scripts/parse-bmf-pap.ts --input docs/Lohnsteuer2027.xml --output src/lib/fin-core/bmf-engine-2027.generated.ts
  *
  * The BMF (Bundesministerium der Finanzen) publishes the Programmablaufplan (PAP)
  * each year as an XML file. This script transpiles the Java-BigDecimal expression
@@ -22,6 +22,20 @@ const outputArg = args[args.indexOf('--output') + 1] ?? 'src/lib/fin-core/bmf-en
 const root    = path.resolve(process.cwd());
 const xmlPath = path.join(root, inputArg);
 const outPath = path.join(root, outputArg);
+
+/** Decode XML entities in attribute values (`&lt;`/`&gt;`/`&amp;`/`&quot;`/`&apos;`).
+ *  `expr="..."`/`exec="..."` attributes contain `<`/`>` comparison operators, which
+ *  must be entity-escaped in well-formed XML — without decoding, a condition like
+ *  `FVB.compareTo(HFVB)&gt;0` never matches the operator regexes below and silently
+ *  falls through to the raw compareTo() fallback, changing boolean semantics. */
+function decodeXmlEntities(s: string): string {
+  return s
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&amp;/g, '&');
+}
 
 // ── ZAHL constants inline map ─────────────────────────────────────────────────
 const ZAHLEN: Record<string, string> = {
@@ -74,6 +88,26 @@ function findClose(expr: string, open: number): number {
   return expr.length - 1;
 }
 
+/** Replace every `BigDecimal.valueOf(...)` with `(tx(inner))`, using paren-balanced
+ *  extraction so a nested call inside the argument (e.g. `.longValue()`) doesn't
+ *  truncate the match. */
+function replaceValueOf(e: string): string {
+  const marker = 'BigDecimal.valueOf(';
+  let out = '';
+  let i = 0;
+  while (i < e.length) {
+    const idx = e.indexOf(marker, i);
+    if (idx === -1) { out += e.slice(i); break; }
+    out += e.slice(i, idx);
+    const openParen = idx + marker.length - 1;
+    const close = findClose(e, openParen);
+    const inner = e.slice(openParen + 1, close);
+    out += `(${tx(inner.trim())})`;
+    i = close + 1;
+  }
+  return out;
+}
+
 /** Prefix a bare uppercase identifier (variable) with `s.` */
 function prefixVar(name: string): string {
   // Skip: numeric literals, known JS globals, TABn (already expanded)
@@ -96,8 +130,12 @@ function tx(raw: string): string {
   e = e.replace(/BigDecimal\.ZERO/g, '0')
        .replace(/BigDecimal\.ONE/g, '1');
 
-  // 3. BigDecimal.valueOf(x) — recurse on the inner value
-  e = e.replace(/BigDecimal\.valueOf\(([^)]+)\)/g, (_m, inner) => `(${tx(inner.trim())})`);
+  // 3. BigDecimal.valueOf(x) — recurse on the inner value. Uses paren-balanced
+  // extraction (not a `[^)]+` regex): the inner expression is frequently itself
+  // a nested call (e.g. "BigDecimal.valueOf(ZVBEZ.longValue())"), and a
+  // first-`)`-wins regex truncates the inner text and leaves a stray ")"
+  // behind, producing invalid generated TypeScript.
+  e = replaceValueOf(e);
 
   // 4. Inline ZAHL constants
   for (const [k, v] of Object.entries(ZAHLEN)) {
@@ -116,9 +154,12 @@ function tx(raw: string): string {
   // 7. Find last method call at depth 0
   const dot = lastMethodDot(e);
   if (dot === -1) {
-    // Leaf — prefix uppercase variable names
-    return e.replace(/\b([A-Za-z][A-Z0-9_a-z]*)\b/g, (m) => {
+    // Leaf — prefix uppercase variable names. The negative lookbehind skips any
+    // identifier directly following a "." (member access, e.g. the "J" in "s.J")
+    // so an already-qualified reference is never re-prefixed to "s.s.J".
+    return e.replace(/(?<!\.)\b([A-Za-z][A-Z0-9_a-z]*)\b/g, (m) => {
       if (/^\d/.test(m) || ['Math','true','false','null','undefined'].includes(m)) return m;
+      if (m === 'DOWN' || m === 'UP') return m; // BigDecimal rounding-mode string literals
       if (/^TAB\d$/.test(m)) return m;
       if (/^[A-Z_][A-Z0-9_]*$/.test(m) || m === 'f' || m === 'af') return prefixVar(m);
       if (/^-?\d+(\.\d+)?$/.test(m)) return m;
@@ -181,22 +222,27 @@ function txCond(cond: string): string {
 function txSingleCond(cond: string): string {
   cond = cond.trim();
 
-  // Find .compareTo( at depth 0
+  // Find .compareTo( at depth 0. The PAP XML is inconsistent about whitespace
+  // before the opening paren (e.g. "FVBSO.compareTo (TAB2[J])"), so match with
+  // a regex rather than a fixed-length startsWith — a missed match here used to
+  // silently fall through to the generic tx() expression path, which drops the
+  // trailing comparison operator and mis-renders a compareTo() result as a raw
+  // truthy value (any nonzero result, not just ">", read as true).
   let depth = 0;
   let ctStart = -1;
+  let ctMatchLen = 0;
   for (let i = 0; i < cond.length; i++) {
     if ('(['.includes(cond[i])) depth++;
     else if ('])'.includes(cond[i])) depth--;
-    else if (depth === 0 && cond.slice(i).startsWith('.compareTo(')) {
-      ctStart = i;
-      break;
+    else if (depth === 0) {
+      const ctm = cond.slice(i).match(/^\.compareTo\s*\(/);
+      if (ctm) { ctStart = i; ctMatchLen = ctm[0].length; break; }
     }
   }
 
   if (ctStart !== -1) {
     const lhsRaw = cond.slice(0, ctStart);
-    const afterCT = cond.slice(ctStart + '.compareTo('.length);
-    const closeIdx = findClose(afterCT, -1 /* start before idx */ + 0);
+    const afterCT = cond.slice(ctStart + ctMatchLen);
     // Find the matching ) for compareTo(
     let d = 1, ci = -1;
     for (let i = 0; i < afterCT.length; i++) {
@@ -278,7 +324,7 @@ function parseNodes(xml: string): Node[] {
 
     // EVAL
     const evalM = xml.slice(i).match(/^<EVAL\s+exec="([^"]+)"\s*\/>/);
-    if (evalM) { i += evalM[0].length; return { kind: 'eval', exec: evalM[1] }; }
+    if (evalM) { i += evalM[0].length; return { kind: 'eval', exec: decodeXmlEntities(evalM[1]) }; }
 
     // EXECUTE
     const execM = xml.slice(i).match(/^<EXECUTE\s+method="([^"]+)"\s*\/>/);
@@ -287,6 +333,7 @@ function parseNodes(xml: string): Node[] {
     // IF
     const ifM = xml.slice(i).match(/^<IF\s+expr="([^"]+)">/);
     if (ifM) {
+      const ifExpr = decodeXmlEntities(ifM[1]);
       i += ifM[0].length;
       const thenNodes: Node[] = [];
       const elseNodes: Node[] = [];
@@ -326,7 +373,7 @@ function parseNodes(xml: string): Node[] {
       if (xml.slice(i).trimStart().startsWith('</IF>')) {
         i = xml.indexOf('</IF>', i) + '</IF>'.length;
       }
-      return { kind: 'if', expr: ifM[1], then: thenNodes, else_: elseNodes };
+      return { kind: 'if', expr: ifExpr, then: thenNodes, else_: elseNodes };
     }
 
     // Skip unrecognised / closing tags

@@ -116,6 +116,12 @@ Privacy-first is not a marketing position here. It is an architectural constrain
 └──────────────────────────────────────────────────────────────┘
 ```
 
+*Current-state note: `/api/compass` streamed via OpenAI's `o4-mini` model at the time this article
+was written. Production has since migrated to the Responses API (`/v1/responses`) on the
+`gpt-5.6-sol` model tier; the streaming, quota, and no-storage architecture described above is
+unchanged. See [the AI Responses migration record](https://github.com/Mihai-82Adrian/portfolio-astro/blob/master/docs/operations/ai-provider-responses-migration.md)
+for the current provider contract.*
+
 ---
 
 ## How It Works

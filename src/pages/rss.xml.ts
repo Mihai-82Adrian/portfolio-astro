@@ -8,6 +8,7 @@ export async function GET(context: APIContext) {
   const sortedPosts = posts.sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
   );
+  const feedDate = sortedPosts[0]?.data.updatedDate ?? sortedPosts[0]?.data.pubDate ?? new Date(0);
 
   return rss({
     // RSS feed metadata
@@ -46,11 +47,9 @@ export async function GET(context: APIContext) {
     // Additional RSS customization
     customData: `
       <language>en-us</language>
-      <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+      <lastBuildDate>${feedDate.toUTCString()}</lastBuildDate>
       <atom:link href="${context.site}rss.xml" rel="self" type="application/rss+xml" />
     `,
 
-    // Generate full content in RSS (can be changed to false for excerpts only)
-    stylesheet: '/rss-styles.xsl', // Optional: Add XSL stylesheet for RSS rendering
   });
 }

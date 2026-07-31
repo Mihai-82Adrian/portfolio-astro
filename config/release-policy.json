@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "productionBranch": "master",
+  "deploymentOwner": "github-actions",
+  "cspMode": "report-only",
+  "sampleReview": "disabled",
+  "requirePublicReleaseLineage": true,
+  "requireExactToolchain": true,
+  "requireArtifactReuse": true,
+  "remotePrerequisites": {
+    "deploymentOwnerVariable": "DEPLOYMENT_OWNER",
+    "deploymentOwnerValue": "github-actions",
+    "gitIntegrationVariable": "CLOUDFLARE_GIT_INTEGRATION_DISABLED",
+    "gitIntegrationValue": "true"
+  }
+}

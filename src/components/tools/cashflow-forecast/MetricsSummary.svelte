@@ -15,7 +15,7 @@
 
   // Break-even: first month where cumulative exceeds initial cash (positive momentum)
   const breakEvenMonth  = $derived(
-    baseData.find((d, i) => i > 0 && d.net > 0)?.month ?? null
+    baseData.find(d => d.net > 0)?.month ?? null
   );
 
   const endPositive = $derived(endBalance >= initialCash);

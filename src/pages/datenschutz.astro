@@ -23,7 +23,7 @@ const description = 'Privacy policy and data protection information according to
 
       <p class="text-lg text-text-secondary-light dark:text-text-secondary-dark mb-12">
         Diese Datenschutzerklärung klärt Sie über die Art, den Umfang und Zweck der Verarbeitung
-        von personenbezogenen Daten auf dieser Website auf. Stand: November 2025
+        von personenbezogenen Daten auf dieser Website auf. Stand: Juli 2026
       </p>
 
       <!-- Data Controller -->
@@ -50,7 +50,9 @@ const description = 'Privacy policy and data protection information according to
         </p>
         <ul class="list-disc list-inside space-y-2 text-text-secondary-light dark:text-text-secondary-dark mb-6">
           <li>Server-Logdaten (IP-Adresse, Browser-Typ, Zeitstempel, besuchte Seiten)</li>
-          <li>Kommentardaten über Giscus (GitHub-Nutzername, Avatar, Kommentartext)</li>
+          <li>Kommentardaten über Giscus, sofern aktiv geladen (GitHub-Nutzername, Avatar, Kommentartext)</li>
+          <li>Eingaben in KI-gestützte Funktionen, sofern aktiv genutzt (siehe Abschnitt 7)</li>
+          <li>Optional: anonymisierte Seitenaufruf-Daten über Ahrefs Web Analytics, nur nach Zustimmung (siehe Abschnitt 9)</li>
           <li>Technische Daten zur Bereitstellung der Website</li>
         </ul>
 
@@ -69,7 +71,7 @@ const description = 'Privacy policy and data protection information according to
         <p class="text-text-secondary-light dark:text-text-secondary-dark">
           Sie haben jederzeit das Recht auf unentgeltliche Auskunft über Ihre gespeicherten
           personenbezogenen Daten, deren Herkunft und Empfänger und den Zweck der Datenverarbeitung
-          sowie ein Recht auf Berichtigung oder Löschung dieser Daten. Siehe Abschnitt 7 für Details.
+          sowie ein Recht auf Berichtigung oder Löschung dieser Daten. Siehe Abschnitt 11 für Details.
         </p>
       </section>
 
@@ -151,6 +153,11 @@ const description = 'Privacy policy and data protection information according to
           "Giscus" bereitgestellt wird. Giscus nutzt GitHub Discussions für die Speicherung
           von Kommentaren.
         </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <strong>Klick-to-Load:</strong> Das Giscus-Skript (giscus.app) wird erst geladen,
+          nachdem Sie aktiv auf "Load comments" klicken. Bis dahin findet keine Verbindung
+          zu giscus.app statt.
+        </p>
 
         <h3 class="text-xl font-medium mb-4 mt-8">Datenverarbeitung</h3>
         <ul class="list-disc list-inside space-y-2 text-text-secondary-light dark:text-text-secondary-dark mb-4">
@@ -184,9 +191,112 @@ const description = 'Privacy policy and data protection information according to
         </p>
       </section>
 
+      <!-- AI Features (OpenAI) -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">7. KI-gestützte Funktionen (OpenAI)</h2>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Diese Website bietet KI-gestützte Funktionen an: den Chat-Assistenten (Ask Mihai),
+          die Stellenbeschreibungs-Analyse im Chat, den KI-Stresstest im Cashflow-Tool, die
+          KI-Analyse im Investment-Analytics-Tool und die Profilauswertung im Founder-Compass-Tool.
+          Alle diese Funktionen nutzen die OpenAI Responses API.
+        </p>
+        <h3 class="text-xl font-medium mb-4 mt-8">Wann werden Daten übermittelt?</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Eine Übermittlung an OpenAI (OpenAI OpCo, LLC, San Francisco, USA) erfolgt
+          <strong>ausschließlich</strong>, wenn Sie eine dieser Funktionen aktiv nutzen — z. B.
+          eine Chat-Nachricht senden oder auf "KI-Analyse"/"Szenario-Stresstest starten" klicken.
+          Es findet keine automatische oder im Hintergrund laufende Übermittlung statt. Ein
+          entsprechender Hinweis wird unmittelbar vor der jeweiligen Aktion angezeigt.
+        </p>
+        <h3 class="text-xl font-medium mb-4 mt-8">Datenverarbeitung</h3>
+        <ul class="list-disc list-inside space-y-2 text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <li>Übermittelt werden je nach Funktion: Ihre Chat-Nachricht bzw. eingefügte Stellenbeschreibung,
+            Ihre Antworten im Founder-Compass-Fragebogen, oder die von Ihnen im Browser berechneten
+            Finanzkennzahlen (Cashflow-/Investment-Tool).</li>
+          <li>Die Verarbeitung erfolgt zustandslos (<code>store: false</code>) — OpenAI speichert die
+            Anfrage nicht dauerhaft zur Modell-Weiterverwendung.</li>
+          <li>Zur Missbrauchsvermeidung wird serverseitig ein wöchentliches Nutzungslimit pro
+            gehashter IP-Adresse (SHA-256, Cloudflare) durchgesetzt; die Klartext-IP wird nicht an
+            OpenAI übermittelt.</li>
+        </ul>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. a DSGVO (Einwilligung durch die
+          aktive Nutzung der Funktion nach vorherigem Hinweis) bzw. Art. 6 Abs. 1 lit. f DSGVO
+          (berechtigtes Interesse an der Bereitstellung der Analyse-Funktion).
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          <strong>OpenAI Datenschutz:</strong>
+          <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener noreferrer" class="link">
+            https://openai.com/policies/privacy-policy
+          </a>
+        </p>
+      </section>
+
+      <!-- Embedded Media -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">8. Eingebettete Medien (YouTube, Spotify)</h2>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Auf einzelnen Projektseiten (z. B. Mediathek-Bereich) können YouTube-Videos und
+          Spotify-Inhalte eingebunden werden. Diese werden als Platzhalter angezeigt und erst
+          nach Ihrem aktiven Klick geladen — es findet keine automatische Verbindung zu
+          youtube.com oder spotify.com statt.
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          Nach einem Klick verarbeitet der jeweilige Anbieter Ihre IP-Adresse und ggf. weitere
+          technische Daten gemäß dessen eigener Datenschutzerklärung (Google/YouTube LLC bzw.
+          Spotify AB). Rechtsgrundlage ist Art. 6 Abs. 1 lit. a DSGVO (Einwilligung durch den Klick).
+        </p>
+      </section>
+
+      <!-- Web Analytics -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">9. Web-Analyse (Ahrefs Web Analytics)</h2>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Diese Website nutzt optional Ahrefs Web Analytics (Ahrefs Pte. Ltd., Singapur) zur
+          statistischen Auswertung von Seitenaufrufen. Das Analyse-Skript wird
+          <strong>nicht standardmäßig geladen</strong> — es startet erst, nachdem Sie im
+          Datenschutz-Banner (oder über "Datenschutz-Einstellungen" im Footer) aktiv "Analyse
+          zulassen" gewählt haben. Ohne diese Zustimmung wird keine Verbindung zu
+          analytics.ahrefs.com aufgebaut.
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <strong>Datenverarbeitung:</strong> Bei aktivierter Analyse verarbeitet Ahrefs
+          anonymisierte/aggregierte Angaben zu Seitenaufruf, Referrer und Browser-Metadaten.
+          Ahrefs Web Analytics setzt keine Cookies und erstellt kein individuelles
+          Nutzerprofil (cookieless, IP-Adresse wird laut Anbieter nicht dauerhaft gespeichert).
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <strong>Widerruf:</strong> Sie können Ihre Zustimmung jederzeit über
+          "Datenschutz-Einstellungen" im Footer mit Wirkung für zukünftige Seitenaufrufe
+          widerrufen (Art. 7 Abs. 3 DSGVO).
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. a DSGVO (Einwilligung).
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          <strong>Ahrefs Datenschutz:</strong>
+          <a href="https://ahrefs.com/privacy-policy" target="_blank" rel="noopener noreferrer" class="link">
+            https://ahrefs.com/privacy-policy
+          </a>
+        </p>
+      </section>
+
+      <!-- Contact form / lead capture -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-6">10. Kontaktformular (Datenaufbereitung für KI)</h2>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Das Anfrageformular für den Service "Datenaufbereitung für KI" ist im Code vorbereitet,
+          aber derzeit <strong>nicht produktiv geschaltet</strong>: Der für den E-Mail-Versand
+          vorgesehene Dienst Resend ist nicht konfiguriert. Eingehende Anfragen werden aktuell
+          serverseitig mit einem Fehler abgelehnt, es erfolgt keine Versendung und keine
+          Speicherung Ihrer Formulardaten über diesen Weg. Sobald der Dienst aktiviert wird,
+          wird diese Erklärung entsprechend aktualisiert.
+        </p>
+      </section>
+
       <!-- User Rights -->
       <section class="mb-12">
-        <h2 class="text-2xl font-semibold mb-6">7. Ihre Rechte nach DSGVO</h2>
+        <h2 class="text-2xl font-semibold mb-6">11. Ihre Rechte nach DSGVO</h2>
         <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
           Sie haben folgende Rechte bezüglich Ihrer personenbezogenen Daten:
         </p>
@@ -253,23 +363,9 @@ const description = 'Privacy policy and data protection information according to
         </p>
       </section>
 
-      <!-- No Analytics -->
-      <section class="mb-12">
-        <h2 class="text-2xl font-semibold mb-6">8. Keine Analyse-Tools oder Cookies</h2>
-        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
-          Diese Website verwendet derzeit <strong>keine Analyse-Tools</strong> wie Google Analytics,
-          Matomo oder ähnliche Dienste.
-        </p>
-        <p class="text-text-secondary-light dark:text-text-secondary-dark">
-          Es werden <strong>keine nicht-technischen Cookies</strong> gesetzt. Lediglich technisch
-          notwendige Cookies können zum Einsatz kommen, um die Funktionalität der Website zu
-          gewährleisten.
-        </p>
-      </section>
-
       <!-- Changes to Privacy Policy -->
       <section class="mb-12">
-        <h2 class="text-2xl font-semibold mb-6">9. Änderungen dieser Datenschutzerklärung</h2>
+        <h2 class="text-2xl font-semibold mb-6">12. Änderungen dieser Datenschutzerklärung</h2>
         <p class="text-text-secondary-light dark:text-text-secondary-dark">
           Ich behalte mir vor, diese Datenschutzerklärung anzupassen, damit sie stets den aktuellen
           rechtlichen Anforderungen entspricht oder um Änderungen meiner Leistungen in der
@@ -280,7 +376,7 @@ const description = 'Privacy policy and data protection information according to
 
       <!-- Contact for Privacy -->
       <section class="mb-12">
-        <h2 class="text-2xl font-semibold mb-6">10. Fragen zum Datenschutz</h2>
+        <h2 class="text-2xl font-semibold mb-6">13. Fragen zum Datenschutz</h2>
         <p class="text-text-secondary-light dark:text-text-secondary-dark">
           Wenn Sie Fragen zum Datenschutz haben, schreiben Sie mir bitte eine E-Mail:<br>
           <a href="mailto:kontakt@me-mateescu.de" class="link">kontakt@me-mateescu.de</a>

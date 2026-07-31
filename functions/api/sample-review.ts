@@ -1,7 +1,32 @@
+import {
+    checkContentLength,
+    classifyProviderFailure,
+    fetchWithTimeout,
+    jsonError,
+    jsonSuccess,
+    methodGuard,
+    originGuard,
+    requireContentType,
+    type FetchLike,
+} from '../_lib/http.ts';
+import { readFeatureControl } from '../_lib/feature-controls.ts';
+import {
+    createOperationalHandler,
+    getOperationalState,
+    recordFailure,
+    recordProviderOutcome,
+    recordQuotaDecision,
+    startProviderCall,
+    type OperationalHandlerOptions,
+    type OperationalState,
+} from '../_lib/operational-context.ts';
+import { operationalClassForPublicCode } from '../_lib/operational-errors.ts';
+
 interface Env {
     RESEND_API_KEY: string;
     SAMPLE_REVIEW_EMAIL_FROM: string;
     SAMPLE_REVIEW_EMAIL_TO: string;
+    SAMPLE_REVIEW_ENABLED?: string;
 }
 
 interface SampleReviewEmail {
@@ -25,6 +50,10 @@ interface SampleReviewSubmission {
     successRedirect: string;
     formPath: string;
 }
+
+// ─── Transport limits ──────────────────────────────────────────────
+const MAX_BODY_BYTES = 32 * 1024;
+const PROVIDER_TIMEOUT_MS = 10_000;
 
 const THROTTLE_WINDOW_MS = 60 * 1000;
 const MIN_SUBMISSION_AGE_MS = 1500;
@@ -185,30 +214,31 @@ function renderErrorHtml(message: string, status: number, formPath = '/sample-st
         headers: {
             'Content-Type': 'text/html; charset=utf-8',
             'Cache-Control': 'no-store',
+            'X-Content-Type-Options': 'nosniff',
         },
     });
 }
 
-function renderJsonError(message: string, status: number, fields?: string[]): Response {
-    return new Response(JSON.stringify(fields ? { message, fields } : { message }), {
-        status,
-        headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-store',
-        },
-    });
+interface RespondErrorOptions {
+    fields?: string[];
+    retryable?: boolean;
+    formPath?: string;
 }
 
-function errorResponse(
+function respondError(
     request: Request,
+    operational: OperationalState,
+    requestId: string,
     status: number,
+    code: Parameters<typeof jsonError>[1],
     message: string,
-    fields?: string[],
-    formPath?: string,
+    opts: RespondErrorOptions = {},
 ): Response {
-    return wantsHtmlResponse(request)
-        ? renderErrorHtml(message, status, formPath)
-        : renderJsonError(message, status, fields);
+    recordFailure(operational, operationalClassForPublicCode(code));
+    if (wantsHtmlResponse(request)) {
+        return renderErrorHtml(message, status, opts.formPath);
+    }
+    return jsonError(status, code, message, requestId, { fields: opts.fields, retryable: opts.retryable });
 }
 
 function normalizeAllowedPath(value: string, allowedPaths: Set<string>, fallback: string): string {
@@ -250,38 +280,41 @@ async function setThrottleEntry(requestUrl: string, ipHash: string): Promise<voi
     }));
 }
 
-interface EmailDeliveryProvider {
+export interface EmailDeliveryProvider {
     send(message: SampleReviewEmail): Promise<void>;
 }
 
-function createResendEmailProvider(env: Env): EmailDeliveryProvider {
+// Assumes the caller has already verified RESEND_API_KEY / SAMPLE_REVIEW_EMAIL_FROM / TO are
+// present — see the env-readiness check in createHandler, which fails closed before this is
+// ever constructed. No outbound fetch happens here unless configuration is already known-good.
+export function createResendEmailProvider(env: Env, fetchImpl: FetchLike): EmailDeliveryProvider {
     return {
         async send(message: SampleReviewEmail): Promise<void> {
             const recipients = parseRecipients(env.SAMPLE_REVIEW_EMAIL_TO);
 
-            if (!env.RESEND_API_KEY || !env.SAMPLE_REVIEW_EMAIL_FROM || recipients.length === 0) {
-                throw new Error('Missing email configuration.');
-            }
-
-            const response = await fetch('https://api.resend.com/emails', {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${env.RESEND_API_KEY}`,
-                    'Content-Type': 'application/json',
+            const response = await fetchWithTimeout(
+                'https://api.resend.com/emails',
+                {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        from: env.SAMPLE_REVIEW_EMAIL_FROM,
+                        to: recipients,
+                        subject: message.subject,
+                        text: message.text,
+                        html: message.html,
+                        reply_to: message.replyTo,
+                    }),
                 },
-                body: JSON.stringify({
-                    from: env.SAMPLE_REVIEW_EMAIL_FROM,
-                    to: recipients,
-                    subject: message.subject,
-                    text: message.text,
-                    html: message.html,
-                    reply_to: message.replyTo,
-                }),
-            });
+                PROVIDER_TIMEOUT_MS,
+                fetchImpl,
+            );
 
             if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Email provider error ${response.status}: ${errorText}`);
+                throw new Error('Email provider rejected the request.');
             }
         },
     };
@@ -350,113 +383,206 @@ function buildSampleReviewEmail(submission: SampleReviewSubmission, receivedAt: 
     };
 }
 
-export const onRequest = async (context: any) => {
-    const request = context.request as Request;
-    const env = context.env as Env;
+export function createHandler(
+    deps: { fetchImpl?: FetchLike; emailProvider?: EmailDeliveryProvider } & OperationalHandlerOptions = {},
+) {
+    const fetchImpl = deps.fetchImpl ?? ((input: string, init: RequestInit) => fetch(input, init));
 
-    if (request.method !== 'POST') {
-        return new Response('Method Not Allowed', {
-            status: 405,
-            headers: {
-                Allow: 'POST',
-                'Content-Type': 'text/plain; charset=utf-8',
-                'Cache-Control': 'no-store',
-            },
-        });
-    }
+    return createOperationalHandler('/api/sample-review', async (context: any) => {
+        const request = context.request as Request;
+        const env = context.env as Env;
+        const operational = getOperationalState(request);
+        const requestId = operational.context.requestId;
 
-    const clientIP = request.headers.get('CF-Connecting-IP') ?? 'unknown';
-    const ipHash = await hashIp(clientIP);
+        const methodError = methodGuard(request, ['POST', 'HEAD'], requestId);
+        if (methodError) return methodError;
 
-    let formData: FormData;
-    try {
-        formData = await request.formData();
-    } catch {
-        return errorResponse(request, 400, 'Ungültige Formular-Daten.');
-    }
+        const feature = readFeatureControl(env, 'SAMPLE_REVIEW_ENABLED');
+        if (request.method === 'HEAD') {
+            return new Response(null, {
+                status: feature.state === 'DISABLED' ? 204 : 409,
+                headers: { 'Cache-Control': 'no-store' },
+            });
+        }
 
-    const submission: SampleReviewSubmission = {
-        name: normalize(formData.get('name')),
-        company: normalize(formData.get('company')),
-        workEmail: normalize(formData.get('workEmail')),
-        dataType: normalize(formData.get('dataType')),
-        targetUseCase: normalize(formData.get('targetUseCase')),
-        estimatedVolume: normalize(formData.get('estimatedVolume')),
-        notes: normalize(formData.get('notes')),
-        consent: normalize(formData.get('privacyConsent')),
-        website: normalize(formData.get('website')),
-        submittedAt: normalize(formData.get('submittedAt')),
-        successRedirect: normalize(formData.get('successRedirect')),
-        formPath: normalize(formData.get('formPath')),
-    };
+        const originError = originGuard(request, requestId);
+        if (originError) return originError;
 
-    const successRedirect = normalizeAllowedPath(
-        submission.successRedirect,
-        ALLOWED_SUCCESS_REDIRECTS,
-        '/sample-struktur-pruefen/danke',
-    );
-    const formPath = normalizeAllowedPath(
-        submission.formPath,
-        ALLOWED_FORM_PATHS,
-        '/sample-struktur-pruefen',
-    );
+        if (!feature.enabled) {
+            return respondError(
+                request,
+                operational,
+                requestId,
+                503,
+                feature.state === 'INVALID' ? 'CONFIGURATION_INVALID' : 'FEATURE_DISABLED',
+                'Die Sample-Review-Funktion ist derzeit nicht verfügbar. Bitte kontaktieren Sie uns direkt per E-Mail.',
+            );
+        }
 
-    if (submission.website) {
-        return errorResponse(request, 400, 'Anfrage abgelehnt.', undefined, formPath);
-    }
+        const recipients = parseRecipients(env.SAMPLE_REVIEW_EMAIL_TO ?? '');
+        const isConfigured = Boolean(env.RESEND_API_KEY) && Boolean(env.SAMPLE_REVIEW_EMAIL_FROM) && recipients.length > 0;
 
-    const missingFields = [
-        !submission.name && 'name',
-        !submission.company && 'company',
-        !submission.workEmail && 'workEmail',
-        !submission.dataType && 'dataType',
-        !submission.targetUseCase && 'targetUseCase',
-        !submission.estimatedVolume && 'estimatedVolume',
-        submission.consent !== 'on' && 'privacyConsent',
-    ].filter(Boolean) as string[];
+        if (!isConfigured) {
+            // Fail closed before touching the request body: the feature is off regardless of
+            // what the visitor submitted, so no form data is parsed or retained.
+            return respondError(
+                request,
+                operational,
+                requestId,
+                503,
+                'FEATURE_NOT_CONFIGURED',
+                'Die Sample-Review-Funktion ist derzeit nicht verfügbar. Bitte kontaktieren Sie uns direkt per E-Mail.',
+            );
+        }
 
-    if (missingFields.length > 0) {
-        return errorResponse(request, 400, 'Bitte füllen Sie alle Pflichtfelder aus.', missingFields, formPath);
-    }
+        const contentTypeError = requireContentType(request, 'multipart/form-data', requestId);
+        if (contentTypeError) {
+            recordFailure(operational, 'UNSUPPORTED_MEDIA_TYPE');
+            return wantsHtmlResponse(request)
+                ? renderErrorHtml('Ungültiger Anfragetyp.', 415)
+                : contentTypeError;
+        }
 
-    if (!isValidEmail(submission.workEmail)) {
-        return errorResponse(request, 400, 'Bitte geben Sie eine gültige Business-E-Mail an.', undefined, formPath);
-    }
+        const lengthError = checkContentLength(request, MAX_BODY_BYTES, requestId);
+        if (lengthError) {
+            recordFailure(operational, 'BODY_TOO_LARGE');
+            return wantsHtmlResponse(request)
+                ? renderErrorHtml('Anfrage ist zu groß.', 413)
+                : lengthError;
+        }
 
-    if (!ALLOWED_DATA_TYPES.has(submission.dataType)) {
-        return errorResponse(request, 400, 'Ungültiger Daten-/Dokumenttyp.', undefined, formPath);
-    }
+        const clientIP = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+        const ipHash = await hashIp(clientIP);
 
-    if (!ALLOWED_TARGET_USE_CASES.has(submission.targetUseCase)) {
-        return errorResponse(request, 400, 'Ungültiger Ziel-Use-Case.', undefined, formPath);
-    }
+        let formData: FormData;
+        try {
+            formData = await request.formData();
+        } catch {
+            return respondError(request, operational, requestId, 400, 'MALFORMED_JSON', 'Ungültige Formular-Daten.');
+        }
 
-    if (!ALLOWED_VOLUMES.has(submission.estimatedVolume)) {
-        return errorResponse(request, 400, 'Ungültiger Umfang.', undefined, formPath);
-    }
+        const submission: SampleReviewSubmission = {
+            name: normalize(formData.get('name')),
+            company: normalize(formData.get('company')),
+            workEmail: normalize(formData.get('workEmail')),
+            dataType: normalize(formData.get('dataType')),
+            targetUseCase: normalize(formData.get('targetUseCase')),
+            estimatedVolume: normalize(formData.get('estimatedVolume')),
+            notes: normalize(formData.get('notes')),
+            consent: normalize(formData.get('privacyConsent')),
+            website: normalize(formData.get('website')),
+            submittedAt: normalize(formData.get('submittedAt')),
+            successRedirect: normalize(formData.get('successRedirect')),
+            formPath: normalize(formData.get('formPath')),
+        };
 
-    if (submission.notes.length > 4000) {
-        return errorResponse(request, 400, 'Zusätzliche Hinweise sind zu lang.', undefined, formPath);
-    }
+        const successRedirect = normalizeAllowedPath(
+            submission.successRedirect,
+            ALLOWED_SUCCESS_REDIRECTS,
+            '/sample-struktur-pruefen/danke',
+        );
+        const formPath = normalizeAllowedPath(
+            submission.formPath,
+            ALLOWED_FORM_PATHS,
+            '/sample-struktur-pruefen',
+        );
 
-    if (submission.submittedAt && !parseSubmittedAt(submission.submittedAt)) {
-        return errorResponse(request, 400, 'Anfrage wirkt automatisiert.', undefined, formPath);
-    }
+        if (submission.website) {
+            return respondError(request, operational, requestId, 422, 'VALIDATION_FAILED', 'Anfrage abgelehnt.', { formPath });
+        }
 
-    if (await hasThrottleEntry(request.url, ipHash)) {
-        return errorResponse(request, 429, 'Zu viele Anfragen. Bitte warten Sie kurz.', undefined, formPath);
-    }
+        const missingFields = [
+            !submission.name && 'name',
+            !submission.company && 'company',
+            !submission.workEmail && 'workEmail',
+            !submission.dataType && 'dataType',
+            !submission.targetUseCase && 'targetUseCase',
+            !submission.estimatedVolume && 'estimatedVolume',
+            submission.consent !== 'on' && 'privacyConsent',
+        ].filter(Boolean) as string[];
 
-    const receivedAt = new Date().toISOString();
+        if (missingFields.length > 0) {
+            return respondError(request, operational, requestId, 422, 'VALIDATION_FAILED', 'Bitte füllen Sie alle Pflichtfelder aus.', {
+                fields: missingFields,
+                formPath,
+            });
+        }
 
-    try {
-        await setThrottleEntry(request.url, ipHash);
-        const emailDelivery = createResendEmailProvider(env);
-        await emailDelivery.send(buildSampleReviewEmail(submission, receivedAt));
-    } catch (error) {
-        console.error('[sample-review] email delivery failed:', error);
-        return errorResponse(request, 502, 'E-Mail-Versand fehlgeschlagen.', undefined, formPath);
-    }
+        if (!isValidEmail(submission.workEmail)) {
+            return respondError(request, operational, requestId, 422, 'VALIDATION_FAILED', 'Bitte geben Sie eine gültige Business-E-Mail an.', {
+                fields: ['workEmail'],
+                formPath,
+            });
+        }
 
-    return Response.redirect(new URL(successRedirect, request.url), 303);
-};
+        if (!ALLOWED_DATA_TYPES.has(submission.dataType)) {
+            return respondError(request, operational, requestId, 422, 'VALIDATION_FAILED', 'Ungültiger Daten-/Dokumenttyp.', {
+                fields: ['dataType'],
+                formPath,
+            });
+        }
+
+        if (!ALLOWED_TARGET_USE_CASES.has(submission.targetUseCase)) {
+            return respondError(request, operational, requestId, 422, 'VALIDATION_FAILED', 'Ungültiger Ziel-Use-Case.', {
+                fields: ['targetUseCase'],
+                formPath,
+            });
+        }
+
+        if (!ALLOWED_VOLUMES.has(submission.estimatedVolume)) {
+            return respondError(request, operational, requestId, 422, 'VALIDATION_FAILED', 'Ungültiger Umfang.', {
+                fields: ['estimatedVolume'],
+                formPath,
+            });
+        }
+
+        if (submission.notes.length > 4000) {
+            return respondError(request, operational, requestId, 422, 'VALIDATION_FAILED', 'Zusätzliche Hinweise sind zu lang.', {
+                fields: ['notes'],
+                formPath,
+            });
+        }
+
+        if (submission.submittedAt && !parseSubmittedAt(submission.submittedAt)) {
+            return respondError(request, operational, requestId, 422, 'VALIDATION_FAILED', 'Anfrage wirkt automatisiert.', { formPath });
+        }
+
+        recordQuotaDecision(operational, 'ALLOWED');
+        if (await hasThrottleEntry(request.url, ipHash)) {
+            recordQuotaDecision(operational, 'REJECTED_COOLDOWN');
+            return respondError(request, operational, requestId, 429, 'RATE_LIMITED', 'Zu viele Anfragen. Bitte warten Sie kurz.', {
+                retryable: true,
+                formPath,
+            });
+        }
+
+        const receivedAt = new Date().toISOString();
+        const emailDelivery = deps.emailProvider ?? createResendEmailProvider(env, fetchImpl);
+
+        try {
+            await setThrottleEntry(request.url, ipHash);
+            startProviderCall(operational, 'none');
+            await emailDelivery.send(buildSampleReviewEmail(submission, receivedAt));
+            recordProviderOutcome(operational, { providerOutcome: 'SUCCEEDED' });
+        } catch (error) {
+            const failure = classifyProviderFailure(error, requestId);
+            recordProviderOutcome(operational, {
+                providerOutcome: failure.status === 504 ? 'TIMED_OUT' : 'FAILED',
+            });
+            recordFailure(
+                operational,
+                failure.status === 504 ? 'PROVIDER_TIMEOUT' : 'PROVIDER_UNAVAILABLE',
+            );
+            return wantsHtmlResponse(request)
+                ? renderErrorHtml('E-Mail-Versand fehlgeschlagen. Bitte versuchen Sie es später erneut.', failure.status, formPath)
+                : failure;
+        }
+
+        if (wantsHtmlResponse(request)) {
+            return Response.redirect(new URL(successRedirect, request.url), 303);
+        }
+        return jsonSuccess({ redirectTo: successRedirect }, requestId);
+    }, deps);
+}
+
+export const onRequest = createHandler();

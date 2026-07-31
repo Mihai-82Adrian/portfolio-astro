@@ -1,7 +1,7 @@
 <script lang="ts">
   import { fly, fade } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
-  import { Marked } from 'marked';
+  import { renderReportMarkdown } from '@/lib/security/report-markdown';
 
   let {
     report = '' as string,
@@ -12,27 +12,7 @@
 
   let reportEl: HTMLElement | undefined = $state(undefined);
 
-  // Configure marked with safe defaults (no raw HTML passthrough)
-  const marked = new Marked({
-    breaks: true,
-    gfm: true,
-  });
-
-  // Sanitize HTML output — strip any raw HTML tags the LLM might produce
-  function sanitizeHtml(html: string): string {
-    return html
-      .replace(/<script[\s\S]*?<\/script>/gi, '')
-      .replace(/<iframe[\s\S]*?<\/iframe>/gi, '')
-      .replace(/on\w+="[^"]*"/gi, '')
-      .replace(/on\w+='[^']*'/gi, '');
-  }
-
-  let renderedHtml = $derived(() => {
-    if (!report) return '';
-    const raw = marked.parse(report);
-    if (typeof raw !== 'string') return '';
-    return sanitizeHtml(raw);
-  });
+  let sanitizedReportHtml = $derived(renderReportMarkdown(report));
 
   // Auto-scroll as content streams in
   $effect(() => {
@@ -84,7 +64,7 @@
           bind:this={reportEl}
           class="compass-report max-h-[65vh] overflow-y-auto"
         >
-          {@html renderedHtml()}
+          {@html sanitizedReportHtml}
         </div>
 
         {#if status === 'complete'}

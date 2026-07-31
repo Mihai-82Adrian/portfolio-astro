@@ -14,10 +14,15 @@
   } from '@/lib/fin-core/runway';
 
   const STORAGE_KEY = 'tools.runway.scenarios.v1';
+  const sourceEpoch = Number(import.meta.env.PUBLIC_SOURCE_DATE_EPOCH);
+  const defaultDate = Number.isFinite(sourceEpoch) && sourceEpoch > 0
+    ? new Date(sourceEpoch * 1000)
+    : new Date();
 
-  let scenarios: RunwayScenario[] = createDefaultScenarios();
+  let scenarios: RunwayScenario[] = createDefaultScenarios(defaultDate);
   let activeTab = 1; // Default: Realistisch
   let showGuide = false;
+  let restored = false;
 
   // Restore from localStorage on mount
   onMount(() => {
@@ -34,10 +39,14 @@
     } catch {
       // Ignore parse errors — use defaults
     }
+    restored = true;
   });
 
-  // Persist on every change
-  $: {
+  // Persist on every change, but only after the initial restore: Svelte runs this
+  // reactive block once synchronously during component init, before onMount, so an
+  // unguarded write here would clobber a stored prior session with the pre-restore
+  // default scenarios on every single page load.
+  $: if (restored) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(scenarios));
     } catch {
@@ -60,7 +69,7 @@
 
   function resetAll() {
     if (confirm('Alle Szenarien zurücksetzen? Die aktuellen Daten gehen verloren.')) {
-      scenarios = createDefaultScenarios();
+      scenarios = createDefaultScenarios(defaultDate);
       localStorage.removeItem(STORAGE_KEY);
     }
   }
@@ -68,11 +77,11 @@
 
 <div class="space-y-4">
   <!-- Header + Reset -->
-  <div class="flex items-center justify-between">
+  <div class="flex min-w-0 flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
     <p class="text-xs text-text-muted-light dark:text-text-muted-dark">
       Daten werden lokal gespeichert — keine Serverübertragung.
     </p>
-    <div class="flex items-center gap-3">
+    <div class="flex min-w-0 flex-wrap items-center gap-3">
       <button
         type="button"
         on:click={() => (showGuide = true)}
@@ -104,11 +113,22 @@
   <div class="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_380px]">
 
     <!-- Left: Scenario Editor -->
-    <div class="rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-5 dark:border-white/10">
-      <ScenarioEditor
-        scenario={scenarios[activeTab]}
-        on:update={handleScenarioUpdate}
-      />
+    <div class="min-w-0 rounded-2xl border border-black/10 bg-[var(--bg-elevated)] p-5 dark:border-white/10">
+      {#each scenarios as scenario, i (scenario.id)}
+        <div
+          id={`runway-panel-${scenario.id}`}
+          role="tabpanel"
+          aria-labelledby={`runway-tab-${scenario.id}`}
+          hidden={i !== activeTab}
+        >
+          {#if i === activeTab}
+            <ScenarioEditor
+              {scenario}
+              on:update={handleScenarioUpdate}
+            />
+          {/if}
+        </div>
+      {/each}
     </div>
 
     <!-- Right: Chart + Metrics (sticky) -->

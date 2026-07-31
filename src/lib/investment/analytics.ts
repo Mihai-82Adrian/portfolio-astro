@@ -1,10 +1,25 @@
-import type { CashFlowEntry, ReturnMetrics, RiskMetrics, MonteCarloResult, TaxResult } from './types';
-import { RISK_FREE_RATE, TAX_RATE, VORABPAUSCHALE_RATE_2026 } from './types';
+import type { CashFlowEntry, ReturnMetrics, RiskMetrics, MonteCarloResult, TaxResult } from './types.ts';
+import { RISK_FREE_RATE, TAX_RATE, BASISZINS_2026 } from './types.ts';
+
+/**
+ * Deterministic PRNG (mulberry32, public domain) for seeded Monte Carlo runs.
+ * Not cryptographic — only used so tests can assert reproducible simulation paths.
+ */
+export function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return function random(): number {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
 
 // ─── Box-Muller Gaussian RNG ───────────────────────────────────────────────
-function gaussianRandom(mean: number, std: number): number {
-  const u1 = Math.max(Math.random(), 1e-10);
-  const u2 = Math.random();
+function gaussianRandom(mean: number, std: number, rng: () => number = Math.random): number {
+  const u1 = Math.max(rng(), 1e-10);
+  const u2 = rng();
   const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
   return mean + std * z;
 }
@@ -187,7 +202,8 @@ export function calcRiskMetrics(
 export function runMonteCarlo(
   initial: number,
   cashFlows: CashFlowEntry[],
-  nSims = 1000
+  nSims = 1000,
+  rng: () => number = Math.random
 ): MonteCarloResult {
   const sorted = [...cashFlows].sort((a, b) => a.year - b.year);
   const nYears = sorted.length > 0 ? sorted[sorted.length - 1].year : 1;
@@ -208,7 +224,7 @@ export function runMonteCarlo(
 
     for (let t = 1; t <= nYears; t++) {
       const drift = mu - 0.5 * sigma * sigma;
-      const shock = gaussianRandom(drift, sigma);
+      const shock = gaussianRandom(drift, sigma, rng);
       value = value * Math.exp(shock);
       path.push(value);
     }
@@ -237,6 +253,67 @@ export function runMonteCarlo(
 
 // ─── DACH Tax ──────────────────────────────────────────────────────────────
 
+/**
+ * Kapitalertragsteuer (Abgeltungsteuer) + Solidaritätszuschlag + Kirchensteuer
+ * on a taxable amount, per § 32d Abs. 1 Satz 3–5 EStG:
+ *   KESt = taxableAmount / (4 + k)   (k = Kirchensteuersatz as a decimal, e.g. 0.09)
+ *   KiSt = k × KESt
+ *   Soli = 0.055 × KESt
+ * At k = 0 this reduces to the flat 25 % + 5.5 % Soli (= 26.375 %, `TAX_RATE`).
+ * The naive "flat surcharge on the 25 % KESt" is statutorily wrong because Kirchensteuer
+ * is deductible as a Sonderausgabe, which lowers the KESt base itself (not just the total).
+ */
+export function calcKESt(
+  taxableAmount: number,
+  kirchensteuerPercent: number
+): { kest: number; soli: number; kirchensteuer: number; total: number } {
+  if (taxableAmount <= 0) return { kest: 0, soli: 0, kirchensteuer: 0, total: 0 };
+  const k = kirchensteuerPercent / 100;
+  const kest = taxableAmount / (4 + k);
+  const kirchensteuer = k * kest;
+  const soli = 0.055 * kest;
+  return { kest, soli, kirchensteuer, total: kest + soli + kirchensteuer };
+}
+
+/**
+ * Vorabpauschale per § 18 InvStG: for each year of the holding period,
+ *   Basisertrag = Fondswert(Jahresanfang) × Basiszins × 0.7
+ * capped at the actual value increase during that year (floor 0 — no Vorabpauschale
+ * in flat or loss years), then Teilfreistellung applied.
+ *
+ * The tool only carries an initial value, a total gain and a holding-period length
+ * (not a real month-by-month NAV curve), so the per-year Fondswert path is derived
+ * from the smooth annual rate implied by initial → final value (CAGR). This is a
+ * disclosed simplification (see UI copy) — the statutory cap/floor mechanism itself
+ * is exact, only the assumed intra-holding growth path is approximated.
+ */
+export function calcVorabpauschale(
+  initial: number,
+  years: number,
+  finalValue: number,
+  basiszins: number,
+  teilfreistellung: boolean
+): { total: number; perYear: number[] } {
+  const n = Math.max(1, Math.round(years));
+  if (initial <= 0) return { total: 0, perYear: Array(n).fill(0) };
+
+  const impliedRate = finalValue > 0 ? Math.pow(finalValue / initial, 1 / n) - 1 : -1;
+
+  const perYear: number[] = [];
+  let value = initial;
+  for (let y = 0; y < n; y++) {
+    const start = value;
+    const end = start * (1 + impliedRate);
+    const basisertrag = start * basiszins * 0.7;
+    const actualIncrease = Math.max(0, end - start);
+    const vorabYear = Math.max(0, Math.min(basisertrag, actualIncrease));
+    perYear.push(teilfreistellung ? vorabYear * 0.7 : vorabYear);
+    value = end;
+  }
+
+  return { total: perYear.reduce((s, v) => s + v, 0), perYear };
+}
+
 export function calcTax(
   initial: number,
   cashFlows: CashFlowEntry[],
@@ -245,22 +322,27 @@ export function calcTax(
   ter: number,
   personalFreibetrag: number,
   teilfreistellung: boolean,
-  kirchensteuer: number
+  kirchensteuer: number,
+  basiszins: number = BASISZINS_2026
 ): TaxResult {
-  const totalInflows = cashFlows.reduce((s, cf) => s + cf.amount, 0);
+  const sorted = [...cashFlows].sort((a, b) => a.year - b.year);
+  const totalInflows = sorted.reduce((s, cf) => s + cf.amount, 0);
   const grossGain = totalInflows - initial;
+  const years = sorted.length > 0 ? sorted[sorted.length - 1].year : 1;
 
-  // Vorabpauschale (accumulating fund only)
+  // Vorabpauschale (accumulating fund only) — TER is not netted here: fund costs are
+  // already reflected in the fund's own NAV appreciation, so subtracting TER again
+  // would double-count the fee effect (this differs from the tool's prior behavior).
   let vorabpauschale: number | undefined;
   let vorabpauschaleTax: number | undefined;
   if (isFund && isAccumulating) {
-    vorabpauschale = initial * VORABPAUSCHALE_RATE_2026 * (1 - ter / 100);
-    // Apply Teilfreistellung to Vorabpauschale (§ 20 InvStG applies to all fund income)
-    const taxableVorab = teilfreistellung ? vorabpauschale * 0.7 : vorabpauschale;
-    const vorabAbgeltung = taxableVorab * TAX_RATE;
-    const vorabKirchensteuer = vorabAbgeltung * (kirchensteuer / 100);
-    vorabpauschaleTax = vorabAbgeltung + vorabKirchensteuer;
+    const { total: taxableVorab } = calcVorabpauschale(
+      initial, years, initial + grossGain, basiszins, teilfreistellung
+    );
+    vorabpauschale = taxableVorab;
+    vorabpauschaleTax = calcKESt(taxableVorab, kirchensteuer).total;
   }
+  void ter; // TER remains a UI-facing assumption for return metrics only, not tax.
 
   // Apply Teilfreistellung (30% exemption for Aktienfonds, § 20 InvStG) BEFORE Freibetrag
   const adjustedGain = (isFund && teilfreistellung) ? grossGain * 0.7 : grossGain;
@@ -268,13 +350,12 @@ export function calcTax(
 
   const freibetrag  = Math.max(0, personalFreibetrag);
   const taxableGain = Math.max(0, adjustedGain - freibetrag);
-  const taxAmount   = taxableGain * TAX_RATE;
 
-  const kirchensteuerAmount = taxAmount * (kirchensteuer / 100);
-  const netGain     = grossGain - taxAmount - kirchensteuerAmount;
-  const effectiveTaxRate = grossGain > 0
-    ? ((taxAmount + kirchensteuerAmount) / grossGain) * 100
-    : 0;
+  const { kest, soli, kirchensteuer: kirchensteuerAmount, total: totalTax } =
+    calcKESt(taxableGain, kirchensteuer);
+  const taxAmount = kest + soli;
+  const netGain   = grossGain - totalTax;
+  const effectiveTaxRate = grossGain > 0 ? (totalTax / grossGain) * 100 : 0;
 
   return {
     grossGain, taxableGain, taxAmount, netGain, vorabpauschale, vorabpauschaleTax,

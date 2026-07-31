@@ -6,6 +6,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import { unified } from '@astrojs/markdown-remark';
 
 import svelte from '@astrojs/svelte';
 import { calculateReadingTime } from './src/utils/readingTime.ts';
@@ -47,6 +48,7 @@ const NOINDEX_SITEMAP_PATHS = new Set([
   '/sample-struktur-pruefen/danke/',
   '/en/sample-structure-review/thank-you/',
   '/ro/revizuire-structura-esantion/multumesc/',
+  '/404/',
 ]);
 
 const CUSTOM_I18N_SITEMAP_LINKS = new Map([
@@ -211,15 +213,16 @@ export default defineConfig({
   ],
 
   markdown: {
-    // ✅ Use real imports, not "remark-math"/"rehype-katex" strings
-    remarkPlugins,
-    rehypePlugins,
+    // Astro 7 defaults `markdown.processor` to satteri(); pin unified() explicitly
+    // to keep the remark/rehype pipeline (KaTeX, reading time, GFM, SmartyPants).
+    processor: unified({
+      remarkPlugins,
+      rehypePlugins,
+      gfm: true,
+      smartypants: true,
+    }),
 
-    // Astro has these enabled by default, but keeping explicit is fine
-    gfm: true,
-    smartypants: true,
-
-    // Shiki themes
+    // Shiki themes (cross-cutting, applies regardless of markdown.processor)
     shikiConfig: {
       themes: {
         light: 'github-light',

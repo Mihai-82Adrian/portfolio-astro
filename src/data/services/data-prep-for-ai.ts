@@ -240,6 +240,10 @@ export interface SampleReviewContent {
     consentLabel: string;
     submitLabel: string;
     successRedirect: string;
+    unavailableMessage: string;
+    validationMessage: string;
+    genericErrorMessage: string;
+    disabledNotice: string;
   };
   submission: {
     title: string;
@@ -1132,6 +1136,10 @@ export const sampleReviewContentByLocale: Record<DataPrepLocale, SampleReviewCon
       consentLabel: 'Ich stimme zu, dass meine Angaben zur Bearbeitung dieser geschäftlichen Anfrage verarbeitet werden.',
       submitLabel: 'Scoped Sample Review anfragen',
       successRedirect: deRoutes.thankYou,
+      unavailableMessage: 'Diese Funktion ist derzeit nicht verfügbar. Bitte kontaktieren Sie uns direkt per E-Mail — Ihre Angaben bleiben erhalten.',
+      validationMessage: 'Bitte überprüfen Sie Ihre Angaben und versuchen Sie es erneut.',
+      genericErrorMessage: 'Die Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es später erneut.',
+      disabledNotice: 'Der Scoped Sample Review ist derzeit noch nicht verfügbar. Kontaktieren Sie uns gerne direkt per E-Mail, um einen Einstieg zu besprechen.',
     },
     submission: {
       title: 'Nach dem Absenden',
@@ -1203,6 +1211,10 @@ export const sampleReviewContentByLocale: Record<DataPrepLocale, SampleReviewCon
       consentLabel: 'I agree that my information may be processed to handle this business inquiry.',
       submitLabel: 'Request scoped sample review',
       successRedirect: enRoutes.thankYou,
+      unavailableMessage: 'This feature is temporarily unavailable. Please contact us directly by email — your input has been kept.',
+      validationMessage: 'Please check your input and try again.',
+      genericErrorMessage: 'The request could not be sent. Please try again later.',
+      disabledNotice: 'Scoped Sample Review is not yet available. Feel free to contact us directly by email to discuss a starting point.',
     },
     submission: {
       title: 'After submitting',
@@ -1274,6 +1286,10 @@ export const sampleReviewContentByLocale: Record<DataPrepLocale, SampleReviewCon
       consentLabel: 'Sunt de acord ca informațiile mele să fie procesate pentru gestionarea acestei cereri de business.',
       submitLabel: 'Solicită Scoped Sample Review',
       successRedirect: roRoutes.thankYou,
+      unavailableMessage: 'Această funcție nu este disponibilă momentan. Te rugăm să ne contactezi direct prin email — datele introduse rămân păstrate.',
+      validationMessage: 'Te rugăm să verifici datele introduse și să încerci din nou.',
+      genericErrorMessage: 'Solicitarea nu a putut fi trimisă. Te rugăm să încerci din nou mai târziu.',
+      disabledNotice: 'Scoped Sample Review nu este încă disponibil. Ne poți contacta direct prin email pentru a discuta un punct de plecare.',
     },
     submission: {
       title: 'După trimitere',

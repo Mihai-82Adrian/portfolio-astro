@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "cacheLayoutVersion": 1,
+  "minJavaVersion": 11,
+  "validator": {
+    "version": "1.6.2",
+    "archiveFilename": "validator-1.6.2.zip",
+    "sha256": "708a3d2a534cbf741e572b7dfe88ede28d39cd7a0f8d2d3a15d123e9287a3c31",
+    "entrypoint": "validator-1.6.2.jar"
+  },
+  "configuration": {
+    "version": "2026-01-31",
+    "archiveFilename": "xrechnung-config-2026-01-31.zip",
+    "sha256": "6a5a5911a421b25fbc423f62f93f894df7b236f5d73ca4f84bb222a945082704",
+    "entrypoint": "scenarios.xml"
+  }
+}
