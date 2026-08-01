@@ -101,8 +101,8 @@
     "astro": "7.1.6",
     "chart.js": "^4.5.1",
     "dompurify": "3.4.12",
-    "katex": "^0.16.45",
-    "marked": "18.0.6",
+    "katex": "^0.18.1",
+    "marked": "18.0.7",
     "pdfmake": "^0.3.7",
     "svelte": "5.56.6"
   },
@@ -121,6 +121,6 @@
     "tailwindcss": "4.2.2",
     "terser": "5.46.1",
     "typescript": "^5.7.3",
-    "wrangler": "4.114.0"
+    "wrangler": "4.115.0"
   }
 }
