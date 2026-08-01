@@ -22,20 +22,25 @@ registry, and it cannot discover advisories published after the snapshot was tak
 planned to add **recurring, fresh, online** advisory discovery and alerting (Dependabot-style
 automation) — this does not yet exist and is not provided by either (1) or (2).
 
-## Canonical dependency graph — Astro 7.1.3 (Phase 2D-A)
+## Canonical dependency graph — Astro 7.1.6 (Phase 2D-A, updated Phase 3-B3R)
 
 **Exact target lockfile**: `package-lock.json` SHA-256
-`7b2bf3e7e8b40b9542922bca7e0a66983f79d0b9fd59f092c7ef01da2290bbab` (matches
-`config/dependency-advisories.json`'s `lockfileSha256`).
+`ef0484b4b4bd6c782f7eef2c99b3c9b89d5dc950d723a41b286b8c930d206e41` (matches
+`config/dependency-advisories.json`'s `lockfileSha256`). Phase 3-B3R adopted Dependabot PR #38
+(`astro` 7.1.3→7.1.6, `@astrojs/mdx` 7.0.3→7.0.5, `@lucide/astro` 1.26.0→1.28.0, plus the
+coupled `@astrojs/markdown-remark` 7.2.1→7.2.2 peer bump astro 7.1.5 itself requires) after
+confirming every intermediate release is patch-only with no breaking changes against the official
+`withastro/astro` release notes.
 
 **Target graph versions observed on Node 22.22.3 / npm 11.16.0 / Linux x64 glibc**:
 
 | Package | Version(s) observed | Path |
 | --- | --- | --- |
-| `astro` | 7.1.3 | direct |
-| `@astrojs/mdx` | 7.0.3 | direct |
+| `astro` | 7.1.6 | direct |
+| `@astrojs/mdx` | 7.0.5 | direct |
 | `@astrojs/svelte` | 9.0.1 | direct |
-| `@astrojs/markdown-remark` | 7.2.1 | transitive via `astro`; supplies the pinned `unified()` processor |
+| `@lucide/astro` | 1.28.0 | direct |
+| `@astrojs/markdown-remark` | 7.2.2 | transitive via `astro`; supplies the pinned `unified()` processor |
 | `vite` | 8.1.5 | transitive via `astro`, `@astrojs/svelte`, `@tailwindcss/vite` (single deduped version) |
 | `pagefind` | 1.5.2 | direct |
 | `sharp` | 0.35.3 | `astro@7.1.3 -> sharp` (optional) |
@@ -45,7 +50,7 @@ automation) — this does not yet exist and is not provided by either (1) or (2)
 **No `overrides` or `resolutions` are used to reach this graph.** `npm install` alone resolved every
 path to the versions above.
 
-**Fresh `npm audit --json` result** (observation date 2026-07-26, this lockfile):
+**Fresh `npm audit --json` result** (observation date 2026-08-01, this lockfile):
 
 ```json
 {"info":0,"low":0,"moderate":0,"high":0,"critical":0,"total":0}
