@@ -114,7 +114,7 @@
     "glob": "^13.0.6",
     "gray-matter": "^4.0.3",
     "jsdom": "29.1.1",
-    "node-html-parser": "^7.1.0",
+    "node-html-parser": "^9.0.1",
     "pagefind": "1.5.2",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
