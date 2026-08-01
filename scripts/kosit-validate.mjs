@@ -20,8 +20,8 @@ if (!existsSync(metadataPath)) {
 }
 
 const metadata = JSON.parse(readFileSync(metadataPath, 'utf-8'));
-const jarPath = path.join(root, metadata.validator.jarPath);
-const scenariosPath = path.join(root, metadata.xrechnungConfig.scenariosPath);
+const jarPath = path.resolve(root, metadata.validator.jarPath);
+const scenariosPath = path.resolve(root, metadata.xrechnungConfig.scenariosPath);
 const configDir = path.dirname(scenariosPath);
 if (!existsSync(jarPath) || !existsSync(scenariosPath)) {
   console.error('KoSIT runtime incomplete. Re-run: npm run kosit:setup');

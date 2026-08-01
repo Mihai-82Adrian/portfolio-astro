@@ -1,15 +1,19 @@
 ---
 /**
  * Giscus Comments Component
- * 
+ *
  * GitHub Discussions-powered comment system with dark/light mode support.
  * Requires GitHub Discussions to be enabled on the repository.
- * 
+ *
+ * Click-to-load: no request to giscus.app is made until the user explicitly
+ * clicks the placeholder button below, mirroring the pattern used for
+ * YouTube/Spotify embeds in src/components/media/MediaGallery.astro.
+ *
  * Configuration:
  * - Repository: Mihai-82Adrian/portfolio-astro
  * - Mapping: pathname (URL-based, best for blogs)
  * - Theme: Matches site's light/dark mode automatically
- * 
+ *
  * @component
  */
 
@@ -28,6 +32,14 @@ const CATEGORY_ID = "DIC_kwDOQTF7r84CxpnH";
 ---
 
 <div class:list={["giscus-container", className]}>
+  <button type="button" class="giscus-load-btn" data-giscus-load>
+    Load comments
+  </button>
+  <p class="giscus-note" data-giscus-note>
+    Comments are provided by Giscus (GitHub Discussions) and are not requested from
+    giscus.app until you click above. See the
+    <a href="/datenschutz">privacy policy</a> for what GitHub processes once you do.
+  </p>
   <div
     class="giscus"
     data-repo={REPO}
@@ -42,15 +54,15 @@ const CATEGORY_ID = "DIC_kwDOQTF7r84CxpnH";
     data-theme="preferred_color_scheme"
     data-lang="en"
     data-loading="lazy"
+    hidden
   ></div>
 </div>
 
 <script>
-  /**
-   * Dynamically load Giscus script and handle theme changes
-   */
   function initializeGiscus() {
-    // Load Giscus script
+    const container = document.querySelector<HTMLElement>('.giscus');
+    if (!container) return;
+
     const script = document.createElement('script');
     script.src = 'https://giscus.app/client.js';
     script.setAttribute('data-repo', 'Mihai-82Adrian/portfolio-astro');
@@ -68,10 +80,16 @@ const CATEGORY_ID = "DIC_kwDOQTF7r84CxpnH";
     script.setAttribute('crossorigin', 'anonymous');
     script.async = true;
 
-    const container = document.querySelector('.giscus');
-    if (container) {
-      container.appendChild(script);
-    }
+    container.hidden = false;
+    container.appendChild(script);
+  }
+
+  function activateGiscus() {
+    const btn = document.querySelector<HTMLElement>('[data-giscus-load]');
+    const note = document.querySelector<HTMLElement>('[data-giscus-note]');
+    if (btn) btn.hidden = true;
+    if (note) note.hidden = true;
+    initializeGiscus();
   }
 
   /**
@@ -98,12 +116,20 @@ const CATEGORY_ID = "DIC_kwDOQTF7r84CxpnH";
     );
   }
 
-  // Initialize on page load
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeGiscus);
-  } else {
-    initializeGiscus();
+  function initComments() {
+    const btn = document.querySelector<HTMLElement>('[data-giscus-load]');
+    if (btn && !btn.dataset.giscusReady) {
+      btn.dataset.giscusReady = 'true';
+      btn.addEventListener('click', activateGiscus, { once: true });
+    }
   }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initComments, { once: true });
+  } else {
+    initComments();
+  }
+  document.addEventListener('astro:page-load', initComments);
 
   // Listen for theme toggle changes
   const observer = new MutationObserver((mutations) => {
@@ -126,7 +152,7 @@ const CATEGORY_ID = "DIC_kwDOQTF7r84CxpnH";
   // Handle initial theme on iframe load
   window.addEventListener('message', (event) => {
     if (event.origin !== 'https://giscus.app') return;
-    
+
     // Wait a bit for iframe to be fully loaded
     if (event.data?.giscus?.discussion) {
       setTimeout(handleThemeChange, 100);
@@ -153,5 +179,20 @@ const CATEGORY_ID = "DIC_kwDOQTF7r84CxpnH";
   .giscus-container::before {
     content: 'Comments';
     @apply block mb-6 text-2xl font-bold text-text-primary-light dark:text-text-primary-dark;
+  }
+
+  .giscus-load-btn {
+    @apply rounded-xl border border-eucalyptus-500/40 px-4 py-2.5 text-sm font-semibold;
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300;
+    @apply hover:border-eucalyptus-500 hover:bg-eucalyptus-50 dark:hover:bg-eucalyptus-500/10;
+    @apply transition-colors cursor-pointer;
+  }
+
+  .giscus-note {
+    @apply mt-3 max-w-2xl text-xs text-text-secondary-light dark:text-text-secondary-dark;
+  }
+
+  .giscus-note a {
+    @apply text-eucalyptus-700 dark:text-eucalyptus-300 underline;
   }
 </style>

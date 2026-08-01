@@ -49,14 +49,6 @@ interface WebSiteSchema {
   url: string;
   description: string;
   inLanguage: string[];
-  potentialAction?: {
-    '@type': string;
-    target: {
-      '@type': string;
-      urlTemplate: string;
-    };
-    'query-input': string;
-  };
 }
 
 interface BreadcrumbSchema {
@@ -96,15 +88,12 @@ interface BlogPostingSchema {
   keywords?: string[];
 }
 
-interface WorkExperienceSchema {
-  '@context': string;
+interface OrganizationRoleSchema {
   '@type': string;
+  roleName: string;
   startDate: string;
   endDate?: string;
-  name: string;
-  description: string;
-  jobTitle: string;
-  employer: {
+  worksFor: {
     '@type': string;
     name: string;
   };
@@ -140,8 +129,7 @@ export function generatePersonSchema(lang: 'de' | 'en' | 'ro' = 'de'): PersonSch
     },
     sameAs: [
       'https://www.linkedin.com/in/mihai-adrian-mateescu/',
-      'https://github.com/Mihai-82Adrian',
-      'https://profit-minds.de'
+      'https://github.com/Mihai-82Adrian'
     ],
     knowsLanguage: ['de', 'en', 'ro'],
     alumniOf: [
@@ -181,15 +169,7 @@ export function generateWebSiteSchema(lang: 'de' | 'en' | 'ro' = 'de'): WebSiteS
     name: SITE_NAME,
     url: SITE_URL,
     description: descriptions[lang],
-    inLanguage: ['de', 'en', 'ro'],
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${SITE_URL}/blog?q={search_term_string}`
-      },
-      'query-input': 'required name=search_term_string'
-    }
+    inLanguage: ['de', 'en', 'ro']
   };
 }
 
@@ -246,20 +226,20 @@ export function generateBlogPostingSchema(
 }
 
 /**
- * Generate WorkExperience structured data from Position data
+ * Generate an OrganizationRole node (valid Schema.org Role subtype) from Position data.
+ * Nest the result under Person.worksFor — it is not a standalone root node and carries no
+ * '@context' of its own (see https://schema.org/OrganizationRole, the documented pattern for
+ * qualifying a relationship property with a time-bound role).
  */
-export function generateWorkExperienceSchema(
+export function generateOrganizationRoleSchema(
   experience: Position
-): WorkExperienceSchema {
+): OrganizationRoleSchema {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'WorkExperience',
+    '@type': 'OrganizationRole',
+    roleName: experience.role.de, // Use German as default
     startDate: experience.startDate,
     endDate: experience.endDate === 'present' ? undefined : experience.endDate,
-    name: experience.role.de, // Use German as default
-    description: experience.description.de.join(' '),
-    jobTitle: experience.role.de,
-    employer: {
+    worksFor: {
       '@type': 'Organization',
       name: experience.company
     }

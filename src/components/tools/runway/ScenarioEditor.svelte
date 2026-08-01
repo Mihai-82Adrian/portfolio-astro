@@ -10,7 +10,7 @@
   const dispatch = createEventDispatcher<{ update: RunwayScenario }>();
 
   function setInitialCash(e: Event) {
-    const value = Number((e.target as HTMLInputElement).value);
+    const value = Math.max(0, Number((e.target as HTMLInputElement).value) || 0);
     dispatch('update', { ...scenario, initialCash: value });
   }
 

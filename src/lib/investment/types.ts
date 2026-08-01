@@ -3,9 +3,11 @@ export const STORAGE_KEY = 'tools.investment-analytics.state.v1';
 export const WEEKLY_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
 
 export const RISK_FREE_RATE = 0.025;        // German Bundesanleihe 10Y ~2.5%
-export const TAX_RATE = 0.26375;            // Abgeltungsteuer 25% + 1.375% Soli
+export const TAX_RATE = 0.26375;            // Abgeltungsteuer 25% + 1.375% Soli (no Kirchensteuer)
 export const FREISTELLUNGSAUFTRAG = 1000;   // EUR/year per person
-export const VORABPAUSCHALE_RATE_2026 = 0.0224; // Basiszins × 0.7 × TER correction
+// Basiszins zur Berechnung der Vorabpauschale gem. § 18 Abs. 4 InvStG, Stand 2.1.2026.
+// Source: BMF-Schreiben IV C 1 - S 1980/00230/012/001 vom 13.01.2026.
+export const BASISZINS_2026 = 0.032;
 
 // ─── Interfaces ────────────────────────────────────────────────────────────
 export interface CashFlowEntry {

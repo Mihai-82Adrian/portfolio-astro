@@ -65,6 +65,7 @@ export interface Translations {
     intro: string;
     description: string;
     currentFocus: string;
+    workingMethod: string;
     skills: string;
     skillsSubtitle: string;
     professionalIdentityText: string;
@@ -149,6 +150,11 @@ export interface Translations {
     description: string;
     download: string;
     verify: string;
+    issuer: string;
+    obtained: string;
+    from: string;
+    credentialType: string;
+    partnership: string;
     aboutTitle: string;
     aboutText: string;
     categories: {
@@ -156,6 +162,7 @@ export interface Translations {
       language: string;
       reference: string;
       other: string;
+      aiProfessionalDevelopment: string;
     };
     count: string;
   };
@@ -204,18 +211,18 @@ export const translations: Record<Language, Translations> = {
     },
     home: {
       title: 'Mihai Adrian Mateescu',
-      subtitle: 'Finanzbuchhalter · Tech & AI · Kreativproduzent',
-      description: 'Engagierter Finanzbuchhalter mit Erfahrung in der Buchhaltung und Finanzverwaltung, spezialisiert auf die detaillierte Analyse von Geschäftsvorfällen und die steuerliche Berichterstattung. Mit einer ausgeprägten Leidenschaft für Zahlen und einem scharfen Auge für Details suche ich stets nach Möglichkeiten, meine beruflichen Fähigkeiten weiterzuentwickeln. Meine vielseitige Erfahrung, die von der Buchhaltung bis hin zum Management von Teams reicht, empfiehlt mich als einen flexiblen Fachmann, der in jeder finanziellen Umgebung einen Mehrwert schafft.',
+      subtitle: 'Finanzbuchhalter · FinTech & Angewandte KI',
+      description: 'Finanzbuchhalter mit Erfahrung in Buchhaltung, Umsatzsteuer und vorbereitenden Abschlussarbeiten. Daneben entwickle ich den offenen Fin-Tools Hub — praktische Finance-Tools für Gründer und Teams — und setze angewandte KI ein, um Finanzdaten aufzubereiten und Prozesse zu automatisieren. Architektur und Anforderungen definiere ich selbst; KI-Systeme unterstützen bei Umsetzung und Recherche, die Verantwortung liegt bei mir.',
       availabilityBadge: 'Für Beratungsprojekte verfügbar',
       skillsLabel: 'Kompetenzen:',
-      heroSkills: ['DATEV', 'Finanzbuchhaltung', 'AI/ML', 'Webentwicklung', 'Kreativproduktion'],
+      heroSkills: ['DATEV', 'Finanzbuchhaltung', 'FinTech-Tools', 'Angewandte KI', 'Webentwicklung'],
       cta: {
         viewProjects: 'Berufserfahrung',
         readBlog: 'Blog lesen',
         contact: 'Kontakt aufnehmen'
       },
       quickLinks: {
-        education: 'Weiterbildung zum Bilanzbuchhalter (IHK) und IHK-Zertifizierungen',
+        education: 'Endriss-Vorbereitungskurs abgeschlossen; eigenständige Vorbereitung auf die Prüfung zum Geprüften Bilanzbuchhalter (IHK) im September 2026',
         experience: '21 Jahre Berufserfahrung in Buchhaltung, Vertrieb und Management',
         certifications: 'IHK-Zertifikate, Arbeitszeugnisse und Sprachzertifikate',
         hobbiesText: 'Fotografie, Technologie und mein E-Commerce-Projekt Profit Minds'
@@ -254,13 +261,14 @@ export const translations: Record<Language, Translations> = {
     },
     about: {
       title: 'Über mich',
-      subtitle: 'Finanzbuchhalter & Finanzexperte',
+      subtitle: 'Finanzbuchhalter · FinTech & Angewandte KI',
       intro: 'Willkommen auf meiner Portfolio-Seite',
-      description: 'Finanzbuchhalter mit Interesse für Technologie, Fotografie und E-Commerce',
-      currentFocus: 'Aktuell: Weiterbildung zum Bilanzbuchhalter (IHK)',
+      description: 'Finanzbuchhalter und Entwickler des Fin-Tools Hub sowie angewandter KI-Systeme — mit Interesse für Fotografie und E-Commerce',
+      currentFocus: 'Aktuell: Endriss-Vorbereitungskurs im Januar 2026 abgeschlossen; eigenständige Vorbereitung auf die Prüfung zum Geprüften Bilanzbuchhalter (IHK) im September 2026. Die Qualifikation als Geprüfter Bilanzbuchhalter (IHK) habe ich noch nicht erworben.',
+      workingMethod: 'Arbeitsweise: Ich entwerfe Produktarchitektur und Domänenmodell selbst — die Implementierung erfolgt mit professionellen KI-Coding-Assistenten unter meiner Leitung und Verantwortung, mit vollständiger Validierung und ohne Abstriche bei Codequalität. Menschlich geführt, KI-beschleunigt.',
       skills: 'Kompetenzen',
       skillsSubtitle: 'Ehrliche Selbsteinschätzung meiner beruflichen und technischen Fähigkeiten',
-      professionalIdentityText: 'Engagierter Finanzbuchhalter mit Erfahrung in der Buchhaltung und Finanzverwaltung, spezialisiert auf die detaillierte Analyse von Geschäftsvorfällen und die steuerliche Berichterstattung. Mit einer ausgeprägten Leidenschaft für Zahlen und einem scharfen Auge für Details suche ich stets nach Möglichkeiten, meine beruflichen Fähigkeiten weiterzuentwickeln.',
+      professionalIdentityText: 'Finanzbuchhalter mit Erfahrung in Buchhaltung, Umsatzsteuer und vorbereitenden Abschlussarbeiten. Auf dieser Grundlage entwickle ich praktische FinTech-Tools (den offenen Fin-Tools Hub) und wende KI-Systeme an, um Finanzdaten aufzubereiten und Workflows zu automatisieren — mit klar definierter Architektur, vollständiger Validierung und Verantwortung bei mir.',
       visitButton: 'Besuche',
       hobbies: {
         photography: {
@@ -293,7 +301,7 @@ export const translations: Record<Language, Translations> = {
             'DATEV, Agenda, Simba (Steuerkanzlei-Software)',
             'SelectLine, Modality, ELO DMS (aktuell)'
           ],
-          note: 'Finanzbuchhalter seit 08/2023 (modal3, Kesen, Herrmann, Quadriga) • Bilanzbuchhalter (IHK) in Ausbildung, Prüfung 03/2026'
+          note: 'Finanzbuchhalter seit 08/2023 (modal3, Kesen, Herrmann, Quadriga) • Endriss-Kurs abgeschlossen; eigenständige Prüfungsvorbereitung für September 2026; Qualifikation als Geprüfter Bilanzbuchhalter (IHK) noch nicht erworben'
         },
         ecommerce: {
           category: 'E-Commerce Ops & Compliance (EU/DE)',
@@ -374,7 +382,7 @@ export const translations: Record<Language, Translations> = {
     education: {
       title: 'Ausbildung',
       subtitle: 'Akademischer und beruflicher Werdegang',
-      description: 'Weiterbildung zum Bilanzbuchhalter (IHK) und berufliche Qualifikationen',
+      description: 'Endriss-Vorbereitungskurs abgeschlossen; eigenständige Vorbereitung auf die Prüfung zum Geprüften Bilanzbuchhalter (IHK) im September 2026; Qualifikation als Geprüfter Bilanzbuchhalter (IHK) noch nicht erworben',
       ongoing: 'laufend',
       completed: 'abgeschlossen',
       incomplete: 'ohne Abschlusszeugnis'
@@ -385,13 +393,19 @@ export const translations: Record<Language, Translations> = {
       description: 'IHK-Zertifikate, Arbeitszeugnisse und Sprachzertifikate',
       download: 'Zertifikat herunterladen',
       verify: 'Verifizieren',
+      issuer: 'Aussteller',
+      obtained: 'Erhalten',
+      from: 'Von',
+      credentialType: 'Art',
+      partnership: 'Partnerschaft',
       aboutTitle: 'Über meine Zertifizierungen',
-      aboutText: 'Die IHK-Zertifizierung als Fachkraft für Buchführung bestätigt meine fachlichen Kenntnisse und Kompetenzen im Bereich der Buchhaltung. Aktuell setze ich meine Weiterbildung zum Bilanzbuchhalter (IHK) fort, um meine Fähigkeiten zu erweitern und meine berufliche Qualifikation zu steigern.',
+      aboutText: 'Die IHK-Zertifizierung als Fachkraft für Buchführung bestätigt meine fachlichen Kenntnisse und Kompetenzen im Bereich der Buchhaltung. Prüfungsvorbereitung Geprüfter Bilanzbuchhalter (IHK): Der Endriss-Vorbereitungskurs wurde im Januar 2026 abgeschlossen; derzeit bereite ich mich eigenständig auf die Prüfung im September 2026 vor. Die Qualifikation als Geprüfter Bilanzbuchhalter (IHK) habe ich noch nicht erworben.',
       categories: {
         professional: 'Berufliche Zertifikate',
         language: 'Sprachzertifikate',
         reference: 'Arbeitszeugnisse',
-        other: 'Weitere Dokumente'
+        other: 'Weitere Dokumente',
+        aiProfessionalDevelopment: 'KI & Weiterbildung'
       },
       count: 'Zertifikate'
     },
@@ -406,7 +420,7 @@ export const translations: Record<Language, Translations> = {
       notFound: 'Nicht gefunden'
     },
     footer: {
-      description: 'Finanzbuchhalter mit Leidenschaft für Zahlen und kontinuierliches Lernen. Aktuell: Weiterbildung zum Bilanzbuchhalter (IHK). Hobby: Technologie-Exploration.',
+      description: 'Finanzbuchhalter, Entwickler des offenen Fin-Tools Hub und angewandter KI-Systeme. Endriss-Kurs abgeschlossen; eigenständige Prüfungsvorbereitung für September 2026; Qualifikation als Geprüfter Bilanzbuchhalter (IHK) noch nicht erworben.',
       copyright: 'Alle Rechte vorbehalten.',
       madeWith: 'Erstellt mit',
       deployedOn: 'bereitgestellt auf',
@@ -435,18 +449,18 @@ export const translations: Record<Language, Translations> = {
     },
     home: {
       title: 'Mihai Adrian Mateescu',
-      subtitle: 'Financial Accountant · Tech & AI · Creative Producer',
-      description: 'Dedicated Financial Accountant with experience in accounting and financial management, specializing in detailed analysis of business transactions and tax reporting. With a strong passion for numbers and a keen eye for detail, I constantly seek opportunities to further develop my professional skills. My diverse experience, ranging from accounting to team management, positions me as a flexible professional who creates value in any financial environment.',
+      subtitle: 'Financial Accountant · FinTech & Applied AI',
+      description: 'Financial Accountant with hands-on experience in bookkeeping, VAT filings and preparatory year-end work. I also build the open Fin-Tools Hub — practical finance tools for founders and teams — and apply AI to structure financial data and automate workflows. I define the architecture and requirements myself; AI systems support implementation and research, and the responsibility stays with me.',
       availabilityBadge: 'Available for consulting',
       skillsLabel: 'Skills:',
-      heroSkills: ['DATEV', 'Financial Accounting', 'AI/ML', 'Web Development', 'Creative Production'],
+      heroSkills: ['DATEV', 'Financial Accounting', 'FinTech Tools', 'Applied AI', 'Web Development'],
       cta: {
         viewProjects: 'Experience',
         readBlog: 'Read Blog',
         contact: 'Get in Touch'
       },
       quickLinks: {
-        education: 'Training to become a certified accountant (IHK) and IHK certifications',
+        education: 'Endriss preparation course completed; independently preparing for the Geprüfter Bilanzbuchhalter (IHK) examination in September 2026',
         experience: '21 years of professional experience in accounting, sales and management',
         certifications: 'IHK certificates, employment references and language certificates',
         hobbiesText: 'Photography, technology and my e-commerce project Profit Minds'
@@ -485,13 +499,14 @@ export const translations: Record<Language, Translations> = {
     },
     about: {
       title: 'About Me',
-      subtitle: 'Financial Accountant & Finance Expert',
+      subtitle: 'Financial Accountant · FinTech & Applied AI',
       intro: 'Welcome to my portfolio',
-      description: 'Financial Accountant with interests in technology, photography and e-commerce',
-      currentFocus: 'Currently: Continuing education as Certified Accountant (IHK)',
+      description: 'Financial Accountant, builder of the Fin-Tools Hub and applied AI systems — with interests in photography and e-commerce',
+      currentFocus: 'Current focus: Endriss preparation course completed in January 2026; independently preparing for the Geprüfter Bilanzbuchhalter (IHK) examination in September 2026. Qualification not yet obtained.',
+      workingMethod: 'Working method: I design the product architecture and domain model myself — implementation happens with professional AI coding assistants under my direction and responsibility, with full validation and no compromise on code quality. Human-led, AI-accelerated.',
       skills: 'Competencies',
       skillsSubtitle: 'Honest self-assessment of my professional and technical skills',
-      professionalIdentityText: 'Dedicated Financial Accountant with experience in accounting and financial management, specialized in detailed analysis of business transactions and tax reporting. With a strong passion for numbers and a keen eye for detail, I constantly seek opportunities to further develop my professional skills.',
+      professionalIdentityText: 'Financial Accountant with experience in bookkeeping, VAT filings and preparatory year-end work. On that foundation, I build practical FinTech tools (the open Fin-Tools Hub) and apply AI systems to structure financial data and automate workflows — with clearly defined architecture, full validation, and the responsibility resting with me.',
       visitButton: 'Visit',
       hobbies: {
         photography: {
@@ -524,7 +539,7 @@ export const translations: Record<Language, Translations> = {
             'DATEV, Agenda, Simba (tax office software)',
             'SelectLine, Modality, ELO DMS (current)'
           ],
-          note: 'Financial Accountant since 08/2023 (modal3, Kesen, Herrmann, Quadriga) • Certified Accountant (IHK) in training, exam 03/2026'
+          note: 'Financial Accountant since 08/2023 (modal3, Kesen, Herrmann, Quadriga) • Endriss course completed; independent examination preparation for September 2026; qualification not yet obtained'
         },
         ecommerce: {
           category: 'E-Commerce Ops & Compliance (EU/DE)',
@@ -605,7 +620,7 @@ export const translations: Record<Language, Translations> = {
     education: {
       title: 'Education',
       subtitle: 'Academic and Professional Background',
-      description: 'Continuing education as Certified Accountant (IHK) and professional qualifications',
+      description: 'Endriss preparation course completed; independent preparation for the Geprüfter Bilanzbuchhalter (IHK) examination in September 2026; qualification not yet obtained',
       ongoing: 'ongoing',
       completed: 'completed',
       incomplete: 'without graduation certificate'
@@ -616,13 +631,19 @@ export const translations: Record<Language, Translations> = {
       description: 'IHK certificates, employment references and language certificates',
       download: 'Download Certificate',
       verify: 'Verify',
+      issuer: 'Issuer',
+      obtained: 'Obtained',
+      from: 'From',
+      credentialType: 'Type',
+      partnership: 'Partnership',
       aboutTitle: 'About My Certifications',
-      aboutText: 'The IHK certification as Specialist for Bookkeeping confirms my professional knowledge and competencies in accounting. Currently, I am continuing my education as Certified Accountant (IHK) to expand my skills and enhance my professional qualifications.',
+      aboutText: 'The IHK certification as Specialist for Bookkeeping confirms my professional knowledge and competencies in accounting. Examination preparation for Geprüfter Bilanzbuchhalter (IHK): I completed the Endriss preparation course in January 2026 and am currently preparing independently for the examination scheduled for September 2026. The qualification has not yet been obtained.',
       categories: {
         professional: 'Professional Certificates',
         language: 'Language Certificates',
         reference: 'Employment References',
-        other: 'Other Documents'
+        other: 'Other Documents',
+        aiProfessionalDevelopment: 'AI & Professional Development'
       },
       count: 'Certificates'
     },
@@ -637,7 +658,7 @@ export const translations: Record<Language, Translations> = {
       notFound: 'Not Found'
     },
     footer: {
-      description: 'Financial Accountant with a passion for numbers and continuous learning. Currently: Further training to become a certified accountant (IHK). Hobby: Technology exploration.',
+      description: 'Financial Accountant, builder of the open Fin-Tools Hub and applied AI systems. Endriss course completed; independent examination preparation for September 2026; qualification not yet obtained.',
       copyright: 'All rights reserved.',
       madeWith: 'Made with',
       deployedOn: 'deployed on',
@@ -666,18 +687,18 @@ export const translations: Record<Language, Translations> = {
     },
     home: {
       title: 'Mihai Adrian Mateescu',
-      subtitle: 'Contabil Financiar',
-      description: 'Contabil Financiar dedicat cu experiență în contabilitate și management financiar, specializat în analiza detaliată a tranzacțiilor comerciale și raportarea fiscală. Cu o pasiune puternică pentru cifre și un ochi atent la detalii, caut constant oportunități de a-mi dezvolta abilitățile profesionale. Experiența mea diversă, care variază de la contabilitate la managementul echipelor, mă poziționează ca un profesionist flexibil care creează valoare în orice mediu financiar.',
+      subtitle: 'Contabil Financiar · FinTech & AI Aplicat',
+      description: 'Contabil Financiar cu experiență practică în contabilitate, declarații TVA și lucrări pregătitoare de închidere. Dezvolt totodată Fin-Tools Hub — instrumente financiare practice pentru fondatori și echipe — și aplic AI pentru structurarea datelor financiare și automatizarea proceselor. Definesc singur arhitectura și cerințele; sistemele AI sprijină implementarea și cercetarea, responsabilitatea rămâne a mea.',
       availabilityBadge: 'Disponibil pentru proiecte de consultanță',
       skillsLabel: 'Competențe:',
-      heroSkills: ['DATEV', 'Contabilitate Financiară', 'AI/ML', 'Dezvoltare web', 'Producție Creativă'],
+      heroSkills: ['DATEV', 'Contabilitate Financiară', 'Instrumente FinTech', 'AI Aplicat', 'Dezvoltare Web'],
       cta: {
         viewProjects: 'Experiență',
         readBlog: 'Citește Blog',
         contact: 'Contactează-mă'
       },
       quickLinks: {
-        education: 'Formare pentru a deveni contabil certificat (IHK) și certificări IHK',
+        education: 'Cursul Endriss finalizat; pregătire individuală pentru examenul Geprüfter Bilanzbuchhalter (IHK) din septembrie 2026',
         experience: '21 de ani de experiență profesională în contabilitate, vânzări și management',
         certifications: 'Certificate IHK, referințe de la angajatori și certificate de limbă',
         hobbiesText: 'Fotografie, tehnologie și proiectul meu de e-commerce Profit Minds'
@@ -716,13 +737,14 @@ export const translations: Record<Language, Translations> = {
     },
     about: {
       title: 'Despre Mine',
-      subtitle: 'Contabil Financiar & Expert Financiar',
+      subtitle: 'Contabil Financiar · FinTech & AI Aplicat',
       intro: 'Bun venit pe pagina mea de portofoliu',
-      description: 'Contabil Financiar cu interese în tehnologie, fotografie și e-commerce',
-      currentFocus: 'Actual: Educație continuă ca Contabil Certificat (IHK)',
+      description: 'Contabil Financiar, dezvoltator al Fin-Tools Hub și al sistemelor AI aplicate — cu interese în fotografie și e-commerce',
+      currentFocus: 'În prezent: cursul Endriss s-a încheiat în ianuarie 2026; mă pregătesc individual pentru examenul Geprüfter Bilanzbuchhalter (IHK) din septembrie 2026. Calificarea nu a fost încă obținută.',
+      workingMethod: 'Mod de lucru: proiectez singur arhitectura produsului și modelul de domeniu — implementarea se realizează cu asistenți AI profesioniști de programare sub conducerea și responsabilitatea mea, cu validare completă și fără compromisuri la calitatea codului. Condus de om, accelerat de AI.',
       skills: 'Competențe',
       skillsSubtitle: 'Autoevaluare onestă a abilităților mele profesionale și tehnice',
-      professionalIdentityText: 'Contabil Financiar dedicat cu experiență în contabilitate și management financiar, specializat în analiza detaliată a tranzacțiilor comerciale și raportarea fiscală. Cu o pasiune puternică pentru cifre și un ochi atent la detalii, caut constant oportunități de a-mi dezvolta abilitățile profesionale.',
+      professionalIdentityText: 'Contabil Financiar cu experiență în contabilitate, declarații TVA și lucrări pregătitoare de închidere. Pe această bază dezvolt instrumente FinTech practice (Fin-Tools Hub, deschis) și aplic sisteme AI pentru structurarea datelor financiare și automatizarea proceselor — cu arhitectură clar definită, validare completă și responsabilitatea la mine.',
       visitButton: 'Descoperă',
       hobbies: {
         photography: {
@@ -755,7 +777,7 @@ export const translations: Record<Language, Translations> = {
             'DATEV, Agenda, Simba (software birou fiscal)',
             'SelectLine, Modality, ELO DMS (actual)'
           ],
-          note: 'Contabil Financiar din 08/2023 (modal3, Kesen, Herrmann, Quadriga) • Contabil Certificat (IHK) în formare, examen 03/2026'
+          note: 'Contabil Financiar din 08/2023 (modal3, Kesen, Herrmann, Quadriga) • Cursul Endriss finalizat; pregătire individuală pentru examenul din septembrie 2026; calificarea nu a fost încă obținută'
         },
         ecommerce: {
           category: 'E-Commerce Ops & Conformitate (EU/DE)',
@@ -836,7 +858,7 @@ export const translations: Record<Language, Translations> = {
     education: {
       title: 'Educație',
       subtitle: 'Parcurs Academic și Profesional',
-      description: 'Formare continuă ca Contabil Certificat (IHK) și calificări profesionale',
+      description: 'Cursul Endriss finalizat; pregătire individuală pentru examenul Geprüfter Bilanzbuchhalter (IHK) din septembrie 2026; calificarea nu a fost încă obținută',
       ongoing: 'în curs',
       completed: 'finalizat',
       incomplete: 'fără diplomă de absolvire'
@@ -847,13 +869,19 @@ export const translations: Record<Language, Translations> = {
       description: 'Certificate IHK, referințe de la angajatori și certificate de limbă',
       download: 'Descarcă Certificat',
       verify: 'Verifică',
+      issuer: 'Emitent',
+      obtained: 'Obținut',
+      from: 'De la',
+      credentialType: 'Tip',
+      partnership: 'Parteneriat',
       aboutTitle: 'Despre Certificările Mele',
-      aboutText: 'Certificarea IHK ca Specialist Contabilitate confirmă cunoștințele și competențele mele profesionale în contabilitate. În prezent, îmi continui educația ca Contabil Certificat (IHK) pentru a-mi extinde abilitățile și a-mi îmbunătăți calificările profesionale.',
+      aboutText: 'Certificarea IHK ca Specialist Contabilitate confirmă cunoștințele și competențele mele profesionale în contabilitate. Pregătire pentru examenul Geprüfter Bilanzbuchhalter (IHK): Am finalizat cursul Endriss în ianuarie 2026 și în prezent mă pregătesc individual pentru examenul programat în septembrie 2026. Calificarea nu a fost încă obținută.',
       categories: {
         professional: 'Certificate Profesionale',
         language: 'Certificate de Limbă',
         reference: 'Referințe de Angajare',
-        other: 'Alte Documente'
+        other: 'Alte Documente',
+        aiProfessionalDevelopment: 'AI și dezvoltare profesională'
       },
       count: 'Certificate'
     },
@@ -868,7 +896,7 @@ export const translations: Record<Language, Translations> = {
       notFound: 'Nu a fost găsit'
     },
     footer: {
-      description: 'Contabil Financiar cu pasiune pentru cifre și învățare continuă. În prezent: Formare pentru a deveni contabil certificat (IHK). Hobby: Explorare tehnologică.',
+      description: 'Contabil Financiar, dezvoltator al Fin-Tools Hub deschis și al sistemelor AI aplicate. Cursul Endriss finalizat; pregătire individuală pentru examenul din septembrie 2026; calificarea nu a fost încă obținută.',
       copyright: 'Toate drepturile rezervate.',
       madeWith: 'Realizat cu',
       deployedOn: 'găzduit pe',

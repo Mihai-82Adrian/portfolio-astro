@@ -1,4 +1,4 @@
-import type { CashflowBlock, MonthlyDataPoint, StressScenario } from './types';
+import type { CashflowBlock, MonthlyDataPoint } from './types';
 
 const DE_MONTHS = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
 
@@ -10,15 +10,22 @@ function monthLabel(baseDate: Date, offset: number): string {
 /**
  * Pure projection function — no side effects.
  * Called via $derived in CashflowApp for real-time chart updates.
+ *
+ * `startDate` must never default to wall-clock time: this engine also runs during
+ * Astro's static build/SSR pass, and a `new Date()` default would bake the build
+ * machine's current date into deployed HTML, making the build output
+ * non-reproducible across runs. Callers that need "today" (the browser, after
+ * mount) must pass it explicitly; the epoch default here only affects the
+ * (date-label-only) SSR snapshot before hydration.
  */
 export function projectCashflow(
   initialCash: number,
   blocks: CashflowBlock[],
   months = 12,
-  startDate = new Date(),
+  startDate = new Date(0),
 ): MonthlyDataPoint[] {
   const points: MonthlyDataPoint[] = [];
-  let cumulative = initialCash;
+  let cumulative = Number.isFinite(initialCash) ? Math.round(initialCash) : 0;
 
   for (let i = 0; i < months; i++) {
     // ── Revenue ──────────────────────────────────────────────────────
@@ -52,15 +59,23 @@ export function projectCashflow(
       }
     }
 
-    const net = revenue - costs;
+    // Round revenue/costs first, then derive net/cumulative from the rounded
+    // integers — guarantees revenue - costs === net and cumulative[i] -
+    // cumulative[i-1] === net[i] exactly for the displayed values, instead of
+    // rounding each of the four fields independently from raw floats (which
+    // can silently disagree by a euro whenever growthRate/variablePercent
+    // produce fractional monthly amounts).
+    const revenueRounded = Math.round(revenue);
+    const costsRounded   = Math.round(costs);
+    const net = revenueRounded - costsRounded;
     cumulative += net;
 
     points.push({
       month: monthLabel(startDate, i),
-      revenue: Math.round(revenue),
-      costs:   Math.round(costs),
-      net:     Math.round(net),
-      cumulative: Math.round(cumulative),
+      revenue: revenueRounded,
+      costs:   costsRounded,
+      net,
+      cumulative,
     });
   }
 
@@ -132,39 +147,5 @@ export function applyCostShock(
     const net       = p.revenue - costs;
     cumulative     += net;
     return { month: p.month, revenue: p.revenue, costs, net: Math.round(net), cumulative: Math.round(cumulative) };
-  });
-}
-
-/**
- * Build full StressScenario objects from AI parameters + base projection.
- * Called in CashflowApp after receiving the AI response.
- */
-export function buildScenariosFromParams(
-  aiScenarios: Array<{
-    type: 'late_payment' | 'churn_spike' | 'cost_shock';
-    title: string;
-    narrative: string;
-    parameters: {
-      percentAffected: number;
-      delayDays: number;
-      costIncreasePercent: number;
-      additionalOneTimeCost: number;
-    };
-  }>,
-  base: MonthlyDataPoint[],
-  initialCash: number,
-): StressScenario[] {
-  return aiScenarios.map(sc => {
-    let monthlyData: MonthlyDataPoint[];
-
-    if (sc.type === 'late_payment') {
-      monthlyData = applyLatePayment(base, initialCash, sc.parameters.percentAffected, sc.parameters.delayDays);
-    } else if (sc.type === 'churn_spike') {
-      monthlyData = applyChurnSpike(base, initialCash, sc.parameters.percentAffected);
-    } else {
-      monthlyData = applyCostShock(base, initialCash, sc.parameters.costIncreasePercent, sc.parameters.additionalOneTimeCost);
-    }
-
-    return { ...sc, monthlyData };
   });
 }

@@ -128,8 +128,13 @@ function isMatch(filePath, patterns) {
 }
 
 function globToRegex(glob) {
-    // Very basic glob-to-regex converter for the specific use cases in config
+    // Very basic glob-to-regex converter for the specific use cases in config.
+    // Backslash must be escaped before any other substitution: if a literal
+    // backslash in the input were left untouched, it could combine with a
+    // character inserted or escaped by a later step and be reinterpreted as an
+    // unintended regex escape sequence instead of a literal backslash.
     let regexStr = glob
+        .replace(/\\/g, '\\\\')
         .replace(/\./g, '\\.')
         .replace(/\*\*/g, '.*')
         .replace(/\*/g, '[^/]*')
@@ -371,4 +376,8 @@ function main() {
     process.exit(0);
 }
 
-main();
+if (process.argv[1] === __filename) {
+    main();
+}
+
+export { globToRegex };
