@@ -121,6 +121,12 @@ const variantClasses = {
     box-shadow: var(--shadow-glass);
   }
 
+  .card-content {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
   /* Hover effect */
   .card-hover {
     @apply transition-transform duration-200;

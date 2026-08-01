@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "observedDate": "2026-08-01",
+  "lockfileSha256": "ef0484b4b4bd6c782f7eef2c99b3c9b89d5dc950d723a41b286b8c930d206e41",
+  "freshnessBoundary": "Point-in-time npm audit against this lockfile (astro 7.1.6, @astrojs/mdx 7.0.5, @astrojs/markdown-remark 7.2.2, @lucide/astro 1.28.0 adopted from Dependabot PR #38), performed in Phase 3-B3R (2026-08-01); 0 applicable records in any class, consistent with the prior Phase 2D-D full review (2026-07-28). Phase 3 still owns remote GitHub/Cloudflare security posture (Dependabot, CodeQL, branch protection) and recurring scheduled monitoring, not this dependency-advisory review.",
+  "advisoryRecordCounts": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "packagePathFindingCounts": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "records": [],
+  "packagePathFindings": []
+}

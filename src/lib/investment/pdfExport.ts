@@ -20,7 +20,7 @@ function todayDE(): string {
   return new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
-export async function generateInvestmentPdf(params: {
+export type InvestmentPdfParams = {
   input:            InvestmentInput;
   returnMetrics:    ReturnMetrics;
   riskMetrics:      RiskMetrics;
@@ -28,9 +28,10 @@ export async function generateInvestmentPdf(params: {
   taxResult:        TaxResult;
   aiNarrative:      string | null;
   chartImageBase64: string | null;
-  targetWindow?:    Window;
-}): Promise<void> {
-  const { returnMetrics, riskMetrics, mcResult, taxResult, aiNarrative, chartImageBase64, targetWindow } = params;
+};
+
+export async function generateInvestmentPdfBlob(params: InvestmentPdfParams): Promise<Blob> {
+  const { returnMetrics, riskMetrics, mcResult, taxResult, aiNarrative, chartImageBase64 } = params;
   const { input } = params;
 
   // Lazy-load pdfmake
@@ -248,6 +249,14 @@ export async function generateInvestmentPdf(params: {
   const pdfDoc = pdfMake.createPdf(doc);
   const blob: Blob = await pdfDoc.getBlob();
   if (!(blob instanceof Blob)) throw new Error('PDF blob invalid');
+  return blob;
+}
+
+export async function generateInvestmentPdf(
+  params: InvestmentPdfParams & { targetWindow?: Window },
+): Promise<void> {
+  const { targetWindow } = params;
+  const blob = await generateInvestmentPdfBlob(params);
 
   const url = URL.createObjectURL(blob);
   if (targetWindow) {

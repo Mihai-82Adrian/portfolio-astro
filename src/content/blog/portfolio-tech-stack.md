@@ -231,6 +231,11 @@ Research indicates different architectural approaches affect performance differe
 
 ## Styling: Tailwind CSS 3.4 and Utility-First Design
 
+*Current-state note: this site ran Tailwind CSS 3.4 with the `tailwind.config.js` + PostCSS setup
+described below at the time of writing. It has since migrated to Tailwind CSS v4's CSS-first
+configuration (`@theme`/`@import "tailwindcss"`, no `tailwind.config.js`); the utility-first
+rationale still applies, but the specific JIT/config mechanics below describe the v3.4 setup.*
+
 Tailwind was chosen for styling over CSS-in-JS, vanilla CSS, and other utility frameworks based on alignment with performance and developer experience goals in 2025.
 
 ### How Tailwind JIT Compilation Works

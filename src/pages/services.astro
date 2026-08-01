@@ -113,7 +113,7 @@ const breadcrumbSchema = generateBreadcrumbSchema([
             </li>
             <li class="flex items-start gap-3">
               <CheckCircle2 class="mt-0.5 h-4 w-4 shrink-0 text-eucalyptus-400" aria-hidden="true" />
-              <span>100/100 Lighthouse Performance</span>
+              <span>Lighthouse-optimierte Performance</span>
             </li>
             <li class="flex items-start gap-3">
               <CheckCircle2 class="mt-0.5 h-4 w-4 shrink-0 text-eucalyptus-400" aria-hidden="true" />
@@ -205,3 +205,19 @@ const breadcrumbSchema = generateBreadcrumbSchema([
     </section>
   </main>
 </BaseLayout>
+
+<style>
+  article,
+  article li > span {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  main a {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+</style>

@@ -18,6 +18,9 @@
   let pvChildrenRebates    = $state<0|1|2|3|4>(0);
   let kinderfreibetraege   = $state(0);
   let jahresfreibetragEuro = $state(0);
+  let kirchensteuerSatz    = $state(0.09);
+  let pkpvMonthlyEuro      = $state(0);
+  let pkpvAgZuschussEuro   = $state(0);
 
   // ── Lifecycle: restore once from localStorage ─────────────────────────────
   let restored = $state(false);
@@ -37,6 +40,9 @@
         if (p.pvChildrenRebates != null) pvChildrenRebates = p.pvChildrenRebates;
         if (p.kinderfreibetraege != null) kinderfreibetraege = p.kinderfreibetraege;
         if (p.jahresfreibetragEuro != null) jahresfreibetragEuro = p.jahresfreibetragEuro;
+        if (p.kirchensteuerSatz != null) kirchensteuerSatz = p.kirchensteuerSatz;
+        if (p.pkpvMonthlyEuro != null) pkpvMonthlyEuro = p.pkpvMonthlyEuro;
+        if (p.pkpvAgZuschussEuro != null) pkpvAgZuschussEuro = p.pkpvAgZuschussEuro;
       }
     } catch { /* ignore */ }
     restored = true;
@@ -49,6 +55,7 @@
       grossMonthly, taxClass, churchMember, healthInsurance,
       kvProvider, inSachsen, kinderlosZuschlag, pvChildrenRebates,
       kinderfreibetraege, jahresfreibetragEuro,
+      kirchensteuerSatz, pkpvMonthlyEuro, pkpvAgZuschussEuro,
     };
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot)); } catch { /* ignore */ }
   });
@@ -65,6 +72,9 @@
     pvChildrenRebates,
     kinderfreibetraege,
     jahresfreibetragEuro,
+    kirchensteuerSatz,
+    pkpvMonthlyEuro:    healthInsurance === 'pkv' ? pkpvMonthlyEuro : 0,
+    pkpvAgZuschussEuro: healthInsurance === 'pkv' ? pkpvAgZuschussEuro : 0,
   }));
 
   function reset() {
@@ -79,6 +89,9 @@
     pvChildrenRebates    = 0;
     kinderfreibetraege   = 0;
     jahresfreibetragEuro = 0;
+    kirchensteuerSatz    = 0.09;
+    pkpvMonthlyEuro      = 0;
+    pkpvAgZuschussEuro   = 0;
     try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
   }
 </script>
@@ -115,6 +128,9 @@
         bind:pvChildrenRebates
         bind:kinderfreibetraege
         bind:jahresfreibetragEuro
+        bind:kirchensteuerSatz
+        bind:pkpvMonthlyEuro
+        bind:pkpvAgZuschussEuro
       />
     </div>
 

@@ -15,31 +15,41 @@ interface Props {
 const { metrics, columns = 4, theme = 'light' } = Astro.props;
 ---
 
-<div class={`metrics-grid metrics-cols-${columns}`} data-theme={theme}>
-  {metrics.map((metric) => (
-    <div 
-      class="metric-card"
-      title={metric.description || `${metric.label}: ${metric.value}`}
-    >
-      <div class="metric-icon" aria-hidden="true">
-        <Icon name={metric.icon} class="h-6 w-6" />
+<div class="metrics-container">
+  <div class={`metrics-grid metrics-cols-${columns}`} data-theme={theme}>
+    {metrics.map((metric) => (
+      <div
+        class="metric-card"
+        title={metric.description || `${metric.label}: ${metric.value}`}
+      >
+        <div class="metric-icon" aria-hidden="true">
+          <Icon name={metric.icon} class="h-6 w-6" />
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{metric.value}</div>
+          <div class="metric-label">{metric.label}</div>
+        </div>
+        {metric.description && (
+          <span class="sr-only">{metric.description}</span>
+        )}
       </div>
-      <div class="metric-content">
-        <div class="metric-value">{metric.value}</div>
-        <div class="metric-label">{metric.label}</div>
-      </div>
-      {metric.description && (
-        <span class="sr-only">{metric.description}</span>
-      )}
-    </div>
-  ))}
+    ))}
+  </div>
 </div>
 
 <style>
+  .metrics-container {
+    container-type: inline-size;
+    min-width: 0;
+    max-width: 100%;
+  }
+
   .metrics-grid {
     display: grid;
     gap: 1rem;
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
   }
 
   /* Column layouts */
@@ -55,29 +65,27 @@ const { metrics, columns = 4, theme = 'light' } = Astro.props;
     grid-template-columns: 1fr;
   }
 
-  @media (min-width: 640px) {
+  @container (min-width: 12rem) {
     .metrics-cols-2 {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    
+
+    .metrics-cols-3 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .metrics-cols-4 {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
-  @media (min-width: 768px) {
+  @container (min-width: 36rem) {
     .metrics-cols-3 {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-  }
 
-  @media (min-width: 1024px) {
-    .metrics-cols-3 {
-      grid-template-columns: repeat(3, 1fr);
-    }
-    
     .metrics-cols-4 {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 
@@ -92,6 +100,8 @@ const { metrics, columns = 4, theme = 'light' } = Astro.props;
     border-radius: 0.75rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: default;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .metric-card:hover {
@@ -119,6 +129,8 @@ const { metrics, columns = 4, theme = 'light' } = Astro.props;
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .metric-value {
@@ -127,6 +139,7 @@ const { metrics, columns = 4, theme = 'light' } = Astro.props;
     color: var(--color-text-primary);
     line-height: 1.2;
     font-family: var(--font-heading);
+    overflow-wrap: anywhere;
   }
 
   .metric-label {
@@ -135,6 +148,7 @@ const { metrics, columns = 4, theme = 'light' } = Astro.props;
     color: var(--color-text-secondary);
     line-height: 1.4;
     font-family: var(--font-body);
+    overflow-wrap: anywhere;
   }
 
   /* Screen reader only text */

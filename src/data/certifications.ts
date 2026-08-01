@@ -25,7 +25,19 @@ export interface Certification {
     en: string;
     ro: string;
   };
-  category: 'professional' | 'language' | 'reference' | 'other';
+  /** Precise, bounded partnership/attribution sentence, rendered separately from description. */
+  attribution?: {
+    de: string;
+    en: string;
+    ro: string;
+  };
+  /** Localized credential-type label (e.g. "Certificate of Completion"), never a licensure claim. */
+  credentialType?: {
+    de: string;
+    en: string;
+    ro: string;
+  };
+  category: 'professional' | 'language' | 'reference' | 'other' | 'ai-professional-development';
 }
 
 export const certifications: Certification[] = [
@@ -218,6 +230,99 @@ export const certifications: Certification[] = [
       ro: 'Curriculum vitae actual cu istoricul complet profesional și educațional.'
     },
     category: 'other'
+  },
+  {
+    id: 'anthropic-ai-fluency-foundations',
+    title: {
+      de: 'AI Fluency: Framework & Foundations',
+      en: 'AI Fluency: Framework & Foundations',
+      ro: 'AI Fluency: Framework & Foundations'
+    },
+    issuer: 'Anthropic',
+    dateObtained: '2026-07',
+    validUntil: 'unlimited',
+    image: '/images/cert-ai-fluency-foundations.webp',
+    imageWidth: 620,
+    imageHeight: 479,
+    pdfUrl: '/images/Anthropic - AI Fluency Framework and Foundations.pdf',
+    description: {
+      de: 'Grundlagenkurs zum 4D-Framework (Delegation, Description, Discernment, Diligence) für eine effektive, effiziente, ethische und sichere Mensch-KI-Zusammenarbeit.',
+      en: 'Foundational course on the 4D Framework (Delegation, Description, Discernment, Diligence) for effective, efficient, ethical, and safe human-AI collaboration.',
+      ro: 'Curs fundamental despre cadrul 4D (Delegation, Description, Discernment, Diligence) pentru o colaborare om-AI eficientă, etică și sigură.'
+    },
+    attribution: {
+      de: 'Entwickelt im Rahmen von Anthropics AI-Fluency-Initiative mit akademischer Expertise des University College Cork und des Ringling College; die zugehörige Bildungsarbeit wurde von der Higher Education Authority über das National Forum unterstützt.',
+      en: "Developed through Anthropic's AI Fluency initiative with academic expertise from University College Cork and Ringling College; the related educational work was supported by the Higher Education Authority through the National Forum.",
+      ro: 'Dezvoltat în cadrul inițiativei AI Fluency a Anthropic, cu expertiză academică din partea University College Cork și Ringling College; activitatea educațională aferentă a fost susținută de Higher Education Authority prin National Forum.'
+    },
+    credentialType: {
+      de: 'Abschlusszertifikat',
+      en: 'Certificate of Completion',
+      ro: 'Certificat de finalizare a cursului'
+    },
+    category: 'ai-professional-development'
+  },
+  {
+    id: 'anthropic-ai-fluency-builders',
+    title: {
+      de: 'AI Fluency for Builders',
+      en: 'AI Fluency for Builders',
+      ro: 'AI Fluency for Builders'
+    },
+    issuer: 'Anthropic × CodePath.org',
+    dateObtained: '2026-07',
+    validUntil: 'unlimited',
+    image: '/images/cert-ai-fluency-builders.webp',
+    imageWidth: 620,
+    imageHeight: 479,
+    pdfUrl: '/images/Anthropic - AI Fluency for Builders.pdf',
+    description: {
+      de: 'Anwendung des 4D-Frameworks (Delegation, Description, Discernment, Diligence) auf den gesamten Builder-Workflow — von der Problemdefinition bis zum ausgelieferten Produkt — für effektive, verantwortungsvolle KI-Zusammenarbeit in Engineering und Produktarbeit.',
+      en: 'Applies the 4D Framework (Delegation, Description, Discernment, Diligence) across the full builder workflow — problem framing to shipped product — for effective, responsible AI collaboration in engineering and product work.',
+      ro: 'Aplică cadrul 4D (Delegation, Description, Discernment, Diligence) pe întregul flux de lucru al unui builder — de la definirea problemei până la produsul livrat — pentru o colaborare eficientă și responsabilă cu AI în inginerie și dezvoltare de produs.'
+    },
+    attribution: {
+      de: 'In Partnerschaft mit CodePath.org durchgeführt; wendet das 4D-Framework auf den praktischen Builder-Workflow an — von der Problemdefinition über die Umsetzung bis zur Bewertung.',
+      en: 'Delivered in partnership with CodePath.org, applying the 4D Framework across the practical builder workflow — from problem definition through implementation and evaluation.',
+      ro: 'Desfășurat în parteneriat cu CodePath.org; aplică cadrul 4D pe fluxul practic al unui builder — de la definirea problemei, prin implementare, până la evaluare.'
+    },
+    credentialType: {
+      de: 'Abschlusszertifikat',
+      en: 'Certificate of Completion',
+      ro: 'Certificat de finalizare a cursului'
+    },
+    category: 'ai-professional-development'
+  },
+  {
+    id: 'anthropic-ai-fluency-small-business',
+    title: {
+      de: 'AI Fluency for Small Businesses',
+      en: 'AI Fluency for Small Businesses',
+      ro: 'AI Fluency for Small Businesses'
+    },
+    issuer: 'Anthropic × PayPal',
+    dateObtained: '2026-07',
+    validUntil: 'unlimited',
+    image: '/images/cert-ai-fluency-small-business.webp',
+    imageWidth: 620,
+    imageHeight: 479,
+    pdfUrl: '/images/Anthropic - AI Fluency for Small Businesses.pdf',
+    description: {
+      de: 'Anwendung des 4D-Frameworks auf typische Aufgaben in Kleinunternehmen — Kundenkontakt, Backoffice und Betriebsabläufe — mit praktischer Anleitung für transparenten, mensch-kontrollierten KI-Einsatz in ressourcenbeschränkten Teams.',
+      en: 'Applies the 4D Framework to small-business tasks — customer interaction, back-office work, and operations — with practical guidance on transparent, human-in-the-loop AI use for resource-constrained teams.',
+      ro: 'Aplică cadrul 4D pe sarcini specifice afacerilor mici — interacțiune cu clienții, activități back-office și operațiuni — cu recomandări practice pentru utilizarea transparentă a AI, cu control uman, în echipe cu resurse limitate.'
+    },
+    attribution: {
+      de: 'Von Anthropic in Partnerschaft mit PayPal durchgeführt; vermittelt praktische KI-Kompetenz für Kundenkontakt, Betrieb und Backoffice-Arbeit in Kleinunternehmen.',
+      en: 'Delivered by Anthropic in partnership with PayPal, focused on practical AI fluency for small-business customer interaction, operations, and back-office work.',
+      ro: 'Organizat de Anthropic în parteneriat cu PayPal; oferă competențe practice de utilizare a AI pentru interacțiunea cu clienții, operațiuni și activități back-office în afaceri mici.'
+    },
+    credentialType: {
+      de: 'Abschlusszertifikat',
+      en: 'Certificate of Completion',
+      ro: 'Certificat de finalizare a cursului'
+    },
+    category: 'ai-professional-development'
   }
 ];
 

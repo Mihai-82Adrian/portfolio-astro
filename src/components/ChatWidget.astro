@@ -22,15 +22,17 @@ const props = Astro.props;
 const className = props.class || '';
 const id = props.id || 'ai-chat-widget';
 const lang = props.lang || 'de';
+const privacyPolicyUrl = lang === 'de' ? '/datenschutz' : `/${lang}/datenschutz`;
 const copy = {
   de: {
     title: 'Ask Mihai · KI',
-    subtitle: 'Bereitgestellt mit GPT-4.1',
+    subtitle: 'Bereitgestellt mit GPT-5.6',
     responseLanguage: 'Antwortsprache',
     chatTab: '💬 Chat',
     jdTab: '📄 JD-Analyse',
     welcome: "Hi! Ich bin Mihai's KI-Assistent. Ich beantworte Fragen zu Fähigkeiten, Erfahrung, Zertifikaten und Projekten.",
     warning: '⚠️ Antworten werden generiert und können Fehler enthalten.',
+    aiDisclosure: 'Deine Nachrichten werden bei Absenden zur Verarbeitung an OpenAI (USA) übermittelt.',
     chips: ['📋 Kontakt', '💼 Aktuelle Rolle', '🎓 Zertifikate', '🚀 Projekte'],
     askPlaceholder: 'Eine Frage stellen...',
     chatMessage: 'Chat-Nachricht',
@@ -48,12 +50,13 @@ const copy = {
   },
   en: {
     title: 'Ask Mihai · AI',
-    subtitle: 'Powered by GPT-4.1',
+    subtitle: 'Powered by GPT-5.6',
     responseLanguage: 'Response language',
     chatTab: '💬 Chat',
     jdTab: '📄 JD Analysis',
     welcome: "Hi! I'm Mihai's AI assistant. I can answer questions about his skills, experience, certifications, and projects.",
     warning: '⚠️ Answers may be generated and could contain errors.',
+    aiDisclosure: 'Your messages are sent to OpenAI (USA) for processing when you submit them.',
     chips: ['📋 Contact', '💼 Current Role', '🎓 Certifications', '🚀 Projects'],
     askPlaceholder: 'Ask a question...',
     chatMessage: 'Chat message',
@@ -71,12 +74,13 @@ const copy = {
   },
   ro: {
     title: 'Ask Mihai · AI',
-    subtitle: 'Cu GPT-4.1',
+    subtitle: 'Cu GPT-5.6',
     responseLanguage: 'Limba răspunsului',
     chatTab: '💬 Chat',
     jdTab: '📄 Analiză JD',
     welcome: 'Salut! Sunt asistentul AI al lui Mihai. Pot răspunde la întrebări despre competențe, experiență, certificări și proiecte.',
     warning: '⚠️ Răspunsurile sunt generate și pot conține erori.',
+    aiDisclosure: 'Mesajele tale sunt trimise către OpenAI (SUA) pentru procesare atunci când le trimiți.',
     chips: ['📋 Contact', '💼 Rol curent', '🎓 Certificări', '🚀 Proiecte'],
     askPlaceholder: 'Pune o întrebare...',
     chatMessage: 'Mesaj chat',
@@ -109,6 +113,8 @@ const title = props.title || copy.title;
     <div class="flex items-center gap-2">
       <!-- Language Selector -->
         <select
+        id={`${id}-lang`}
+        name="responseLanguage"
         class="chat-lang-select bg-eucalyptus-700 text-white text-xs rounded-lg px-2 py-1 border border-eucalyptus-500 focus:ring-2 focus:ring-white cursor-pointer"
         aria-label={copy.responseLanguage}
       >
@@ -151,6 +157,12 @@ const title = props.title || copy.title;
       <div class="message ai bg-white dark:bg-dark-elevated p-3 rounded-lg rounded-tl-none shadow-subtle text-sm dark:text-gray-200 border border-gray-100 dark:border-dark-border max-w-88">
         <p>{copy.welcome}</p>
         <span class="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-2 block">{copy.warning}</span>
+        <span class="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1 block">
+          {copy.aiDisclosure}{' '}
+          <a href={privacyPolicyUrl} class="underline hover:text-eucalyptus-700 dark:hover:text-eucalyptus-300">
+            {lang === 'de' ? 'Datenschutz' : lang === 'en' ? 'Privacy policy' : 'Confidențialitate'}
+          </a>
+        </span>
       </div>
 
       <!-- Quick Action Chips -->
@@ -165,6 +177,8 @@ const title = props.title || copy.title;
     <!-- Chat Input -->
     <form class="chat-form p-3 bg-white dark:bg-dark-surface border-t border-gray-200 dark:border-dark-border flex gap-2 items-end shrink-0">
       <textarea
+        id={`${id}-message`}
+        name="message"
         placeholder={copy.askPlaceholder}
         aria-label={copy.chatMessage}
         rows="1"
@@ -217,6 +231,8 @@ const title = props.title || copy.title;
 
       <!-- JD Textarea -->
       <textarea
+        id={`${id}-jd-input`}
+        name="jobDescription"
         class="jd-input w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-eucalyptus-500 dark:bg-dark-elevated dark:text-white text-sm resize-none"
         placeholder={copy.jdPlaceholder}
         rows="10"
@@ -338,19 +354,9 @@ const title = props.title || copy.title;
       }
     }
 
-    getCookieConsentHeader(): string {
-      try {
-        const consent = localStorage.getItem('cookie-consent');
-        return consent === 'true' || consent === 'granted' ? 'granted' : 'denied';
-      } catch {
-        return 'denied';
-      }
-    }
-
     getApiHeaders(): Record<string, string> {
       return {
         'Content-Type': 'application/json',
-        'X-Cookie-Consent': this.getCookieConsentHeader(),
       };
     }
 
@@ -432,8 +438,8 @@ const title = props.title || copy.title;
         } else {
           // Non-streaming (fact responses)
           const data = await res.json();
-          this.appendMessage(data.answer, false, data.sources);
-          this.updateQuota(data.quota);
+          this.appendMessage(data.data.answer, false, data.data.sources);
+          this.updateQuota(data.data.quota);
         }
 
       } catch (err: any) {
@@ -481,8 +487,8 @@ const title = props.title || copy.title;
         } else {
           // Fallback for non-streaming responses
           const data = await res.json();
-          this.appendMessage(data.answer, false, data.sources);
-          this.updateQuota(data.quota);
+          this.appendMessage(data.data.answer, false, data.data.sources);
+          this.updateQuota(data.data.quota);
         }
 
       } catch (err: any) {
@@ -553,8 +559,8 @@ const title = props.title || copy.title;
 
         const data = await res.json();
         this.clearElement(this.jdResults);
-        this.renderJdResult(data.answer, data.sources);
-        this.updateQuota(data.quota);
+        this.renderJdResult(data.data.answer, data.data.sources);
+        this.updateQuota(data.data.quota);
 
       } catch (err: any) {
         this.clearElement(this.jdResults);
@@ -962,23 +968,34 @@ const title = props.title || copy.title;
       }
     }
 
+    // Keys are the exact ErrorCode union from functions/_lib/contracts.ts. Provider-required
+    // codes (FEATURE_*, CONFIGURATION_INVALID, PROVIDER_*) get copy that names AI-assisted
+    // analysis specifically and points back to the deterministic answers that still work \u2014
+    // never a generic "server error" for a controlled, expected failure mode.
+    static readonly CODE_MESSAGES: Record<string, string> = {
+      'METHOD_NOT_ALLOWED': 'Request could not be processed. Please reload and try again.',
+      'UNSUPPORTED_MEDIA_TYPE': 'Request could not be processed. Please reload and try again.',
+      'MALFORMED_JSON': 'Request could not be processed. Please reload and try again.',
+      'ORIGIN_REJECTED': 'Request could not be processed. Please reload and try again.',
+      'PAYLOAD_TOO_LARGE': 'Message is too long.',
+      'VALIDATION_FAILED': 'Please check your input and try again.',
+      'FEATURE_DISABLED': '\ud83d\udd27 AI-assisted analysis is temporarily unavailable. The deterministic answers (Contact, Certifications, Role, Projects) still work!',
+      'FEATURE_NOT_CONFIGURED': '\ud83d\udd27 AI-assisted analysis is temporarily unavailable. The deterministic answers (Contact, Certifications, Role, Projects) still work!',
+      'CONFIGURATION_INVALID': '\ud83d\udd27 AI-assisted analysis is temporarily unavailable. The deterministic answers (Contact, Certifications, Role, Projects) still work!',
+      'RATE_LIMITED': '\u23f3 Too many requests \u2014 please wait a moment and retry.',
+      'QUOTA_EXCEEDED': '\ud83d\udcca Daily limit reached for this feature. Please try again tomorrow.',
+      'PROVIDER_TIMEOUT': '\u26a0\ufe0f AI-assisted analysis is temporarily unavailable. Please try again shortly.',
+      'PROVIDER_UNAVAILABLE': '\u26a0\ufe0f AI-assisted analysis is temporarily unavailable. Please try again shortly.',
+      'PROVIDER_REJECTED': '\u26a0\ufe0f AI-assisted analysis is temporarily unavailable. Please try again shortly.',
+      'INTERNAL_ERROR': 'Something went wrong. Please try again.',
+    };
+
     async parseError(res: Response): Promise<string> {
-      const codeMessages: Record<string, string> = {
-        'RATE_LIMIT': 'Too many requests \u2014 please wait a moment.',
-        'INPUT_EMPTY': 'Please type a message first.',
-        'INPUT_TOO_LONG': 'Message is too long.',
-        'CORPUS_LOAD_FAILED': 'Knowledge base unavailable. Try again later.',
-        'OPENAI_KEY_MISSING': 'AI service is not configured.',
-        'OPENAI_UPSTREAM_ERROR': 'AI service temporarily unavailable.',
-        'AI_BILLING_EXHAUSTED': '\ud83d\udd27 AI assistant is temporarily on a break. The deterministic answers (Contact, Certs, Role, Projects) still work!',
-        'AI_QUOTA_EXCEEDED': '\ud83d\udcca AI assistant has reached its daily limit. Please try again tomorrow.',
-        'AI_RATE_LIMITED': '\u23f3 Too many requests \u2014 please wait a moment and retry.',
-        'AI_SERVICE_DOWN': '\u26a0\ufe0f AI assistant is temporarily unavailable. Please try again shortly.',
-        'AI_UNREACHABLE': '\ud83d\udd0c Unable to reach the AI service. Please check back later.',
-      };
       try {
         const errData = await res.json();
-        return codeMessages[errData.code] || errData.error || 'Something went wrong.';
+        const code = errData?.error?.code as string | undefined;
+        const serverMessage = errData?.error?.message as string | undefined;
+        return (code && ChatWidget.CODE_MESSAGES[code]) || serverMessage || 'Something went wrong.';
       } catch {
         return 'Something went wrong.';
       }
