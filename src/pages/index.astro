@@ -19,7 +19,7 @@ import { generatePersonSchema, generateWebSiteSchema } from '@utils/structuredDa
 const lang = 'de';
 const t = translations[lang];
 
-const title = 'Finanzbuchhalter & KI-Entwickler';
+const title = 'Finanzbuchhalter & FinTech-Entwickler';
 const seoDescription = 'Finanzbuchhalter & KI-Enthusiast im DACH-Raum. FinTech-Tools, Buchhaltungsautomatisierung und KI-gestützte Webentwicklung für Gründer und Freelancer.';
 const dataPrepTeaser = {
   title: 'Neu: KI-Datenaufbereitung für Finance-Workflows',
@@ -67,8 +67,8 @@ const structuredData = [personSchema, websiteSchema];
     <!-- Strategic Offer -->
     <section class="py-12">
       <Card>
-        <div class="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-          <div>
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-center">
+          <div class="min-w-0">
             <p class="text-xs font-semibold uppercase tracking-title text-eucalyptus-700 dark:text-eucalyptus-300">
               {t.home.dataPrepTeaser.label}
             </p>
@@ -79,7 +79,7 @@ const structuredData = [personSchema, websiteSchema];
               {t.home.dataPrepTeaser.body}
             </p>
           </div>
-          <div class="flex flex-col gap-3 lg:items-end">
+          <div class="flex min-w-0 max-w-full flex-col gap-3 lg:items-end">
             <Button href={dataPrepTeaser.primaryHref} variant="primary" size="lg">
               {t.home.dataPrepTeaser.primaryLabel}
             </Button>
@@ -111,28 +111,28 @@ const structuredData = [personSchema, websiteSchema];
               {t.contact.heading}
             </h2>
             <div class="space-y-4 text-text-secondary-light dark:text-text-secondary-dark">
-              <p class="flex items-center gap-2">
+              <p class="flex min-w-0 flex-wrap items-center gap-2">
                 <Icon name="phone" class="h-4 w-4 text-eucalyptus-600 dark:text-eucalyptus-400" />
                 <strong>{t.contact.phone}:</strong>{' '}
-                <a href="tel:+491704740121" class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/30 dark:decoration-eucalyptus-400/30 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300 transition-all">
+                <a href="tel:+491704740121" class="min-w-0 break-words text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/30 dark:decoration-eucalyptus-400/30 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300 transition-all">
                   +49 170 474 0121
                 </a>
               </p>
-              <p class="flex items-center gap-2">
+              <p class="flex min-w-0 flex-wrap items-center gap-2">
                 <Icon name="mail" class="h-4 w-4 text-eucalyptus-600 dark:text-eucalyptus-400" />
                 <strong>{t.contact.email}:</strong>{' '}
-                <a href="mailto:kontakt@me-mateescu.de" class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/30 dark:decoration-eucalyptus-400/30 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300 transition-all">
+                <a href="mailto:kontakt@me-mateescu.de" class="min-w-0 break-all text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/30 dark:decoration-eucalyptus-400/30 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300 transition-all">
                   kontakt@me-mateescu.de
                 </a>
               </p>
-              <p class="flex items-center gap-2">
+              <p class="flex min-w-0 flex-wrap items-center gap-2">
                 <Icon name="linkedin" class="h-4 w-4 text-eucalyptus-600 dark:text-eucalyptus-400" />
                 <strong>{t.contact.linkedin}:</strong>{' '}
                 <a
                   href="https://www.linkedin.com/in/mihai-adrian-mateescu/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/30 dark:decoration-eucalyptus-400/30 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300 transition-all"
+                  class="min-w-0 break-words text-eucalyptus-800 dark:text-eucalyptus-200 underline decoration-eucalyptus-600/30 dark:decoration-eucalyptus-400/30 hover:decoration-eucalyptus-700 dark:hover:decoration-eucalyptus-300 transition-all"
                 >
                   Mateescu Mihai
                 </a>
@@ -197,7 +197,7 @@ const structuredData = [personSchema, websiteSchema];
           <h2 class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark mb-6 text-balance">
             {t.home.skills.title}
           </h2>
-          <ul class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-x-6 gap-y-4">
+          <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-x-6 gap-y-4">
             {t.home.skills.items.map((skill) => (
               <li class="flex items-start">
                 <span class="text-eucalyptus-600 dark:text-eucalyptus-400 mr-3 inline-flex pt-1" aria-hidden="true">

@@ -1,3 +1,14 @@
+/** Remove HTML tags, looped to a fixpoint so nested/overlapping input can't leave a
+ *  reconstructed tag behind (e.g. a single pass reduces "<<script>script>" to "<script>"). */
+export function stripHtmlTags(text: string): string {
+  let prev: string;
+  do {
+    prev = text;
+    text = text.replace(/<\/?[a-zA-Z][^>]*>/g, '');
+  } while (text !== prev);
+  return text;
+}
+
 /**
  * Calculate reading time for blog content
  * @param content - Markdown or plain text content
@@ -10,15 +21,16 @@ export function calculateReadingTime(
 ): { minutes: number; text: string; words: number } {
   // Remove frontmatter
   const withoutFrontmatter = content.replace(/^---[\s\S]*?---/, '');
-  
+
   // Remove markdown syntax for accurate word count
-  const plainText = withoutFrontmatter
-    // Remove code blocks
-    .replace(/```[\s\S]*?```/g, '')
-    // Remove inline code
-    .replace(/`[^`]*`/g, '')
+  const plainText = stripHtmlTags(
+    withoutFrontmatter
+      // Remove code blocks
+      .replace(/```[\s\S]*?```/g, '')
+      // Remove inline code
+      .replace(/`[^`]*`/g, '')
     // Remove actual HTML tags, but keep technical prose like "<40%" or type syntax
-    .replace(/<\/?[a-zA-Z][^>]*>/g, '')
+  )
     // Remove markdown links
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
     // Remove markdown images
@@ -33,7 +45,7 @@ export function calculateReadingTime(
 
   // Calculate reading time in minutes
   const minutes = Math.max(1, Math.ceil(words / wordsPerMinute));
-  
+
   // Format text
   const text = minutes === 1 ? '1 min read' : `${minutes} min read`;
 

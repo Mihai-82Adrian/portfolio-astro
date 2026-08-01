@@ -5,6 +5,12 @@ export const EMPLOYER_OVERHEAD_DE = 0.2;
 /** Death Valley threshold: weniger als 3 Monate Runway = Fundraising-Alarm */
 export const DEATH_VALLEY_THRESHOLD_MONTHS = 3;
 
+/**
+ * Toleranz für Gleitkomma-Rundungsrauschen bei Bilanz-/Cashflow-Vergleichen gegen Null
+ * (RUNWAY-01). Zentral hier definiert statt an jeder Vergleichsstelle wiederholt.
+ */
+const BALANCE_EPSILON = 1e-6;
+
 // ─── Primitives ────────────────────────────────────────────────────────────
 
 export type RoleStatus = 'active' | 'frozen';
@@ -68,7 +74,9 @@ export interface MonthlySnapshot {
   closingBalance: number;
   runwayRemaining: number; // Monate verbleibend beim aktuellen Netto-Burn
   isDeathValley: boolean;  // runwayRemaining < 3 → rote Zone im Chart
-  isBankrupt: boolean;     // closingBalance ≤ 0
+  isBankrupt: boolean;     // Liquidität erschöpft: negativer Saldo, oder Saldo 0 durch
+                            // tatsächlich negativen Netto-Cashflow. Ein Saldo von 0 ohne
+                            // Cash-Verbrauch (kein Burn, kein Umsatz) gilt nicht als bankrupt.
 }
 
 export interface RunwayProjection {
@@ -140,6 +148,14 @@ export function projectRunway(
     const netBurn = Math.max(totalBurn - mrr, 0);
     const runwayRemaining = netBurn > 0 ? closingBalance / netBurn : Infinity;
 
+    // RUNWAY-01: a balance at (approximately) zero is only "bankrupt" if it got there via
+    // actual negative net cash flow this month. A balance that started and stayed at zero
+    // with no burn and no revenue never consumed liquidity, so it is not bankrupt.
+    const isNegativeBalance = closingBalance < -BALANCE_EPSILON;
+    const isZeroBalance = Math.abs(closingBalance) < BALANCE_EPSILON;
+    const isBankrupt =
+      isNegativeBalance || (isZeroBalance && netCashFlow < -BALANCE_EPSILON);
+
     snapshots.push({
       month: m,
       label: formatMonthLabel(addMonths(scenario.startDate, m)),
@@ -154,11 +170,11 @@ export function projectRunway(
       runwayRemaining,
       isDeathValley:
         runwayRemaining < DEATH_VALLEY_THRESHOLD_MONTHS && closingBalance > 0,
-      isBankrupt: closingBalance <= 0,
+      isBankrupt,
     });
 
     balance = closingBalance;
-    if (closingBalance <= 0) break;
+    if (isBankrupt) break;
   }
 
   return {
@@ -174,12 +190,10 @@ export function projectRunway(
 
 // ─── Default-Szenarien ─────────────────────────────────────────────────────
 
-function uid(): string {
-  return Math.random().toString(36).slice(2, 9);
-}
-
-export function createDefaultScenarios(): RunwayScenario[] {
-  const startDate = new Date();
+export function createDefaultScenarios(now: Date = new Date()): RunwayScenario[] {
+  let nextId = 0;
+  const uid = () => `default-${nextId++}`;
+  const startDate = new Date(now);
   startDate.setDate(1);
 
   const baseOpex: OpexItem[] = [

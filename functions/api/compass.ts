@@ -1,6 +1,54 @@
+import {
+    classifyProviderFailure,
+    jsonError,
+    methodGuard,
+    originGuard,
+    readJsonBody,
+    type FetchLike,
+} from '../_lib/http.ts';
+import {
+    buildResponsesBody,
+    callResponses,
+    ResponsesSSEDecoder,
+    type ResponsesInputItem,
+} from '../_lib/responses.ts';
+import { readFeatureControl } from '../_lib/feature-controls.ts';
+import {
+    createOperationalHandler,
+    getOperationalState,
+    recordProviderOutcome,
+    recordQuotaDecision,
+    type OperationalHandlerOptions,
+} from '../_lib/operational-context.ts';
 
 interface Env {
     OPENAI_API_KEY: string;
+    AI_COMPASS_ENABLED?: string;
+}
+
+// ─── Transport limits ──────────────────────────────────────────────
+const MAX_BODY_BYTES = 20 * 1024;
+// High-reasoning Sol needs materially more time-to-first-token than the previous
+// non-reasoning model call; Cloudflare Workers place no wall-clock cap on time spent awaiting fetch()/I-O
+// (only CPU time is metered), so this bound is a deliberate product/UX choice, not a
+// platform constraint.
+const PROVIDER_TIMEOUT_MS = 60_000;
+
+// ─── Model policy (R10.3b/R7.2 — approved, do not drift silently) ──
+export const COMPASS_MODEL = 'gpt-5.6-sol';
+export const COMPASS_REASONING_EFFORT = 'high' as const;
+export const COMPASS_TEXT_VERBOSITY = 'high' as const;
+export const COMPASS_MAX_OUTPUT_TOKENS = 8000;
+
+export function buildCompassRequestBody(input: ResponsesInputItem[]) {
+    return buildResponsesBody({
+        model: COMPASS_MODEL,
+        input,
+        reasoning: { effort: COMPASS_REASONING_EFFORT },
+        text: { verbosity: COMPASS_TEXT_VERBOSITY },
+        max_output_tokens: COMPASS_MAX_OUTPUT_TOKENS,
+        stream: true,
+    });
 }
 
 // ─── Rate Limiting (burst protection) ──────────────────────────────
@@ -143,188 +191,217 @@ Schreibe auf Deutsch. Sei direkt, konkret und provokant — kein Berater-Deutsch
 
 // ─── Handler ───────────────────────────────────────────────────────
 
-export const onRequestPost = async (context: any) => {
-    const request = context.request;
-    const env = context.env as Env;
+export function createHandler(deps: { fetchImpl?: FetchLike } & OperationalHandlerOptions = {}) {
+    const fetchImpl = deps.fetchImpl ?? ((input: string, init: RequestInit) => fetch(input, init));
 
-    if (!env.OPENAI_API_KEY) {
-        return new Response(JSON.stringify({
-            error: 'KI-Dienst nicht konfiguriert.',
-            code: 'OPENAI_KEY_MISSING',
-        }), { status: 500, headers: { 'Content-Type': 'application/json' } });
-    }
+    return createOperationalHandler('/api/compass', async (context: any) => {
+        const request = context.request as Request;
+        const env = context.env as Env;
+        const operational = getOperationalState(request);
+        const requestId = operational.context.requestId;
 
-    try {
-        // 1. Burst Rate Limiting (in-memory, per-isolate)
-        const clientIP = request.headers.get('cf-connecting-ip') || 'unknown';
-        const now = Date.now();
-        const rateEntry = rateLimitMap.get(clientIP);
+        const methodError = methodGuard(request, ['POST'], requestId);
+        if (methodError) return methodError;
 
-        if (rateEntry && now < rateEntry.resetTime) {
-            rateEntry.count++;
-            if (rateEntry.count > MAX_REQUESTS_PER_WINDOW) {
-                return new Response(JSON.stringify({
-                    error: 'Zu viele Anfragen. Bitte warten Sie einen Moment.',
-                    code: 'RATE_LIMIT',
-                }), { status: 429, headers: { 'Content-Type': 'application/json' } });
-            }
-        } else {
-            rateLimitMap.set(clientIP, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+        const originError = originGuard(request, requestId);
+        if (originError) return originError;
+
+        const feature = readFeatureControl(env, 'AI_COMPASS_ENABLED');
+        if (!feature.enabled) {
+            return jsonError(
+                503,
+                feature.state === 'INVALID' ? 'CONFIGURATION_INVALID' : 'FEATURE_DISABLED',
+                'The Founder Compass generator is temporarily unavailable.',
+                requestId,
+            );
         }
 
-        // 2. Weekly Quota Check (1 per 7 days, Cache API with hashed IP)
-        //    Bypass on localhost / wrangler dev for testing
-        const isLocal = request.url.includes('localhost') || request.url.includes('127.0.0.1');
-        const ipHash = await hashIP(clientIP);
-
-        if (!isLocal) {
-            const alreadyUsed = await hasWeeklyQuota(ipHash, request.url);
-
-            if (alreadyUsed) {
-                return new Response(JSON.stringify({
-                    error: 'Sie haben diese Woche bereits eine Auswertung erstellt. Die nächste Auswertung ist in 7 Tagen möglich.',
-                    code: 'WEEKLY_QUOTA_EXCEEDED',
-                }), { status: 429, headers: { 'Content-Type': 'application/json' } });
-            }
+        if (!env.OPENAI_API_KEY) {
+            return jsonError(503, 'FEATURE_NOT_CONFIGURED', 'The Founder Compass generator is temporarily unavailable.', requestId);
         }
 
-        // 3. Parse & Validate Body
-        const body = await request.json() as { answers?: unknown };
-        const answers = validateAnswers(body.answers);
+        try {
+            // 1. Burst Rate Limiting (in-memory, per-isolate)
+            const clientIP = request.headers.get('cf-connecting-ip') || 'unknown';
+            const now = Date.now();
+            const rateEntry = rateLimitMap.get(clientIP);
 
-        if (!answers) {
-            return new Response(JSON.stringify({
-                error: 'Ungültige Anfrage. Bitte beantworten Sie alle 12 Fragen.',
-                code: 'INVALID_INPUT',
-            }), { status: 400, headers: { 'Content-Type': 'application/json' } });
-        }
-
-        // 4. Build User Message (structured, injection-resistant)
-        const profileData = answers.map((a, i) => {
-            const answer = a.selectedKey === 'custom'
-                ? `Eigene Antwort: "${a.customText}"`
-                : `${a.selectedKey}) ${a.selectedLabel}`;
-            return `${i + 1}. ${a.dimension}: ${answer}`;
-        }).join('\n');
-
-        const userMessage = `ASSESSMENT-DATEN (12 Fragen):\n\n${profileData}\n\nErstelle das personalisierte Gründerprofil gemäß dem Pflichtformat.`;
-
-        const input = [
-            { role: 'developer', content: SYSTEM_PROMPT },
-            { role: 'user', content: userMessage },
-        ];
-
-        // 5. Call OpenAI Responses API (streaming)
-        const openAIResponse = await fetch('https://api.openai.com/v1/responses', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${env.OPENAI_API_KEY}`,
-            },
-            body: JSON.stringify({
-                model: 'o4-mini',
-                input,
-                max_output_tokens: 2500,
-                stream: true,
-            }),
-        });
-
-        if (!openAIResponse.ok) {
-            const errText = await openAIResponse.text();
-            console.error('OpenAI Error:', openAIResponse.status, errText);
-
-            if (openAIResponse.status === 402) {
-                return new Response(JSON.stringify({
-                    error: 'KI-Dienst vorübergehend nicht verfügbar. Bitte später erneut versuchen.',
-                    code: 'AI_BILLING_EXHAUSTED',
-                }), { status: 503, headers: { 'Content-Type': 'application/json' } });
+            if (rateEntry && now < rateEntry.resetTime) {
+                rateEntry.count++;
+                if (rateEntry.count > MAX_REQUESTS_PER_WINDOW) {
+                    recordQuotaDecision(operational, 'REJECTED_LIMIT');
+                    return jsonError(429, 'RATE_LIMITED', 'Zu viele Anfragen. Bitte warten Sie einen Moment.', requestId, {
+                        retryable: true,
+                    });
+                }
+            } else {
+                rateLimitMap.set(clientIP, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
             }
 
-            if (openAIResponse.status === 429) {
-                return new Response(JSON.stringify({
-                    error: 'KI-Dienst ausgelastet. Bitte warten Sie einen Moment.',
-                    code: 'AI_RATE_LIMITED',
-                }), { status: 429, headers: { 'Content-Type': 'application/json' } });
+            // 2. Weekly Quota Check (1 per 7 days, Cache API with hashed IP)
+            //    Bypass on localhost / wrangler dev for testing
+            const isLocal = request.url.includes('localhost') || request.url.includes('127.0.0.1');
+            recordQuotaDecision(operational, isLocal ? 'BYPASSED_LOCAL' : 'ALLOWED');
+            const ipHash = await hashIP(clientIP);
+
+            if (!isLocal) {
+                const alreadyUsed = await hasWeeklyQuota(ipHash, request.url);
+
+                if (alreadyUsed) {
+                    recordQuotaDecision(operational, 'REJECTED_COOLDOWN');
+                    return jsonError(
+                        429,
+                        'QUOTA_EXCEEDED',
+                        'Sie haben diese Woche bereits eine Auswertung erstellt. Die nächste Auswertung ist in 7 Tagen möglich.',
+                        requestId,
+                        { retryable: false },
+                    );
+                }
             }
 
-            return new Response(JSON.stringify({
-                error: 'KI-Dienst vorübergehend nicht erreichbar.',
-                code: 'AI_SERVICE_DOWN',
-            }), { status: 502, headers: { 'Content-Type': 'application/json' } });
-        }
+            // 3. Parse & Validate Body
+            const bodyResult = await readJsonBody<{ answers?: unknown }>(request, requestId, MAX_BODY_BYTES);
+            if (!bodyResult.ok) return bodyResult.response;
 
-        // 6. Mark weekly quota BEFORE streaming (prevents double-submit)
-        if (!isLocal) {
-            await setWeeklyQuota(ipHash, request.url);
-        }
+            const answers = validateAnswers(bodyResult.data.answers);
 
-        // 7. Stream response via SSE
-        if (!openAIResponse.body) {
-            return new Response(JSON.stringify({
-                error: 'Keine Antwort vom KI-Dienst erhalten.',
-                code: 'AI_EMPTY_RESPONSE',
-            }), { status: 502, headers: { 'Content-Type': 'application/json' } });
-        }
+            if (!answers) {
+                return jsonError(422, 'VALIDATION_FAILED', 'Ungültige Anfrage. Bitte beantworten Sie alle 12 Fragen.', requestId, {
+                    fields: ['answers'],
+                });
+            }
 
-        const encoder = new TextEncoder();
-        const decoder = new TextDecoder();
+            // 4. Build User Message (structured, injection-resistant)
+            const profileData = answers.map((a, i) => {
+                const answer = a.selectedKey === 'custom'
+                    ? `Eigene Antwort: "${a.customText}"`
+                    : `${a.selectedKey}) ${a.selectedLabel}`;
+                return `${i + 1}. ${a.dimension}: ${answer}`;
+            }).join('\n');
 
-        const { readable, writable } = new TransformStream();
-        const writer = writable.getWriter();
+            const userMessage = `ASSESSMENT-DATEN (12 Fragen):\n\n${profileData}\n\nErstelle das personalisierte Gründerprofil gemäß dem Pflichtformat.`;
 
-        (async () => {
+            const input: ResponsesInputItem[] = [
+                { role: 'developer', content: SYSTEM_PROMPT },
+                { role: 'user', content: userMessage },
+            ];
+
+            // 5. Call OpenAI Responses API (streaming)
+            let openAIResponse: Response;
             try {
-                const reader = openAIResponse.body!.getReader();
-                let buffer = '';
+                openAIResponse = await callResponses(
+                    fetchImpl,
+                    env.OPENAI_API_KEY,
+                    buildCompassRequestBody(input),
+                    PROVIDER_TIMEOUT_MS,
+                    { state: operational, modelTier: 'sol' },
+                );
+            } catch (err) {
+                return classifyProviderFailure(err, requestId);
+            }
 
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
+            if (!openAIResponse.ok) {
+                await openAIResponse.text();
 
-                    buffer += decoder.decode(value, { stream: true });
-                    const lines = buffer.split('\n');
-                    buffer = lines.pop() || '';
-
-                    for (const line of lines) {
-                        if (!line.startsWith('data: ')) continue;
-                        const payload = line.slice(6).trim();
-                        if (!payload || payload === '[DONE]') continue;
-
-                        try {
-                            const event = JSON.parse(payload);
-                            if (event.type === 'response.output_text.delta' && event.delta) {
-                                const deltaData = JSON.stringify({ text: event.delta });
-                                await writer.write(encoder.encode(`event: delta\ndata: ${deltaData}\n\n`));
-                            }
-                        } catch {
-                            // Skip malformed events
-                        }
-                    }
+                if (openAIResponse.status === 402) {
+                    return jsonError(503, 'PROVIDER_UNAVAILABLE', 'KI-Dienst vorübergehend nicht verfügbar. Bitte später erneut versuchen.', requestId, {
+                        retryable: true,
+                    });
                 }
 
-                await writer.write(encoder.encode(`event: done\ndata: {}\n\n`));
-            } catch (err) {
-                console.error('Stream processing error:', err);
-                const errData = JSON.stringify({ error: 'Stream unterbrochen' });
-                await writer.write(encoder.encode(`event: error\ndata: ${errData}\n\n`));
-            } finally {
-                await writer.close();
+                if (openAIResponse.status === 429) {
+                    return jsonError(429, 'RATE_LIMITED', 'KI-Dienst ausgelastet. Bitte warten Sie einen Moment.', requestId, {
+                        retryable: true,
+                    });
+                }
+
+                return jsonError(502, 'PROVIDER_REJECTED', 'KI-Dienst vorübergehend nicht erreichbar.', requestId, { retryable: true });
             }
-        })();
 
-        return new Response(readable, {
-            headers: {
-                'Content-Type': 'text/event-stream',
-                'Cache-Control': 'no-store, no-cache, must-revalidate',
-                'Connection': 'keep-alive',
-            },
-        });
+            // 6. Mark weekly quota BEFORE streaming (prevents double-submit)
+            if (!isLocal) {
+                await setWeeklyQuota(ipHash, request.url);
+            }
 
-    } catch (err: any) {
-        console.error('Compass API Error:', err);
-        return new Response(JSON.stringify({
-            error: 'Ein unerwarteter Fehler ist aufgetreten.',
-            code: 'INTERNAL_ERROR',
-        }), { status: 500, headers: { 'Content-Type': 'application/json' } });
-    }
-};
+            // 7. Stream response via SSE
+            if (!openAIResponse.body) {
+                return jsonError(502, 'PROVIDER_REJECTED', 'Keine Antwort vom KI-Dienst erhalten.', requestId, { retryable: true });
+            }
+
+            const encoder = new TextEncoder();
+
+            const { readable, writable } = new TransformStream();
+            const writer = writable.getWriter();
+
+            (async () => {
+                const sse = new ResponsesSSEDecoder(operational);
+                let terminated = false;
+                try {
+                    const reader = openAIResponse.body!.getReader();
+
+                    while (!terminated) {
+                        const { done, value } = await reader.read();
+                        const events = done ? sse.flush() : sse.push(value);
+
+                        for (const event of events) {
+                            if (event.type === 'delta') {
+                                const deltaData = JSON.stringify({ text: event.text });
+                                await writer.write(encoder.encode(`event: delta\ndata: ${deltaData}\n\n`));
+                            } else if (event.type === 'completed') {
+                                await writer.write(encoder.encode(`event: done\ndata: {}\n\n`));
+                                terminated = true;
+                                break;
+                            } else if (event.type === 'refusal' || event.type === 'incomplete' || event.type === 'failed') {
+                                const errData = JSON.stringify({ error: 'Stream unterbrochen' });
+                                await writer.write(encoder.encode(`event: error\ndata: ${errData}\n\n`));
+                                terminated = true;
+                                break;
+                            }
+                        }
+
+                        if (done && !terminated) {
+                            recordProviderOutcome(operational, {
+                                providerOutcome: 'FAILED',
+                                streamOutcome: 'FAILED',
+                            });
+                            const errData = JSON.stringify({ error: 'Stream unterbrochen' });
+                            await writer.write(encoder.encode(`event: error\ndata: ${errData}\n\n`));
+                            terminated = true;
+                        }
+                    }
+                } catch {
+                    recordProviderOutcome(operational, {
+                        providerOutcome: 'FAILED',
+                        streamOutcome: 'FAILED',
+                    });
+                    const errData = JSON.stringify({ error: 'Stream unterbrochen' });
+                    try {
+                        await writer.write(encoder.encode(`event: error\ndata: ${errData}\n\n`));
+                    } catch {
+                        // The client may already have cancelled the response stream.
+                    }
+                } finally {
+                    try {
+                        await writer.close();
+                    } catch {
+                        // Closing an already-cancelled stream is expected.
+                    }
+                }
+            })();
+
+            return new Response(readable, {
+                headers: {
+                    'Content-Type': 'text/event-stream',
+                    'Cache-Control': 'no-store, no-cache, must-revalidate',
+                    'X-Content-Type-Options': 'nosniff',
+                    'Connection': 'keep-alive',
+                },
+            });
+
+        } catch {
+            return jsonError(500, 'INTERNAL_ERROR', 'Ein unerwarteter Fehler ist aufgetreten.', requestId, { retryable: true });
+        }
+    }, deps);
+}
+
+export const onRequest = createHandler();

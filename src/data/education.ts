@@ -35,9 +35,9 @@ export const education: Education[] = [
     id: 'bilanzbuchhalter',
     institution: 'Steuer-Fachschule Dr. Endriss GmbH & Co.KG',
     degree: {
-      de: 'Weiterbildung: Bilanzbuchhalter (IHK)',
-      en: 'Continuing Education: Certified Accountant (IHK)',
-      ro: 'Educație Continuă: Contabil Certificat (IHK)'
+      de: 'Endriss-Vorbereitungskurs: Geprüfter Bilanzbuchhalter (IHK)',
+      en: 'Endriss preparation course: Geprüfter Bilanzbuchhalter (IHK)',
+      ro: 'Curs Endriss de pregătire: Geprüfter Bilanzbuchhalter (IHK)'
     },
     field: {
       de: 'Bilanzbuchhaltung, Steuerrecht, Controlling',
@@ -46,9 +46,10 @@ export const education: Education[] = [
     },
     location: 'Hamburg, Germany',
     startDate: '2024-10',
-    endDate: '2026-03',
+    endDate: '2026-01',
     description: {
       de: [
+        'Der Endriss-Vorbereitungskurs zum Geprüften Bilanzbuchhalter (IHK) wurde im Januar 2026 abgeschlossen. Derzeit bereite ich mich eigenständig auf die Prüfung im September 2026 vor. Die Qualifikation als Geprüfter Bilanzbuchhalter (IHK) habe ich noch nicht erworben.',
         'Finanzmanagement',
         'Kosten- und Leistungsrechnung',
         'Rechtliche Grundlagen',
@@ -66,6 +67,7 @@ export const education: Education[] = [
         'Internationales Steuerrecht'
       ],
       en: [
+        'I completed the Endriss preparation course for Geprüfter Bilanzbuchhalter (IHK) in January 2026. I am currently preparing independently for the examination scheduled for September 2026. The qualification has not yet been obtained.',
         'Financial Management',
         'Cost and Performance Accounting',
         'Legal Foundations',
@@ -83,6 +85,7 @@ export const education: Education[] = [
         'International Tax Law'
       ],
       ro: [
+        'Am finalizat în ianuarie 2026 cursul Endriss de pregătire pentru examenul Geprüfter Bilanzbuchhalter (IHK). În prezent mă pregătesc individual pentru examenul programat în septembrie 2026. Calificarea nu a fost încă obținută.',
         'Management Financiar',
         'Contabilitate Costuri și Performanță',
         'Fundamente Juridice',
@@ -101,7 +104,7 @@ export const education: Education[] = [
       ]
     },
     logo: '/images/Endriss.png',
-    status: 'ongoing'
+    status: 'completed'
   },
   {
     id: 'ihk-fachkraft',

@@ -33,7 +33,7 @@
 </script>
 
 <div class="space-y-3">
-  <div class="flex items-center justify-between">
+  <div class="flex flex-wrap items-center justify-between gap-2">
     <h3 class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
       Betriebskosten (OpEx)
     </h3>
@@ -54,7 +54,7 @@
 
   {#each items as item (item.id)}
     <div class="space-y-1.5 rounded-lg border border-black/10 bg-[var(--bg-primary)] p-2.5 dark:border-white/10">
-      <div class="grid grid-cols-[1fr_auto_auto] items-center gap-2">
+      <div class="grid grid-cols-1 items-center gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
         <!-- Label -->
         <input
           type="text"
@@ -71,8 +71,8 @@
             value={item.amount}
             min="0"
             step="50"
-            oninput={e => updateItem(item.id, 'amount', Number((e.target as HTMLInputElement).value))}
-            class="w-24 rounded border border-black/10 bg-transparent py-1 pl-2 pr-7 text-xs text-text-primary-light focus:outline-none focus:ring-1 focus:ring-eucalyptus-500/40 dark:border-white/10 dark:text-text-primary-dark"
+            oninput={e => updateItem(item.id, 'amount', Math.max(0, Number((e.target as HTMLInputElement).value) || 0))}
+            class="w-full rounded border border-black/10 bg-transparent py-1 pl-2 pr-7 text-xs text-text-primary-light focus:outline-none focus:ring-1 focus:ring-eucalyptus-500/40 dark:border-white/10 dark:text-text-primary-dark sm:w-24"
             aria-label="Betrag in EUR"
           />
           <span class="pointer-events-none absolute inset-y-0 right-1.5 flex items-center text-xs text-text-muted-light dark:text-text-muted-dark">€</span>
@@ -87,7 +87,7 @@
       </div>
 
       <!-- Type toggle -->
-      <div class="flex items-center gap-3">
+      <div class="flex flex-wrap items-center gap-3">
         <label class="flex cursor-pointer items-center gap-1.5 text-xs text-text-secondary-light dark:text-text-secondary-dark">
           <input
             type="radio"
@@ -117,7 +117,7 @@
               value={item.month ?? 0}
               min="0"
               max="35"
-              oninput={e => updateItem(item.id, 'month', Number((e.target as HTMLInputElement).value))}
+              oninput={e => updateItem(item.id, 'month', Math.min(35, Math.max(0, Number((e.target as HTMLInputElement).value) || 0)))}
               class="w-16 rounded border border-black/10 bg-transparent py-1 pl-2 pr-7 text-xs text-text-primary-light focus:outline-none focus:ring-1 focus:ring-eucalyptus-500/40 dark:border-white/10 dark:text-text-primary-dark"
               aria-label="In Monat (0 = Monat 1)"
               title="In Monat (0 = Monat 1)"

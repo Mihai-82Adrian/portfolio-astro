@@ -47,13 +47,13 @@ npm run lint:content -- --format=json
 
 ### Corpus Policy (Freeze)
 
-`public/corpus.jsonl` is frozen and must stay identical to `public/corpus-jsonl.txt`.
+`public/corpus.jsonl` is the single frozen corpus source.
 Automatic corpus export is disabled by policy and must not be reintroduced in CI/build hooks.
 
-For corpus updates, edit the frozen source file intentionally and verify equality:
+For corpus updates, edit the frozen source intentionally and verify its checksum:
 
 ```bash
-sha256sum public/corpus.jsonl public/corpus-jsonl.txt
+sha256sum public/corpus.jsonl
 ```
 
 Output Format (JSONL):
@@ -72,9 +72,7 @@ Output Format (JSONL):
 ### Manual PDF Evidence Workflow (Freeze-safe)
 
 - Extract only verifiable text from source PDFs (example tools: `pdftotext`, `pdfinfo`).
-- Add curated `evidence` entries manually to both:
-  - `public/corpus.jsonl`
-  - `public/corpus-jsonl.txt`
+- Add curated `evidence` entries manually to `public/corpus.jsonl`.
 - Keep entries factual, concise, and traceable via `metadata.docPath`.
 - If a PDF is image-only (scanned) and has no extractable text, do not invent details.
   - Mark it for manual OCR/human review in a future pass.
@@ -82,8 +80,7 @@ Output Format (JSONL):
 
 ```bash
 jq -c . public/corpus.jsonl >/dev/null
-jq -c . public/corpus-jsonl.txt >/dev/null
-sha256sum public/corpus.jsonl public/corpus-jsonl.txt
+sha256sum public/corpus.jsonl
 ```
 
 ## Rules

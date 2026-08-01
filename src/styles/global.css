@@ -146,6 +146,17 @@
  * Base Styles
  */
 @layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    overflow-wrap: anywhere;
+  }
+
+  :where(p, li, dd, dt, a, button, label) {
+    overflow-wrap: anywhere;
+  }
+
 
   /* Smooth scrolling for anchor links */
   html {
@@ -274,6 +285,8 @@
     @apply bg-light-surface dark:bg-dark-surface;
     @apply rounded-lg p-6 md:p-8;
     @apply transition-shadow duration-200;
+    min-width: 0;
+    max-inline-size: 100%;
     background-color: var(--bg-surface);
     box-shadow: var(--shadow-card);
   }
@@ -289,6 +302,11 @@
     @apply font-medium text-base;
     @apply transition-all duration-200;
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+    min-width: 0;
+    max-inline-size: 100%;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    text-align: center;
   }
 
   .btn-primary,
@@ -300,6 +318,11 @@
     @apply font-medium text-base;
     @apply transition-all duration-200;
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+    min-width: 0;
+    max-inline-size: 100%;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    text-align: center;
   }
 
   /* Primary button (eucalyptus green) */

@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "portfolio-astro",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2025-11-14",
+  "vars": {
+    "NODE_VERSION": "22.22.3"
+  },
+  "env": {
+    // "vars" is non-inheritable in Pages: the top-level value only applies to local dev and
+    // production. Preview does not inherit it and needs its own explicit copy to match the
+    // dashboard, where NODE_VERSION=22 is set for both environments.
+    "preview": {
+      "vars": {
+        "NODE_VERSION": "22.22.3"
+      }
+    },
+    "production": {
+      "vars": {
+        "NODE_VERSION": "22.22.3"
+      }
+    }
+  }
+}

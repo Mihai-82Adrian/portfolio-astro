@@ -15,7 +15,7 @@ import Card from '@components/ui/Card.astro';
 import Badge from '@components/ui/Badge.astro';
 import { careerPositions } from '@data/experience';
 import { translations } from '@data/translations';
-import { generatePersonSchema, generateBreadcrumbSchema, generateWorkExperienceSchema } from '@utils/structuredData';
+import { generatePersonSchema, generateBreadcrumbSchema, generateOrganizationRoleSchema } from '@utils/structuredData';
 
 const lang = 'de';
 const t = translations[lang];
@@ -30,12 +30,12 @@ const breadcrumbSchema = generateBreadcrumbSchema([
   { name: t.experience.title, url: '/experience' }
 ]);
 
-// Generate WorkExperience schema for each position
-const experienceSchemas = careerPositions.map(position => 
-  generateWorkExperienceSchema(position)
+// Generate OrganizationRole schema for each position, nested under Person.worksFor
+const experienceRoles = careerPositions.map(position =>
+  generateOrganizationRoleSchema(position)
 );
 
-const structuredData = [personSchema, breadcrumbSchema, ...experienceSchemas];
+const structuredData = [{ ...personSchema, worksFor: experienceRoles }, breadcrumbSchema];
 
 // Convert career positions to timeline items with proper formatting
 const timelineItems = careerPositions.map((position) => {

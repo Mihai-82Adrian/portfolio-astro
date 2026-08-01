@@ -1,16 +1,21 @@
 # XRechnung Conformance
 
 ## Validation Engine
-- KoSIT Validator engine (version pinned in `tools/kosit/versions.json`)
-- Official XRechnung validator configuration (version pinned in `tools/kosit/versions.json`)
+- KoSIT Validator engine (version and SHA-256 pinned in `tools/kosit/kosit-artifacts.json`)
+- Official XRechnung validator configuration (version and SHA-256 pinned in `tools/kosit/kosit-artifacts.json`)
 
-The runtime metadata is written to:
-- `tools/kosit/runtime/metadata.json`
+Both artifacts are resolved offline from a shared, worktree-independent cache — see
+[`docs/operations/kosit-offline-validation.md`](../../operations/kosit-offline-validation.md)
+for the cache layout, fail-closed preflight, and the separate download bootstrap.
+
+The worktree-local pointer to the resolved runtime is written to:
+- `tools/kosit/runtime/metadata.json` (paths into the shared cache, not a local copy)
 
 ## Reproducible Commands
+- `npm run kosit:preflight` (offline cache check only)
 - `npm run kosit:setup`
 - `npm run verify:xrechnung:fixtures`
-- `npm run verify:xrechnung:kosit`
+- `npm run verify:xrechnung:kosit` (same as `verify:xrechnung:kosit:offline`)
 
 `verify:xrechnung:kosit` does all of the following:
 1. Assembles KoSIT runtime from pinned archives.
