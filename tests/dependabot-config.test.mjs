@@ -1,4 +1,9 @@
 // Phase 3-B2 (Workstream C §6.1): repository security baseline — Dependabot configuration.
+// Phase 3-C Step 1B: release dependency freeze — routine version-update PRs paused via
+// open-pull-requests-limit: 0 on both entries; the redundant target-branch: master key (the
+// repository's actual default branch) is removed. Dependabot vulnerability alerts and
+// security-update PRs are a separate, repository-level GitHub feature, not configured by this
+// file, and are intentionally not asserted here.
 // Checked with plain string/regex assertions against the YAML source, matching the convention
 // scripts/release/guards.mjs already uses for workflow YAML — no new YAML-parsing dependency.
 import assert from 'node:assert/strict';
@@ -10,27 +15,30 @@ import test from 'node:test';
 const ROOT = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '..');
 const source = readFileSync(path.join(ROOT, '.github/dependabot.yml'), 'utf8');
 
-test('dependabot.yml declares version 2 with npm and github-actions ecosystems', () => {
+test('dependabot.yml declares version 2 with exactly one npm and one github-actions ecosystem entry', () => {
   assert.match(source, /^version: 2$/m);
-  assert.match(source, /package-ecosystem: npm/);
-  assert.match(source, /package-ecosystem: github-actions/);
+  const npmMatches = source.match(/package-ecosystem: npm/g) ?? [];
+  const actionsMatches = source.match(/package-ecosystem: github-actions/g) ?? [];
+  assert.equal(npmMatches.length, 1, 'expected exactly one npm ecosystem entry');
+  assert.equal(actionsMatches.length, 1, 'expected exactly one github-actions ecosystem entry');
 });
 
-test('every update entry is weekly, targets master, and stays bounded', () => {
+test('every update entry is weekly, roots at /, and frozen at open-pull-requests-limit: 0', () => {
   const entries = source.split(/^  - package-ecosystem:/m).slice(1);
-  assert.ok(entries.length >= 2, 'expected at least the npm and github-actions entries');
+  assert.equal(entries.length, 2, 'expected exactly two update entries (npm, github-actions)');
   for (const entry of entries) {
+    assert.match(entry, /^\s*directory: \/$/m, 'must root at the repository root');
     assert.match(entry, /interval: weekly/, 'schedule must be weekly');
-    assert.match(entry, /target-branch: master/, 'must target master');
-    assert.match(entry, /open-pull-requests-limit: \d+/, 'must set a bounded open-PR limit');
-    const limit = Number(entry.match(/open-pull-requests-limit: (\d+)/)[1]);
-    assert.ok(limit > 0 && limit <= 20, 'open-pull-requests-limit must be a small bounded number');
+    assert.doesNotMatch(entry, /target-branch:/, 'target-branch is redundant while master is the actual default branch and must stay removed for the freeze');
+    assert.match(entry, /open-pull-requests-limit: 0/, 'routine version-update PRs must stay frozen at 0 for Phase 3-C/Phase 4');
+    assert.doesNotMatch(entry, /open-pull-requests-limit: (?!0)\d+/, 'no non-zero open-pull-requests-limit is permitted while the freeze is active');
     assert.match(entry, /- dependencies/);
     assert.match(entry, /- security/);
+    assert.doesNotMatch(entry, /^\s*ignore:/m, 'no ignore rule may be introduced by the freeze');
   }
 });
 
-test('no auto-merge is configured anywhere in dependabot.yml', () => {
+test('no auto-merge mechanism is configured anywhere in dependabot.yml', () => {
   assert.doesNotMatch(source, /auto-merge/i);
 });
 

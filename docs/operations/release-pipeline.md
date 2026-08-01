@@ -18,6 +18,11 @@ does not.
 | `quality-gates.yml` | pull request, selected safe pushes, manual | read-only complete local candidate gate | none | no | sole quality workflow |
 | `release.yml` | manual `workflow_dispatch` only | future build-once preview/production release | deploy job only | future | sole tracked deployment owner |
 
+`release.yml`'s deploy job authenticates to Cloudflare using the `CLOUDFLARE_API_TOKEN` and
+`CLOUDFLARE_ACCOUNT_ID` GitHub Actions repository secrets (names only, no values recorded here or
+anywhere else in this repository), consumed by the pinned `cloudflare/wrangler-action` step running
+`wrangler pages deploy`.
+
 Both workflows default to `contents: read`; there is no `pull_request_target` or write permission.
 Quality concurrency is normalized per ref and stale quality work may cancel. Release concurrency is
 per `preview` or `production`: preview may cancel, production does not, and only one production run

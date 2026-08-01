@@ -174,3 +174,59 @@ test('README and Architecture agree on the local release identity without claimi
   assert.doesNotMatch(README, /(?:deployed|production)[^.\n]{0,100}(?:now |currently )?(?:serves|exposes|includes)[^.\n]*\/api\/health/i);
   assert.doesNotMatch(README, /Phase 2A[^.\n]{0,80}deployed/i);
 });
+
+test('.github/DEPLOYMENT.md stays a compatibility index, not a second deployment manual, and never conflates git rollback with production rollback', () => {
+  const DEPLOYMENT = readFileSync(path.join(ROOT, '.github/DEPLOYMENT.md'), 'utf8');
+
+  assert.match(DEPLOYMENT, /compatibility entry point/i, 'must identify itself as a compatibility entry point, not a manual');
+
+  for (const doc of [
+    'docs/operations/release-pipeline.md',
+    'docs/operations/cloudflare-pages-configuration.md',
+    'docs/operations/rollback-postdeploy.md',
+    'docs/operations/public-release-lineage-strategy.md',
+  ]) {
+    assert.ok(existsSync(path.join(ROOT, doc)), `${doc} must exist for DEPLOYMENT.md to link to it`);
+    const basename = doc.split('/').pop();
+    assert.ok(
+      DEPLOYMENT.includes(basename),
+      `.github/DEPLOYMENT.md must link to the canonical ${doc}`
+    );
+  }
+
+  const bannedLiterals = [
+    'git push origin main',
+    '.github/workflows/deploy.yml',
+    '.github/workflows/quality.yml',
+  ];
+  for (const literal of bannedLiterals) {
+    assert.ok(
+      !DEPLOYMENT.includes(literal),
+      `.github/DEPLOYMENT.md must not contain the stale/unsafe literal "${literal}"`
+    );
+  }
+
+  assert.doesNotMatch(
+    DEPLOYMENT,
+    /push[^.\n]{0,60}(?:triggers?|starts?|causes?)[^.\n]{0,40}(?:new )?(?:production )?deploy/i,
+    '.github/DEPLOYMENT.md must not claim a plain push triggers a production deployment'
+  );
+  assert.doesNotMatch(
+    DEPLOYMENT,
+    /git push[^\n]*(?:--force\b|-f\b|--force-with-lease)/,
+    '.github/DEPLOYMENT.md must not instruct an actual force-push command (a prose warning against force-push is fine)'
+  );
+  assert.doesNotMatch(
+    DEPLOYMENT,
+    /CLOUDFLARE_API_TOKEN|CLOUDFLARE_ACCOUNT_ID/,
+    '.github/DEPLOYMENT.md must not itself re-document Cloudflare deployment-secret setup; that lives in docs/operations/release-pipeline.md only'
+  );
+
+  assert.match(DEPLOYMENT, /git revert/i, 'must state that git rollback uses git revert');
+  assert.match(DEPLOYMENT, /Cloudflare[^.\n]{0,60}rollback/i, 'must state that production rollback is a Cloudflare deployment rollback');
+  assert.match(
+    DEPLOYMENT,
+    /separate operations/i,
+    'must state that git rollback and production rollback are separate operations'
+  );
+});

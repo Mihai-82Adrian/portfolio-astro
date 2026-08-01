@@ -130,11 +130,11 @@ test('ROADMAP.md uses the allowed lifecycle and preserves deferred capabilities'
   assert.match(roadmap, /#### Phase 2D-D — Product and Dependency Security Acceptance\s+Status: `DONE`/);
   assert.match(roadmap, /## Phase 3 — Human and Remote Readiness\s+Status: `ACTIVE`/);
   assert.match(roadmap, /### Phase 3-A — Remote Inventory\s+Status: `DONE`/);
-  assert.match(roadmap, /### Phase 3-B — Remote Controls and Preview Readiness\s+Status: `ACTIVE`/);
+  assert.match(roadmap, /### Phase 3-B — Remote Controls and Preview Readiness\s+Status: `DONE`/);
   assert.match(roadmap, /#### Phase 3-B1 — Public-Safe Preview and Deployment Control\s+Status: `DONE`/);
   assert.match(roadmap, /#### Phase 3-B2 — Repository Security Baseline\s+Status: `DONE`/);
-  assert.match(roadmap, /#### Phase 3-B3 — Operational Monitoring Automation\s+Status: `NEXT`/);
-  assert.match(roadmap, /### Phase 3-C — Human and Provider Release Readiness\s+Status: `PLANNED`/);
+  assert.match(roadmap, /#### Phase 3-B3 — Security Findings Closure and Operational Monitoring\s+Status: `DONE`/);
+  assert.match(roadmap, /### Phase 3-C — Human and Provider Release Readiness\s+Status: `ACTIVE`/);
   assert.match(roadmap, /REMOTE-READINESS-CONDITIONAL/);
   assert.match(roadmap, /Cloudflare[\s\S]{0,120}Git integration[\s\S]{0,200}automatically/i);
   assert.match(roadmap, /Phase 2B[\s\S]*structured logs[\s\S]*strict log allowlist[\s\S]*kill switches[\s\S]*SLOs[\s\S]*failure taxonomy/i);

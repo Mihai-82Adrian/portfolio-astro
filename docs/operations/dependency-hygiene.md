@@ -197,3 +197,37 @@ generated at all. This removed six CodeQL `js/incomplete-sanitization` findings 
 reachable through the previously committed, unused, and version-drifted `katex.js`/`katex.mjs` copies
 (the same non-global `.replace()` calls exist in the upstream `katex@0.16.47` source itself and are
 not reachable from any code path this project executes).
+
+## Dependabot release freeze (Phase 3-C / Phase 4)
+
+`.github/dependabot.yml` sets `open-pull-requests-limit: 0` on both the `npm` and `github-actions`
+`updates` entries, pausing **routine version-update pull requests** for the duration of Phase 3-C and
+Phase 4. This does not touch Dependabot vulnerability alerts, automated security fixes, or
+security-update pull requests — those are governed independently of `open-pull-requests-limit`
+(confirmed against official GitHub Dependabot documentation: the limit "manages how many version
+update pull requests Dependabot can have open simultaneously" and security-update PRs are not
+counted against it). This repository does not claim security-update PRs are *unlimited* in an
+absolute sense — GitHub.com may apply its own separate internal ceiling to security-update PRs that
+this configuration does not control and this document does not attempt to characterize.
+
+Both `updates` entries also dropped the redundant `target-branch: master` key: the repository's
+actual GitHub default branch is already `master` (confirmed live via the repository API), so the key
+added no information. Per official GitHub documentation, `target-branch` is a version-updates-only
+option, and specifying it to point at a **non-default** branch is documented to cause certain
+per-entry customizations (assignees, commit-message, labels) to no longer apply to that ecosystem's
+security-update PRs, falling back to Dependabot's default behavior instead. Since `master` is this
+repository's actual default branch, that specific bypass condition likely did not apply before this
+change either; the key was removed as a redundant simplification, not because it was observed to be
+actively suppressing security-update customization.
+
+The freeze does not change any advisory threshold, does not add an `ignore` rule, and does not enable
+auto-merge (no such mechanism exists in this repository). The `npm` and `github-actions` ecosystem
+blocks, their weekly schedules, their `labels`, and the `npm` block's `framework-runtime` /
+`security-sensitive` groups are all otherwise unchanged.
+
+**Unfreeze trigger:** the freeze is explicitly scoped to Phase 3-C and Phase 4
+(`docs/ROADMAP.md`). Re-enable routine version updates only after Phase 4's controlled production
+release is complete, by restoring `open-pull-requests-limit: 8` (npm) and `5` (github-actions) — the
+values in force immediately before this freeze — or by setting new values if the owner decides
+differently at that time. Do not restore `target-branch: master`; it remains redundant regardless of
+freeze state as long as `master` stays the actual default branch.

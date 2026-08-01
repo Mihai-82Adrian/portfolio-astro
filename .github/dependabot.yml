@@ -4,8 +4,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
-    target-branch: master
-    open-pull-requests-limit: 8
+    # Phase 3-C / Phase 4 release freeze: routine version-update PRs are paused.
+    # Dependabot security alerts and security-update PRs remain enabled separately.
+    open-pull-requests-limit: 0
     labels:
       - dependencies
       - security
@@ -27,8 +28,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
-    target-branch: master
-    open-pull-requests-limit: 5
+    # Phase 3-C / Phase 4 release freeze: routine version-update PRs are paused.
+    # Dependabot security alerts and security-update PRs remain enabled separately.
+    open-pull-requests-limit: 0
     labels:
       - dependencies
       - security

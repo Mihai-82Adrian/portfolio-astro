@@ -383,7 +383,7 @@ deployment occurred.
 
 ### Phase 3-B — Remote Controls and Preview Readiness
 
-Status: `ACTIVE`
+Status: `DONE`
 
 Groups the remote-facing work needed before a controlled production cutover: disabling Cloudflare's
 automatic production-deployment trigger, proving and validating a public-safe preview lineage,
@@ -392,6 +392,11 @@ prior single-batch "Batch 0 through Batch 6" sequencing recorded in the historic
 cutover-preflight package; that package remains evidence of the read-only audit, strategy
 comparison, and local CI-contract fix it performed (fast-forward integrated into canonical), not a
 current execution order.
+
+**Closure note:** all three sub-phases (3-B1, 3-B2, 3-B3) are `DONE`. GitHub `master` is
+reconciled to the validated security-closure state, Cloudflare's automatic production-deployment
+trigger remains disabled, and the repository security baseline (branch protection, CodeQL default
+setup, Dependabot alerts) is hardened. Phase 3-C now proceeds on this foundation.
 
 #### Phase 3-B1 — Public-Safe Preview and Deployment Control
 
@@ -476,33 +481,66 @@ package for the full record.
 
 **Remote mutation required:** **Yes**, per item, each separately authorized.
 
-#### Phase 3-B3 — Operational Monitoring Automation
+#### Phase 3-B3 — Security Findings Closure and Operational Monitoring
 
-Status: `NEXT`
+Status: `DONE`
 
-**Objective:** Add recurring, outbound-only remote monitoring once the security baseline is in
-place.
+**Objective:** Close the CodeQL and Dependabot findings inventoried in Phase 3-B2, repair build
+non-determinism, add recurring outbound-only remote monitoring, and reconcile GitHub `master` with
+the closed state, without changing Cloudflare production.
 
 **Deliverables (grouped; each item separately authorized at execution time):**
 
-- scheduled dependency-advisory workflow;
-- outbound-only alerting;
-- Cloudflare release-identity watchdog;
-- Cloudflare deployment/log monitoring.
+- source-level remediation of every CodeQL finding reachable from canonical (KaTeX vendoring
+  eliminated in favor of build-time generation; fixpoint-loop sanitization fixes; anchored
+  hostname/origin checks);
+- reconciliation of the Dependabot-tracked dependency graph (the canonical lockfile already
+  resolved every alert open against the stale prior `master`; the PR-diff CodeQL pass surfaced,
+  and this wave closed, findings invisible to `master`'s own stale scan);
+- a build-time-determinism fix (the cashflow projection engine no longer reads wall-clock time
+  during static rendering), verified with byte-identical host-vs-container reproducibility;
+- Cloudflare Pages preview policy restricted to `release/*` (previously "all branches"),
+  verified unchanged across the wave;
+- a scheduled, read-only, `contents: read`-only GitHub Actions security-audit workflow
+  (`security-audit.yml`), dispatched once manually and passing;
+- adoption of a routine, non-security Astro/`@astrojs/mdx`/`@lucide/astro` ecosystem bump
+  (Dependabot PR #38) after confirming every intermediate release against official upstream
+  release notes;
+- a single remote analysis branch/PR carrying all iteration to a terminal green CodeQL/CI state,
+  followed by exactly one canonical integration and one final public-safe release commit, fast-forwarded
+  to `master` by the repository owner after an explicit, independently-verified attestation.
+
+**Met:** GitHub `master` now points at the exact validated commit (tree-identical to the canonical
+integration branch). Immediately after reconciliation: 0 open Dependabot alerts (down from 42
+against the prior stale `master`), 0 open CodeQL alerts, and the scheduled security-audit workflow
+passing on its one authorized manual dispatch. Cloudflare production
+(`production_deployments_enabled: false`, canonical/production deployment `3f5a9a55...`) is
+confirmed unchanged before, during, and after the reconciliation — including a same-commit
+deployment record Cloudflare logged but correctly skipped building, consistent with automatic
+production deployments remaining disabled. This closes the configured scanners' state as observed
+at the point of reconciliation; it is not a claim that no future vulnerability can occur, and it
+does not describe or authorize any change to what is actually deployed at `me-mateescu.de`. See the
+external Phase 3-B3/3-B3R evidence packages for the full record, including the corrective
+recalibration that preceded the final, structurally separated analysis-branch model.
 
 **Dependencies:** Phase 3-B2.
 
-**Remote mutation required:** **Yes**, per item, each separately authorized.
+**Remote mutation required:** **Yes**, per item, each separately authorized; the `master`
+fast-forward itself was executed manually by the repository owner after an independent
+pre-push and post-push attestation.
 
 ### Phase 3-C — Human and Provider Release Readiness
 
-Status: `PLANNED`
+Status: `ACTIVE`
 
 **Objective:** Close the remaining human-review and live-provider gaps before a controlled
 production release.
 
 **Deliverables:**
 
+- release dependency freeze (routine Dependabot version updates paused; security alerts/updates
+  unaffected) and retirement of the legacy `.github/DEPLOYMENT.md` deployment guide — Step 1A
+  (read-only baseline/classification) and Step 1B (implementation);
 - qualified privacy-policy review;
 - fresh online dependency-advisory review;
 - Cloudflare log capture, retention, sampling, access, export, Logpush, visibility, and
@@ -513,8 +551,8 @@ production release.
 - remote feature-variable parity;
 - final release-candidate preview and human acceptance.
 
-**Dependencies:** Phase 3-B's remote controls in a known, authorized state (Phase 3-B1 at minimum;
-Phase 3-B2/3-B3 as the owner separately schedules them).
+**Dependencies:** Phase 3-B's remote controls in a known, authorized state (met — Phase 3-B is
+`DONE`).
 
 **Remote mutation required:** **Yes.** Every provider, GitHub, Cloudflare, preview, or settings
 action requires precise authorization at execution time. Phase 3-A performed none — it was strictly
@@ -525,7 +563,7 @@ the candidate, and preview evidence supports or rejects production release.
 
 ## Phase 4 — Controlled Production Release
 
-Status: `PLANNED`
+Status: `NEXT`
 
 **Objective:** Release an approved artifact into the public production lineage with verification and
 rollback readiness.
