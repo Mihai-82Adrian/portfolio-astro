@@ -1,5 +1,5 @@
 import type { MonthlyDataPoint, StressScenarioResult } from './types';
-import { findInsolvencyMonth, additionalCapitalNeeded } from './types';
+import { findInsolvencyMonth, additionalCapitalNeeded } from './types.ts';
 
 // ─── Brand constants ────────────────────────────────────────────────────────
 const BRAND        = '#6B8E6F';
@@ -25,12 +25,14 @@ function todayDE(): string {
 }
 
 // ─── Main export function ───────────────────────────────────────────────────
-export async function generateCashflowPdf(params: {
+export type CashflowPdfParams = {
   initialCash:      number;
   baseProjection:   MonthlyDataPoint[];
   scenarioResult:   StressScenarioResult | null;
   chartImageBase64: string | null;
-}): Promise<void> {
+};
+
+export async function generateCashflowPdfBlob(params: CashflowPdfParams): Promise<Blob> {
   const { initialCash, baseProjection, scenarioResult, chartImageBase64 } = params;
 
   // ── Lazy-load pdfmake (same pattern as XRechnung — zero bundle cost on page load) ──
@@ -52,7 +54,7 @@ export async function generateCashflowPdf(params: {
     : initialCash;
   const minMonth     = baseProjection.find(d => d.cumulative === minBalance)?.month ?? '—';
   const totalRevenue = baseProjection.reduce((s, d) => s + d.revenue, 0);
-  const breakEven    = baseProjection.find((d, i) => i > 0 && d.net > 0)?.month ?? null;
+  const breakEven    = baseProjection.find(d => d.net > 0)?.month ?? null;
 
   // ── Build scenario cards ─────────────────────────────────────────────────
   const scenarioBlocks: any[] = [];
@@ -274,10 +276,15 @@ export async function generateCashflowPdf(params: {
     }),
   };
 
-  // ── Generate & download ──────────────────────────────────────────────────
+  // ── Generate ──────────────────────────────────────────────────────────────
   const pdfDoc = pdfMake.createPdf(doc);
   const blob: Blob = await pdfDoc.getBlob();
   if (!(blob instanceof Blob)) throw new Error('PDF blob invalid');
+  return blob;
+}
+
+export async function generateCashflowPdf(params: CashflowPdfParams): Promise<void> {
+  const blob = await generateCashflowPdfBlob(params);
 
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');

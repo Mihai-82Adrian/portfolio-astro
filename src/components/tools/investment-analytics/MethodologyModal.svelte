@@ -341,7 +341,7 @@
               Kirchensteuer
             </dt>
             <dd class="mt-1 text-xs leading-relaxed text-gray-400">
-              <strong class="text-gray-200">8 %</strong> (Bayern, Baden-Württemberg) oder <strong class="text-gray-200">9 %</strong> (übrige Bundesländer) auf den Abgeltungsteuerbetrag. Kirchensteuerpflichtige Anleger müssen dies zusätzlich zur Abgeltungsteuer abführen. Hier als Vereinfachung direkt auf den Steuerbetrag berechnet.
+              <strong class="text-gray-200">8 %</strong> (Bayern, Baden-Württemberg) oder <strong class="text-gray-200">9 %</strong> (übrige Bundesländer). Weil gezahlte Kirchensteuer als Sonderausgabe abzugsfähig ist, wird die Kapitalertragsteuer selbst rechnerisch reduziert (§ 32d Abs. 1 Satz 3–5 EStG): KESt = zu versteuernder Gewinn / (4 + Kirchensteuersatz); die Kirchensteuer beträgt dann Kirchensteuersatz × KESt, der Soli 5,5 % × KESt. Kein pauschaler Aufschlag auf die volle 25-%-Abgeltungsteuer.
             </dd>
           </div>
 
@@ -362,9 +362,12 @@
             </dt>
             <dd class="mt-1 text-xs leading-relaxed text-gray-400">
               Jährliche fiktive Besteuerung für <strong class="text-gray-200">thesaurierende Fonds</strong>, die keine Ausschüttungen vornehmen.
-              Basisertrag = Fondswert (1.1.) × Basiszins (2026: 3,20 %) × 0,7 <strong class="text-gray-200">(= 2,24 %)</strong>.
-              Die Vorabpauschale ist <strong class="text-gray-200">begrenzt auf die tatsächliche Wertsteigerung</strong>
-              (min-Funktion: nie höher als der reale Kursanstieg des Jahres). Verhindert eine vollständige Steuerstundung bis zum Verkauf.
+              Für jedes Jahr: Basisertrag = Fondswert (Jahresanfang) × Basiszins (2026: 3,20 %) × 0,7,
+              <strong class="text-gray-200">begrenzt auf die tatsächliche Wertsteigerung dieses Jahres</strong>
+              (nie negativ, nie höher als der reale Kursanstieg). Verhindert eine vollständige Steuerstundung bis
+              zum Verkauf. Da das Tool keinen echten untermonatigen Kursverlauf führt, wird der jährliche
+              Fondswert-Pfad aus der Gesamtrendite (CAGR) über die Haltedauer geglättet angenommen — die reale
+              Jahresabfolge (z. B. ein einzelnes Verlustjahr) kann davon abweichen.
             </dd>
           </div>
 
@@ -374,7 +377,7 @@
               TER — Total Expense Ratio
             </dt>
             <dd class="mt-1 text-xs leading-relaxed text-gray-400">
-              Die jährlichen Gesamtkosten eines Fonds als Prozentsatz des verwalteten Vermögens. Enthält Managementgebühr, Verwaltungsgebühr und sonstige Fondskosten. ETFs: typisch 0,05–0,5 %, aktive Fonds: 1–2 %. Wird automatisch aus der Vorabpauschale herausgerechnet.
+              Die jährlichen Gesamtkosten eines Fonds als Prozentsatz des verwalteten Vermögens. Enthält Managementgebühr, Verwaltungsgebühr und sonstige Fondskosten. ETFs: typisch 0,05–0,5 %, aktive Fonds: 1–2 %. Fließt nicht separat in die Vorabpauschale ein — die Kosten mindern bereits die reale Fondswertentwicklung, aus der die Vorabpauschale berechnet wird; ein zusätzlicher Abzug würde die Kosten doppelt zählen.
             </dd>
           </div>
 
@@ -420,11 +423,11 @@
           </li>
           <li class="flex gap-2">
             <span class="mt-0.5 text-amber-400">▸</span>
-            <span>Die <strong class="text-gray-200">Steuerberechnung</strong> ist vereinfacht: Keine Verlustverrechnung über mehrere Jahre. Kirchensteuer und Teilfreistellung (30 % für Aktienfonds) sind optional konfigurierbar, ersetzen aber keine individuelle Steuerberatung.</span>
+            <span>Die <strong class="text-gray-200">Steuerberechnung</strong> ist vereinfacht: Keine Verlustverrechnung über mehrere Jahre. Kirchensteuer (nach § 32d Abs. 1 EStG korrekt über die reduzierte KESt-Bemessungsgrundlage) und Teilfreistellung (30 % für Aktienfonds) sind optional konfigurierbar, ersetzen aber keine individuelle Steuerberatung.</span>
           </li>
           <li class="flex gap-2">
             <span class="mt-0.5 text-amber-400">▸</span>
-            <span>Die <strong class="text-gray-200">Vorabpauschale</strong> wird als Worst-Case-Schätzung berechnet: Es wird ein positives Jahresergebnis angenommen. In Jahren mit negativer oder keiner Wertsteigerung fällt die Vorabpauschale geringer oder gar nicht an.</span>
+            <span>Die <strong class="text-gray-200">Vorabpauschale</strong> wird jahresweise nach § 18 InvStG berechnet und korrekt auf die tatsächliche Jahres-Wertsteigerung begrenzt (0 in Verlust- oder Nulljahren). Da kein realer untermonatiger Kursverlauf hinterlegt ist, wird der jährliche Fondswert-Pfad aus der Gesamtrendite (CAGR) geglättet angenommen — eine reale Abfolge mit einzelnen Verlustjahren kann davon abweichen.</span>
           </li>
           <li class="flex gap-2">
             <span class="mt-0.5 text-amber-400">▸</span>

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "observedDate": "2026-07-28",
+  "lockfileSha256": "7b2bf3e7e8b40b9542922bca7e0a66983f79d0b9fd59f092c7ef01da2290bbab",
+  "freshnessBoundary": "Point-in-time npm audit plus GitHub Advisory Database reviewed, unreviewed, and malware queries against every one of the 704 exact package/version pairs in this lockfile, performed in Phase 2D-D and closed for full advisory-class coverage in the same-day closure wave (2026-07-28); 0 applicable records in any class. Phase 3 still owns remote GitHub/Cloudflare security posture (Dependabot, CodeQL, branch protection) and recurring scheduled monitoring, not this dependency-advisory review.",
+  "advisoryRecordCounts": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "packagePathFindingCounts": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "records": [],
+  "packagePathFindings": []
+}

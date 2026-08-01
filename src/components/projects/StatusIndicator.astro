@@ -92,6 +92,7 @@ const config = statusConfig[status.indicator];
     border: 1px solid var(--statusColor);
     font-family: var(--font-body);
     transition: all 0.2s ease;
+    max-width: 100%;
   }
 
   /* Size variants */
@@ -131,7 +132,9 @@ const config = statusConfig[status.indicator];
   .status-label {
     font-weight: 600;
     color: var(--statusColor);
-    white-space: nowrap;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .progress-container {

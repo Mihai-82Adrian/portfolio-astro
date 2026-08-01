@@ -1,0 +1,47 @@
+name: Scheduled security audit
+
+# Read-only inventory audit: dependency advisories and the permanent GitHub
+# Advisory Database scanner. Never deploys, never modifies dependencies, and
+# never opens a PR or issue automatically — a failure surfaces only through
+# GitHub Actions' native run-failure notification.
+
+on:
+  schedule:
+    - cron: '17 6 * * 1' # weekly, Monday 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    name: Dependency and advisory audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - name: Install exact npm
+        run: npm install --global npm@11.16.0
+      - name: Verify exact toolchain
+        run: npm run verify:toolchain
+      - name: Install locked dependencies
+        run: npm ci
+      - name: npm audit (fresh, registry-backed)
+        run: npm audit --json --audit-level=low
+      - name: Committed advisory register and dependency graph (offline)
+        run: npm run verify:advisory-register
+      - name: Dependency tree integrity
+        run: npm run verify:dependency-tree
+      - name: Permanent GitHub Advisory Database scanner
+        run: npm run verify:advisory-scanner
+      - name: Workflow and release-policy guards
+        run: npm run verify:workflows && npm run verify:release-policy

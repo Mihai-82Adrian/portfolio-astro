@@ -43,7 +43,7 @@
 </script>
 
 <div class="space-y-3">
-  <div class="flex items-center justify-between">
+  <div class="flex flex-wrap items-center justify-between gap-2">
     <div class="flex items-center gap-1">
       <h3 class="text-sm font-semibold text-text-primary-light dark:text-text-primary-dark">
         Hiring Plan
@@ -70,7 +70,7 @@
   {/if}
 
   {#each roles as role (role.id)}
-    <div class="grid grid-cols-[1fr_auto_auto_auto] items-center gap-2 rounded-lg border border-black/10 bg-[var(--bg-primary)] p-2.5 dark:border-white/10"
+    <div class="grid grid-cols-1 items-center gap-2 rounded-lg border border-black/10 bg-[var(--bg-primary)] p-2.5 dark:border-white/10 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto]"
       class:opacity-50={role.status === 'frozen'}
     >
       <!-- Title -->
@@ -90,8 +90,8 @@
           value={role.monthlyCost}
           min="0"
           step="100"
-          oninput={e => updateRole(role.id, 'monthlyCost', Number((e.target as HTMLInputElement).value))}
-          class="w-24 rounded border border-black/10 bg-transparent py-1 pl-2 pr-7 text-xs text-text-primary-light focus:outline-none focus:ring-1 focus:ring-eucalyptus-500/40 dark:border-white/10 dark:text-text-primary-dark"
+          oninput={e => updateRole(role.id, 'monthlyCost', Math.max(0, Number((e.target as HTMLInputElement).value) || 0))}
+          class="w-full rounded border border-black/10 bg-transparent py-1 pl-2 pr-7 text-xs text-text-primary-light focus:outline-none focus:ring-1 focus:ring-eucalyptus-500/40 dark:border-white/10 dark:text-text-primary-dark sm:w-24"
           aria-label="Bruttolohn monatlich"
         />
         <span class="pointer-events-none absolute inset-y-0 right-1.5 flex items-center text-xs text-text-muted-light dark:text-text-muted-dark">€</span>
@@ -104,8 +104,8 @@
           value={role.startMonth}
           min="0"
           max="35"
-          oninput={e => updateRole(role.id, 'startMonth', Number((e.target as HTMLInputElement).value))}
-          class="w-14 rounded border border-black/10 bg-transparent py-1 pl-2 pr-6 text-xs text-text-primary-light focus:outline-none focus:ring-1 focus:ring-eucalyptus-500/40 dark:border-white/10 dark:text-text-primary-dark"
+          oninput={e => updateRole(role.id, 'startMonth', Math.min(35, Math.max(0, Number((e.target as HTMLInputElement).value) || 0)))}
+          class="w-full rounded border border-black/10 bg-transparent py-1 pl-2 pr-6 text-xs text-text-primary-light focus:outline-none focus:ring-1 focus:ring-eucalyptus-500/40 dark:border-white/10 dark:text-text-primary-dark sm:w-14"
           aria-label="Startmonat (0 = Monat 1)"
           title="Startmonat (0 = Monat 1)"
         />
@@ -137,7 +137,7 @@
 
   <!-- Total with Lohnnebenkosten note -->
   {#if roles.some(r => r.status === 'active')}
-    <div class="flex items-center justify-between rounded-lg bg-eucalyptus-500/8 px-3 py-2">
+    <div class="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-eucalyptus-500/8 px-3 py-2">
       <div class="flex items-center gap-1">
         <span class="text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark">
           Headcount-Burn gesamt

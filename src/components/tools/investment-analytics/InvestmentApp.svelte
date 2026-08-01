@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import Icon from '@/components/ui/Icon.svelte';
+  import AIDisclosureNote from '@/components/tools/ui/AIDisclosureNote.svelte';
 
   import type { InvestmentInput, InvestmentState, MonteCarloResult } from '@/lib/investment/types';
   import {
@@ -372,6 +373,9 @@
     <div class="flex flex-col gap-3">
       <!-- KI Analysis button -->
       <div class="flex flex-col gap-1">
+        {#if !aiNarrative && !weeklyLocked}
+          <AIDisclosureNote />
+        {/if}
         <div class="flex items-center gap-3">
           <button
             type="button"

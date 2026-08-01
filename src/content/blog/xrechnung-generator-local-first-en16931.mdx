@@ -22,7 +22,7 @@ import Image from '@components/mdx/Image.astro';
 ## Executive Summary
 
 - Germany's **E-Rechnungspflicht** mandates XRechnung for all B2G invoices now, and B2B from 2025–2027 — most SMEs have no compliant tooling and no budget for enterprise ERP
-- I built a **browser-native XRechnung 3.0 generator**: validates against KoSIT v3.0 (Config v3.0.2) + EN 16931, generates UBL 2.1 and CII XML, exports DIN 5008-style PDFs — zero server-side processing
+- I built a **browser-native XRechnung 3.0 generator**: encodes EN 16931 constraints at the type level, generates UBL 2.1 and CII XML, and exports DIN 5008-style PDFs — zero server-side processing for generation itself. Output conformance is checked separately against the official KoSIT v3.0 validator (Config v3.0.2) as an offline CI gate, not inside the browser (see Part IV)
 - The architecture encodes compliance at the **type level**: tax category codes, URN constants, and profile identifiers are not configurable strings — they are hardcoded TypeScript constants derived directly from the standard
 - The tool is live at [me-mateescu.de/tools/xrechnung](/tools/xrechnung), deploys to Cloudflare's edge network via GitHub Actions, and stores **nothing** beyond your own seller defaults in localStorage
 
@@ -108,7 +108,7 @@ Everything — XML generation, PDF rendering, validation — runs in the browser
 
 ### Astro Island for a static portfolio that needed one interactive tool
 
-The portfolio is a static Astro 5 site. Adding a full interactive application to it without compromising the page weight of every other page required the Islands Architecture.
+The portfolio is a static Astro 7 site. Adding a full interactive application to it without compromising the page weight of every other page required the Islands Architecture.
 
 The XRechnung generator lives in a single Svelte component — `<XRechnungApp />` — mounted with `client:load`. The rest of the page — the header, navigation, footer — is static HTML. The JavaScript bundle for the tool loads only when the user navigates to `/tools/xrechnung`.
 

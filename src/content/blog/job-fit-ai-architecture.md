@@ -22,6 +22,12 @@ lang: 'en'
 * **Action**: OpenAI's Structured Outputs API with JSON Schema + Zod validation enforces schema adherence at the inference layer, eliminating post-processing retries
 * **Result**: 100% reliability in schema matching (vs. <40% with prompt-based JSON mode), eliminating validation failures and enabling predictable frontend integration
 
+*Current-state note: this article illustrates the structured-outputs pattern using the Chat
+Completions API and the `gpt-4o` tier current at publication. This site's own production Functions
+have since standardized on the Responses API (`/v1/responses`) and the `gpt-5.6` model tier for all
+AI-backed features; the schema-enforcement pattern described below still applies, but Chat
+Completions and the `gpt-4o` family are no longer used in production here.*
+
 ## The Challenge: Unstructured HR Text Meets Type-Safe Frontends
 
 Job descriptions arrive as unstructured prose: "3+ years React experience", "strong communication skills", "familiarity with cloud platforms". Extracting discrete, machine-readable attributes—`required_skills: string[]`, `experience_years: number`, `seniority: enum`—from this freeform text requires LLMs.

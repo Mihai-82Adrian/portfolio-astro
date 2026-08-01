@@ -25,6 +25,9 @@
   // ── State ─────────────────────────────────────────────────────────────────
   let initialCash    = $state(10000);
   let blocks         = $state<CashflowBlock[]>([]);
+  // Set from onMount (client-only) so the SSR/build snapshot never bakes in the
+  // build machine's wall-clock date (see projectionEngine.ts projectCashflow docs).
+  let referenceDate  = $state(new Date(0));
   let scenarioResult = $state<StressScenarioResult | null>(null);
   let lastScenarioAt = $state<number | null>(null);
 
@@ -45,7 +48,7 @@
   let importSuggestion  = $state<{ initialCash: number; blocks: CashflowBlock[] } | null>(null);
 
   // ── Derived ───────────────────────────────────────────────────────────────
-  const baseProjection = $derived(projectCashflow(initialCash, blocks));
+  const baseProjection = $derived(projectCashflow(initialCash, blocks, 12, referenceDate));
   const weeklyLocked   = $derived(isWeeklyCooldownActive(lastScenarioAt));
   const cooldownLabel  = $derived(cooldownRemainingLabel(lastScenarioAt));
   const hasBlocks      = $derived(blocks.length > 0);
@@ -64,6 +67,8 @@
 
   // ── Restore ───────────────────────────────────────────────────────────────
   onMount(() => {
+    referenceDate = new Date();
+
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {

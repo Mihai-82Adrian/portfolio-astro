@@ -1,10 +1,17 @@
 # build output
 dist/
+# KaTeX runtime assets — generated from node_modules/katex by scripts/sync-katex-assets.mjs,
+# never hand-vendored (see docs/operations/dependency-hygiene.md)
+public/katex/
 # generated types
 .astro/
 # local temp artifacts
 .tmp/
 .wrangler/
+.artifacts/release/
+.artifacts/release-candidate/
+.artifacts/firefox/
+functions/_generated/
 
 # dependencies
 node_modules/
@@ -37,9 +44,8 @@ tests/invoice_*_xrechnung_*.xml
 # jetbrains setting folder
 .idea/
 
-# Claude Code Configuration (local tooling — never public)
+# Claude Code local configuration
 .claude/
-CLAUDE.md
 
 # AI agent tooling — never public
 .agent/

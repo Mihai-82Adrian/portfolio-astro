@@ -18,7 +18,7 @@ import { themeScript } from '@/utils/theme';
 import Header from '@components/layout/Header.astro';
 import Footer from '@components/layout/Footer.astro';
 import type { Language } from '@utils/i18n';
-import { getAlternateUrls, normalizeSiteUrl } from '@utils/i18n';
+import { getRouteAlternateUrls, getSingleLanguageRoute, normalizeSiteUrl } from '@utils/i18n';
 import '@/styles/global.css';
 import tokens from '@/data/design-tokens.json';
 import ChatDrawer from '@components/ChatDrawer.astro';
@@ -40,7 +40,7 @@ interface Props {
 
 const {
   title = 'Mihai Adrian Mateescu',
-  description = 'Finanzbuchhalter & KI-Entwickler im DACH-Raum. FinTech-Tools, Buchhaltungsautomatisierung und AI-gestützte Webentwicklung für Gründer und Freelancer.',
+  description = 'Finanzbuchhalter & FinTech-Entwickler im DACH-Raum. FinTech-Tools, Buchhaltungsautomatisierung und AI-gestützte Webentwicklung für Gründer und Freelancer.',
   ogImage = '/images/og-default.webp',
   ogType = 'website',
   canonicalURL,
@@ -68,15 +68,17 @@ const isServicesRoute = new Set([
   '/ro/services/',
 ]).has(currentPath);
 
-// Your rule: Blog is EN-only (even though it lives at /blog without /en prefix)
-const isBlog = currentPath === '/blog' || currentPath.startsWith('/blog/');
+// Route-language policy (Phase 2D-C Wave 1, src/utils/i18n.ts): routes that exist
+// intentionally in a single language (Blog, Tools, /now, /ai, /projects) never infer
+// their language from a /en//ro/ path prefix, since none of them use one.
+const singleLanguageRoute = getSingleLanguageRoute(currentPath);
 
 // Infer language from pathname if not explicitly passed via props
 const inferredLang: Language =
-  isBlog ? 'en' :
-  currentPath.startsWith('/en') ? 'en' :
+  singleLanguageRoute ??
+  (currentPath.startsWith('/en') ? 'en' :
   currentPath.startsWith('/ro') ? 'ro' :
-  'de';
+  'de');
 
 const lang: Language = langProp ?? inferredLang;
 
@@ -90,16 +92,15 @@ const fullTitle =
     : `${title} | ${siteTitle}`;
 const fullImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
 
-// Generate alternate language URLs
-// For EN-only blog: emit only en + x-default to avoid claiming translations
-const alternateUrls = isBlog
-  ? { en: canonicalHref, 'x-default': canonicalHref }
-  : Object.fromEntries(
-      Object.entries(alternates ?? getAlternateUrls(currentPath, siteUrl)).map(([hreflang, url]) => [
-        hreflang,
-        normalizeSiteUrl(url),
-      ])
-    );
+// Generate alternate language URLs. Locked single-language routes (Blog, Tools,
+// /now, /ai, /projects — see src/utils/i18n.ts) emit only their real language +
+// x-default; every other route uses full DE/EN/RO path-substitution.
+const alternateUrls = Object.fromEntries(
+  Object.entries(alternates ?? getRouteAlternateUrls(currentPath, siteUrl)).map(([hreflang, url]) => [
+    hreflang,
+    normalizeSiteUrl(url as string),
+  ])
+);
 
 const ogLocale =
   lang === 'de' ? 'de_DE' :
@@ -125,8 +126,7 @@ const defaultStructuredData = {
   "telephone": "+491704740121",
   "url": siteUrl,
   "sameAs": [
-    "https://www.linkedin.com/in/mihai-adrian-mateescu/",
-    "https://profit-minds.de"
+    "https://www.linkedin.com/in/mihai-adrian-mateescu/"
   ],
   "knowsLanguage": ["de", "en", "ro"]
 };
@@ -206,8 +206,37 @@ const defaultStructuredData = {
     <!-- Client Router: SPA-like navigation -->
     <ClientRouter />
 
-    <!-- Ahrefs Web Analytics -->
-    <script is:inline src="https://analytics.ahrefs.com/analytics.js" data-key="TaG4/LHrEhmbalis3ebSqA" async></script>
+    <!--
+      Ahrefs Web Analytics: optional, opt-in only. No script tag is rendered
+      here — it is injected client-side, and only after explicit analytics
+      consent (src/lib/consent.ts). See src/components/common/CookieConsent.astro.
+    -->
+    <script>
+      import { readPreferences, CONSENT_CHANGE_EVENT, type PrivacyPreferences } from '@/lib/consent';
+
+      const AHREFS_SCRIPT_ID = 'ahrefs-analytics';
+
+      function loadAhrefs() {
+        if (document.getElementById(AHREFS_SCRIPT_ID)) return;
+        const script = document.createElement('script');
+        script.id = AHREFS_SCRIPT_ID;
+        script.src = 'https://analytics.ahrefs.com/analytics.js';
+        script.dataset.key = 'TaG4/LHrEhmbalis3ebSqA';
+        script.async = true;
+        document.head.appendChild(script);
+      }
+
+      function applyPreferences(prefs: PrivacyPreferences) {
+        if (prefs.analytics) loadAhrefs();
+        // A script that already started executing cannot be un-loaded — a later
+        // withdrawal only prevents this and future page loads from starting it.
+      }
+
+      applyPreferences(readPreferences(window.localStorage));
+      window.addEventListener(CONSENT_CHANGE_EVENT, (event) => {
+        applyPreferences((event as CustomEvent<PrivacyPreferences>).detail);
+      });
+    </script>
   </head>
 
   <body class="min-h-screen bg-light-bg dark:bg-dark-bg text-text-primary-light dark:text-text-primary-dark antialiased transition-colors duration-300">

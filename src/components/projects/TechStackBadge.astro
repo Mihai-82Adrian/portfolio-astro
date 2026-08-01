@@ -85,7 +85,9 @@ const config = categoryConfig[tech.category || 'platform'];
     font-family: var(--font-body);
     font-weight: 500;
     color: var(--badgeColor);
-    white-space: nowrap;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
     transition: all 0.2s ease;
     cursor: default;
   }
