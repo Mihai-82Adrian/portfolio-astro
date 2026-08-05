@@ -48,6 +48,25 @@ deploy tree.
 
 The tool streams file bytes and rejects unsafe output roots. Release evidence remains local, so the
 tree digest—not a tar/gzip stream with ambient metadata—is the stable artifact identifier.
+
+### Hidden-path transport and allowlist (Phase 4-R1)
+
+A manual production release run (workflow run `31032716165`, deploy job `92399219141`) failed closed
+on an artifact-tree checksum mismatch: `actions/upload-artifact` excludes hidden files by default,
+and `release.yml` did not set `include-hidden-files: true`. The uploaded artifact silently dropped
+`deploy/.htaccess` (source `public/.htaccess`), shrinking the verified 468-file deploy tree to 467
+files. `workflow-artifact.mjs consume` correctly rejected the resulting checksum mismatch before the
+deploy job's Cloudflare step ran, so production received zero mutation. `release.yml` now sets
+`include-hidden-files: true` on that upload step so GitHub Actions must preserve every
+checksum-participating path between the `quality` and `deploy` jobs.
+
+Because hidden-file transport is now enabled, `collectFiles` (the single traversal both artifact
+generation and `verifyReleaseArtifacts` use) enforces a fail-closed allowlist: any path whose
+basename starts with `.` is rejected unless it is exactly `deploy/.htaccess` at the artifact root — a
+nested `.htaccess`, `.env`/`.env.*`, `.git`, `.npmrc`, `.wrangler`, or any other hidden file or
+directory throws before its bytes are hashed. This check runs during tree traversal itself, so an
+already-written manifest whose checksums happen to match a tampered tree cannot bypass it — the
+digest computation never reaches the comparison.
 Release builds export the Git commit epoch as `SOURCE_DATE_EPOCH` and the public-safe build epoch,
 derive RSS build dates from content, use deterministic server-rendered default IDs, and minify the
 Wrangler bundle so invocation-specific temporary source comments cannot enter the artifact. Pagefind
@@ -85,8 +104,11 @@ Generation fails for tracked changes, unexpected untracked production input, a f
 Function bundle, inconsistent lockfile/SBOM, unsupported filesystem entries, invalid schemas, or
 checksum drift. Permanent tests are offline and cover identity determinism, dirty-source rejection,
 path ordering, mtime independence, self-reference, symlink rejection, SBOM normalization, manifest
-validation, health linkage, prohibited public fields, and Pagefind byte identity across opposite
-input-creation orders.
+validation, health linkage, prohibited public fields, Pagefind byte identity across opposite
+input-creation orders, the `include-hidden-files: true` workflow contract, a faithful
+prepare/transfer/consume round-trip that retains `.htaccess`, the exact hidden-file-omission
+regression and its recovery, and hidden-path allowlist rejection that a self-consistent checksum
+cannot bypass.
 
 The full manifest and build dependency SBOM may reveal dependency versions and vulnerability
 context. They are review evidence, not public runtime assets; publication requires a separate

@@ -75,10 +75,22 @@ export function writeGeneratedReleaseIdentity(output, identity) {
   );
 }
 
+// GitHub's actions/upload-artifact excludes hidden files by default (the Phase 4 production
+// release attempt lost deploy/.htaccess this way, failing closed on an artifact-tree checksum
+// mismatch rather than deploying a silently incomplete tree). Now that the workflow explicitly
+// preserves hidden files, every hidden path must be positively allow-listed here — the single
+// place both artifact generation and verification walk the tree — so an unapproved hidden path
+// (.env, .git, .npmrc, .wrangler, or any other dotfile/dot-directory) is rejected before its bytes
+// are ever hashed, regardless of what an already-written manifest claims about the resulting digest.
+const DEPLOY_ROOT_HIDDEN_ALLOWLIST = new Set(['.htaccess']);
+
 function collectFiles(root, current = '', files = []) {
   const directory = path.join(root, current);
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const relative = current ? `${current}/${entry.name}` : entry.name;
+    if (entry.name.startsWith('.') && !DEPLOY_ROOT_HIDDEN_ALLOWLIST.has(relative)) {
+      throw new Error(`Artifact tree contains an unapproved hidden path: ${relative}`);
+    }
     const absolute = path.join(root, ...relative.split('/'));
     const stat = lstatSync(absolute);
     if (stat.isSymbolicLink()) throw new Error(`Artifact tree contains a symlink: ${relative}`);
