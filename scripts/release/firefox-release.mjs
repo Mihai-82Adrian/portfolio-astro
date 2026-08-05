@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
 import process from 'node:process';
@@ -10,6 +10,19 @@ const sleep = (milliseconds) => new Promise((resolve) => setTimeout(resolve, mil
 const invariant = (condition, message) => {
   if (!condition) throw new Error(message);
 };
+
+// Read-only, never logged: the current manual-install Cloudflare beacon token, so the browser
+// matrix can confirm the DOM-inserted script actually carries it — without ever printing the
+// value itself in an assertion message (see Phase 3-C Step 2C-2).
+function readCurrentCfBeaconToken() {
+  const source = readFileSync(
+    path.join(fileURLToPath(new URL('.', import.meta.url)), '..', '..', 'src', 'layouts', 'BaseLayout.astro'),
+    'utf8'
+  );
+  const match = source.match(/CF_BEACON_TOKEN = '([a-f0-9]{32})'/);
+  invariant(match, 'CF_BEACON_TOKEN constant not found in BaseLayout.astro');
+  return match[1];
+}
 
 // Firefox headless clamps WebDriver:SetWindowRect (and MOZ_HEADLESS_WIDTH/HEIGHT has no effect on
 // the Marionette-controlled session) to a platform outer-window floor above this value, so the
@@ -218,7 +231,7 @@ export async function runFirefoxRelease({
         lang: document.documentElement.lang,
         banner: !document.querySelector('#cookie-consent-banner')?.hidden,
         optional: [...document.querySelectorAll('script[src],iframe[src]')]
-          .filter((node) => /ahrefs|giscus|youtube|spotify/.test(node.src)).length,
+          .filter((node) => /ahrefs|cloudflareinsights|giscus|youtube|spotify/.test(node.src)).length,
         innerWidth: window.innerWidth,
         visualViewportWidth: window.visualViewport ? window.visualViewport.width : null,
         clientWidth: document.documentElement.clientWidth,
@@ -231,25 +244,142 @@ export async function runFirefoxRelease({
     invariant(initial.lang === 'de' && initial.banner && initial.optional === 0, 'Fresh undecided consent boundary failed.');
     assertActualViewport(initial, TARGET_VIEWPORT_WIDTH);
 
-    await execute(client, `document.querySelector('#reject-analytics')?.click(); return localStorage.getItem('privacy-preferences');`);
-    const essential = await execute(client, `return JSON.parse(localStorage.getItem('privacy-preferences')).analytics;`);
-    invariant(essential === false, 'Essential-only consent did not persist.');
-    await execute(client, `document.querySelector('[data-privacy-settings-trigger]')?.click(); document.querySelector('#accept-analytics')?.click();`);
-    await sleep(200);
-    const analyticsCount = await execute(client, `return document.querySelectorAll('#ahrefs-analytics').length;`);
-    invariant(analyticsCount === 1, 'Analytics opt-in must insert Ahrefs exactly once.');
-    await execute(client, `document.querySelector('#accept-analytics')?.click(); return true;`);
-    invariant(await execute(client, `return document.querySelectorAll('#ahrefs-analytics').length;`) === 1, 'Ahrefs insertion is not idempotent.');
+    // Performance-analytics-only and acquisition-analytics-only (Phase 3-C Step 2C-2): each
+    // selected independently via the settings panel from a fresh undecided visitor, confirming
+    // the two optional channels never couple to each other and that the Cloudflare beacon carries
+    // the current manual-install site token. localStorage is cleared and the page reloaded between
+    // scenarios so each starts from a true fresh-visitor state.
+    const currentCfBeaconToken = readCurrentCfBeaconToken();
+    async function selectOnlyViaSettings(performanceOn, acquisitionOn) {
+      await execute(client, `localStorage.clear(); return true;`);
+      await client.command('WebDriver:Navigate', { url: new URL('/', base).href });
+      await sleep(500);
+      await execute(client, `document.querySelector('#open-privacy-settings')?.click(); return true;`);
+      await sleep(200);
+      await execute(
+        client,
+        `
+        document.querySelector('#toggle-performance-analytics').checked = arguments[0];
+        document.querySelector('#toggle-acquisition-analytics').checked = arguments[1];
+        document.querySelector('#save-privacy-settings')?.click();
+        return true;
+      `,
+        [performanceOn, acquisitionOn]
+      );
+      await sleep(300);
+    }
 
-    await execute(client, `document.querySelector('[data-privacy-settings-trigger]')?.click(); document.querySelector('#reject-analytics')?.click(); document.querySelector('#ahrefs-analytics')?.remove();`);
-    await client.command('WebDriver:Navigate', { url: new URL('/en/', base).href });
-    await sleep(300);
-    invariant(await execute(client, `return document.querySelectorAll('#ahrefs-analytics').length;`) === 0, 'Withdrawal did not prevent future Ahrefs loading.');
+    await selectOnlyViaSettings(true, false);
+    invariant(
+      await execute(client, `return document.querySelectorAll('#cloudflare-rum-beacon').length;`) === 1,
+      'Performance-analytics-only must load exactly the Cloudflare beacon.'
+    );
+    invariant(
+      await execute(client, `return document.querySelectorAll('#ahrefs-analytics').length;`) === 0,
+      'Performance-analytics-only must not also load Ahrefs.'
+    );
+    const wiredToken = await execute(client, `
+      const el = document.getElementById('cloudflare-rum-beacon');
+      return el ? JSON.parse(el.dataset.cfBeacon).token : null;
+    `);
+    invariant(wiredToken === currentCfBeaconToken, 'Cloudflare beacon did not carry the current manual-install site token.');
+
+    await selectOnlyViaSettings(false, true);
+    invariant(
+      await execute(client, `return document.querySelectorAll('#ahrefs-analytics').length;`) === 1,
+      'Acquisition-analytics-only must load exactly Ahrefs.'
+    );
+    invariant(
+      await execute(client, `return document.querySelectorAll('#cloudflare-rum-beacon').length;`) === 0,
+      'Acquisition-analytics-only must not also load the Cloudflare beacon.'
+    );
+
+    await execute(client, `localStorage.clear(); return true;`);
+    await client.command('WebDriver:Navigate', { url: new URL('/', base).href });
+    await sleep(500);
+
+    await execute(client, `document.querySelector('#reject-analytics')?.click(); return true;`);
+    const rejected = await execute(client, `return JSON.parse(localStorage.getItem('privacy-preferences'));`);
+    invariant(
+      rejected.decided === true
+        && rejected.performanceAnalytics.cloudflareRum === false
+        && rejected.acquisitionAnalytics.ahrefs === false,
+      'Essential-only consent did not persist.'
+    );
+
+    // Accept both from the first-layer banner (still reachable, and visible again after a
+    // decided rejection via the footer trigger) and confirm both loaders fire exactly once.
+    await execute(client, `document.querySelector('#accept-analytics')?.click(); return true;`);
+    await sleep(200);
+    invariant(
+      await execute(client, `return document.querySelectorAll('#ahrefs-analytics').length;`) === 1,
+      'Accept-all must insert Ahrefs exactly once.'
+    );
+    invariant(
+      await execute(client, `return document.querySelectorAll('#cloudflare-rum-beacon').length;`) === 1,
+      'Accept-all must insert the Cloudflare RUM beacon exactly once.'
+    );
+    await execute(client, `document.querySelector('#accept-analytics')?.click(); return true;`);
+    await sleep(200);
+    invariant(
+      await execute(client, `return document.querySelectorAll('#ahrefs-analytics').length;`) === 1
+        && await execute(client, `return document.querySelectorAll('#cloudflare-rum-beacon').length;`) === 1,
+      'Re-accepting the same selection must not duplicate either loader.'
+    );
+
+    // Second layer: withdraw only performance analytics via the independent toggle. This is an
+    // ON->OFF transition, so it must trigger a full reload; acquisition (Ahrefs) must survive it.
+    await execute(client, `document.querySelector('[data-privacy-settings-trigger]')?.click(); return true;`);
+    await sleep(200);
+    await execute(client, `
+      document.querySelector('#toggle-performance-analytics').checked = false;
+      document.querySelector('#save-privacy-settings')?.click();
+      return true;
+    `);
+    await sleep(800);
+    invariant(
+      await execute(client, `return document.querySelectorAll('#cloudflare-rum-beacon').length;`) === 0,
+      'Withdrawing performance analytics did not prevent future Cloudflare RUM loading.'
+    );
+    invariant(
+      await execute(client, `return document.querySelectorAll('#ahrefs-analytics').length;`) === 1,
+      'Withdrawing performance analytics must not also disable the still-approved acquisition channel.'
+    );
+
+    // Now withdraw the remaining acquisition channel and confirm both are gone after reload.
+    await execute(client, `document.querySelector('[data-privacy-settings-trigger]')?.click(); return true;`);
+    await sleep(200);
+    await execute(client, `
+      document.querySelector('#toggle-acquisition-analytics').checked = false;
+      document.querySelector('#save-privacy-settings')?.click();
+      return true;
+    `);
+    await sleep(800);
+    invariant(
+      await execute(client, `return document.querySelectorAll('#ahrefs-analytics').length;`) === 0,
+      'Withdrawal did not prevent future Ahrefs loading.'
+    );
     await client.command('WebDriver:Navigate', { url: new URL('/', base).href });
     await execute(client, `document.querySelector('a[href="/en/"]')?.click(); return true;`);
     await sleep(500);
     invariant(await execute(client, `return location.pathname === '/en/' && document.documentElement.lang === 'en';`), 'ClientRouter locale navigation failed.');
-    for (const [route, lang, copy] of [['/en/', 'en', 'Allow analytics'], ['/ro/', 'ro', 'Permite analiza'], ['/', 'de', 'Analyse zulassen']]) {
+
+    // The consent banner is re-rendered fresh on every ClientRouter (SPA-like) navigation, and a
+    // bundled module <script> only executes once per session — so this proves the footer trigger
+    // and settings toggles were re-bound via `astro:page-load` on the page we just SPA-navigated
+    // to, not left pointing at listeners on the previous (now-removed) page's DOM nodes.
+    await execute(client, `document.querySelector('[data-privacy-settings-trigger]')?.click(); return true;`);
+    await sleep(200);
+    invariant(
+      await execute(client, `return document.querySelector('#cookie-consent-banner [data-layer="2"]')?.hidden === false;`),
+      'Privacy settings did not reopen after a client-side (ClientRouter) navigation.'
+    );
+    invariant(
+      await execute(client, `return document.getElementById('toggle-performance-analytics') instanceof HTMLInputElement;`),
+      'Settings toggles are not reachable after a client-side navigation.'
+    );
+
+    for (const [route, lang, copy] of [['/en/', 'en', 'Accept optional analytics'], ['/ro/', 'ro', 'Acceptă analizele opționale'], ['/', 'de', 'Optionale Analysen akzeptieren']]) {
       await client.command('WebDriver:Navigate', { url: new URL(route, base).href });
       const locale = await execute(client, `return {lang: document.documentElement.lang, text: document.querySelector('#accept-analytics')?.textContent.trim()};`);
       invariant(locale.lang === lang && locale.text.includes(copy), `${lang} consent copy smoke failed.`);
@@ -260,11 +390,396 @@ export async function runFirefoxRelease({
     invariant(beforeMedia === 0, 'Media iframe loaded before activation.');
     await execute(client, `document.querySelector('[data-embed-src]')?.click(); return true;`);
     invariant(await execute(client, `return document.querySelectorAll('iframe[src*="youtube"],iframe[src*="spotify"]').length;`) === 1, 'Media click-to-load failed.');
+    invariant(
+      await execute(client, `return document.querySelectorAll('iframe[src*="www.youtube.com"]').length;`) === 0,
+      'YouTube embed must use exclusively the privacy-enhanced youtube-nocookie.com domain, never www.youtube.com.',
+    );
 
     await client.command('WebDriver:Navigate', { url: new URL('/blog/job-fit-ai-architecture/', base).href });
     invariant(await execute(client, `return document.querySelectorAll('script[src*="giscus.app"],iframe[src*="giscus.app"]').length;`) === 0, 'Giscus loaded before activation.');
     await execute(client, `document.querySelector('[data-giscus-load]')?.click(); return true;`);
     invariant(await execute(client, `return document.querySelectorAll('script[src*="giscus.app"]').length;`) === 1, 'Giscus click-to-load failed.');
+
+    // ── Phase 3-C Step 2B-2R: interactive AI contextual-consent matrix ─────────
+    // Every AI Function is unreachable here anyway (no OPENAI_API_KEY in this local Wrangler
+    // session, so a consented request fails closed with 503 before ever calling OpenAI — see
+    // local-smoke.mjs's "AI missing-key check"). window.fetch is patched per-page to additionally
+    // record the exact request URL/body for the four AI routes, proving request count and body
+    // fields without depending on a live provider or a second capture mechanism.
+    const aiRequestLog = [];
+    const patchAiFetch = `
+      window.__aiLog = [];
+      window.fetch = (function (original) {
+        return function (input, init) {
+          const url = typeof input === 'string' ? input : (input && input.url) || '';
+          if (/\\/api\\/(chat|compass|cashflow-scenario|investment-analysis)/.test(url)) {
+            let body = null;
+            try { body = init && init.body ? JSON.parse(init.body) : null; } catch (e) {}
+            window.__aiLog.push({ url, method: (init && init.method) || 'GET', body });
+          }
+          return original(input, init);
+        };
+      })(window.fetch.bind(window));
+      return true;
+    `;
+    async function recordAiRequests(sectionLabel) {
+      const log = await execute(client, `return window.__aiLog || [];`);
+      aiRequestLog.push({ section: sectionLabel, requests: log });
+      return log;
+    }
+
+    // 7.1 Ask Mihai — free-text chat
+    await client.command('WebDriver:Navigate', { url: new URL('/ai/', base).href });
+    await sleep(500);
+    await execute(client, patchAiFetch);
+    invariant(
+      await execute(client, `return document.querySelector('.chat-consent-checkbox')?.checked === false;`),
+      '7.1: chat consent checkbox must start unchecked.',
+    );
+    await execute(client, `
+      const ta = document.querySelector('.chat-input');
+      ta.value = 'Firefox interaction matrix free-text question';
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+      document.querySelector('.chat-form').requestSubmit();
+      return true;
+    `);
+    await sleep(200);
+    invariant((await recordAiRequests('7.1-no-consent')).length === 0, '7.1: chat must not call /api/chat before consent.');
+    invariant(
+      await execute(client, `return !document.querySelector('.chat-consent-error')?.classList.contains('hidden');`),
+      '7.1: chat consent error must become visible after a no-consent submit.',
+    );
+    invariant(
+      await execute(client, `return document.activeElement === document.querySelector('.chat-consent-checkbox');`),
+      '7.1: chat consent checkbox must receive focus after a failed submit.',
+    );
+    await execute(client, `
+      const box = document.querySelector('.chat-consent-checkbox');
+      box.checked = true;
+      box.dispatchEvent(new Event('change', { bubbles: true }));
+      document.querySelector('.chat-form').requestSubmit();
+      return true;
+    `);
+    await sleep(400);
+    const chat71 = await recordAiRequests('7.1-consented');
+    invariant(chat71.length === 1, `7.1: expected exactly one /api/chat request after consent, got ${chat71.length}.`);
+    invariant(
+      chat71[0].body?.privacyConsent === true && chat71[0].body?.privacyNoticeVersion === 'ai-openai-v2',
+      '7.1: consented request body must carry the exact consent pair.',
+    );
+    await client.command('WebDriver:Navigate', { url: new URL('/ai/', base).href });
+    await sleep(500);
+    invariant(
+      await execute(client, `return document.querySelector('.chat-consent-checkbox')?.checked === false;`),
+      '7.1: chat consent checkbox must reset to unchecked after reload.',
+    );
+
+    // 7.2 JD analysis
+    await execute(client, patchAiFetch);
+    await execute(client, `
+      document.querySelector('.chat-tab[data-tab="jd"]').click();
+      const jd = document.querySelector('.jd-input');
+      jd.value = 'Firefox interaction matrix synthetic job description text, long enough to pass the fifty character minimum.';
+      jd.dispatchEvent(new Event('input', { bubbles: true }));
+      document.querySelector('.jd-analyze-btn').click();
+      return true;
+    `);
+    await sleep(200);
+    invariant((await recordAiRequests('7.2-no-consent')).length === 0, '7.2: JD analysis must not call /api/chat before consent.');
+    invariant(
+      await execute(client, `return !document.querySelector('.jd-consent-error')?.classList.contains('hidden');`),
+      '7.2: JD consent error must become visible after a no-consent submit.',
+    );
+    invariant(
+      await execute(client, `return document.activeElement === document.querySelector('.jd-consent-checkbox');`),
+      '7.2: JD consent checkbox must receive focus after a failed submit.',
+    );
+    await execute(client, `
+      const box = document.querySelector('.jd-consent-checkbox');
+      box.checked = true;
+      box.dispatchEvent(new Event('change', { bubbles: true }));
+      document.querySelector('.jd-analyze-btn').click();
+      return true;
+    `);
+    await sleep(400);
+    const jd72 = await recordAiRequests('7.2-consented');
+    invariant(jd72.length === 1, `7.2: expected exactly one /api/chat request after consent, got ${jd72.length}.`);
+    invariant(
+      jd72[0].body?.privacyConsent === true && jd72[0].body?.privacyNoticeVersion === 'ai-openai-v2' && jd72[0].body?.tab === 'jd',
+      '7.2: consented JD request body must carry the exact consent pair and tab: "jd".',
+    );
+
+    // 7.3 Fact chips — deterministic, consent-exempt
+    await client.command('WebDriver:Navigate', { url: new URL('/ai/', base).href });
+    await sleep(500);
+    await execute(client, patchAiFetch);
+    await execute(client, `document.querySelector('.chip-btn[data-chip="contact"]')?.click(); return true;`);
+    await sleep(300);
+    const chips73 = await recordAiRequests('7.3-fact-chip');
+    invariant(chips73.length === 1, `7.3: fact chip must still call /api/chat exactly once (deterministic path), got ${chips73.length}.`);
+    invariant(!chips73[0].body?.privacyConsent, '7.3: a deterministic fact-chip request must not carry a consent pair.');
+    invariant(
+      await execute(client, `return document.querySelector('.chat-consent-checkbox')?.checked === false;`),
+      '7.3: a fact-chip click must not check or persist AI consent.',
+    );
+
+    // 7.4 Founder Compass — synthetic completed-quiz fixture (no live click-through of 12 questions)
+    await client.command('WebDriver:Navigate', { url: new URL('/tools/founder-compass/', base).href });
+    await sleep(400);
+    await execute(client, `
+      localStorage.setItem('tools.founder-compass.state.v1', JSON.stringify({
+        currentStep: 12,
+        answers: Array.from({ length: 12 }, (_, i) => ({ questionId: 'synthetic-' + i, selectedKey: 'A', selectedLabel: 'Synthetic', customText: '' })),
+        status: 'idle',
+        report: null,
+        errorMessage: null,
+        lastGeneratedAt: null,
+      }));
+      return true;
+    `);
+    await client.command('WebDriver:Navigate', { url: new URL('/tools/founder-compass/', base).href });
+    await sleep(500);
+    await execute(client, patchAiFetch);
+    invariant(
+      await execute(client, `return document.querySelector('[data-testid="compass-submit"]') !== null;`),
+      '7.4: synthetic completed-quiz fixture did not reach the consent step.',
+    );
+    invariant(
+      await execute(client, `return document.querySelector('input[data-ai-privacy-notice-version]')?.checked === false;`),
+      '7.4: Founder Compass consent checkbox must start unchecked.',
+    );
+    await execute(client, `document.querySelector('[data-testid="compass-submit"]')?.click(); return true;`);
+    await sleep(200);
+    invariant((await recordAiRequests('7.4-no-consent')).length === 0, '7.4: Founder Compass must not call /api/compass before consent.');
+    invariant(
+      await execute(client, `return document.activeElement === document.querySelector('input[data-ai-privacy-notice-version]');`),
+      '7.4: Founder Compass consent checkbox must receive focus after a failed submit.',
+    );
+    await execute(client, `
+      const box = document.querySelector('input[data-ai-privacy-notice-version]');
+      box.checked = true;
+      box.dispatchEvent(new Event('change', { bubbles: true }));
+      document.querySelector('[data-testid="compass-submit"]')?.click();
+      return true;
+    `);
+    await sleep(400);
+    const compass74 = await recordAiRequests('7.4-consented');
+    invariant(compass74.length === 1, `7.4: expected exactly one /api/compass request after consent, got ${compass74.length}.`);
+    invariant(
+      compass74[0].body?.privacyConsent === true && compass74[0].body?.privacyNoticeVersion === 'ai-openai-v2',
+      '7.4: consented Founder Compass request body must carry the exact consent pair.',
+    );
+
+    // 7.5 Cashflow — first generation (synthetic single revenue block, no prior scenario)
+    await client.command('WebDriver:Navigate', { url: new URL('/tools/cashflow-forecast/', base).href });
+    await sleep(400);
+    await execute(client, `
+      localStorage.setItem('tools.cashflow-forecast.state.v1', JSON.stringify({
+        initialCash: 10000,
+        blocks: [{ id: 'synthetic-1', category: 'revenue', subcategory: 'mrr', label: 'Synthetic MRR', amount: 5000 }],
+        scenarioResult: null,
+        lastScenarioAt: null,
+      }));
+      return true;
+    `);
+    await client.command('WebDriver:Navigate', { url: new URL('/tools/cashflow-forecast/', base).href });
+    await sleep(500);
+    await execute(client, patchAiFetch);
+    invariant(
+      await execute(client, `return document.querySelector('[data-testid="cashflow-generate"]') !== null;`),
+      '7.5: synthetic single-block fixture did not reach the first-generation CTA.',
+    );
+    invariant(
+      await execute(client, `return document.querySelector('input[data-ai-privacy-notice-version]')?.checked === false;`),
+      '7.5: Cashflow first-generation consent checkbox must start unchecked.',
+    );
+    await execute(client, `document.querySelector('[data-testid="cashflow-generate"]')?.click(); return true;`);
+    await sleep(200);
+    invariant((await recordAiRequests('7.5-no-consent')).length === 0, '7.5: Cashflow must not call /api/cashflow-scenario before consent.');
+    invariant(
+      await execute(client, `return document.activeElement === document.querySelector('input[data-ai-privacy-notice-version]');`),
+      '7.5: Cashflow first-generation consent checkbox must receive focus after a failed submit.',
+    );
+    await execute(client, `
+      const box = document.querySelector('input[data-ai-privacy-notice-version]');
+      box.checked = true;
+      box.dispatchEvent(new Event('change', { bubbles: true }));
+      document.querySelector('[data-testid="cashflow-generate"]')?.click();
+      return true;
+    `);
+    await sleep(400);
+    const cashflow75 = await recordAiRequests('7.5-consented');
+    invariant(cashflow75.length === 1, `7.5: expected exactly one /api/cashflow-scenario request after consent, got ${cashflow75.length}.`);
+    invariant(
+      cashflow75[0].body?.privacyConsent === true && cashflow75[0].body?.privacyNoticeVersion === 'ai-openai-v2',
+      '7.5: consented Cashflow request body must carry the exact consent pair.',
+    );
+
+    // 7.6 Cashflow — restored/regenerate (returning session, cooldown already expired)
+    const eightDaysAgo = Date.now() - 8 * 24 * 60 * 60 * 1000;
+    const syntheticMonthlyData = JSON.stringify(Array.from({ length: 12 }, (_, i) => ({ month: `M${i + 1}`, revenue: 1000, costs: 500, net: 500, cumulative: 5000 + i * 500 })));
+    await client.command('WebDriver:Navigate', { url: new URL('/tools/cashflow-forecast/', base).href });
+    await sleep(400);
+    await execute(client, `
+      localStorage.setItem('tools.cashflow-forecast.state.v1', JSON.stringify({
+        initialCash: 10000,
+        blocks: [{ id: 'synthetic-1', category: 'revenue', subcategory: 'mrr', label: 'Synthetic MRR', amount: 5000 }],
+        scenarioResult: {
+          scenarios: [
+            { type: 'late_payment', title: 'Synthetic', parameters: { percentAffected: 30, delayDays: 60, costIncreasePercent: 0, additionalOneTimeCost: 0 }, narrative: 'synthetic', monthlyData: ${syntheticMonthlyData} },
+            { type: 'churn_spike', title: 'Synthetic', parameters: { percentAffected: 25, delayDays: 0, costIncreasePercent: 0, additionalOneTimeCost: 0 }, narrative: 'synthetic', monthlyData: ${syntheticMonthlyData} },
+            { type: 'cost_shock', title: 'Synthetic', parameters: { percentAffected: 0, delayDays: 0, costIncreasePercent: 20, additionalOneTimeCost: 5000 }, narrative: 'synthetic', monthlyData: ${syntheticMonthlyData} }
+          ],
+          generatedAt: ${eightDaysAgo}
+        },
+        lastScenarioAt: ${eightDaysAgo}
+      }));
+      return true;
+    `);
+    await client.command('WebDriver:Navigate', { url: new URL('/tools/cashflow-forecast/', base).href });
+    await sleep(500);
+    await execute(client, patchAiFetch);
+    invariant(
+      await execute(client, `return document.querySelector('[data-testid="cashflow-regenerate"]') !== null;`),
+      '7.6: synthetic restored-scenario fixture did not reach the regenerate CTA.',
+    );
+    invariant(
+      await execute(client, `return document.querySelector('input[data-ai-privacy-notice-version]')?.checked === false;`),
+      '7.6: a returning session must not have AI consent restored — the checkbox must start unchecked.',
+    );
+    await execute(client, `document.querySelector('[data-testid="cashflow-regenerate"]')?.click(); return true;`);
+    await sleep(200);
+    invariant((await recordAiRequests('7.6-no-consent')).length === 0, '7.6: regenerate must not call /api/cashflow-scenario before consent.');
+    invariant(
+      await execute(client, `return document.activeElement === document.querySelector('input[data-ai-privacy-notice-version]');`),
+      '7.6: regenerate consent checkbox must receive focus after a failed click.',
+    );
+    await execute(client, `
+      const box = document.querySelector('input[data-ai-privacy-notice-version]');
+      box.checked = true;
+      box.dispatchEvent(new Event('change', { bubbles: true }));
+      document.querySelector('[data-testid="cashflow-regenerate"]')?.click();
+      return true;
+    `);
+    await sleep(400);
+    const cashflow76 = await recordAiRequests('7.6-consented');
+    invariant(cashflow76.length === 1, `7.6: expected exactly one /api/cashflow-scenario request after consent, got ${cashflow76.length}.`);
+    invariant(
+      cashflow76[0].body?.privacyConsent === true && cashflow76[0].body?.privacyNoticeVersion === 'ai-openai-v2',
+      '7.6: consented regenerate request body must carry the exact consent pair.',
+    );
+
+    // 7.7 Investment Analytics
+    await client.command('WebDriver:Navigate', { url: new URL('/tools/investment-analytics/', base).href });
+    await sleep(500);
+    await execute(client, patchAiFetch);
+    invariant(
+      await execute(client, `return document.querySelector('[data-testid="investment-analyze"]') !== null;`),
+      '7.7: Investment Analytics AI-analysis button not found.',
+    );
+    invariant(
+      await execute(client, `return document.querySelector('input[data-ai-privacy-notice-version]')?.checked === false;`),
+      '7.7: Investment consent checkbox must start unchecked.',
+    );
+    await execute(client, `document.querySelector('[data-testid="investment-analyze"]')?.click(); return true;`);
+    await sleep(200);
+    invariant((await recordAiRequests('7.7-no-consent')).length === 0, '7.7: Investment must not call /api/investment-analysis before consent.');
+    invariant(
+      await execute(client, `return document.activeElement === document.querySelector('input[data-ai-privacy-notice-version]');`),
+      '7.7: Investment consent checkbox must receive focus after a failed click.',
+    );
+    await execute(client, `
+      const box = document.querySelector('input[data-ai-privacy-notice-version]');
+      box.checked = true;
+      box.dispatchEvent(new Event('change', { bubbles: true }));
+      document.querySelector('[data-testid="investment-analyze"]')?.click();
+      return true;
+    `);
+    await sleep(400);
+    const investment77 = await recordAiRequests('7.7-consented');
+    invariant(investment77.length === 1, `7.7: expected exactly one /api/investment-analysis request after consent, got ${investment77.length}.`);
+    invariant(
+      investment77[0].body?.privacyConsent === true && investment77[0].body?.privacyNoticeVersion === 'ai-openai-v2',
+      '7.7: consented Investment request body must carry the exact consent pair.',
+    );
+
+    // 7.7b Regression guard: a returning session that already has a completed narrative and whose
+    // weekly cooldown has since expired must still be able to re-analyze. The disclosure note must
+    // not stay unmounted once `aiNarrative` is set — otherwise `disclosureRef` goes stale and the
+    // analyze button silently no-ops forever once the cooldown clears.
+    await execute(client, `
+      localStorage.setItem('tools.investment-analytics.state.v1', JSON.stringify({
+        input: { initialInvestment: 10000, cashFlows: [{ year: 1, amount: 2500 }], discountRate: 8,
+          isFund: false, isAccumulating: false, ter: 0, personalFreibetrag: 1000,
+          teilfreistellung: false, kirchensteuer: 0 },
+        aiNarrative: '{"summary":"synthetic prior result"}',
+        lastAiAt: ${eightDaysAgo}
+      }));
+      return true;
+    `);
+    await client.command('WebDriver:Navigate', { url: new URL('/tools/investment-analytics/', base).href });
+    await sleep(500);
+    await execute(client, patchAiFetch);
+    invariant(
+      await execute(client, `return document.querySelector('[data-testid="investment-analyze"]')?.disabled === false;`),
+      '7.7b: analyze button must be enabled once a prior narrative exists and the cooldown has expired.',
+    );
+    invariant(
+      await execute(client, `return document.querySelector('input[data-ai-privacy-notice-version]') !== null;`),
+      '7.7b: the disclosure note must stay mounted for a returning session with a completed narrative — a stale disclosureRef would silently no-op every re-analyze click.',
+    );
+    invariant(
+      await execute(client, `return document.querySelector('input[data-ai-privacy-notice-version]')?.checked === false;`),
+      '7.7b: consent must not be restored across a reload even with a prior narrative present.',
+    );
+    await execute(client, `document.querySelector('[data-testid="investment-analyze"]')?.click(); return true;`);
+    await sleep(200);
+    invariant((await recordAiRequests('7.7b-no-consent')).length === 0, '7.7b: re-analyze must not call /api/investment-analysis before consent.');
+    invariant(
+      await execute(client, `return document.activeElement === document.querySelector('input[data-ai-privacy-notice-version]');`),
+      '7.7b: consent checkbox must receive focus after a failed re-analyze click.',
+    );
+    await execute(client, `
+      const box = document.querySelector('input[data-ai-privacy-notice-version]');
+      box.checked = true;
+      box.dispatchEvent(new Event('change', { bubbles: true }));
+      document.querySelector('[data-testid="investment-analyze"]')?.click();
+      return true;
+    `);
+    await sleep(400);
+    const investment77b = await recordAiRequests('7.7b-consented');
+    invariant(investment77b.length === 1, `7.7b: expected exactly one /api/investment-analysis request after re-consent, got ${investment77b.length}.`);
+    invariant(
+      investment77b[0].body?.privacyConsent === true && investment77b[0].body?.privacyNoticeVersion === 'ai-openai-v2',
+      '7.7b: consented re-analyze request body must carry the exact consent pair.',
+    );
+
+    // 7.8 Astro (ClientRouter) navigation — the site-wide ChatDrawer must re-init correctly, with
+    // no stale references and no duplicate request, after a client-side route transition.
+    await client.command('WebDriver:Navigate', { url: new URL('/', base).href });
+    await sleep(500);
+    await execute(client, `document.querySelector('a[href="/en/"]')?.click(); return true;`);
+    await sleep(500);
+    await execute(client, `document.querySelector('a[href="/"]')?.click(); return true;`);
+    await sleep(500);
+    await execute(client, patchAiFetch);
+    invariant(
+      await execute(client, `return document.querySelector('.chat-consent-checkbox')?.checked === false;`),
+      '7.8: chat consent checkbox must be unchecked after a ClientRouter round-trip navigation.',
+    );
+    await execute(client, `
+      const box = document.querySelector('.chat-consent-checkbox');
+      box.checked = true;
+      box.dispatchEvent(new Event('change', { bubbles: true }));
+      const ta = document.querySelector('.chat-input');
+      ta.value = 'post-navigation duplicate-listener check';
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+      document.querySelector('.chat-form').requestSubmit();
+      return true;
+    `);
+    await sleep(400);
+    const nav78 = await recordAiRequests('7.8-post-navigation');
+    invariant(nav78.length === 1, `7.8: exactly one request expected after a ClientRouter round-trip (no duplicate listeners), got ${nav78.length}.`);
 
     await client.command('WebDriver:Navigate', { url: new URL('/', base).href });
     const zoomActions = [{ type: 'keyDown', value: '\uE009' }];
@@ -300,8 +815,9 @@ export async function runFirefoxRelease({
       viewport: '320x800',
       textScale: '200%',
       locales: ['de', 'en', 'ro'],
-      optionalResources: ['ahrefs', 'giscus', 'youtube-or-spotify'],
+      optionalResources: ['cloudflare-rum', 'ahrefs', 'giscus', 'youtube-or-spotify'],
       sampleReview: 'disabled',
+      aiConsentInteractionMatrix: aiRequestLog,
     };
   } catch (error) {
     if (firefox.exitCode !== null) error.message += ` Firefox exited ${firefox.exitCode}: ${stderr.trim()}`;

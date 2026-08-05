@@ -29,7 +29,7 @@ export const phases = [
   ['CSP and privacy boundaries', ['verify:csp', 'verify:privacy']],
   ['Function, provider, and security contracts', ['verify:function-contracts', 'verify:ai-provider-contracts', 'verify:ai-reliability', 'verify:release-orchestrator', 'verify:reportview-security']],
   ['Financial and XML contracts', ['verify:finance', 'verify:fintools-persistence', 'verify:pap', 'verify:xrechnung:fixtures', 'verify:xrechnung:kosit:tooling']],
-  ['Product quality', ['lint:chat', 'verify:content:strict', 'lint:design-system:strict', 'check', 'build', 'verify:wave1-launch-truth:built', 'verify:pagefind-a11y', 'verify:final-product-acceptance', 'verify:markdown-processor:built', 'verify:pdf-exports', 'lint:a11y:strict', 'check:contrast', 'check:corpus:strict']],
+  ['Product quality', ['lint:chat', 'verify:content:strict', 'lint:design-system:strict', 'check', 'build', 'verify:wave1-launch-truth:built', 'verify:pagefind-a11y', 'verify:final-product-acceptance', 'verify:markdown-processor:built', 'verify:katex-assets:built', 'verify:pdf-exports', 'lint:a11y:strict', 'check:contrast', 'check:corpus:strict']],
   ['Full KoSIT validation', ['kosit:preflight', 'verify:xrechnung:kosit']],
 ];
 

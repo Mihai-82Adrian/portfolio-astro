@@ -70,13 +70,14 @@ test('policy grants only inventoried browser resource origins, not ordinary exte
   const permitted = [...policy.matchAll(/https:\/\/[A-Za-z0-9.-]+/g)].map(([value]) => value);
   assert.deepEqual([...new Set(permitted)].sort(), [
     'https://analytics.ahrefs.com',
-    'https://api.github.com',
+    'https://cloudflareinsights.com',
     'https://giscus.app',
     'https://open.spotify.com',
-    'https://www.youtube.com',
+    'https://static.cloudflareinsights.com',
+    'https://www.youtube-nocookie.com',
   ]);
   const permittedHosts = permitted.map((value) => new URL(value).hostname);
-  for (const linkOnly of ['cal.eu', 'www.linkedin.com', 'github.com', 'openai.com']) {
+  for (const linkOnly of ['cal.eu', 'www.linkedin.com', 'github.com', 'api.github.com', 'openai.com']) {
     assert.equal(permittedHosts.includes(linkOnly), false, `${linkOnly} is link-only or server-only`);
   }
   assert.equal(textMentionsHost(policy, 'via.placeholder.com'), false);
@@ -100,11 +101,43 @@ test('built HTML contains no automatic optional third-party script, frame, or ob
       ...root.querySelectorAll('img[src]').map((node) => node.getAttribute('src')),
     ].filter(Boolean);
     assert.equal(
-      resourceUrls.some((value) => /analytics\.ahrefs|giscus\.app|youtube\.com|spotify\.com|via\.placeholder\.com/.test(value)),
+      resourceUrls.some((value) => /analytics\.ahrefs|cloudflareinsights\.com|giscus\.app|youtube\.com|spotify\.com|via\.placeholder\.com/.test(value)),
       false,
       path.relative(DIST, file),
     );
   }
+});
+
+const TEXT_EXTENSIONS = new Set(['.html', '.astro', '.svelte', '.ts', '.tsx', '.js', '.mjs', '.json']);
+
+function findFilesContaining(rootDir, needle) {
+  const hits = [];
+  const visit = (directory) => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const file = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name === 'node_modules') continue;
+        visit(file);
+      } else if (TEXT_EXTENSIONS.has(path.extname(entry.name)) && readFileSync(file, 'utf8').includes(needle)) {
+        hits.push(file);
+      }
+    }
+  };
+  visit(rootDir);
+  return hits;
+}
+
+test('YouTube embeds use exclusively the privacy-enhanced youtube-nocookie.com domain — no www.youtube.com/embed fallback anywhere in source or build output', () => {
+  assert.deepEqual(
+    findFilesContaining(path.join(ROOT, 'src'), 'www.youtube.com/embed'),
+    [],
+    'no source file may embed the plain (non-privacy-enhanced) YouTube domain',
+  );
+  assert.deepEqual(
+    findFilesContaining(DIST, 'www.youtube.com/embed'),
+    [],
+    'no built page may embed the plain (non-privacy-enhanced) YouTube domain',
+  );
 });
 
 async function loadCollector() {

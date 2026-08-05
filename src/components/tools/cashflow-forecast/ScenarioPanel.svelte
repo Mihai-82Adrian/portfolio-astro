@@ -23,6 +23,18 @@
   } = $props();
 
   let expanded = $state<Record<string, boolean>>({});
+  let aiConsent = $state(false);
+  let disclosureRefFirst: AIDisclosureNote | undefined = $state();
+  let disclosureRefRegenerate: AIDisclosureNote | undefined = $state();
+
+  // Consent is enforced here, not via `disabled` — a disabled control can never receive the
+  // focus/error feedback the missing-consent case requires.
+  function handleGenerateClick() {
+    if (disclosureRefFirst?.requireConsent()) onGenerate();
+  }
+  function handleRegenerateClick() {
+    if (disclosureRefRegenerate?.requireConsent()) onGenerate();
+  }
 
   function toggle(type: string) {
     expanded[type] = !expanded[type];
@@ -67,10 +79,11 @@
         </p>
       </div>
     {:else}
-      <AIDisclosureNote />
+      <AIDisclosureNote bind:checked={aiConsent} bind:this={disclosureRefFirst} showFinancialWarning />
       <button
         type="button"
-        onclick={onGenerate}
+        onclick={handleGenerateClick}
+        data-testid="cashflow-generate"
         disabled={isGenerating || !hasBlocks}
         class="w-full rounded-xl px-4 py-3 text-sm font-semibold transition-all {isGenerating || !hasBlocks
           ? 'cursor-not-allowed bg-black/10 text-text-muted-light dark:bg-white/10 dark:text-text-muted-dark'
@@ -175,10 +188,17 @@
         </div>
       {/each}
 
-      <!-- Regenerate -->
+      <!-- Regenerate — a returning session (scenarioResult restored from localStorage) has
+           aiConsent reset to false, so consent must be re-confirmed here too, not only on the
+           very first generation. Rendered whenever not locked (not only while unchecked) so the
+           bound component instance never unmounts between a check and the next click. -->
+      {#if !weeklyLocked}
+        <AIDisclosureNote bind:checked={aiConsent} bind:this={disclosureRefRegenerate} showFinancialWarning />
+      {/if}
       <button
         type="button"
-        onclick={onGenerate}
+        onclick={handleRegenerateClick}
+        data-testid="cashflow-regenerate"
         disabled={isGenerating || weeklyLocked}
         class="mt-1 text-xs text-text-secondary-light underline underline-offset-2 hover:text-text-primary-light disabled:cursor-not-allowed disabled:opacity-40 dark:text-text-secondary-dark dark:hover:text-text-primary-dark"
       >

@@ -13,6 +13,7 @@ import {
     type ResponsesInputItem,
 } from '../_lib/responses.ts';
 import { readFeatureControl } from '../_lib/feature-controls.ts';
+import { hasValidAiPrivacyConsent } from '../_lib/privacy-consent.ts';
 import {
     createOperationalHandler,
     getOperationalState,
@@ -221,7 +222,27 @@ export function createHandler(deps: { fetchImpl?: FetchLike } & OperationalHandl
         }
 
         try {
-            // 1. Burst Rate Limiting (in-memory, per-isolate)
+            // 1. Parse body first — the AI contextual consent gate below depends on it and
+            // must run before any quota lookup/write, rate limiting, or provider preparation.
+            const bodyResult = await readJsonBody<{
+                answers?: unknown;
+                privacyConsent?: unknown;
+                privacyNoticeVersion?: unknown;
+            }>(request, requestId, MAX_BODY_BYTES);
+            if (!bodyResult.ok) return bodyResult.response;
+
+            // 2. AI contextual consent gate — before quota lookup/write, provider request, or
+            // any other side effect.
+            if (!hasValidAiPrivacyConsent(bodyResult.data)) {
+                return jsonError(
+                    400,
+                    'PRIVACY_CONSENT_REQUIRED',
+                    'Contextual confirmation is required before this request can be processed externally.',
+                    requestId,
+                );
+            }
+
+            // 3. Burst Rate Limiting (in-memory, per-isolate)
             const clientIP = request.headers.get('cf-connecting-ip') || 'unknown';
             const now = Date.now();
             const rateEntry = rateLimitMap.get(clientIP);
@@ -238,7 +259,7 @@ export function createHandler(deps: { fetchImpl?: FetchLike } & OperationalHandl
                 rateLimitMap.set(clientIP, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
             }
 
-            // 2. Weekly Quota Check (1 per 7 days, Cache API with hashed IP)
+            // 4. Weekly Quota Check (1 per 7 days, Cache API with hashed IP)
             //    Bypass on localhost / wrangler dev for testing
             const isLocal = request.url.includes('localhost') || request.url.includes('127.0.0.1');
             recordQuotaDecision(operational, isLocal ? 'BYPASSED_LOCAL' : 'ALLOWED');
@@ -259,10 +280,7 @@ export function createHandler(deps: { fetchImpl?: FetchLike } & OperationalHandl
                 }
             }
 
-            // 3. Parse & Validate Body
-            const bodyResult = await readJsonBody<{ answers?: unknown }>(request, requestId, MAX_BODY_BYTES);
-            if (!bodyResult.ok) return bodyResult.response;
-
+            // 5. Validate answers
             const answers = validateAnswers(bodyResult.data.answers);
 
             if (!answers) {

@@ -50,6 +50,7 @@ test('operational failure taxonomy is complete, explicit, and exposes only safe 
     'INVALID_JSON',
     'METHOD_NOT_ALLOWED',
     'ORIGIN_REJECTED',
+    'PRIVACY_CONSENT_REQUIRED',
     'BODY_TOO_LARGE',
     'UNSUPPORTED_MEDIA_TYPE',
     'QUOTA_REJECTED',

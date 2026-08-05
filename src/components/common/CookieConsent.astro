@@ -14,68 +14,145 @@ const { privacyPolicyUrl = '/datenschutz', lang = 'de' } = Astro.props;
 const copy = {
   de: {
     title: 'Datenschutz-Einstellungen',
-    description: 'Notwendige Einstellungen (Theme, Sprache) werden immer lokal gespeichert. Ahrefs Web Analytics ist optional und läuft nur, wenn du zustimmst.',
+    description:
+      'Notwendige Einstellungen (Theme, Sprache) werden immer lokal gespeichert. Zwei optionale Analyse-Zwecke — Performance und Zugriffsquellen — laufen nur, wenn du zustimmst.',
     learnMore: 'Mehr zum Datenschutz',
     learnMoreAria: 'Mehr über Datenschutz und Analyse-Einstellungen erfahren',
-    accept: 'Analyse zulassen',
-    reject: 'Nur Notwendiges',
+    reject: 'Optionale Analysen ablehnen',
+    accept: 'Optionale Analysen akzeptieren',
+    openSettings: 'Einstellungen',
+    back: 'Zurück',
+    save: 'Auswahl speichern',
+    performanceTitle: 'Performance-Analyse',
+    performanceProvider: 'Anbieter: Cloudflare Web Analytics',
+    performanceDescription:
+      'Misst Ladezeiten und technische Kennzahlen (Core Web Vitals), um Performance-Probleme und technische Regressionen zu erkennen. Keine Cookies, kein dauerhafter Besucher-Identifikator.',
+    acquisitionTitle: 'Zugriffs- und Herkunftsanalyse',
+    acquisitionProvider: 'Anbieter: Ahrefs Web Analytics',
+    acquisitionDescription:
+      'Zeigt, über welche Kanäle Besucher:innen auf die Seite gelangen (z. B. Suche, Kampagnen, soziale Medien) und welche Seiten genutzt werden. Keine Cookies.',
   },
   en: {
     title: 'Privacy settings',
-    description: 'Necessary preferences (theme, language) are always stored locally. Ahrefs Web Analytics is optional and only runs if you agree.',
+    description:
+      'Necessary preferences (theme, language) are always stored locally. Two optional analytics purposes — performance and traffic sources — only run if you agree.',
     learnMore: 'Learn more about privacy',
     learnMoreAria: 'Learn more about privacy and analytics settings',
-    accept: 'Allow analytics',
-    reject: 'Essential only',
+    reject: 'Reject optional analytics',
+    accept: 'Accept optional analytics',
+    openSettings: 'Settings',
+    back: 'Back',
+    save: 'Save selection',
+    performanceTitle: 'Performance analytics',
+    performanceProvider: 'Provider: Cloudflare Web Analytics',
+    performanceDescription:
+      'Measures load times and technical metrics (Core Web Vitals) to catch performance problems and technical regressions. No cookies, no persistent visitor identifier.',
+    acquisitionTitle: 'Acquisition analytics',
+    acquisitionProvider: 'Provider: Ahrefs Web Analytics',
+    acquisitionDescription:
+      'Shows which channels visitors arrive from (e.g. search, campaigns, social media) and which pages are used. No cookies.',
   },
   ro: {
     title: 'Setări de confidențialitate',
-    description: 'Preferințele necesare (temă, limbă) sunt salvate mereu local. Ahrefs Web Analytics este opțional și pornește doar dacă ești de acord.',
+    description:
+      'Preferințele necesare (temă, limbă) sunt salvate mereu local. Două scopuri opționale de analiză — performanță și surse de trafic — pornesc doar dacă ești de acord.',
     learnMore: 'Mai multe despre confidențialitate',
     learnMoreAria: 'Află mai multe despre confidențialitate și setările de analiză',
-    accept: 'Permite analiza',
-    reject: 'Doar necesare',
+    reject: 'Refuză analizele opționale',
+    accept: 'Acceptă analizele opționale',
+    openSettings: 'Setări',
+    back: 'Înapoi',
+    save: 'Salvează selecția',
+    performanceTitle: 'Analiză de performanță',
+    performanceProvider: 'Furnizor: Cloudflare Web Analytics',
+    performanceDescription:
+      'Măsoară timpii de încărcare și indicatori tehnici (Core Web Vitals) pentru a detecta probleme de performanță și regresii tehnice. Fără cookies, fără identificator persistent de vizitator.',
+    acquisitionTitle: 'Analiză de achiziție și sursă',
+    acquisitionProvider: 'Furnizor: Ahrefs Web Analytics',
+    acquisitionDescription:
+      'Arată prin ce canale ajung vizitatorii pe site (căutare, campanii, social media) și ce pagini sunt folosite. Fără cookies.',
   },
 }[lang];
 ---
 
 <div id="cookie-consent-banner" class="cookie-banner" hidden>
-  <div class="cookie-content">
-    <div class="cookie-icon" aria-hidden="true">
-      <Icon name="cookie" class="h-6 w-6" />
+  <div class="cookie-layer" data-layer="1">
+    <div class="cookie-content">
+      <div class="cookie-icon" aria-hidden="true">
+        <Icon name="cookie" class="h-6 w-6" />
+      </div>
+      <div class="cookie-text">
+        <p class="cookie-title">{copy.title}</p>
+        <p class="cookie-description">
+          {copy.description}
+          <a href={privacyPolicyUrl} class="cookie-link" aria-label={copy.learnMoreAria}>
+            {copy.learnMore}
+          </a>
+        </p>
+      </div>
     </div>
-    <div class="cookie-text">
-      <p class="cookie-title">{copy.title}</p>
-      <p class="cookie-description">
-        {copy.description}
-        <a
-          href={privacyPolicyUrl}
-          class="cookie-link"
-          aria-label={copy.learnMoreAria}
-        >
-          {copy.learnMore}
-        </a>
-      </p>
+    <div class="cookie-actions">
+      <button id="reject-analytics" class="btn-reject" type="button">{copy.reject}</button>
+      <button id="open-privacy-settings" class="btn-settings" type="button">{copy.openSettings}</button>
+      <button id="accept-analytics" class="btn-accept" type="button">{copy.accept}</button>
     </div>
   </div>
-  <div class="cookie-actions">
-    <button id="reject-analytics" class="btn-reject" type="button">
-      {copy.reject}
-    </button>
-    <button id="accept-analytics" class="btn-accept" type="button">
-      {copy.accept}
-    </button>
+
+  <div class="cookie-layer cookie-settings" data-layer="2" hidden>
+    <p class="cookie-title">{copy.title}</p>
+    <div class="cookie-toggle-row">
+      <label class="cookie-toggle-label">
+        <input type="checkbox" id="toggle-performance-analytics" />
+        <span>{copy.performanceTitle}</span>
+      </label>
+      <p class="cookie-toggle-meta">{copy.performanceProvider}</p>
+      <p class="cookie-toggle-desc">{copy.performanceDescription}</p>
+    </div>
+    <div class="cookie-toggle-row">
+      <label class="cookie-toggle-label">
+        <input type="checkbox" id="toggle-acquisition-analytics" />
+        <span>{copy.acquisitionTitle}</span>
+      </label>
+      <p class="cookie-toggle-meta">{copy.acquisitionProvider}</p>
+      <p class="cookie-toggle-desc">{copy.acquisitionDescription}</p>
+    </div>
+    <p class="cookie-description">
+      <a href={privacyPolicyUrl} class="cookie-link" aria-label={copy.learnMoreAria}>{copy.learnMore}</a>
+    </p>
+    <div class="cookie-actions">
+      <button id="back-to-privacy-summary" class="btn-reject" type="button">{copy.back}</button>
+      <button id="save-privacy-settings" class="btn-accept" type="button">{copy.save}</button>
+    </div>
   </div>
 </div>
 
 <script>
   import { readPreferences, writePreferences } from '@/lib/consent';
 
-  const banner = document.getElementById('cookie-consent-banner');
-  const acceptBtn = document.getElementById('accept-analytics');
-  const rejectBtn = document.getElementById('reject-analytics');
+  // Astro's ClientRouter replaces the <body> (and this banner with it) on every
+  // client-side navigation, and a bundled module <script> only ever executes
+  // once per session — so DOM references and listeners captured at the top
+  // level would go stale after the very first navigation. Every element is
+  // therefore looked up fresh, on demand, rather than cached in a module-level
+  // constant, mirroring the re-bind-on-`astro:page-load` idiom already used by
+  // Footer.astro and Comments.astro.
+  function getElements() {
+    const banner = document.getElementById('cookie-consent-banner');
+    return {
+      banner,
+      layer1: banner?.querySelector<HTMLElement>('[data-layer="1"]'),
+      layer2: banner?.querySelector<HTMLElement>('[data-layer="2"]'),
+      acceptBtn: document.getElementById('accept-analytics'),
+      rejectBtn: document.getElementById('reject-analytics'),
+      openSettingsBtn: document.getElementById('open-privacy-settings'),
+      backBtn: document.getElementById('back-to-privacy-summary'),
+      saveBtn: document.getElementById('save-privacy-settings'),
+      performanceToggle: document.getElementById('toggle-performance-analytics') as HTMLInputElement | null,
+      acquisitionToggle: document.getElementById('toggle-acquisition-analytics') as HTMLInputElement | null,
+    };
+  }
 
-  function showBanner() {
+  function showBanner(banner: HTMLElement | null | undefined) {
     if (!banner) return;
     banner.hidden = false;
     // Force reflow to trigger transition
@@ -83,7 +160,7 @@ const copy = {
     banner.classList.add('visible');
   }
 
-  function hideBanner() {
+  function hideBanner(banner: HTMLElement | null | undefined) {
     if (!banner) return;
     banner.classList.remove('visible');
     // Wait for animation to finish before hiding
@@ -92,24 +169,81 @@ const copy = {
     }, 400);
   }
 
-  const prefs = readPreferences(window.localStorage);
-  if (!prefs.decided) {
-    setTimeout(showBanner, 1000);
+  function showSummary() {
+    const el = getElements();
+    if (el.layer1) el.layer1.hidden = false;
+    if (el.layer2) el.layer2.hidden = true;
+    showBanner(el.banner);
   }
 
-  acceptBtn?.addEventListener('click', () => {
-    writePreferences(true, window.localStorage);
-    hideBanner();
-  });
+  function showSettings() {
+    const el = getElements();
+    const prefs = readPreferences(window.localStorage);
+    if (el.performanceToggle) el.performanceToggle.checked = prefs.performanceAnalytics.cloudflareRum;
+    if (el.acquisitionToggle) el.acquisitionToggle.checked = prefs.acquisitionAnalytics.ahrefs;
+    if (el.layer1) el.layer1.hidden = true;
+    if (el.layer2) el.layer2.hidden = false;
+    showBanner(el.banner);
+  }
 
-  rejectBtn?.addEventListener('click', () => {
-    writePreferences(false, window.localStorage);
-    hideBanner();
-  });
+  /**
+   * A service that goes from ON to OFF cannot be guaranteed to stop running
+   * from a live DOM change alone — a script that already executed may have
+   * registered listeners or timers that persist regardless of whether its
+   * <script> element still exists. A full reload is the only way to
+   * guarantee the retracted provider's code does not run again: it discards
+   * the entire JS execution context, and the loaders re-evaluate consent
+   * from scratch on the next parse.
+   */
+  function applyPreferences(next: { cloudflareRum: boolean; ahrefs: boolean }) {
+    const previous = readPreferences(window.localStorage);
+    const withdrewPerformance = previous.performanceAnalytics.cloudflareRum && !next.cloudflareRum;
+    const withdrewAcquisition = previous.acquisitionAnalytics.ahrefs && !next.ahrefs;
+    writePreferences(next, window.localStorage);
+    hideBanner(getElements().banner);
+    if (withdrewPerformance || withdrewAcquisition) {
+      window.location.reload();
+    }
+  }
+
+  function initConsentUI() {
+    const el = getElements();
+    // Each navigation renders a fresh banner element with no marker yet, so
+    // this only skips re-binding if called twice for the same DOM node.
+    if (!el.banner || el.banner.dataset.consentBound === 'true') return;
+    el.banner.dataset.consentBound = 'true';
+
+    el.acceptBtn?.addEventListener('click', () => applyPreferences({ cloudflareRum: true, ahrefs: true }));
+    el.rejectBtn?.addEventListener('click', () => applyPreferences({ cloudflareRum: false, ahrefs: false }));
+    el.openSettingsBtn?.addEventListener('click', showSettings);
+    el.backBtn?.addEventListener('click', showSummary);
+    el.saveBtn?.addEventListener('click', () => {
+      const current = getElements();
+      applyPreferences({
+        cloudflareRum: current.performanceToggle?.checked ?? false,
+        ahrefs: current.acquisitionToggle?.checked ?? false,
+      });
+    });
+
+    const prefs = readPreferences(window.localStorage);
+    if (!prefs.decided) {
+      setTimeout(showSummary, 1000);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initConsentUI, { once: true });
+  } else {
+    initConsentUI();
+  }
+  document.addEventListener('astro:page-load', initConsentUI);
 
   // Reopened later via the "Privacy settings" control in the footer, to allow
-  // withdrawing analytics consent at any time.
-  window.addEventListener('open-privacy-preferences', showBanner);
+  // reviewing or withdrawing consent at any time. Registered once — `window`
+  // persists across navigations, and this handler re-queries the current
+  // page's elements at call time (via showSettings -> getElements), so it
+  // stays correct after every subsequent ClientRouter navigation.
+  window.addEventListener('open-privacy-preferences', showSettings);
 </script>
 
 <style define:vars={{
@@ -123,7 +257,7 @@ const copy = {
     position: fixed;
     bottom: 2rem;
     right: 2rem;
-    width: min(calc(100% - 4rem), 400px);
+    width: min(calc(100% - 4rem), 420px);
     max-height: calc(100dvh - 4rem);
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -152,6 +286,12 @@ const copy = {
   :global(.dark) .cookie-banner {
     background: rgba(20, 20, 20, 0.6);
     border-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .cookie-layer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
   }
 
   .cookie-content {
@@ -201,6 +341,45 @@ const copy = {
     border-color: currentColor;
   }
 
+  .cookie-toggle-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--colorText) 12%, transparent);
+  }
+
+  .cookie-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--colorText);
+    cursor: pointer;
+  }
+
+  .cookie-toggle-label input {
+    width: 1.125rem;
+    height: 1.125rem;
+    accent-color: var(--colorAccent);
+    cursor: pointer;
+  }
+
+  .cookie-toggle-meta {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--colorAccent);
+    margin: 0;
+  }
+
+  .cookie-toggle-desc {
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--colorTextSec);
+    margin: 0;
+  }
+
   .cookie-actions {
     display: flex;
     flex-wrap: wrap;
@@ -210,7 +389,8 @@ const copy = {
   }
 
   .btn-accept,
-  .btn-reject {
+  .btn-reject,
+  .btn-settings {
     padding: 0.625rem 1.5rem;
     border-radius: 0.5rem;
     font-size: 0.875rem;
@@ -239,15 +419,32 @@ const copy = {
     transform: translateY(0);
   }
 
+  /* Solid, same weight as .btn-accept — accept/reject must read as equally
+     prominent choices, not as a highlighted default vs. a muted alternative. */
   .btn-reject {
-    background: transparent;
-    color: var(--colorText);
-    border: 1px solid color-mix(in srgb, var(--colorText) 25%, transparent);
+    background: color-mix(in srgb, var(--colorText) 82%, transparent);
+    color: var(--colorBg);
+    border: none;
   }
 
   .btn-reject:hover {
-    border-color: var(--colorAccent);
+    background: var(--colorText);
+    transform: translateY(-1px);
+  }
+
+  .btn-reject:active {
+    transform: translateY(0);
+  }
+
+  .btn-settings {
+    background: transparent;
+    color: var(--colorTextSec);
+    border: 1px dashed color-mix(in srgb, var(--colorText) 20%, transparent);
+  }
+
+  .btn-settings:hover {
     color: var(--colorAccent);
+    border-color: var(--colorAccent);
   }
 
   @media (max-width: 640px) {

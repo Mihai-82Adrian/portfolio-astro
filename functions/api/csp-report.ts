@@ -93,9 +93,10 @@ function resourceClass(value: unknown, documentUrl: unknown): CspResourceClass {
         if (document && new URL(document).origin === url.origin) return 'self';
         const known: Record<string, CspResourceClass> = {
             'analytics.ahrefs.com': 'ahrefs',
-            'api.github.com': 'github',
+            'static.cloudflareinsights.com': 'cloudflare-insights',
+            'cloudflareinsights.com': 'cloudflare-insights',
             'giscus.app': 'giscus',
-            'www.youtube.com': 'youtube',
+            'www.youtube-nocookie.com': 'youtube',
             'open.spotify.com': 'spotify',
         };
         return known[url.hostname] ?? 'other-external';

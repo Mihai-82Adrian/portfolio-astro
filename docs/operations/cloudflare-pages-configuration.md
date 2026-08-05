@@ -35,7 +35,7 @@ configuration file — they stay dashboard-managed regardless of config-as-code 
 | Build output directory | `dist` |
 | Root directory | (repo root) |
 | Build image | v3 (Cloudflare build system) |
-| Preview deployments | enabled for all branches (`preview_branch_includes: ["*"]`) |
+| Preview deployments | restricted (`preview_deployment_setting: "custom"`, `preview_branch_includes: ["release/*"]`) — narrowed from the original "all branches" setting by Phase 3-B3; confirmed live and unchanged through Phase 3-C Step 1B |
 | PR comments | enabled |
 
 For Pages projects using Git integration, the build command, root directory, and Git connection
@@ -236,3 +236,73 @@ to `true` and does not affect any field this document's §7 candidate mapping tr
 - The custom domain (`me-mateescu.de`) and its certificate are Cloudflare-managed and are
   reprovisioned automatically on re-attachment; DNS ownership of the zone is the actual recovery
   dependency, not anything in this repository.
+
+## 20. Cloudflare Web Analytics: automatic injection vs. application-controlled loading (Phase 3-C Step 2B/2C)
+
+`build_config.web_analytics_tag`/`web_analytics_token` (§10, §11) remained unchanged remotely through
+Step 2B-1, which added a manually embedded, consent-gated `<script>` in `BaseLayout.astro` reusing the
+project's then-current site token — a tracked, non-secret literal constant in source, consistent with
+how the Ahrefs `data-key` is already handled, and deliberately not a build-time `PUBLIC_` environment
+variable (that mechanism is reserved for genuinely build-varying values such as
+`PUBLIC_SOURCE_DATE_EPOCH`; this token is static per-project and only changes on a deliberate owner
+reset or provider-side mode change).
+
+**Remote cutover complete (Phase 3-C Step 2C-1):** `build_config.web_analytics_tag` and
+`web_analytics_token` were PATCHed to `null` on the `portfolio-astro` Pages project (verified via a
+fresh `GET` and full field-by-field comparison — every other field, including
+`production_deployments_enabled`, remained invariant, and no deployment was created). The zone-level
+Web Analytics Automatic Setup for `me-mateescu.de` was owner-confirmed switched from
+"Enable, excluding visitor data in the EU" to "Enable with JS Snippet installation" (manual install).
+Both automatic-injection sources are therefore disabled for any **future** deployment; neither will
+bake an unconditional beacon into a new build again. Switching to manual-install mode caused
+Cloudflare to issue a new site token for the manual snippet, distinct from the pre-cutover
+`build_config.web_analytics_token`.
+
+**Canonical application state (Phase 3-C Step 2C-2):** the application loader's `CF_BEACON_TOKEN`
+constant in `BaseLayout.astro` now carries this new manual-install token. Step 2C-2 is implemented,
+locally validated, and integrated into canonical; it is not yet deployed to preview or production.
+
+**Legacy production remains unchanged by both of the above:** the currently-live production
+deployment (built before Step 2B-1 existed) still serves an unconditional Cloudflare beacon and an
+unconditional Ahrefs script, baked into its already-built static HTML at the time it was built. Neither
+the Step 2C-1 remote-configuration cutover nor the Step 2C-2 application-token update can retroactively
+change already-built HTML; only a new deployment carrying the consent-aware loader removes it from what
+visitors actually receive. This is a website-hosting/security-neutral analytics-only gap, confirmed by
+a live, read-only, zero-consent browser inspection of production during Step 2C-1 (recorded in that
+step's evidence package, not part of this repository).
+
+## 21. Read-only remote parity and logging review (Phase 3-C Step 3E-A)
+
+A read-only MCP snapshot of the `portfolio-astro` Pages project confirmed, without exposing secret
+values:
+
+- `source.config.production_deployments_enabled: false` and `preview_branch_includes: ["release/*"]`
+  unchanged since Phase 3-B1/3-B3;
+- `canonical_deployment` (the artifact actually served at `me-mateescu.de`) unchanged at its expected
+  identity, confirming production invariance throughout Phase 3-C;
+- `OPENAI_API_KEY` present as `secret_text` in both `preview` and `production` deployment configs —
+  binding presence confirmed, value never read;
+- `build_config.web_analytics_tag`/`web_analytics_token` still `null` in both environments, confirming
+  the Step 2C-1 automatic-injection cutover remains in effect;
+- `RESEND_API_KEY`/`SAMPLE_REVIEW_EMAIL_FROM`/`SAMPLE_REVIEW_EMAIL_TO` still absent from both
+  environments, consistent with Sample Review remaining disabled by release policy;
+- the account-level deployment list showed no unexpected deployment beyond the known accepted
+  previews, the frozen Dependabot-branch preview builds (consistent with the Phase 3-C dependency
+  freeze), and one `idle`/skipped `production`-environment record for a `master` push — consistent
+  with `production_deployments_enabled: false` causing Cloudflare to log but not build that push;
+- account-level Logpush jobs: **not configured** (empty result) — no recurring log export exists for
+  this account;
+- the Workers Observability API could not retrieve the Pages-managed Functions script
+  (`pages-worker--9129850-production`) — **API-inaccessible**, a known platform limitation for
+  Pages-managed Functions rather than a permission denial, consistent with the pre-existing
+  unverified-retention/export limitation already recorded in `README.md` and `docs/ARCHITECTURE.md`;
+- account audit logs since 2026-08-01 show exactly two owner-initiated account-level events (a Web
+  Analytics settings update and an abuse-contact-email addition), neither touching this Pages
+  project's deployment settings, confirming no unexplained Pages-project-affecting write occurred.
+
+For this personal, low-volume, non-commercial release, the absence of Logpush/advanced observability
+is accepted rather than a blocker: there is no sensitive application logging (the operational logger
+allowlist is separately verified — see
+[operational-controls-observability.md](operational-controls-observability.md)), and this is an
+owner-accepted limitation, not a silently assumed one. The `NODE_VERSION` production/candidate parity
+gap from §7/§9 remains open and applies only to a future production cutover under Phase 4.

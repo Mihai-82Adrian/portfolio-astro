@@ -10,6 +10,7 @@
     cooldownRemainingLabel,
     type CompassState,
   } from '@/lib/founder-compass/types';
+  import { AI_PRIVACY_NOTICE_VERSION } from '../../../../functions/_lib/privacy-consent.ts';
 
   const STORAGE_KEY = 'tools.founder-compass.state.v1';
   const TOTAL = QUESTIONS.length;
@@ -123,7 +124,11 @@
       const res = await fetch('/api/compass', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers: payload }),
+        body: JSON.stringify({
+          answers: payload,
+          privacyConsent: true,
+          privacyNoticeVersion: AI_PRIVACY_NOTICE_VERSION,
+        }),
       });
 
       if (!res.ok) {

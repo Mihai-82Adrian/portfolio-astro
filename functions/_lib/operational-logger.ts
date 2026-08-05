@@ -20,7 +20,7 @@ export type CspDirectiveClass =
     | 'base' | 'connect' | 'font' | 'form' | 'frame' | 'image' | 'manifest'
     | 'media' | 'object' | 'script' | 'style' | 'worker' | 'other' | 'unknown';
 export type CspResourceClass =
-    | 'self' | 'inline' | 'eval' | 'data' | 'blob' | 'ahrefs' | 'github'
+    | 'self' | 'inline' | 'eval' | 'data' | 'blob' | 'ahrefs' | 'cloudflare-insights'
     | 'giscus' | 'youtube' | 'spotify' | 'other-external' | 'unknown';
 export type CspDisposition = 'report' | 'unknown';
 
@@ -107,7 +107,7 @@ const CSP_DIRECTIVE_CLASSES = new Set<CspDirectiveClass>([
     'script', 'style', 'worker', 'other', 'unknown',
 ]);
 const CSP_RESOURCE_CLASSES = new Set<CspResourceClass>([
-    'self', 'inline', 'eval', 'data', 'blob', 'ahrefs', 'github', 'giscus',
+    'self', 'inline', 'eval', 'data', 'blob', 'ahrefs', 'cloudflare-insights', 'giscus',
     'youtube', 'spotify', 'other-external', 'unknown',
 ]);
 const CSP_DISPOSITIONS = new Set<CspDisposition>(['report', 'unknown']);

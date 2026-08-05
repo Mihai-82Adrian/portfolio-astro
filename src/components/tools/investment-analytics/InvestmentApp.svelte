@@ -17,6 +17,7 @@
     calcTax,
   } from '@/lib/investment/analytics';
   import { generateInvestmentPdf } from '@/lib/investment/pdfExport';
+  import { AI_PRIVACY_NOTICE_VERSION } from '../../../../functions/_lib/privacy-consent.ts';
 
   import InputPanel        from './InputPanel.svelte';
   import MetricsDashboard  from './MetricsDashboard.svelte';
@@ -27,6 +28,8 @@
 
   // ── State ─────────────────────────────────────────────────────────────────
   let input        = $state<InvestmentInput>({ ...DEFAULT_INPUT });
+  let aiConsent    = $state(false);
+  let disclosureRef: AIDisclosureNote | undefined = $state();
   let aiNarrative  = $state<string | null>(null);
   let lastAiAt     = $state<number | null>(null);
   let restored     = $state(false);
@@ -130,6 +133,7 @@
   // ── AI Analysis ───────────────────────────────────────────────────────────
   async function handleAiAnalysis() {
     if (isAnalyzing || weeklyLocked || !hasData) return;
+    if (!disclosureRef?.requireConsent()) return;
     isAnalyzing = true;
     aiError     = null;
 
@@ -168,7 +172,11 @@
       const res = await fetch('/api/investment-analysis', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(payload),
+        body:    JSON.stringify({
+          ...payload,
+          privacyConsent: true,
+          privacyNoticeVersion: AI_PRIVACY_NOTICE_VERSION,
+        }),
       });
 
       if (!res.ok) {
@@ -373,13 +381,17 @@
     <div class="flex flex-col gap-3">
       <!-- KI Analysis button -->
       <div class="flex flex-col gap-1">
-        {#if !aiNarrative && !weeklyLocked}
-          <AIDisclosureNote />
+        <!-- Mounted whenever the analyze button can be actionable again (not just before the
+             first result), otherwise disclosureRef goes stale after cooldown expiry post-first
+             analysis and requireConsent() silently no-ops on every subsequent click. -->
+        {#if !weeklyLocked}
+          <AIDisclosureNote bind:checked={aiConsent} bind:this={disclosureRef} showFinancialWarning />
         {/if}
         <div class="flex items-center gap-3">
           <button
             type="button"
             onclick={handleAiAnalysis}
+            data-testid="investment-analyze"
             disabled={isAnalyzing || weeklyLocked || !hasData}
             class="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all
               {isAnalyzing || weeklyLocked || !hasData

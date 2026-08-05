@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { installFakeCaches } from './helpers/fake-caches.mjs';
 import { createFetchRouter, jsonResponse } from './helpers/fetch-router.mjs';
+import { AI_PRIVACY_NOTICE_VERSION } from '../functions/_lib/privacy-consent.ts';
 
 installFakeCaches();
 
@@ -19,10 +20,13 @@ function nextIp() {
 }
 
 function jsonRequest(url, { method = 'POST', body, headers = {} } = {}) {
+    const mergedBody = body === undefined
+        ? undefined
+        : { privacyConsent: true, privacyNoticeVersion: AI_PRIVACY_NOTICE_VERSION, ...body };
     return new Request(`http://localhost${url}`, {
         method,
         headers: { 'Content-Type': 'application/json', 'CF-Connecting-IP': nextIp(), ...headers },
-        body: body === undefined ? undefined : JSON.stringify(body),
+        body: mergedBody === undefined ? undefined : JSON.stringify(mergedBody),
     });
 }
 

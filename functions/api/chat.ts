@@ -17,6 +17,7 @@ import {
     type StructuredFormat,
 } from '../_lib/responses.ts';
 import { readFeatureControl } from '../_lib/feature-controls.ts';
+import { hasValidAiPrivacyConsent } from '../_lib/privacy-consent.ts';
 import { RECRUITER_RESULT_SCHEMA, RECRUITER_RESULT_SCHEMA_NAME, validateRecruiterResult } from '../_lib/recruiter-schema.ts';
 import {
     createOperationalHandler,
@@ -474,7 +475,14 @@ export function createHandler(deps: { fetchImpl?: FetchLike } & OperationalHandl
         }
         limitData.count++;
 
-        const bodyResult = await readJsonBody<{ message: unknown; lang?: string; tab?: string; intent?: string }>(
+        const bodyResult = await readJsonBody<{
+            message: unknown;
+            lang?: string;
+            tab?: string;
+            intent?: string;
+            privacyConsent?: unknown;
+            privacyNoticeVersion?: unknown;
+        }>(
             request,
             requestId,
             MAX_BODY_BYTES,
@@ -556,7 +564,7 @@ export function createHandler(deps: { fetchImpl?: FetchLike } & OperationalHandl
             }
         }
 
-        // 4b. Provider gate — only reached for requests that actually need the LLM (no
+        // 4a. Provider gate — only reached for requests that actually need the LLM (no
         // deterministic fact answer above). Deterministic intents must never be rejected by
         // a disabled or unconfigured provider.
         const feature = readFeatureControl(env, 'AI_CHAT_ENABLED');
@@ -572,6 +580,20 @@ export function createHandler(deps: { fetchImpl?: FetchLike } & OperationalHandl
         if (!env.OPENAI_API_KEY) {
             return jsonError(503, 'FEATURE_NOT_CONFIGURED', 'The AI assistant is temporarily unavailable.', requestId);
         }
+
+        // 4b. AI contextual consent gate — only requests that actually reach the LLM (no
+        // deterministic fact answer above) transmit data externally, so only this path
+        // requires consent. It must run before the quota increment (step 5) and the provider
+        // call.
+        const consentError = hasValidAiPrivacyConsent(body)
+            ? null
+            : jsonError(
+                400,
+                'PRIVACY_CONSENT_REQUIRED',
+                'Contextual confirmation is required before this request can be processed externally.',
+                requestId,
+            );
+        if (consentError) return consentError;
 
         // 5. Quota Check (only for LLM calls, not facts)
         const isJdTab = tab === 'jd';

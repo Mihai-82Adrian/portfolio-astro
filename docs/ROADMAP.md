@@ -364,7 +364,9 @@ full register, query matrix, and evidence.
 Status: `ACTIVE`
 
 **Objective:** Obtain the human decisions and controlled remote evidence that local tests cannot
-provide.
+provide. All three sub-phases (3-A, 3-B, 3-C) are `DONE`; this umbrella phase stays `ACTIVE` rather
+than closing automatically into Phase 4, because Phase 4 production release requires a separate,
+not-yet-granted authorization decision rather than an automatic handoff.
 
 **Why now:** Only after Phase 2 produces a reviewable candidate.
 
@@ -531,7 +533,7 @@ pre-push and post-push attestation.
 
 ### Phase 3-C — Human and Provider Release Readiness
 
-Status: `ACTIVE`
+Status: `DONE`
 
 **Objective:** Close the remaining human-review and live-provider gaps before a controlled
 production release.
@@ -541,15 +543,68 @@ production release.
 - release dependency freeze (routine Dependabot version updates paused; security alerts/updates
   unaffected) and retirement of the legacy `.github/DEPLOYMENT.md` deployment guide — Step 1A
   (read-only baseline/classification) and Step 1B (implementation);
-- qualified privacy-policy review;
-- fresh online dependency-advisory review;
-- Cloudflare log capture, retention, sampling, access, export, Logpush, visibility, and
-  data-region review;
-- one OpenAI Terra canary;
-- one OpenAI Sol canary;
-- live project, model, and rate-limit confirmation;
-- remote feature-variable parity;
-- final release-candidate preview and human acceptance.
+- analytics-consent and visitor-egress remediation — Step 2B-1 (implemented, validated, and
+  integrated into canonical): versioned two-channel consent (`performanceAnalytics.cloudflareRum`,
+  `acquisitionAnalytics.ahrefs`), a manually loaded and consent-gated Cloudflare Web Analytics
+  script replacing reliance on platform automatic injection, and a static GitHub snapshot
+  replacing the unconsented `api.github.com` browser fetch on `/projects`. Step 2C-1 (remote,
+  executed and verified): Cloudflare's platform-level automatic RUM injection disabled for future
+  deployments — Pages Web Analytics tag/token nulled, zone Automatic Setup switched to
+  manual-install, confirmed still in effect at Step 3E. Step 2C-2 (implemented, locally validated,
+  and integrated into canonical): the application loader's site token updated to the new
+  manual-install token — Step 3D-R/3E preview evidence confirms this loader is now live on an
+  accepted preview build. First-party product-usage events remain explicitly deferred (no
+  aggregation destination exists yet) — Step 2B-2 (implemented, validated, and integrated into
+  canonical): an explicit, unchecked-by-default, per-surface AI contextual-consent checkbox for
+  all five AI-triggering actions (Ask Mihai chat, JD analysis, Founder Compass, Cashflow AI
+  narrative, Investment Analytics AI interpretation), enforced server-side by all four AI Functions
+  before any quota write or provider call (`400 PRIVACY_CONSENT_REQUIRED`) — Founder Compass,
+  Cashflow, and Investment additionally check it before any rate-limit/quota work at all, while
+  Chat's pre-existing burst limiter and read-only quota lookup (shared with its consent-exempt
+  fact-chip path) are an accepted, documented ordering exception; factual
+  corrections to the OpenAI (`store: false`/training/abuse-monitoring, quota-window) and Cloudflare
+  (role split, log-retention) wording in `datenschutz.astro`; YouTube embeds switched to the
+  privacy-enhanced `youtube-nocookie.com` domain; and new `cal.eu`/localStorage-category/Art. 22
+  disclosures;
+- the AI consent notice was corrected to `ai-openai-v2` (Step 3D/3D-R, implemented, validated, and
+  integrated into canonical, with complete German/English/Romanian copy confirmed directly in
+  source): the owner confirmed that this project's OpenAI organization intentionally enables
+  voluntary API input/output sharing (model feedback, evaluation/fine-tuning), and the consent
+  copy on all five AI surfaces discloses this and warns against sensitive, confidential, or
+  third-party personal data;
+- privacy technical/implementation review and an explicit owner release decision (Step 3E-A): the
+  current non-commercial portfolio release has completed a documented technical/privacy review and
+  owner risk-acceptance decision; external qualified legal review is trigger-based rather than a
+  blocker for this release scope (see
+  [privacy-consent-external-services.md](operations/privacy-consent-external-services.md) for the
+  specific legal questions this does not resolve and the conditions that would re-trigger qualified
+  review);
+- fresh online dependency-advisory review (Step 3E-A): a live GitHub Advisory Database scan plus
+  `npm audit` against the canonical lockfile found 7 applicable GHSA records (the 5 already tracked
+  as open Dependabot alerts — all `undici`, reachable only through the nested copy `wrangler` pulls
+  in via `miniflare` — plus 2 not yet surfaced as repository Dependabot alerts, `fast-uri` and
+  `brace-expansion`, both likewise transitive `devDependencies` of local build/type-check tooling).
+  All 7 are classified not-applicable to the deployed surface: none are bundled into `dist/` or the
+  Pages Functions runtime, and each vulnerable code path requires a capability (a shared multi-tenant
+  cache, untrusted duck-typed HTTP body input, network-facing URL/glob parsing) that this
+  repository's local dev/build/CI usage never exercises;
+- Cloudflare log capture, retention, sampling, access, export, Logpush, visibility, and data-region
+  review (Step 3E-A): no account-level Logpush job is configured; the Workers Observability API is
+  not reachable for Pages-managed Functions scripts (a platform surface limitation, not a
+  permission denial); for this personal, low-volume, non-commercial release, that gap is accepted
+  rather than a blocker, consistent with the strict operational-logging allowlist already verified
+  in [operational-controls-observability.md](operations/operational-controls-observability.md);
+- one OpenAI Terra canary — done (Step 3C, `STEP3C-CANARIES-PASS`);
+- one OpenAI Sol canary — done (Step 3C, `STEP3C-CANARIES-PASS`);
+- live project, model, and rate-limit confirmation — done (Step 3C);
+- remote feature-variable parity (Step 3E-A): `OPENAI_API_KEY` confirmed present in both preview
+  and production; preview `NODE_VERSION` (`22.22.3`) matches the formal toolchain; production
+  `NODE_VERSION` (`22`) remains the pre-existing, already-documented parity gap in
+  [cloudflare-pages-configuration.md](operations/cloudflare-pages-configuration.md) §9 — it applies
+  only to a future production cutover, not to this preview-only step, and remains open for Phase 4;
+- final release-candidate preview and human acceptance — Step 3B-R and Step 3D-R accepted two prior
+  preview builds; Step 3E produces one final build-verified candidate preview from this exact
+  reconciled state, without changing production.
 
 **Dependencies:** Phase 3-B's remote controls in a known, authorized state (met — Phase 3-B is
 `DONE`).
@@ -559,7 +614,11 @@ action requires precise authorization at execution time. Phase 3-A performed non
 read-only.
 
 **Exit criteria:** Human review is recorded, both live model tiers are confirmed, remote controls match
-the candidate, and preview evidence supports or rejects production release.
+the candidate, and preview evidence supports or rejects production release. Met: Step 3E-A closed
+every open Phase 3-C human/provider/security gap read-only (`STEP3E-PREFLIGHT-GO`), and Step 3E-B
+produces the final build-verified preview candidate from the reconciled canonical state. Production
+remains the unchanged legacy deployment throughout, and Phase 4 production release remains a
+separate, not-yet-authorized decision.
 
 ## Phase 4 — Controlled Production Release
 

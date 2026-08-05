@@ -14,7 +14,7 @@ const { embedUrl, title, allow, orientation = 'landscape', type = 'other', poste
 
 const isSafeEmbed =
   embedUrl.startsWith('https://open.spotify.com/embed/') ||
-  embedUrl.startsWith('https://www.youtube.com/embed/');
+  embedUrl.startsWith('https://www.youtube-nocookie.com/embed/');
 const isSpotify = embedUrl.startsWith('https://open.spotify.com/embed/');
 const frameWrapperClass =
   orientation === 'portrait'

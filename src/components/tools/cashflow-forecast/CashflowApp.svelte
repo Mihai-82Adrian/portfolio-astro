@@ -15,6 +15,7 @@
     applyCostShock,
   } from '@/lib/cashflow/projectionEngine';
   import { generateCashflowPdf } from '@/lib/cashflow/pdfExport';
+  import { AI_PRIVACY_NOTICE_VERSION } from '../../../../functions/_lib/privacy-consent.ts';
 
   import CashflowChart   from './CashflowChart.svelte';
   import MetricsSummary  from './MetricsSummary.svelte';
@@ -200,6 +201,8 @@
           initialCash,
           baseProjection,
           scenarios: calculatedScenarios,
+          privacyConsent: true,
+          privacyNoticeVersion: AI_PRIVACY_NOTICE_VERSION,
         }),
       });
 

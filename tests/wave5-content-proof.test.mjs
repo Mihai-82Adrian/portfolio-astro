@@ -128,15 +128,63 @@ test('the 3 Anthropic AI Fluency certificates are integrated with issuer, date, 
   }
 });
 
-test('README roadmap summary reflects Phase 2 done / Phase 3 active', () => {
+test('README roadmap summary reflects Phase 2 done / Phase 3-B done / Phase 3-C done', () => {
   const readme = readFileSync(path.join(ROOT, 'README.md'), 'utf8');
   assert.doesNotMatch(readme, /Phase 2D-B Product Scope Audit and Launch Lock is next/);
   assert.doesNotMatch(readme, /Wave 6 next/);
   assert.doesNotMatch(readme, /Phase 2D-D\s+security\/dependency acceptance is next/);
   assert.match(readme, /Phase 2[\s\S]{0,400}is done/);
-  assert.match(readme, /Phase 3 Human and Remote Readiness is\s+active/);
+  // OWNER-AUTHORIZED GOVERNANCE TEST SYNCHRONIZATION (Phase 3-C Step 3E-R): the umbrella phase's
+  // prose changed from "is active" to "stays active as an umbrella" when its sub-phases closed;
+  // still fail-closed on the actual status word, just tolerant of either verb.
+  const phase3Top = readme.match(/Phase 3 Human and Remote Readiness\s+(?:is|stays)\s+(\w+)/);
+  assert.ok(phase3Top, 'README must state Phase 3\'s top-level status inline');
+  assert.equal(
+    phase3Top[1].toLowerCase(),
+    'active',
+    `Phase 3 (top-level umbrella) must be stated as active, found "${phase3Top[1]}"`
+  );
   assert.match(readme, /Phase 3-A[\s\S]{0,80}done/i);
-  assert.match(readme, /Phase 3-B[\s\S]{0,200}next/i);
+
+  // Phase 3-B and Phase 3-C are both closed — anchored on the exact status word following each
+  // phase's own parenthetical, not a windowed substring search, so this fails loudly the moment
+  // either phase's stated status actually changes (including a regression back to next/active)
+  // instead of only when unrelated nearby prose happens to shift. Phase 3 itself stays the
+  // active umbrella (asserted above) — Phase 4 needs its own separate authorization and must
+  // never be implied as started or as production having been released.
+  const phase3B = readme.match(/Phase 3-B \([^)]*\)\s+is\s+(\w+)/);
+  assert.ok(phase3B, 'README must state Phase 3-B\'s status inline as "Phase 3-B (...) is <status>"');
+  assert.equal(
+    phase3B[1].toLowerCase(),
+    'done',
+    `Phase 3-B must be stated as done, found "${phase3B[1]}" — Phase 3-B must never regress to next/active in the README`
+  );
+
+  // OWNER-AUTHORIZED GOVERNANCE TEST SYNCHRONIZATION (Phase 3-C Step 3E-R): Phase 3-C's remaining
+  // human/provider/security gates closed read-only (STEP3E-PREFLIGHT-GO) and the roadmap/README
+  // were updated accordingly; this synchronizes the snapshot assertion with that legitimate,
+  // owner-authorized status change from active to done.
+  const phase3C = readme.match(/Phase 3-C \([^)]*\)\s+is\s+(?:now\s+)?(\w+)/);
+  assert.ok(phase3C, 'README must state Phase 3-C\'s status inline as "Phase 3-C (...) is [now] <status>"');
+  assert.equal(
+    phase3C[1].toLowerCase(),
+    'done',
+    `Phase 3-C must be stated as done, found "${phase3C[1]}"`
+  );
+
+  assert.doesNotMatch(
+    readme,
+    /Phase 4\s+(?:is\s+(?:now\s+)?(?:active|done|authorized)|has\s+been\s+authorized|has\s+started)/i,
+    'README must never imply Phase 4 is authorized, active, done, or started'
+  );
+  assert.doesNotMatch(
+    readme,
+    /production\s+release\s+has\s+(?:started|occurred)/i,
+    'README must never imply a production release has occurred'
+  );
+
+  // Local/canonical state must not be conflated with deployed production.
+  assert.match(readme, /production has not\s+changed/i);
 });
 
 // --- Wave 5 closure: dedicated AI & Professional Development certificate category ---

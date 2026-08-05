@@ -175,9 +175,36 @@ currently required.
 
 ## Privacy and consent architecture
 
-`src/lib/consent.ts` owns versioned analytics preferences. Necessary preferences do not imply
-analytics consent. Ahrefs is optional analytics and loads only after opt-in. Giscus is click-to-load.
-AI processing occurs only after the visitor requests it and sees contextual disclosure.
+`src/lib/consent.ts` owns a versioned preference record (v3) with two independent, opt-in-only
+analytics channels: `performanceAnalytics.cloudflareRum` and `acquisitionAnalytics.ahrefs`. Necessary
+preferences (theme, language) never imply either. Each channel is gated, loaded, and withdrawable
+independently — accepting one does not grant the other, and a v2 record's single `analytics` boolean
+migrates only to the Ahrefs channel, never to Cloudflare RUM. Giscus and YouTube (privacy-enhanced
+`youtube-nocookie.com` domain) are click-to-load. AI processing occurs only after the visitor
+requests it, sees contextual disclosure, and confirms an unchecked-by-default, per-surface consent
+checkbox (`AI_PRIVACY_NOTICE_VERSION` in `functions/_lib/privacy-consent.ts`); the checkbox state is
+never persisted and each of the four AI Functions enforces the same pair server-side
+(`400 PRIVACY_CONSENT_REQUIRED` otherwise). Founder Compass, Cashflow, and Investment check it
+immediately after body parsing, before any rate-limit consumption, quota lookup/write, or provider
+call. Chat is an accepted, documented exception: its pre-existing, body-independent per-IP burst
+limiter and a read-only quota lookup (needed to render the quota badge for the consent-exempt
+deterministic fact-chip path too) run before the consent check, but the quota *write* and the
+provider call still run only after it — see
+[operational-controls-observability.md](operations/operational-controls-observability.md) for the
+exact ordering. Deterministic fact-chip chat answers and the Cashflow/Investment client-side
+calculations remain fully usable without this consent — only the OpenAI-bound narrative/
+interpretation layer is gated.
+
+Cloudflare Web Analytics (RUM) is loaded by the application itself — a manually embedded, consent-gated
+`<script>` in `BaseLayout.astro` — rather than relying on Cloudflare's platform-level automatic
+injection, so it can be withheld until performance-analytics consent. Remotely, Cloudflare's
+platform-level automatic injection has been disabled for future deployments (Phase 3-C Step 2C-1:
+Pages Web Analytics tag/token nulled, zone Automatic Setup switched to manual-install), and the
+application loader's site token now matches the current manual-install token. Phase 3-C Step 2C-2 is
+implemented, locally validated, and integrated into canonical; it is not yet deployed to preview or
+production. See [cloudflare-pages-configuration.md](operations/cloudflare-pages-configuration.md) for
+the remote cutover record and the currently-live production deployment's legacy baked-in beacon,
+which persists until a new deployment carrying this canonical state is released.
 
 The technical service matrix and validation boundary live in
 [privacy-consent-external-services.md](operations/privacy-consent-external-services.md). The public
@@ -185,10 +212,15 @@ privacy policy still requires qualified review; technical documentation does not
 
 ## External-service loading boundaries
 
-- Cloudflare is part of baseline delivery.
-- Ahrefs is not loaded without analytics opt-in.
+- Cloudflare is part of baseline delivery; Cloudflare Web Analytics (RUM) is additionally not loaded
+  without performance-analytics opt-in.
+- Ahrefs Web Analytics is not loaded without acquisition-analytics opt-in.
 - Giscus is not loaded before the visitor requests comments.
-- OpenAI receives data only after a user-requested AI action.
+- YouTube/Spotify embeds are not loaded before the visitor requests the media placeholder.
+- OpenAI receives data only after a user-requested AI action confirmed by the contextual consent
+  checkbox described above.
+- The `/projects` GitHub summary is a static, build-time snapshot (`src/data/github-snapshot.json`,
+  refreshed only by an explicit, manual script run); the browser never contacts `api.github.com`.
 - cal.eu is reached only when a visitor follows the booking link.
 - Resend remains inactive; Sample Review fails closed before parsing form data when configuration is
   absent.
@@ -229,20 +261,28 @@ The repository canonical state can be ahead of deployed production. A local gree
 deploy, change remote configuration, or prove live provider access. Current release work must also
 account for internal audit material in local integration history.
 
-Tracked CI has one read-only quality workflow and one manual future release workflow. GitHub Actions
-is the intended future deploy owner. Deploy remains fail-closed until remote variables confirm that
-ownership and confirm Cloudflare automatic Git integration is disabled. The quality job builds and
-verifies once; the deploy job accepts only the checksum-linked transferred artifact and never
-rebuilds. Neither workflow had been run or activated remotely as of Phase 2C. See
+Tracked CI has one read-only quality workflow, one scheduled read-only security-audit workflow, and
+one manual future release workflow. GitHub Actions is the intended future deploy owner. Deploy
+remains fail-closed until remote variables confirm that ownership and confirm Cloudflare automatic
+Git integration is disabled. The quality job builds and verifies once; the deploy job accepts only
+the checksum-linked transferred artifact and never rebuilds. Neither workflow had been run or
+activated remotely as of Phase 2C — this has since changed (see below). See
 [release-pipeline.md](operations/release-pipeline.md).
 
 Phase 3-B1 disabled Cloudflare's automatic production-deployment trigger for the `portfolio-astro`
 Pages project (a live dashboard/API setting, not a `wrangler.jsonc` field) and confirmed, via two
 real GitHub Actions runs against a public-safe preview commit, that the quality workflow's job emits
-a check-run context that exactly satisfies the existing branch-protection required check. The
-`release.yml` deploy job's own fail-closed remote-ownership variables
-(`DEPLOYMENT_OWNER`, `CLOUDFLARE_GIT_INTEGRATION_DISABLED`) remain unset; the manual release workflow
-itself has still not been run or activated remotely.
+a check-run context that exactly satisfies the existing branch-protection required check. Phase 3-B3
+and Phase 3-C Step 1B each subsequently built and published one reviewed public-safe release commit
+on GitHub `master` for real (not a dry-run proof), using the documented commit-construction recipe
+from [public-release-lineage-strategy.md](operations/public-release-lineage-strategy.md); GitHub
+`master`'s quality/CodeQL checks have now run remotely, repeatedly, against real commits. The
+`release.yml` deploy job's own fail-closed remote-ownership variables (`DEPLOYMENT_OWNER`,
+`CLOUDFLARE_GIT_INTEGRATION_DISABLED`) remain unset; the manual release workflow itself has still not
+been dispatched or activated remotely — every `master` update so far has reached GitHub through the
+reviewed-commit-and-push method above, never through `release.yml`, and Cloudflare's own automatic
+Git-integration production trigger remains disabled, so none of these `master` updates has deployed
+to production.
 
 ## Release identity and provenance boundary
 
@@ -286,9 +326,10 @@ checks and writes ignored review summaries.
 
 Cloudflare Pages `_headers` delivers a restrictive `Content-Security-Policy-Report-Only` policy plus
 same-origin modern and legacy reporting declarations. The policy is derived from actual generated
-resources: self-hosted assets and Pagefind, consent-gated Ahrefs, the GitHub browser widget, and
-click-to-load Giscus/YouTube/Spotify. OpenAI and inactive Resend are server-side and receive no
-browser allowance. External links alone add none.
+resources: self-hosted assets and Pagefind, consent-gated Cloudflare Web Analytics and Ahrefs, and
+click-to-load Giscus/YouTube/Spotify. `api.github.com` is not permitted — the `/projects` GitHub
+summary is a static build-time snapshot with no browser-side request. OpenAI and inactive Resend are
+server-side and receive no browser allowance. External links alone add none.
 
 `/api/csp-report` accepts only bounded legacy and Reporting API media types, returns an empty 204 for
 accepted input, makes no external call, and reduces reports to closed directive/resource classes.
@@ -362,18 +403,32 @@ in [operational-controls-observability.md](operations/operational-controls-obser
 - Cache API quotas are not globally exact.
 - The privacy-preserving provider safety identifier is deferred.
 - Sample Review and Resend are inactive.
-- Qualified privacy-policy review remains open.
-- Live access to both configured OpenAI tiers is not canary-confirmed.
+- Qualified external legal privacy review is trigger-based, not a release blocker, for the current
+  non-commercial scope, per an explicit owner risk-acceptance decision (Phase 3-C Step 3E-A); the
+  Cloudflare controller/processor role split and the Art. 6(1)(a)/Art. 22 legal-basis questions in
+  [privacy-consent-external-services.md](operations/privacy-consent-external-services.md) remain
+  genuinely open regardless of that decision.
+- Live access to both configured OpenAI tiers is canary-confirmed (Phase 3-C Step 3C,
+  `STEP3C-CANARIES-PASS`).
 - Deployed production may lag repository canonical state.
 - Vorabpauschale uses the disclosed smoothed annual path.
 - Operational events remain local runtime console output; remote collection, retention, dashboards,
   alerts, and production SLO evidence do not exist.
 - CSP enforcement remains a later evidence-based decision.
-- Cloudflare runtime-log retention/export, deploy ownership parity, and production state remain
-  remotely unverified. GitHub's repository security baseline (Dependabot alerts and automated
-  security fixes, CodeQL default setup, `master` branch protection, `preview`/`production`
-  Environments) is now configured (Phase 3-B2); a scheduled recurring security-monitoring workflow
-  and independent watchdog remain planned (Phase 3-B3).
+- Cloudflare account-level Logpush is confirmed not configured, and the Workers Observability API
+  cannot retrieve the Pages-managed Functions script (Phase 3-C Step 3E-A, read-only) — a Pages
+  Functions platform limitation, not a permission denial; accepted for this personal, low-volume,
+  non-commercial release rather than a blocker. GitHub's repository security baseline (Dependabot
+  alerts and automated security fixes, CodeQL default setup, `master` branch protection,
+  `preview`/`production` Environments) is configured (Phase 3-B2); CodeQL holds zero open alerts and
+  Dependabot shows 5 open alerts plus 2 further live-scanned advisory records (Phase 3-C Step 3E-A
+  reconciliation, all 7 classified not-applicable — see
+  [dependency-hygiene.md](operations/dependency-hygiene.md)); a scheduled read-only security-audit
+  workflow now runs on GitHub Actions (Phase 3-B3); routine Dependabot version-update pull requests
+  are frozen for Phase 3-C/Phase 4 while security alerts and updates stay enabled (Phase 3-C Step
+  1B). Cloudflare production deployment ownership and current production state have been read-only
+  verified as unchanged and separate from these `master` updates; production has not deployed any of
+  this work.
 - There is no auth, client portal, queue, upload pipeline, or multi-provider abstraction.
 
 ## Trigger-based future architecture

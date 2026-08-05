@@ -9,7 +9,7 @@ replace analytics consent or click-to-load activation.
 The exact policy is:
 
 ```text
-default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://analytics.ahrefs.com https://giscus.app; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://analytics.ahrefs.com https://api.github.com; frame-src https://giscus.app https://www.youtube.com https://open.spotify.com; media-src 'self'; manifest-src 'self'; worker-src 'self'; report-uri /api/csp-report; report-to csp-endpoint
+default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://analytics.ahrefs.com https://giscus.app https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://analytics.ahrefs.com https://cloudflareinsights.com; frame-src https://giscus.app https://www.youtube-nocookie.com https://open.spotify.com; media-src 'self'; manifest-src 'self'; worker-src 'self'; report-uri /api/csp-report; report-to csp-endpoint
 ```
 
 `Reporting-Endpoints: csp-endpoint="/api/csp-report"` declares the modern same-origin endpoint.
@@ -31,9 +31,9 @@ Ordinary external links are navigation only and do not create CSP resource allow
 | same origin | Astro assets, Fontsource files, images, manifest, media, Pagefind worker, Pages Functions | essential first-party | immediate | `default/script/style/img/font/connect/media/manifest/worker-src 'self'` |
 | `data:` images | generated/static image data | essential first-party rendering | immediate | `img-src data:` |
 | `analytics.ahrefs.com` | dynamic script in `BaseLayout.astro` | optional analytics | analytics opt-in only | `script-src`, `connect-src` |
-| `api.github.com` | browser GitHub project widget fetch | user-visible first-party feature data | route rendering | `connect-src` |
+| `static.cloudflareinsights.com` / `cloudflareinsights.com` | dynamic Cloudflare Web Analytics script in `BaseLayout.astro` | optional analytics | performance-analytics opt-in only | `script-src`, `connect-src` |
 | `giscus.app` | `Comments.astro` script and frame | user-requested embed | click-to-load | `script-src`, `frame-src` |
-| `www.youtube.com` | media iframe | user-requested embed | click-to-load | `frame-src` |
+| `www.youtube-nocookie.com` | media iframe (privacy-enhanced embed domain; the plain `youtube.com` domain is never used for embeds) | user-requested embed | click-to-load | `frame-src` |
 | `open.spotify.com` | media iframe | user-requested embed | click-to-load | `frame-src` |
 | OpenAI | Pages Function transport | server-side only | explicit AI submission | none |
 | Resend | inactive Sample Review Function transport | inactive/future, server-side only | not active | none |

@@ -207,29 +207,57 @@ const defaultStructuredData = {
     <ClientRouter />
 
     <!--
-      Ahrefs Web Analytics: optional, opt-in only. No script tag is rendered
-      here — it is injected client-side, and only after explicit analytics
-      consent (src/lib/consent.ts). See src/components/common/CookieConsent.astro.
+      Optional analytics, opt-in only. Neither script tag below is rendered
+      here — each is injected client-side, only after the matching consent
+      channel in src/lib/consent.ts. See src/components/common/CookieConsent.astro
+      for the consent UI.
+
+      Cloudflare Web Analytics (RUM) is embedded manually here — instead of
+      relying on Cloudflare's platform-level automatic injection — so it can
+      be withheld until performance-analytics consent. It uses the project's
+      existing Cloudflare Web Analytics site token (not a new property).
     -->
     <script>
       import { readPreferences, CONSENT_CHANGE_EVENT, type PrivacyPreferences } from '@/lib/consent';
 
+      const CF_BEACON_SCRIPT_ID = 'cloudflare-rum-beacon';
+      const CF_BEACON_TOKEN = 'd1cc49108d8241e184c27be91b026fcf';
+
       const AHREFS_SCRIPT_ID = 'ahrefs-analytics';
+      const AHREFS_KEY = 'TaG4/LHrEhmbalis3ebSqA';
+
+      function loadCloudflareRum() {
+        if (document.getElementById(CF_BEACON_SCRIPT_ID)) return;
+        const script = document.createElement('script');
+        script.id = CF_BEACON_SCRIPT_ID;
+        script.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+        script.dataset.cfBeacon = JSON.stringify({ token: CF_BEACON_TOKEN });
+        script.async = true;
+        script.onerror = () => {
+          // Non-blocking: a failed or blocked beacon must never affect the site.
+        };
+        document.head.appendChild(script);
+      }
 
       function loadAhrefs() {
         if (document.getElementById(AHREFS_SCRIPT_ID)) return;
         const script = document.createElement('script');
         script.id = AHREFS_SCRIPT_ID;
         script.src = 'https://analytics.ahrefs.com/analytics.js';
-        script.dataset.key = 'TaG4/LHrEhmbalis3ebSqA';
+        script.dataset.key = AHREFS_KEY;
         script.async = true;
+        script.onerror = () => {
+          // Non-blocking: a failed or blocked script must never affect the site.
+        };
         document.head.appendChild(script);
       }
 
       function applyPreferences(prefs: PrivacyPreferences) {
-        if (prefs.analytics) loadAhrefs();
-        // A script that already started executing cannot be un-loaded — a later
-        // withdrawal only prevents this and future page loads from starting it.
+        if (prefs.performanceAnalytics.cloudflareRum) loadCloudflareRum();
+        if (prefs.acquisitionAnalytics.ahrefs) loadAhrefs();
+        // A script that already started executing cannot be un-loaded — later
+        // withdrawal (CookieConsent.astro) triggers a full reload instead of
+        // relying on this listener to stop anything already running.
       }
 
       applyPreferences(readPreferences(window.localStorage));

@@ -2,6 +2,13 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { installFakeCaches } from './helpers/fake-caches.mjs';
 import { createFetchRouter, jsonResponse, abortError } from './helpers/fetch-router.mjs';
+import { AI_PRIVACY_NOTICE_VERSION } from '../functions/_lib/privacy-consent.ts';
+
+// Default AI contextual consent, merged into every request body built via jsonRequest()/
+// prodChatRequest() below unless a test explicitly overrides privacyConsent/privacyNoticeVersion
+// (the dedicated consent-contract tests further down do exactly that). This keeps the large
+// majority of existing method/media-type/quota/provider tests focused on what they actually test.
+const VALID_AI_CONSENT = { privacyConsent: true, privacyNoticeVersion: AI_PRIVACY_NOTICE_VERSION };
 
 installFakeCaches();
 
@@ -18,10 +25,11 @@ function nextIp() {
 }
 
 function jsonRequest(url, { method = 'POST', body, headers = {} } = {}) {
+    const mergedBody = body === undefined ? undefined : { ...VALID_AI_CONSENT, ...body };
     return new Request(`http://localhost${url}`, {
         method,
         headers: { 'Content-Type': 'application/json', 'CF-Connecting-IP': nextIp(), ...headers },
-        body: body === undefined ? undefined : JSON.stringify(body),
+        body: mergedBody === undefined ? undefined : JSON.stringify(mergedBody),
     });
 }
 
@@ -528,7 +536,7 @@ function prodChatRequest(ip, { headers = {}, body = { message: 'What is your cur
     return new Request('https://portfolio-astro-2do.pages.dev/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'CF-Connecting-IP': ip, ...headers },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ ...VALID_AI_CONSENT, ...body }),
     });
 }
 
@@ -719,6 +727,161 @@ test('chat: ChatWidget no longer sends the obsolete X-Cookie-Consent header (no 
     const { readFileSync } = await import('node:fs');
     const source = readFileSync(new URL('../src/components/ChatWidget.astro', import.meta.url), 'utf8');
     assert.doesNotMatch(source, /X-Cookie-Consent/i);
+});
+
+// ─────────────────────────────────────────────────────────────────────────
+// AI contextual consent (Phase 3-C Step 2B-2) — all four AI-backed Functions
+// require { privacyConsent: true, privacyNoticeVersion: AI_PRIVACY_NOTICE_VERSION }
+// before any quota lookup/write or provider call. jsonRequest()/prodChatRequest()
+// merge valid consent by default (see VALID_AI_CONSENT above); these tests
+// explicitly override it to prove the gate itself.
+// ─────────────────────────────────────────────────────────────────────────
+
+test('investment-analysis: missing privacyConsent is rejected with 400 before any provider call', async () => {
+    const { fetchImpl, calls } = createFetchRouter([]);
+    const handler = createInvestmentHandler({ fetchImpl });
+    const res = await handler(ctx(jsonRequest('/api/investment-analysis', {
+        body: {
+            initialInvestment: 1000, returnMetrics: {}, riskMetrics: {},
+            privacyConsent: undefined, privacyNoticeVersion: undefined,
+        },
+    }), { OPENAI_API_KEY: 'test-key' }));
+    await assertErrorEnvelope(res, 400, 'PRIVACY_CONSENT_REQUIRED');
+    assert.equal(calls.length, 0);
+});
+
+test('investment-analysis: privacyConsent: false is rejected with 400', async () => {
+    const handler = createInvestmentHandler();
+    const res = await handler(ctx(jsonRequest('/api/investment-analysis', {
+        body: { initialInvestment: 1000, returnMetrics: {}, riskMetrics: {}, privacyConsent: false },
+    }), { OPENAI_API_KEY: 'test-key' }));
+    await assertErrorEnvelope(res, 400, 'PRIVACY_CONSENT_REQUIRED');
+});
+
+test('investment-analysis: wrong privacyNoticeVersion is rejected with 400', async () => {
+    const handler = createInvestmentHandler();
+    const res = await handler(ctx(jsonRequest('/api/investment-analysis', {
+        body: { initialInvestment: 1000, returnMetrics: {}, riskMetrics: {}, privacyNoticeVersion: 'v0' },
+    }), { OPENAI_API_KEY: 'test-key' }));
+    await assertErrorEnvelope(res, 400, 'PRIVACY_CONSENT_REQUIRED');
+});
+
+test('investment-analysis: a rejected-consent request does not consume the weekly quota', async () => {
+    const { fetchImpl, calls } = createFetchRouter([
+        ['api.openai.com', () => jsonResponse({ status: 'completed', output: [{ type: 'message', content: [{ type: 'output_text', text: JSON.stringify({ summary: 's', strengths: 'st', risks: 'r', recommendation: 'rec' }) }] }] })],
+    ]);
+    const handler = createInvestmentHandler({ fetchImpl });
+    const body = {
+        initialInvestment: 1000,
+        returnMetrics: { roi: 0.1, cagr: 0.05, irr: 0.05, npv: 100, paybackYear: 2 },
+        riskMetrics: { sharpeRatio: 1, sortinoRatio: 1, maxDrawdown: 0.1, annualizedVolatility: 0.2, var95: 10, var99: 20 },
+    };
+    const rejected = await handler(ctx(new Request('https://portfolio-astro-2do.pages.dev/api/investment-analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'CF-Connecting-IP': nextIp() },
+        body: JSON.stringify(body),
+    }), { OPENAI_API_KEY: 'test-key' }));
+    await assertErrorEnvelope(rejected, 400, 'PRIVACY_CONSENT_REQUIRED');
+    assert.equal(calls.length, 0, 'no provider call for a consent-rejected request');
+
+    const accepted = await handler(ctx(jsonRequest('/api/investment-analysis', { body }), { OPENAI_API_KEY: 'test-key' }));
+    assert.equal(accepted.status, 200, 'the weekly quota must still be available after a consent rejection');
+});
+
+test('compass: missing privacyConsent is rejected with 400 before any provider call', async () => {
+    const { fetchImpl, calls } = createFetchRouter([]);
+    const handler = createCompassHandler({ fetchImpl });
+    const res = await handler(ctx(jsonRequest('/api/compass', {
+        body: { answers: validCompassAnswers(), privacyConsent: undefined, privacyNoticeVersion: undefined },
+    }), { OPENAI_API_KEY: 'test-key' }));
+    await assertErrorEnvelope(res, 400, 'PRIVACY_CONSENT_REQUIRED');
+    assert.equal(calls.length, 0);
+});
+
+test('compass: wrong privacyNoticeVersion is rejected with 400', async () => {
+    const handler = createCompassHandler();
+    const res = await handler(ctx(jsonRequest('/api/compass', {
+        body: { answers: validCompassAnswers(), privacyNoticeVersion: 'v0' },
+    }), { OPENAI_API_KEY: 'test-key' }));
+    await assertErrorEnvelope(res, 400, 'PRIVACY_CONSENT_REQUIRED');
+});
+
+test('cashflow-scenario: missing privacyConsent is rejected with 400 before any provider call', async () => {
+    const { fetchImpl, calls } = createFetchRouter([]);
+    const handler = createCashflowHandler({ fetchImpl });
+    const res = await handler(ctx(jsonRequest('/api/cashflow-scenario', {
+        body: { ...validCashflowBody(), privacyConsent: undefined, privacyNoticeVersion: undefined },
+    }), { OPENAI_API_KEY: 'test-key' }));
+    await assertErrorEnvelope(res, 400, 'PRIVACY_CONSENT_REQUIRED');
+    assert.equal(calls.length, 0);
+});
+
+test('cashflow-scenario: wrong privacyNoticeVersion is rejected with 400', async () => {
+    const handler = createCashflowHandler();
+    const res = await handler(ctx(jsonRequest('/api/cashflow-scenario', {
+        body: { ...validCashflowBody(), privacyNoticeVersion: 'v0' },
+    }), { OPENAI_API_KEY: 'test-key' }));
+    await assertErrorEnvelope(res, 400, 'PRIVACY_CONSENT_REQUIRED');
+});
+
+test('chat: missing privacyConsent on a free-text question is rejected with 400 before any provider call', async () => {
+    const ip = nextIp();
+    const { fetchImpl, calls } = chatQuotaRouter();
+    const handler = createChatHandler({ fetchImpl });
+    const res = await handler(ctx(prodChatRequest(ip, {
+        body: { message: 'What is your current role?', privacyConsent: undefined, privacyNoticeVersion: undefined },
+    }), { OPENAI_API_KEY: 'test-key' }));
+    await assertErrorEnvelope(res, 400, 'PRIVACY_CONSENT_REQUIRED');
+    assert.equal(calls.filter((c) => new URL(c.url).hostname === 'api.openai.com').length, 0);
+
+    // The rejected request must not have consumed the 24h chat-question counter.
+    for (let i = 0; i < 4; i++) {
+        const ok = await handler(ctx(prodChatRequest(ip), { OPENAI_API_KEY: 'test-key' }));
+        assert.equal(ok.status, 200, `request ${i + 1} should still be permitted (consent rejection consumed no quota)`);
+    }
+});
+
+test('chat: missing privacyConsent on a JD analysis request is rejected with 400 before any provider call', async () => {
+    const ip = nextIp();
+    const { fetchImpl, calls } = chatQuotaRouter();
+    const handler = createChatHandler({ fetchImpl });
+    const res = await handler(ctx(prodChatRequest(ip, {
+        body: { message: 'Please review this job description for a senior role.', tab: 'jd', privacyConsent: false },
+    }), { OPENAI_API_KEY: 'test-key' }));
+    await assertErrorEnvelope(res, 400, 'PRIVACY_CONSENT_REQUIRED');
+    assert.equal(calls.filter((c) => new URL(c.url).hostname === 'api.openai.com').length, 0);
+});
+
+test('chat: a consent-rejected request never logs the message body or the consent field values', async () => {
+    const ip = nextIp();
+    const { fetchImpl } = chatQuotaRouter();
+    const logs = [];
+    const handler = createChatHandler({ fetchImpl, logSink: (_level, line) => logs.push(line) });
+    const secretMessage = 'PROMPT_CANARY_should_never_appear_in_any_log_line';
+    const res = await handler(ctx(prodChatRequest(ip, {
+        body: { message: secretMessage, privacyConsent: false, privacyNoticeVersion: 'wrong-version' },
+    }), { OPENAI_API_KEY: 'test-key' }));
+    await assertErrorEnvelope(res, 400, 'PRIVACY_CONSENT_REQUIRED');
+    const combined = logs.join('\n');
+    assert.doesNotMatch(combined, new RegExp(secretMessage));
+    assert.doesNotMatch(combined, /privacyConsent|privacyNoticeVersion|wrong-version/);
+});
+
+test('chat: a deterministic fact-chip request never requires AI consent (no provider egress occurs)', async () => {
+    const facts = { contact: { en: { default: 'Reach me by email.', withPhone: 'Call me.' } }, current_role: {}, certifications: {}, skills: {}, projects: {} };
+    const { fetchImpl, calls } = createFetchRouter([
+        ['/facts.json', () => jsonResponse(facts)],
+    ]);
+    const handler = createChatHandler({ fetchImpl });
+    const res = await handler(ctx(new Request('https://portfolio-astro-2do.pages.dev/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'CF-Connecting-IP': nextIp() },
+        body: JSON.stringify({ message: 'contact', intent: 'contact', lang: 'en' }),
+    }), { OPENAI_API_KEY: 'test-key' }));
+    assert.equal(res.status, 200, 'deterministic fact answers must not require privacyConsent');
+    const body = await res.json();
+    assert.equal(body.data.mode, 'fact');
+    assert.ok(!calls.some((c) => new URL(c.url).hostname === 'api.openai.com'));
 });
 
 // ─────────────────────────────────────────────────────────────────────────

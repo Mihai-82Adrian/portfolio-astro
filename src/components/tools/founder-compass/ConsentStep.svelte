@@ -18,7 +18,16 @@
     answers.filter((a) => a.selectedKey !== null).length
   );
 
+  let aiConsent = $state(false);
+  let disclosureRef: AIDisclosureNote | undefined = $state();
+
+  // Consent is enforced in handleSubmitClick, not via `disabled` — a disabled control can never
+  // receive the focus/error feedback the missing-consent case requires.
   let canSubmit = $derived(!submitting && !weeklyLocked);
+
+  function handleSubmitClick() {
+    if (disclosureRef?.requireConsent()) onSubmit();
+  }
 
   function getAnswerSummary(answer: QuizAnswer): string {
     const q = QUESTIONS.find((q) => q.id === answer.questionId);
@@ -126,7 +135,7 @@
     </div>
 
     <!-- AI processing disclosure (same pattern as chat, cashflow and investment tools) -->
-    <AIDisclosureNote />
+    <AIDisclosureNote bind:checked={aiConsent} bind:this={disclosureRef} />
 
     <!-- Navigation -->
     <div class="flex items-center justify-between">
@@ -141,7 +150,8 @@
       <button
         type="button"
         disabled={!canSubmit}
-        onclick={onSubmit}
+        onclick={handleSubmitClick}
+        data-testid="compass-submit"
         class="rounded-xl px-6 py-2.5 text-sm font-semibold transition-all duration-200
           {canSubmit
             ? 'bg-eucalyptus-600 text-white hover:bg-eucalyptus-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus-500 focus-visible:ring-offset-2 dark:bg-eucalyptus-500 dark:hover:bg-eucalyptus-400'

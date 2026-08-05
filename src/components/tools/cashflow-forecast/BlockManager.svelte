@@ -26,11 +26,11 @@
       .filter(g => g.items.length > 0)
   );
 
-  function categoryIcon(cat: BlockCategory) {
-    return cat === 'revenue' ? TrendingUp
-         : cat === 'fixed_cost' ? Repeat
-         : cat === 'variable_cost' ? TrendingDown
-         : Zap;
+  function categoryIcon(cat: BlockCategory): string {
+    return cat === 'revenue' ? 'TrendingUp'
+         : cat === 'fixed_cost' ? 'Repeat'
+         : cat === 'variable_cost' ? 'TrendingDown'
+         : 'Zap';
   }
 
   function categoryColor(cat: BlockCategory): string {

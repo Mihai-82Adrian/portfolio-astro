@@ -91,6 +91,7 @@ added to public envelopes.
 | `INVALID_JSON` | 400 `MALFORMED_JSON` | warn | no | `NOT_CALLED` / no |
 | `METHOD_NOT_ALLOWED` | 405 `METHOD_NOT_ALLOWED` | warn | no | `NOT_CALLED` / no |
 | `ORIGIN_REJECTED` | 403 `ORIGIN_REJECTED` | warn | no | `NOT_CALLED` / no |
+| `PRIVACY_CONSENT_REQUIRED` | 400 `PRIVACY_CONSENT_REQUIRED` | warn | no | `NOT_CALLED` / no |
 | `BODY_TOO_LARGE` | 413 `PAYLOAD_TOO_LARGE` | warn | no | `NOT_CALLED` / no |
 | `UNSUPPORTED_MEDIA_TYPE` | 415 `UNSUPPORTED_MEDIA_TYPE` | warn | no | `NOT_CALLED` / no |
 | `QUOTA_REJECTED` | 429 `QUOTA_EXCEEDED` or `RATE_LIMITED` | warn | no | `NOT_CALLED` / no |
@@ -112,6 +113,18 @@ are used where available; free-form provider text is neither classified nor logg
 Permanent tests specifically preserve application quota/rate rejection as
 `QUOTA_REJECTED`/`providerOutcome=NOT_CALLED`, while an OpenAI 429 is
 `PROVIDER_RATE_LIMITED`/`providerOutcome=RATE_LIMITED`.
+
+`PRIVACY_CONSENT_REQUIRED` is specific to the four AI-backed routes (`/api/chat`, `/api/compass`,
+`/api/cashflow-scenario`, `/api/investment-analysis`). In `compass`, `cashflow-scenario`, and
+`investment-analysis` it is checked immediately after body parsing, before any quota lookup/write,
+burst-rate-limit consumption, or provider call. `chat` is a partial exception, owed to its
+deterministic fact-chip path (never AI-bound, so never consent-gated): its pre-existing,
+body-independent per-IP burst rate limiter and its read-only session-quota lookup (used to render
+the quota badge for fact answers too) both run before the consent check, but the consent check
+still runs before the quota *write* and before any provider call — see `functions/api/chat.ts` for
+the exact ordering. Neither the burst counter nor the quota read touches OpenAI, costs anything, or
+exposes request content. The consent checkbox value itself is never logged — only the resulting
+terminal event's standard fields.
 
 ## Provider instrumentation
 
@@ -208,7 +221,7 @@ thresholds remain provisional until authorized preview evidence exists.
 | Quota distribution | Counts and ratios of safe quota decisions by route; no subject dimension | measurement-only |
 | Feature disabled/configuration invalid | Count of `FEATURE_DISABLED` and `CONFIGURATION_INVALID` terminals by route/release | zero invalid configuration candidate; disabled is operational state |
 | Deterministic financial regression | Relevant permanent finance suite failures | zero-tolerance invariant |
-| Analytics before opt-in | Ahrefs requests observed before consent in permanent no-egress checks | zero-tolerance invariant |
+| Analytics before opt-in | Cloudflare Web Analytics or Ahrefs requests observed before the matching consent channel in permanent no-egress checks | zero-tolerance invariant |
 
 Additional zero-tolerance invariants are no sensitive content in operational logs and no provider
 call while a route is disabled or invalid. They are contract failures, not percentile SLOs.

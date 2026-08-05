@@ -15,6 +15,7 @@ import {
     type ResponsesInputItem,
 } from '../_lib/responses.ts';
 import { readFeatureControl } from '../_lib/feature-controls.ts';
+import { hasValidAiPrivacyConsent } from '../_lib/privacy-consent.ts';
 import {
     createOperationalHandler,
     getOperationalState,
@@ -164,6 +165,21 @@ export function createHandler(deps: { fetchImpl?: FetchLike } & OperationalHandl
         recordQuotaDecision(operational, isLocal ? 'BYPASSED_LOCAL' : 'ALLOWED');
 
         try {
+            // ── Parse body first — the AI contextual consent gate below depends on it and
+            // must run before any quota lookup/write, rate limiting, or provider preparation.
+            const bodyResult = await readJsonBody<unknown>(request, requestId, MAX_BODY_BYTES);
+            if (!bodyResult.ok) return bodyResult.response;
+
+            // ── AI contextual consent gate ───────────────────────────────────────────
+            if (!hasValidAiPrivacyConsent(bodyResult.data as Record<string, unknown>)) {
+                return jsonError(
+                    400,
+                    'PRIVACY_CONSENT_REQUIRED',
+                    'Contextual confirmation is required before this request can be processed externally.',
+                    requestId,
+                );
+            }
+
             // ── Burst rate limit ────────────────────────────────────────────────────
             const clientIP = request.headers.get('CF-Connecting-IP') ?? 'unknown';
             if (!isLocal) {
@@ -197,10 +213,7 @@ export function createHandler(deps: { fetchImpl?: FetchLike } & OperationalHandl
                 }
             }
 
-            // ── Parse & validate ────────────────────────────────────────────────────
-            const bodyResult = await readJsonBody<unknown>(request, requestId, MAX_BODY_BYTES);
-            if (!bodyResult.ok) return bodyResult.response;
-
+            // ── Validate business payload (already parsed above) ────────────────────
             const validated = validateInput(bodyResult.data);
             if (!validated) {
                 return jsonError(422, 'VALIDATION_FAILED', 'Ungültige Eingabedaten.', requestId);

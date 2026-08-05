@@ -84,6 +84,44 @@ automation, which remain required regardless of this observation.
 musl-on-glibc diagnostics no longer occur, so the verifier correctly rejects them as stale rather
 than pre-approving them.
 
+### Fresh online advisory review (Phase 3-C Step 3E-A, superseding the 2026-08-01 zero-findings snapshot above)
+
+The `2026-08-01` `config/dependency-advisories.json` snapshot above is now stale: new advisories were
+published against this exact lockfile on 2026-08-03/2026-08-04. A fresh `npm audit --json` and a live
+GitHub Advisory Database scan (`scripts/security/github-advisory-scan.mjs`, all three types —
+`reviewed`, `unreviewed`, `malware`) against the unchanged canonical lockfile found **7 applicable
+GHSA records**, all `devDependencies`, none reachable from `dist/` or the deployed Pages Functions
+runtime:
+
+| Package/path | GHSA | Severity | Reachable via | Repository Dependabot alert |
+| --- | --- | --- | --- | --- |
+| `undici@7.28.0` (`wrangler@4.114.0 -> miniflare -> undici`) | GHSA-4cwx-7wf7-3272 | high | local `wrangler pages dev`/miniflare simulator only | #49, open |
+| `undici@7.28.0` (same path) | GHSA-m8rv-5g2x-5cg5, GHSA-jr45-8vmc-qm54, GHSA-v3r7-h72x-cjcm, GHSA-8xcm-r25x-g524 | medium (×4) | same | #52, #50, #51, #48, all open |
+| `fast-uri@3.1.4` (`@astrojs/check -> ... -> ajv -> fast-uri`) | GHSA-7p8r-x3mc-p8w7 | high | local `npm run check` (Astro/TS diagnostics) only | not yet alerted (GHAD/Dependabot sync lag) |
+| `brace-expansion@5.0.8` (`glob -> minimatch -> brace-expansion`) | GHSA-rgw5-rvv9-x895 | high | local build/test scripts' glob patterns only | not yet alerted (GHAD/Dependabot sync lag) |
+
+The separately-resolved top-level `undici@7.29.0` (pulled in by `jsdom`, used only by
+`tests/report-markdown.test.mjs`) is **not** in any vulnerable range — the fix for every one of the
+5 undici GHSAs above is `>=7.29.0`; only the nested copy `miniflare` pins at `7.28.0` is affected.
+
+**Applicability verdict: not-applicable to the deployed product for all 7.** `wrangler`, `miniflare`,
+and `@astrojs/check` are `devDependencies` (`dev: true` in the lockfile); `glob` is a devDependency
+used only by local repository scripts. None of the four packages above are imported by `functions/`
+or `src/`, and none are bundled into `dist/` or the Cloudflare Pages Functions deploy artifact. Each
+advisory's vulnerable capability is absent from how this repository actually exercises these
+packages: the undici findings require either a shared multi-tenant HTTP cache or an attacker-supplied
+duck-typed blob body — capabilities `wrangler pages dev`'s local single-developer simulator never
+exposes to untrusted network input; the `fast-uri` finding requires parsing an attacker-controlled
+URL — `@astrojs/check` only parses this repository's own local TypeScript/Astro/YAML config; the
+`brace-expansion` finding is a glob-pattern DoS — this repository's `glob` usage expands only
+repository-local file patterns, never external input. This session did not upgrade any dependency;
+resolving these (a `wrangler` major-version bump, `isSemVerMajor: true` per `npm audit`) remains
+future dependency-upgrade work, not a release blocker for the current preview candidate.
+
+Two of the seven (`fast-uri`, `brace-expansion`) are not yet Dependabot alerts for this repository
+even though the underlying GHSA records already exist in the live GitHub Advisory Database — a
+GHAD-to-Dependabot sync-lag observation, not a repository misconfiguration.
+
 ## Historical baseline — Astro 6.4.8 (superseded)
 
 The remainder of this section is preserved as a historical record of the Astro 6.4.8 graph reviewed
@@ -189,8 +227,15 @@ supported-runtime change, or activation of an inactive feature.
 
 `public/katex/` is **not** hand-vendored and is not committed. `scripts/sync-katex-assets.mjs`
 copies exactly `katex.min.css` and `fonts/` from the installed `katex` package (`node_modules/katex/dist`)
-into `public/katex/` via `predev`/`prebuild` npm hooks, so the served assets always match the locked
-`katex` version with no manual copy-paste drift. Math rendering itself happens at build time through
+into `public/katex/`, so the served assets always match the locked `katex` version with no manual
+copy-paste drift. `npm run dev` and `npm run build` both invoke this script **explicitly, as their
+own first step** — not through the implicit `predev`/`prebuild` npm lifecycle hooks. This is a
+deliberate release-critical decision: those hooks silently do not run when the operator's npm
+configuration sets `ignore-scripts=true` (a common personal/team npm hardening default, unrelated to
+this project), which previously made a plain `npm run build` produce a build silently missing the
+KaTeX assets on any such host while an isolated container build (which never inherits a host user's
+`~/.npmrc`) built correctly — see Phase 3-C Step 2B-1RR2/RR3. Explicit invocation makes the build
+correct regardless of the operator's npm lifecycle-script configuration. Math rendering itself happens at build time through
 `rehype-katex` (see `astro.config.mjs`); the site never loads KaTeX's client-side JavaScript bundle
 (`katex.js`/`katex.mjs`), so those files — and the unused `contrib/` auto-render helpers — are not
 generated at all. This removed six CodeQL `js/incomplete-sanitization` findings that were only

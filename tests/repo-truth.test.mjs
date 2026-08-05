@@ -143,9 +143,21 @@ test('README distinguishes repository state from deployed production state', () 
 test('README framework major matches package.json and release language remains qualified', () => {
   const frameworkMajor = Number(PACKAGE_JSON.dependencies.astro.match(/(\d+)/)[1]);
   assert.match(README, new RegExp(`Astro ${frameworkMajor}\\b`));
+  // Never claim qualified external legal review itself is finished, or that legal bases were
+  // already reviewed — that would overclaim beyond the owner's documented risk-acceptance decision.
   assert.doesNotMatch(README, /qualified (?:legal|privacy-policy) review (?:has|was|is) (?:completed|received|done)/i);
   assert.doesNotMatch(README, /currently reviewed statement of legal bases/i);
-  assert.match(README, /qualified (?:privacy-policy|legal) review[\s\S]{0,100}(?:open|required|remaining)/i);
+  // OWNER-AUTHORIZED GOVERNANCE TEST SYNCHRONIZATION (Phase 3-C Step 3E-A): the prior assertion here
+  // required README to state qualified privacy-policy review "remains open" in the general sense.
+  // That framing is now stale — the owner recorded an explicit, durable release decision distinguishing
+  // completed technical/privacy review + owner risk acceptance from still-open, trigger-based *external
+  // qualified* review. These five replacement assertions verify the new decision is stated precisely,
+  // without ever claiming qualified external review or absolute legal compliance is complete.
+  assert.match(README, /technical\/privacy review is complete/i);
+  assert.match(README, /owner has recorded an explicit risk-acceptance decision/i);
+  assert.match(README, /qualified external legal review is trigger-based, not completed/i);
+  assert.match(README, /external review\s+becomes required again under the explicit trigger conditions/i);
+  assert.match(README, /not a claim of absolute legal compliance/i);
 });
 
 test('README keeps XRechnung support separate from KoSIT validation', () => {
@@ -228,5 +240,76 @@ test('.github/DEPLOYMENT.md stays a compatibility index, not a second deployment
     DEPLOYMENT,
     /separate operations/i,
     'must state that git rollback and production rollback are separate operations'
+  );
+});
+
+test('README and Architecture distinguish public master from deployed production, and never claim CodeQL/Dependabot are unconfigured or that no public-safe release commit exists', () => {
+  const architecture = readFileSync(path.join(ROOT, 'docs/ARCHITECTURE.md'), 'utf8');
+
+  for (const document of [README, architecture]) {
+    // Production lag must stay explicit until Phase 4 — this is a stable truth, not a volatile fact.
+    assert.match(
+      document,
+      /production[^.\n]{0,120}(?:lag|has not|not (?:yet )?(?:deployed|live)|predat|serves the deployment predating)/i,
+      'must explicitly state that deployed production lags/has not received the described repository work'
+    );
+  }
+
+  // Public master vs. production must be stated as two separate states somewhere in README.
+  assert.match(
+    README,
+    /master[^.\n]{0,200}separate state/i,
+    'README must explicitly distinguish public master from deployed production as separate states'
+  );
+
+  const stalenessPatterns = [
+    /Dependabot[^.\n]{0,80}(?:not|un)configured/i,
+    /CodeQL[^.\n]{0,80}(?:not|un)configured/i,
+    /no public-safe release commit/i,
+    /(?:no|not).{0,20}public-safe (?:release )?commit exists/i,
+  ];
+  for (const document of [README, architecture]) {
+    for (const pattern of stalenessPatterns) {
+      assert.doesNotMatch(
+        document,
+        pattern,
+        `must not claim CodeQL/Dependabot are unconfigured or that no public-safe release commit exists (pattern: ${pattern})`
+      );
+    }
+  }
+});
+
+test('any browser-side fetch to api.github.com stays documented in the living privacy service matrix', () => {
+  // This does not require removing or gating the egress -- only that it stays documented
+  // while it exists, so this specific automatic, unconsented widget flow (found by the
+  // Phase 3-C Step 2A-C independent review) can never silently drop out of the living
+  // privacy record again. Scoped to api.github.com specifically, not a generic every-CSP-host
+  // check, since other already-permitted origins (e.g. Ahrefs) are identified in the matrix by
+  // service name rather than by literal domain string.
+  const headers = readFileSync(path.join(ROOT, 'public/_headers'), 'utf8');
+  const cspAllowsIt = /connect-src[^;]*\bhttps:\/\/api\.github\.com\b/.test(headers);
+
+  const srcFiles = [];
+  const walk = (dir) => {
+    for (const entry of readdirSync(path.join(ROOT, dir), { withFileTypes: true })) {
+      const rel = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(rel);
+      else if (/\.(ts|tsx|astro|svelte|mjs|js)$/.test(entry.name)) srcFiles.push(rel);
+    }
+  };
+  walk('src');
+  const fetchedFromSrc = srcFiles.some((file) =>
+    readFileSync(path.join(ROOT, file), 'utf8').includes('https://api.github.com')
+  );
+
+  if (!cspAllowsIt && !fetchedFromSrc) return; // the egress no longer exists; nothing to document.
+
+  const privacyDoc = readFileSync(
+    path.join(ROOT, 'docs/operations/privacy-consent-external-services.md'),
+    'utf8'
+  );
+  assert.ok(
+    privacyDoc.includes('api.github.com'),
+    'api.github.com is CSP-permitted and/or fetched from src/, but is not mentioned in docs/operations/privacy-consent-external-services.md'
   );
 });

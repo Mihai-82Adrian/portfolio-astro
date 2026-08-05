@@ -52,8 +52,13 @@ const description = 'Privacy policy and data protection information according to
           <li>Server-Logdaten (IP-Adresse, Browser-Typ, Zeitstempel, besuchte Seiten)</li>
           <li>Kommentardaten über Giscus, sofern aktiv geladen (GitHub-Nutzername, Avatar, Kommentartext)</li>
           <li>Eingaben in KI-gestützte Funktionen, sofern aktiv genutzt (siehe Abschnitt 7)</li>
-          <li>Optional: anonymisierte Seitenaufruf-Daten über Ahrefs Web Analytics, nur nach Zustimmung (siehe Abschnitt 9)</li>
-          <li>Technische Daten zur Bereitstellung der Website</li>
+          <li>Optional: technische Performance-Kennzahlen über Cloudflare Web Analytics, nur nach Zustimmung (siehe Abschnitt 9)</li>
+          <li>Optional: anonymisierte Zugriffs- und Herkunftsdaten über Ahrefs Web Analytics, nur nach Zustimmung (siehe Abschnitt 9)</li>
+          <li>Technische Daten zur Bereitstellung der Website, im Browser lokal gespeichert
+            (<code>localStorage</code>), nie an einen Server übermittelt: Ihre Consent-Einstellungen,
+            Ihre Theme-/Sprachpräferenz, der lokale Eingabe- und Ergebniszustand der Fin-Tools
+            (z. B. Brutto-Netto-, Cashflow-, Investment- oder Founder-Compass-Rechner) sowie
+            clientseitige Abkühlzeiten für KI-Funktionen</li>
         </ul>
 
         <h3 class="text-xl font-medium mb-4 mt-8">Wofür nutzen wir Ihre Daten?</h3>
@@ -98,9 +103,17 @@ const description = 'Privacy policy and data protection information according to
             https://www.cloudflare.com/privacypolicy/
           </a>
         </p>
-        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
           <strong>Datenübermittlung USA:</strong> Cloudflare ist nach dem EU-US Data Privacy Framework
           zertifiziert und bietet angemessenes Datenschutzniveau.
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          <strong>Rollenverteilung:</strong> Cloudflares eigene Angaben beschreiben je nach
+          Datenkategorie und vertraglicher Grundlage unterschiedliche Rollen — unter anderem als
+          Auftragsverarbeiter für bestimmte Kundendaten und als eigenständig Verantwortlicher für
+          andere Datenkategorien (z. B. Netzwerk- und Sicherheitstelemetrie). Welche Rolle für welche
+          bei diesem Hosting-Setup konkret anfallende Datenkategorie zutrifft, ist Teil der noch
+          ausstehenden qualifizierten Datenschutz-Prüfung.
         </p>
       </section>
 
@@ -126,7 +139,12 @@ const description = 'Privacy policy and data protection information according to
           technischer Bereitstellung und Sicherheit der Website).
         </p>
         <p class="text-text-secondary-light dark:text-text-secondary-dark">
-          <strong>Speicherdauer:</strong> Die Logdaten werden automatisch nach maximal 30 Tagen gelöscht.
+          <strong>Speicherdauer:</strong> Die Echtzeit-/Konsolenprotokolle unserer Cloudflare-Pages-
+          Functions (z. B. für die serverseitige Verarbeitung der KI-Endpunkte) werden laut Cloudflares
+          eigener Dokumentation nicht dauerhaft gespeichert. Für die allgemeinen Edge-/Zugriffsprotokolle
+          der Cloudflare-Infrastruktur nennt Cloudflare keine für dieses Projekt verifizierte, feste
+          Aufbewahrungsfrist; eine entsprechende Prüfung ist Teil der noch ausstehenden Cloudflare-
+          Log-Review.
         </p>
       </section>
 
@@ -205,20 +223,56 @@ const description = 'Privacy policy and data protection information according to
           Eine Übermittlung an OpenAI (OpenAI OpCo, LLC, San Francisco, USA) erfolgt
           <strong>ausschließlich</strong>, wenn Sie eine dieser Funktionen aktiv nutzen — z. B.
           eine Chat-Nachricht senden oder auf "KI-Analyse"/"Szenario-Stresstest starten" klicken.
-          Es findet keine automatische oder im Hintergrund laufende Übermittlung statt. Ein
-          entsprechender Hinweis wird unmittelbar vor der jeweiligen Aktion angezeigt.
+          Es findet keine automatische oder im Hintergrund laufende Übermittlung statt. Unmittelbar vor
+          der jeweiligen Aktion zeigen wir einen kontextuellen Hinweis mit einem expliziten, nicht
+          vorausgewählten Kontrollkästchen; ohne dessen Bestätigung wird keine Anfrage an OpenAI
+          gesendet.
         </p>
         <h3 class="text-xl font-medium mb-4 mt-8">Datenverarbeitung</h3>
         <ul class="list-disc list-inside space-y-2 text-text-secondary-light dark:text-text-secondary-dark mb-4">
           <li>Übermittelt werden je nach Funktion: Ihre Chat-Nachricht bzw. eingefügte Stellenbeschreibung,
             Ihre Antworten im Founder-Compass-Fragebogen, oder die von Ihnen im Browser berechneten
             Finanzkennzahlen (Cashflow-/Investment-Tool).</li>
-          <li>Die Verarbeitung erfolgt zustandslos (<code>store: false</code>) — OpenAI speichert die
-            Anfrage nicht dauerhaft zur Modell-Weiterverwendung.</li>
-          <li>Zur Missbrauchsvermeidung wird serverseitig ein wöchentliches Nutzungslimit pro
-            gehashter IP-Adresse (SHA-256, Cloudflare) durchgesetzt; die Klartext-IP wird nicht an
-            OpenAI übermittelt.</li>
+          <li>Mehrere technisch unabhängige Aussagen gelten gleichzeitig, aber getrennt voneinander:
+            (1) <code>store: false</code> verhindert nur, dass die Anfrage serverseitig für eine
+            spätere Konversationsfortsetzung vorgehalten wird — keine allgemeine
+            Nicht-Speicherungs-Garantie; (2) unabhängig davon ist für dieses Projekt die freiwillige
+            Weitergabe von API-Eingaben und -Ausgaben an OpenAI (Model Feedback Sharing sowie
+            Evaluation-/Fine-Tuning-Datenfreigabe) auf Organisationsebene bewusst aktiviert — dies ist
+            eine Entscheidung des Betreibers zur freiwilligen Unterstützung der Modellqualität und
+            -verbesserung, kein alleiniger Effekt von <code>store: false</code>, und unabhängig davon
+            aktiviert oder deaktiviert; OpenAI kann diese Daten zur Qualitätsbewertung sowie zur
+            Verbesserung und zum Training seiner Modelle verwenden; (3) eine Zero-Data-Retention-
+            Vereinbarung (ZDR) wird nicht beansprucht; (4) ebenfalls unabhängig davon kann OpenAI
+            Daten zeitlich begrenzt — nach aktueller Angabe bis zu 30 Tage — zur Missbrauchs- und
+            Sicherheitsüberwachung vorhalten.</li>
+          <li>Geben Sie daher keine sensiblen, vertraulichen oder personenbezogenen Daten Dritter in
+            eine KI-gestützte Funktion ein. Verwenden Sie nach Möglichkeit anonymisierte oder
+            synthetische Angaben. Die Nutzung der KI-Funktionen ist stets optional; die
+            deterministischen Berechnungen und Kernfunktionen der Finanz-Tools sind unabhängig davon
+            nutzbar.</li>
+          <li>Zur Missbrauchsvermeidung wird serverseitig ein Nutzungslimit pro gehashter IP-Adresse
+            (SHA-256, Cloudflare) durchgesetzt — für den Chat-Assistenten mit einem 24-Stunden-Fenster,
+            für die Stresstest-/Analyse-Funktionen (Founder Compass, Cashflow, Investment) mit einem
+            7-Tage-Fenster; die Klartext-IP wird nicht an OpenAI übermittelt.</li>
         </ul>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <strong>Internationale Übermittlung:</strong> Die Verarbeitung findet in den USA statt. Die im
+          Einzelfall anwendbaren Übermittlungsmechanismen (z. B. Standardvertragsklauseln) richten sich
+          nach der vertraglichen Beziehung zu OpenAI und sind Gegenstand der noch ausstehenden
+          qualifizierten Datenschutz-Prüfung.
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <strong>Automatisierte Entscheidungsfindung:</strong> Die KI-Funktionen erzeugen
+          erläuternde Texte, Bewertungen oder Profile; sie treffen keine automatisierte Entscheidung,
+          die unmittelbar eine Vergabe, Ablehnung oder einen sonstigen verbindlichen Vertragsabschluss
+          herbeiführt. Ob dies abschließend die Voraussetzungen von Art. 22 DSGVO ausschließt, ist —
+          wie die übrigen Rechtsgrundlagen-Fragen in diesem Abschnitt — Gegenstand der noch
+          ausstehenden qualifizierten Datenschutz-Prüfung und hier nicht als feststehend erklärt. Die
+          Ergebnisse ersetzen keine rechtliche, steuerliche oder finanzielle Beratung; die
+          deterministischen Berechnungen der Finanz-Tools bleiben maßgeblich und werden durch
+          KI-Text niemals verändert oder überschrieben.
+        </p>
         <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
           <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. a DSGVO (Einwilligung durch die
           aktive Nutzung der Funktion nach vorherigem Hinweis) bzw. Art. 6 Abs. 1 lit. f DSGVO
@@ -239,7 +293,9 @@ const description = 'Privacy policy and data protection information according to
           Auf einzelnen Projektseiten (z. B. Mediathek-Bereich) können YouTube-Videos und
           Spotify-Inhalte eingebunden werden. Diese werden als Platzhalter angezeigt und erst
           nach Ihrem aktiven Klick geladen — es findet keine automatische Verbindung zu
-          youtube.com oder spotify.com statt.
+          youtube-nocookie.com oder spotify.com statt. YouTube-Einbettungen nutzen ausschließlich
+          die von Google bereitgestellte, datenschutzfreundlichere Domain
+          <code>youtube-nocookie.com</code> ("erweiterter Datenschutzmodus").
         </p>
         <p class="text-text-secondary-light dark:text-text-secondary-dark">
           Nach einem Klick verarbeitet der jeweilige Anbieter Ihre IP-Adresse und ggf. weitere
@@ -250,14 +306,45 @@ const description = 'Privacy policy and data protection information according to
 
       <!-- Web Analytics -->
       <section class="mb-12">
-        <h2 class="text-2xl font-semibold mb-6">9. Web-Analyse (Ahrefs Web Analytics)</h2>
+        <h2 class="text-2xl font-semibold mb-6">9. Web-Analyse (Performance- und Zugriffsanalyse)</h2>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Diese Website nutzt zwei unabhängig voneinander wählbare, optionale Analyse-Zwecke.
+          Keines der beiden Skripte wird <strong>standardmäßig geladen</strong> — sie starten erst,
+          nachdem Sie im Datenschutz-Banner (oder über "Datenschutz-Einstellungen" im Footer) die
+          jeweilige Option aktiv gewählt haben.
+        </p>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Performance-Analyse (Cloudflare Web Analytics)</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          Bei Zustimmung misst Cloudflare Web Analytics (Cloudflare, Inc.) technische
+          Performance-Kennzahlen (u. a. Core Web Vitals, Ladezeiten), um Performance-Probleme und
+          technische Regressionen zu erkennen. Ohne diese Zustimmung wird keine Verbindung zu
+          static.cloudflareinsights.com oder cloudflareinsights.com aufgebaut.
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <strong>Datenverarbeitung:</strong> Laut Anbieter setzt Cloudflare Web Analytics keine
+          Cookies und erstellt kein individuelles Nutzerprofil.
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <strong>Widerruf:</strong> Sie können Ihre Zustimmung jederzeit über
+          "Datenschutz-Einstellungen" im Footer mit Wirkung für zukünftige Seitenaufrufe
+          widerrufen (Art. 7 Abs. 3 DSGVO).
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
+          <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. a DSGVO (Einwilligung).
+        </p>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          <strong>Cloudflare Datenschutz:</strong>
+          <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer" class="link">
+            https://www.cloudflare.com/privacypolicy/
+          </a>
+        </p>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Zugriffs- und Herkunftsanalyse (Ahrefs Web Analytics)</h3>
         <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
           Diese Website nutzt optional Ahrefs Web Analytics (Ahrefs Pte. Ltd., Singapur) zur
-          statistischen Auswertung von Seitenaufrufen. Das Analyse-Skript wird
-          <strong>nicht standardmäßig geladen</strong> — es startet erst, nachdem Sie im
-          Datenschutz-Banner (oder über "Datenschutz-Einstellungen" im Footer) aktiv "Analyse
-          zulassen" gewählt haben. Ohne diese Zustimmung wird keine Verbindung zu
-          analytics.ahrefs.com aufgebaut.
+          statistischen Auswertung von Seitenaufrufen, Zugriffsquellen und genutzten Seiten. Ohne
+          Zustimmung wird keine Verbindung zu analytics.ahrefs.com aufgebaut.
         </p>
         <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
           <strong>Datenverarbeitung:</strong> Bei aktivierter Analyse verarbeitet Ahrefs
@@ -291,6 +378,15 @@ const description = 'Privacy policy and data protection information according to
           serverseitig mit einem Fehler abgelehnt, es erfolgt keine Versendung und keine
           Speicherung Ihrer Formulardaten über diesen Weg. Sobald der Dienst aktiviert wird,
           wird diese Erklärung entsprechend aktualisiert.
+        </p>
+
+        <h3 class="text-xl font-medium mb-4 mt-8">Externe Terminbuchung (cal.eu)</h3>
+        <p class="text-text-secondary-light dark:text-text-secondary-dark">
+          Auf der Serviceseite "Datenaufbereitung für KI" verlinke ich zu einem externen
+          Terminbuchungs-Dienst (cal.eu). Beim Klick auf diesen Link verlassen Sie diese Website; es
+          findet keine Übermittlung von Daten durch mich an diesen Dienst statt und die Seite lädt
+          keine cal.eu-Ressourcen automatisch. Die Datenverarbeitung nach dem Klick unterliegt der
+          Datenschutzerklärung des jeweiligen Anbieters.
         </p>
       </section>
 

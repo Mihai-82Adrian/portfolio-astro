@@ -33,6 +33,9 @@ const copy = {
     welcome: "Hi! Ich bin Mihai's KI-Assistent. Ich beantworte Fragen zu Fähigkeiten, Erfahrung, Zertifikaten und Projekten.",
     warning: '⚠️ Antworten werden generiert und können Fehler enthalten.',
     aiDisclosure: 'Deine Nachrichten werden bei Absenden zur Verarbeitung an OpenAI (USA) übermittelt.',
+    aiConsentLabel: 'Ich stimme zu, dass meine Eingabe und die KI-generierte Antwort an OpenAI übermittelt werden. Für dieses Projekt ist die freiwillige Weitergabe von API-Eingaben und -Ausgaben an OpenAI aktiviert. OpenAI kann diese Daten zur Qualitätsbewertung sowie zur Verbesserung und zum Training seiner Modelle verwenden. Bitte geben Sie keine sensiblen, vertraulichen oder personenbezogenen Daten über sich oder Dritte ein. Verwenden Sie nach Möglichkeit anonymisierte oder synthetische Angaben. Die KI-Funktion ist optional.',
+    aiConsentRequired: 'Bitte bestätige zuerst die Zustimmung zur externen Verarbeitung oben.',
+    jdConsentWarning: 'Verwenden Sie keine echten Steuer-, Konto-, Gehalts-, Kunden- oder vertraulichen Unternehmensdaten.',
     chips: ['📋 Kontakt', '💼 Aktuelle Rolle', '🎓 Zertifikate', '🚀 Projekte'],
     askPlaceholder: 'Eine Frage stellen...',
     chatMessage: 'Chat-Nachricht',
@@ -57,6 +60,9 @@ const copy = {
     welcome: "Hi! I'm Mihai's AI assistant. I can answer questions about his skills, experience, certifications, and projects.",
     warning: '⚠️ Answers may be generated and could contain errors.',
     aiDisclosure: 'Your messages are sent to OpenAI (USA) for processing when you submit them.',
+    aiConsentLabel: 'I consent to my input and the AI-generated response being sent to OpenAI. This project has enabled voluntary sharing of API inputs and outputs with OpenAI. OpenAI may use this data for quality evaluation and to improve or train its models. Do not enter sensitive, confidential, or third-party personal data. Use anonymized or synthetic information whenever possible. AI is optional.',
+    aiConsentRequired: 'Please confirm the consent to external processing above first.',
+    jdConsentWarning: 'Do not use real tax, account, salary, customer, or confidential business data.',
     chips: ['📋 Contact', '💼 Current Role', '🎓 Certifications', '🚀 Projects'],
     askPlaceholder: 'Ask a question...',
     chatMessage: 'Chat message',
@@ -81,6 +87,9 @@ const copy = {
     welcome: 'Salut! Sunt asistentul AI al lui Mihai. Pot răspunde la întrebări despre competențe, experiență, certificări și proiecte.',
     warning: '⚠️ Răspunsurile sunt generate și pot conține erori.',
     aiDisclosure: 'Mesajele tale sunt trimise către OpenAI (SUA) pentru procesare atunci când le trimiți.',
+    aiConsentLabel: 'Sunt de acord ca textul introdus de mine și răspunsul generat de AI să fie transmise către OpenAI. Pentru acest proiect este activată partajarea voluntară cu OpenAI a datelor de intrare și ieșire din API. OpenAI poate utiliza aceste date pentru evaluarea calității și pentru îmbunătățirea sau antrenarea modelelor sale. Nu introduceți date sensibile sau confidențiale și nici date cu caracter personal despre dumneavoastră sau despre terți. Folosiți, pe cât posibil, informații anonimizate sau sintetice. Funcția AI este opțională.',
+    aiConsentRequired: 'Te rugăm să confirmi mai întâi consimțământul pentru procesarea externă de mai sus.',
+    jdConsentWarning: 'Nu introduceți date fiscale, de cont, salariale, ale clienților sau confidențiale ale companiei, reale.',
     chips: ['📋 Contact', '💼 Rol curent', '🎓 Certificări', '🚀 Proiecte'],
     askPlaceholder: 'Pune o întrebare...',
     chatMessage: 'Mesaj chat',
@@ -174,6 +183,19 @@ const title = props.title || copy.title;
       </div>
     </div>
 
+    <!-- AI contextual consent (chat tab) -->
+    <div class="chat-consent px-3 pt-2 bg-white dark:bg-dark-surface border-t border-gray-200 dark:border-dark-border shrink-0">
+      <label class="flex items-start gap-2 text-xs text-text-secondary-light dark:text-text-secondary-dark cursor-pointer">
+        <input
+          type="checkbox"
+          class="chat-consent-checkbox mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 dark:border-gray-600 text-eucalyptus-600 focus-visible:ring-2 focus-visible:ring-eucalyptus-500"
+          aria-describedby={`${id}-chat-consent-error`}
+        />
+        <span>{copy.aiConsentLabel}</span>
+      </label>
+      <p id={`${id}-chat-consent-error`} class="chat-consent-error hidden mt-1 text-xs text-error" role="alert">{copy.aiConsentRequired}</p>
+    </div>
+
     <!-- Chat Input -->
     <form class="chat-form p-3 bg-white dark:bg-dark-surface border-t border-gray-200 dark:border-dark-border flex gap-2 items-end shrink-0">
       <textarea
@@ -240,6 +262,20 @@ const title = props.title || copy.title;
         aria-label={copy.jdInput}
       ></textarea>
 
+      <!-- AI contextual consent (JD tab) -->
+      <div class="jd-consent mt-2">
+        <p class="mb-1 text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark">{copy.jdConsentWarning}</p>
+        <label class="flex items-start gap-2 text-xs text-text-secondary-light dark:text-text-secondary-dark cursor-pointer">
+          <input
+            type="checkbox"
+            class="jd-consent-checkbox mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 dark:border-gray-600 text-eucalyptus-600 focus-visible:ring-2 focus-visible:ring-eucalyptus-500"
+            aria-describedby={`${id}-jd-consent-error`}
+          />
+          <span>{copy.aiConsentLabel}</span>
+        </label>
+        <p id={`${id}-jd-consent-error`} class="jd-consent-error hidden mt-1 text-xs text-error" role="alert">{copy.aiConsentRequired}</p>
+      </div>
+
       <!-- Character Counter -->
       <div class="flex justify-between items-center mt-2">
         <span class="jd-char-count text-xs text-gray-400">0 / 6,000</span>
@@ -259,6 +295,8 @@ const title = props.title || copy.title;
 </div>
 
 <script>
+  import { AI_PRIVACY_NOTICE_VERSION } from '../../functions/_lib/privacy-consent.ts';
+
   class ChatWidget {
     container: HTMLElement;
     // Chat tab elements
@@ -267,11 +305,15 @@ const title = props.title || copy.title;
     messagesEl: HTMLElement;
     submitBtn: HTMLButtonElement | null;
     chipsContainer: HTMLElement | null;
+    chatConsentCheckbox: HTMLInputElement | null;
+    chatConsentError: HTMLElement | null;
     // JD tab elements
     jdInput: HTMLTextAreaElement | null;
     jdAnalyzeBtn: HTMLButtonElement | null;
     jdCharCount: HTMLElement | null;
     jdResults: HTMLElement | null;
+    jdConsentCheckbox: HTMLInputElement | null;
+    jdConsentError: HTMLElement | null;
     // Tab & language
     tabs: NodeListOf<HTMLButtonElement>;
     panels: NodeListOf<HTMLElement>;
@@ -289,11 +331,15 @@ const title = props.title || copy.title;
       this.messagesEl = el.querySelector('.chat-messages') as HTMLElement;
       this.submitBtn = this.form.querySelector('.chat-send-btn');
       this.chipsContainer = el.querySelector('.quick-chips');
+      this.chatConsentCheckbox = el.querySelector('.chat-consent-checkbox');
+      this.chatConsentError = el.querySelector('.chat-consent-error');
 
       this.jdInput = el.querySelector('.jd-input');
       this.jdAnalyzeBtn = el.querySelector('.jd-analyze-btn');
       this.jdCharCount = el.querySelector('.jd-char-count');
       this.jdResults = el.querySelector('.jd-results');
+      this.jdConsentCheckbox = el.querySelector('.jd-consent-checkbox');
+      this.jdConsentError = el.querySelector('.jd-consent-error');
 
       this.tabs = el.querySelectorAll('.chat-tab');
       this.panels = el.querySelectorAll('.chat-panel');
@@ -358,6 +404,18 @@ const title = props.title || copy.title;
       return {
         'Content-Type': 'application/json',
       };
+    }
+
+    // Gate for the two AI-invoking actions (free-text chat, JD analysis). Deterministic fact
+    // chips never call OpenAI, so they are intentionally not gated here.
+    requireConsent(checkbox: HTMLInputElement | null, errorEl: HTMLElement | null): boolean {
+      if (checkbox?.checked) {
+        errorEl?.classList.add('hidden');
+        return true;
+      }
+      errorEl?.classList.remove('hidden');
+      checkbox?.focus();
+      return false;
     }
 
     updateQuota(quotaData: { q: number; jd: number; maxQ: number; maxJd: number } | undefined) {
@@ -454,6 +512,7 @@ const title = props.title || copy.title;
       e.preventDefault();
       const text = this.input.value.trim();
       if (!text) return;
+      if (!this.requireConsent(this.chatConsentCheckbox, this.chatConsentError)) return;
 
       this.appendMessage(text, true);
       this.input.value = '';
@@ -472,7 +531,13 @@ const title = props.title || copy.title;
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: this.getApiHeaders(),
-          body: JSON.stringify({ message: text, lang, tab: 'chat' })
+          body: JSON.stringify({
+            message: text,
+            lang,
+            tab: 'chat',
+            privacyConsent: true,
+            privacyNoticeVersion: AI_PRIVACY_NOTICE_VERSION,
+          })
         });
 
         this.removeLoading();
@@ -526,6 +591,7 @@ const title = props.title || copy.title;
 
       const text = this.jdInput.value.trim();
       if (text.length < 50) return;
+      if (!this.requireConsent(this.jdConsentCheckbox, this.jdConsentError)) return;
 
       this.jdAnalyzeBtn.disabled = true;
       this.jdAnalyzeBtn.textContent = '⏳ Analyzing...';
@@ -550,7 +616,13 @@ const title = props.title || copy.title;
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: this.getApiHeaders(),
-          body: JSON.stringify({ message: text, lang, tab: 'jd' })
+          body: JSON.stringify({
+            message: text,
+            lang,
+            tab: 'jd',
+            privacyConsent: true,
+            privacyNoticeVersion: AI_PRIVACY_NOTICE_VERSION,
+          })
         });
 
         if (!res.ok) {
@@ -977,6 +1049,7 @@ const title = props.title || copy.title;
       'UNSUPPORTED_MEDIA_TYPE': 'Request could not be processed. Please reload and try again.',
       'MALFORMED_JSON': 'Request could not be processed. Please reload and try again.',
       'ORIGIN_REJECTED': 'Request could not be processed. Please reload and try again.',
+      'PRIVACY_CONSENT_REQUIRED': 'Please confirm the consent to external processing before sending.',
       'PAYLOAD_TOO_LARGE': 'Message is too long.',
       'VALIDATION_FAILED': 'Please check your input and try again.',
       'FEATURE_DISABLED': '\ud83d\udd27 AI-assisted analysis is temporarily unavailable. The deterministic answers (Contact, Certifications, Role, Projects) still work!',

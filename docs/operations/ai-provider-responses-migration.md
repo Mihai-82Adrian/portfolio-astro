@@ -67,14 +67,21 @@ persistence OpenAI would otherwise use for persisted response objects and future
 disable OpenAI's own abuse-monitoring retention, which OpenAI applies independently of `store` for
 policy-enforcement purposes on a bounded retention window.
 
-Separately — and not as an effect of `store: false` — OpenAI's platform-wide default is that API
-data is not used to train its models unless the organization has explicitly opted in; this project
-has not opted in. Do not attribute this non-training default to the `store` flag in any product or
-legal copy: an organization that *did* opt into training would still see that training use with
-`store: false` set, because the two settings are independent. This project makes no claim of Zero
-Data Retention (ZDR) — ZDR is a distinct, separately-negotiated status this account has not been
-independently confirmed to have. Do not represent `store: false` as equivalent to ZDR in any
-product or legal copy.
+Separately — and not as an effect of `store: false` — this project's OpenAI organization has
+**intentionally enabled** voluntary sharing of API inputs and outputs with OpenAI: model feedback
+sharing, and evaluation/fine-tuning data sharing, are both enabled for this account, confirmed
+directly by the owner (Phase 3-C Step 3D, `OWNER-CONFIRMED`), not inferred from OpenAI's general
+default policy. The purpose is a deliberate, voluntary contribution to model quality and
+improvement. OpenAI may use this shared data for quality evaluation and to improve or train its
+models. Do not attribute this sharing setting to the `store` flag in any product or legal copy:
+`store: false` and organization-level input/output sharing are independent controls, and enabling
+or disabling one has no effect on the other. This project makes no claim of Zero Data Retention
+(ZDR) — ZDR is a distinct, separately-negotiated status this account has not been independently
+confirmed to have. Do not represent `store: false` as equivalent to ZDR, and do not represent it as
+disabling organization-level sharing, in any product or legal copy. Because sharing is enabled,
+every AI-triggering client action must disclose it before the request and must warn against
+entering sensitive, confidential, or third-party personal data — see the contextual consent
+contract in §9 and [privacy-consent-external-services.md](privacy-consent-external-services.md).
 
 ## 4. Streaming adapter contract
 
@@ -131,17 +138,38 @@ current fixed per-endpoint salt string.
 
 ## 9. Privacy-policy delta (R3.1 stays open)
 
-`src/pages/datenschutz.astro` (the sole legally-canonical policy; the `en`/`ro` variants defer to
-it) currently has **no section describing OpenAI processing of AI-tool submissions at all** —
-not stale, simply absent. A materially complete policy would need to disclose, at minimum: that
-message/report/analysis content submitted to the four AI tools is sent to OpenAI, LLC (or its
-processing entity) for a single stateless completion; that `store: false` is set but does not
-constitute Zero Data Retention (§3); OpenAI's own bounded abuse-monitoring retention window;
-the legal basis (likely Art. 6(1)(f) or (b) DSGVO depending on how the tools are framed); and
-international-transfer wording (SCCs / EU-US Data Privacy Framework status for OpenAI, mirroring
-the existing Cloudflare section's approach). This is a **finding, not a fix** — per R3.1, privacy
-copy requires qualified legal review before publication, and this document does not author or
-publish that legal conclusion. `R3.1` remains open until that review happens.
+**Correction (Phase 3-C Step 2A):** an earlier version of this section stated that
+`src/pages/datenschutz.astro` had no section describing OpenAI processing at all. That is no longer
+current — the policy now carries a dedicated "KI-gestützte Funktionen (OpenAI)" section (§7)
+covering trigger/timing, transmitted-data categories per tool, `store: false` wording, the
+hashed-IP quota mechanism, a stated legal basis, and a link to OpenAI's privacy policy. This
+document's prior claim was stale, not the policy; it is corrected here as a purely factual update,
+with no legal conclusion drawn about whether that section's wording is adequate.
+
+Whether the current §7 wording is materially complete and correctly grounded (retention framing,
+legal-basis choice, international-transfer wording, abuse-monitoring-window disclosure) is exactly
+the kind of question the qualified privacy review evaluates — see the Phase 3-C Step 2A review
+dossier for the detailed, source-grounded findings and the specific reviewer questions raised
+against this section. `R3.1` remains open until that qualified review responds; this document does
+not author or publish that legal conclusion.
+
+**Update (Phase 3-C Step 2B-2, implemented, validated, and integrated into canonical):** the two purely factual
+findings from that dossier (`PRIV-015`, the Chat quota window mis-stated as weekly instead of
+24-hour, and the `store: false`/training/abuse-monitoring conflation in `PRIV-003`/`PRIV-004`) are
+corrected in `datenschutz.astro` §7. The legal-basis and Cloudflare controller/processor questions
+(`PRIV-005`, `PRIV-006`, `PRIV-016`) remain open, unchanged, pending qualified review — this wave
+does not touch legal-basis wording. Separately, every AI-triggering client action now requires an
+explicit, unchecked-by-default, per-surface contextual consent checkbox before a request is built,
+and all four AI Functions reject the request with `400 PRIVACY_CONSENT_REQUIRED` before any quota
+write or provider call if `{ privacyConsent: true, privacyNoticeVersion: "ai-openai-v2" }` is
+absent. `ai-openai-v2` (Phase 3-C Step 3D) supersedes the prior `ai-openai-v1` notice: it discloses
+the organization-level OpenAI sharing policy above and warns against submitting sensitive,
+confidential, or third-party personal data. A request carrying the superseded `ai-openai-v1` value
+is rejected exactly like any other unknown version, by the same exact-match check. `compass`/`cashflow-scenario`/`investment-analysis` check this before any rate-limit or
+quota work at all; `chat`'s pre-existing burst limiter and read-only quota lookup (shared with its
+consent-exempt fact-chip path) run first, an accepted and documented ordering exception — see
+[pages-functions-contracts.md](pages-functions-contracts.md) and
+[privacy-consent-external-services.md](privacy-consent-external-services.md).
 
 ## 10. Mocked test strategy / no paid provider request
 
@@ -157,6 +185,12 @@ real `OPENAI_API_KEY`, run exactly one manually-triggered, explicitly-authorized
 per model tier (`gpt-5.6-terra`, `gpt-5.6-sol`) to confirm the account has live access to both
 tiers and that the exact request shape used here is accepted — this wave's validation is
 entirely mocked and cannot substitute for that confirmation.
+
+**Satisfied (Phase 3-C Step 3C):** both canaries ran against the accepted preview build — one
+explicitly authorized live request per tier — and both passed (`STEP3C-CANARIES-PASS`), confirming
+live account access to `gpt-5.6-terra` and `gpt-5.6-sol` and that the request shapes above are
+accepted. This still does not authorize routine or unmonitored live provider calls in preview or
+production.
 
 ## 11. Superseded architecture
 

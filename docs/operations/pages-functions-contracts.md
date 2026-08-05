@@ -35,10 +35,27 @@ Current public error codes are:
 
 ```text
 METHOD_NOT_ALLOWED UNSUPPORTED_MEDIA_TYPE MALFORMED_JSON PAYLOAD_TOO_LARGE
-VALIDATION_FAILED ORIGIN_REJECTED FEATURE_DISABLED FEATURE_NOT_CONFIGURED
-CONFIGURATION_INVALID RATE_LIMITED QUOTA_EXCEEDED PROVIDER_TIMEOUT
-PROVIDER_UNAVAILABLE PROVIDER_REJECTED INTERNAL_ERROR
+VALIDATION_FAILED ORIGIN_REJECTED PRIVACY_CONSENT_REQUIRED FEATURE_DISABLED
+FEATURE_NOT_CONFIGURED CONFIGURATION_INVALID RATE_LIMITED QUOTA_EXCEEDED
+PROVIDER_TIMEOUT PROVIDER_UNAVAILABLE PROVIDER_REJECTED INTERNAL_ERROR
 ```
+
+`PRIVACY_CONSENT_REQUIRED` (HTTP 400) is specific to the four AI-backed routes
+(`/api/chat`, `/api/compass`, `/api/cashflow-scenario`, `/api/investment-analysis`): the request
+body must carry `{ privacyConsent: true, privacyNoticeVersion: "ai-openai-v2" }` — the single
+authoritative version constant lives in `functions/_lib/privacy-consent.ts` — or the route rejects
+before any quota write or provider call. Deterministic fact-chip answers on `/api/chat` (explicit
+intent, no free-text question or JD analysis) never call OpenAI and are therefore never gated by
+this check; `chat`'s pre-existing burst rate limiter and read-only quota lookup (needed to render
+the quota badge for those fact answers too) run before this check, unlike the other three routes,
+which check consent before any rate-limit or quota work at all. This is an
+**ACCEPTED-SECURITY-ORDERING-EXCEPTION**, not a defect: neither the burst counter nor the quota read
+touches OpenAI, costs anything, or logs request content, and moving them behind the consent check
+would weaken flood protection for the consent-exempt fact-chip path without any privacy benefit —
+see [operational-controls-observability.md](operational-controls-observability.md) for the exact
+per-route ordering. See
+[privacy-consent-external-services.md](privacy-consent-external-services.md) for the client-side
+contextual-consent UX contract.
 
 Internal failure class, provider outcome, token usage, quota subject, and feature state are not added
 to public envelopes. The relationship between public codes and internal classes is documented in

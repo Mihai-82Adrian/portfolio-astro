@@ -134,7 +134,10 @@ test('ROADMAP.md uses the allowed lifecycle and preserves deferred capabilities'
   assert.match(roadmap, /#### Phase 3-B1 — Public-Safe Preview and Deployment Control\s+Status: `DONE`/);
   assert.match(roadmap, /#### Phase 3-B2 — Repository Security Baseline\s+Status: `DONE`/);
   assert.match(roadmap, /#### Phase 3-B3 — Security Findings Closure and Operational Monitoring\s+Status: `DONE`/);
-  assert.match(roadmap, /### Phase 3-C — Human and Provider Release Readiness\s+Status: `ACTIVE`/);
+  // OWNER-AUTHORIZED GOVERNANCE TEST SYNCHRONIZATION (Phase 3-C Step 3E-A): Phase 3-C's remaining
+  // human/provider/security gates closed read-only (STEP3E-PREFLIGHT-GO); this synchronizes the
+  // snapshot assertion with that legitimate, owner-authorized roadmap status change.
+  assert.match(roadmap, /### Phase 3-C — Human and Provider Release Readiness\s+Status: `DONE`/);
   assert.match(roadmap, /REMOTE-READINESS-CONDITIONAL/);
   assert.match(roadmap, /Cloudflare[\s\S]{0,120}Git integration[\s\S]{0,200}automatically/i);
   assert.match(roadmap, /Phase 2B[\s\S]*structured logs[\s\S]*strict log allowlist[\s\S]*kill switches[\s\S]*SLOs[\s\S]*failure taxonomy/i);
