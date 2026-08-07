@@ -83,6 +83,46 @@ test('manifest: loads and matches the locked KoSIT versions', () => {
   assert.match(manifest.configuration.sha256, /^[0-9a-f]{64}$/);
 });
 
+// Regression guard for the cold-cache bootstrap defect (2026-08-07): versions.json pinned a
+// GitHub release URL whose asset basename ("validationtool-1.6.2.zip") never existed in the
+// upstream release, while the local archive name ("validator-1.6.2.zip") was correct. The
+// primary download 404'd and fell through to an unauthenticated GitHub API fallback, which
+// rate-limits (403) on a cold CI runner. This check catches that class of drift offline, with
+// no network access, by requiring the pinned URL's asset basename to agree with the local
+// archive filename it is downloaded into.
+function assertPinnedUrlMatchesArchive(entry) {
+  const urlBasename = path.basename(new URL(entry.url).pathname);
+  assert.equal(
+    urlBasename,
+    entry.archive,
+    `pinned URL basename "${urlBasename}" must match local archive filename "${entry.archive}"`
+  );
+}
+
+const versions = JSON.parse(readFileSync(path.join(root, 'tools', 'kosit', 'versions.json'), 'utf-8'));
+
+test('versions.json: validator pinned URL basename matches the local archive filename', () => {
+  assertPinnedUrlMatchesArchive(versions.validator);
+});
+
+test('versions.json: validator archive and version agree with kosit-artifacts.json', () => {
+  assert.equal(versions.validator.archive, manifest.validator.archiveFilename);
+  assert.equal(versions.validator.version, manifest.validator.version);
+});
+
+test('versions.json: xrechnungConfig archive and version agree with kosit-artifacts.json', () => {
+  assert.equal(versions.xrechnungConfig.archive, manifest.configuration.archiveFilename);
+  assert.equal(versions.xrechnungConfig.version, manifest.configuration.version);
+});
+
+test('regression fixture: a pinned URL basename that disagrees with the local archive filename fails the check', () => {
+  const brokenEntry = {
+    url: 'https://github.com/itplr-kosit/validator/releases/download/v1.6.2/validationtool-1.6.2.zip',
+    archive: 'validator-1.6.2.zip',
+  };
+  assert.throws(() => assertPinnedUrlMatchesArchive(brokenEntry), assert.AssertionError);
+});
+
 test('resolveCacheRoot: default XDG/HOME resolution', () => {
   const resolved = resolveCacheRoot({ HOME: '/home/nobody', XDG_CACHE_HOME: undefined });
   assert.equal(resolved, path.resolve('/home/nobody/.cache/portfolio-astro-validation/kosit'));
