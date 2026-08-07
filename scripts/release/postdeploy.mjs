@@ -3,6 +3,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import { verifyModuleGraph } from './module-graph.mjs';
 
 const ROOT = path.resolve(fileURLToPath(new URL('../..', import.meta.url)));
 
@@ -13,6 +14,15 @@ function invariant(condition, message) {
 function option(name) {
   const index = process.argv.indexOf(name);
   return index >= 0 ? process.argv[index + 1] : undefined;
+}
+
+// A fixed diagnostic path can itself become a false pass/fail once a stale response has ever been
+// cached under it (Phase 4.1-A: an old 200 text/html response stuck at a fixed /_astro/* path for
+// ~22h). Deriving the path from the expected release ID gives every release its own never-before-
+// requested URL, so this 404 check can never collide with a previous release's edge-cache entry.
+export function deriveMissingAssetPath(expectedReleaseId) {
+  invariant(/^git-[a-f0-9]{16}$/.test(expectedReleaseId ?? ''), 'deriveMissingAssetPath requires a valid release ID.');
+  return `/_astro/postdeploy-missing-${expectedReleaseId.slice('git-'.length)}.js`;
 }
 
 export async function verifyPostdeploy({
@@ -54,7 +64,7 @@ export async function verifyPostdeploy({
     await request(route);
   }
   await request('/phase-2c-missing-document', { status: 404 });
-  await request('/_astro/phase-2c-missing-asset.js', { status: 404 });
+  await request(deriveMissingAssetPath(expectedReleaseId), { status: 404 });
   await request('/release-manifest.json', { status: 404 });
   await request('/sbom.cdx.json', { status: 404 });
 
@@ -67,6 +77,8 @@ export async function verifyPostdeploy({
   const sample = await request('/api/sample-review', { method: 'HEAD', status: 204 });
   invariant((await sample.text()) === '', 'Sample Review HEAD response must be empty.');
 
+  const moduleGraph = await verifyModuleGraph({ baseUrl, fetchImpl });
+
   return {
     result: 'PASS',
     origin: base.origin,
@@ -75,6 +87,7 @@ export async function verifyPostdeploy({
     checks: 17,
     methods: ['GET', 'HEAD'],
     providerCanary: 'not-run',
+    moduleGraph,
   };
 }
 

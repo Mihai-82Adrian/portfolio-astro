@@ -258,6 +258,11 @@ export default defineConfig({
           drop_debugger: true,
         },
       },
+      // Fontsource subset files can fall under Vite's default 4096-byte
+      // inline threshold, which base64-embeds them as `data:font` URIs
+      // directly in the built CSS — a value `font-src 'self'` never allows.
+      // Fonts must always ship as separate hashed files instead.
+      assetsInlineLimit: (filePath) => (/\.woff2?$/.test(filePath) ? false : undefined),
     },
   },
 });

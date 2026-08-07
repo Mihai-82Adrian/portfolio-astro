@@ -65,6 +65,31 @@ test('built Pages headers expose one deterministic report-only policy and same-o
   assert.deepEqual(parsed.get('report-to'), ['csp-endpoint']);
 });
 
+test('generated CSS never embeds a font as a data: URI — font-src stays self-hosted-only', () => {
+  const cssDir = path.join(DIST, '_astro');
+  const offenders = readdirSync(cssDir)
+    .filter((name) => name.endsWith('.css'))
+    .filter((name) => readFileSync(path.join(cssDir, name), 'utf8').includes('data:font'));
+  assert.deepEqual(
+    offenders,
+    [],
+    'A font was inlined as a data: URI, which font-src \'self\' does not permit — check astro.config.mjs vite.build.assetsInlineLimit excludes .woff2.',
+  );
+});
+
+test('public/_headers has no blanket immutable rule that can cache a non-asset response under /_astro/*', () => {
+  const source = readFileSync(path.join(ROOT, 'public', '_headers'), 'utf8');
+  const nonCommentSource = source
+    .split('\n')
+    .filter((line) => !line.trim().startsWith('#'))
+    .join('\n');
+  assert.doesNotMatch(
+    nonCommentSource,
+    /\/_astro\/\*\s*\n\s*Cache-Control:[^\n]*immutable/,
+    'A path-only /_astro/* rule with "immutable" can freeze a stale HTML/error response cached under a hashed module URL for a year — rely on Cloudflare Pages\' own default asset caching instead.',
+  );
+});
+
 test('policy grants only inventoried browser resource origins, not ordinary external links', () => {
   const policy = headerValue(readFileSync(HEADERS, 'utf8'), POLICY_HEADER);
   const permitted = [...policy.matchAll(/https:\/\/[A-Za-z0-9.-]+/g)].map(([value]) => value);

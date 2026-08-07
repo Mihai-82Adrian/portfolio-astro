@@ -244,6 +244,62 @@ export async function runFirefoxRelease({
     invariant(initial.lang === 'de' && initial.banner && initial.optional === 0, 'Fresh undecided consent boundary failed.');
     assertActualViewport(initial, TARGET_VIEWPORT_WIDTH);
 
+    // Phase 4.1-A mobile consent geometry matrix: the reported defect was a transparent,
+    // content-bleeding banner with colliding actions at 421x869. Verify both the reported
+    // viewport and a second representative small-phone size (360x800), in light and dark mode,
+    // from a fresh undecided visitor.
+    for (const { width, height } of [{ width: 360, height: 800 }, { width: 421, height: 869 }]) {
+      for (const mode of ['light', 'dark']) {
+        await execute(client, `localStorage.clear(); return true;`);
+        await client.command('WebDriver:SetWindowRect', { width, height, x: 0, y: 0 });
+        await setActualContentViewportWidth(client, width);
+        await client.command('WebDriver:Navigate', { url: new URL('/', base).href });
+        await sleep(1300);
+        if (mode === 'dark') await execute(client, `document.documentElement.classList.add('dark'); return true;`);
+        const geometry = await execute(client, `
+          const rectOf = (el) => { const r = el.getBoundingClientRect(); return { top: r.top, left: r.left, right: r.right, bottom: r.bottom, width: r.width, height: r.height }; };
+          const banner = document.getElementById('cookie-consent-banner');
+          const buttons = ['#reject-analytics', '#open-privacy-settings', '#accept-analytics'].map((sel) => rectOf(document.querySelector(sel)));
+          return {
+            bannerHidden: banner.hidden,
+            bannerRect: rectOf(banner),
+            backgroundColor: getComputedStyle(banner).backgroundColor,
+            buttons,
+            clientWidth: document.documentElement.clientWidth,
+            scrollWidth: document.documentElement.scrollWidth,
+            canScrollHorizontally: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+          };
+        `);
+        const label = `${width}x${height} ${mode}`;
+        invariant(!geometry.bannerHidden, `${label}: consent banner must be visible for a fresh visitor.`);
+        invariant(!geometry.canScrollHorizontally && geometry.scrollWidth <= geometry.clientWidth, `${label}: page must not overflow horizontally.`);
+        invariant(geometry.bannerRect.left >= 0 && geometry.bannerRect.right <= geometry.clientWidth, `${label}: banner must stay within the viewport horizontally.`);
+        const alphaMatch = geometry.backgroundColor.match(/rgba?\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*(?:,\s*([\d.]+)\s*)?\)/);
+        const alpha = alphaMatch && alphaMatch[1] !== undefined ? Number(alphaMatch[1]) : 1;
+        // Exactly 1, not merely "near-opaque": Phase 4.1-A-R found that a non-functional
+        // backdrop-filter (computed "none" in this deployment) left a faint but real hint of page
+        // content through a 0.92-alpha background. A regression back to any alpha < 1 must fail.
+        invariant(alpha === 1, `${label}: banner background must be fully opaque, alpha exactly 1 (got ${alpha}, computed "${geometry.backgroundColor}").`);
+        for (const [index, rect] of geometry.buttons.entries()) {
+          invariant(rect.width >= 44 && rect.height >= 44, `${label}: action button ${index} is smaller than the 44x44 touch-target minimum (${rect.width}x${rect.height}).`);
+          invariant(rect.left >= 0 && rect.right <= geometry.clientWidth, `${label}: action button ${index} overflows the viewport horizontally.`);
+        }
+        for (let i = 0; i < geometry.buttons.length; i += 1) {
+          for (let j = i + 1; j < geometry.buttons.length; j += 1) {
+            const a = geometry.buttons[i];
+            const b = geometry.buttons[j];
+            const overlaps = a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+            invariant(!overlaps, `${label}: action buttons ${i} and ${j} collide.`);
+          }
+        }
+      }
+    }
+    await client.command('WebDriver:SetWindowRect', { width: TARGET_VIEWPORT_WIDTH, height: 800, x: 0, y: 0 });
+    await setActualContentViewportWidth(client, TARGET_VIEWPORT_WIDTH);
+    await execute(client, `localStorage.clear(); return true;`);
+    await client.command('WebDriver:Navigate', { url: new URL('/', base).href });
+    await sleep(1300);
+
     // Performance-analytics-only and acquisition-analytics-only (Phase 3-C Step 2C-2): each
     // selected independently via the settings panel from a fresh undecided visitor, confirming
     // the two optional channels never couple to each other and that the Cloudflare beacon carries

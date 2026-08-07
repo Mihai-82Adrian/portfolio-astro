@@ -11,6 +11,16 @@ interface Props {
 
 const { privacyPolicyUrl = '/datenschutz', lang = 'de' } = Astro.props;
 
+function hexToRgbTriple(hex: string): string {
+  const value = hex.replace('#', '');
+  const r = parseInt(value.slice(0, 2), 16);
+  const g = parseInt(value.slice(2, 4), 16);
+  const b = parseInt(value.slice(4, 6), 16);
+  return `${r}, ${g}, ${b}`;
+}
+
+const colorAccentRgb = hexToRgbTriple(tokens.colors.eucalyptus[700]);
+
 const copy = {
   de: {
     title: 'Datenschutz-Einstellungen',
@@ -251,7 +261,12 @@ const copy = {
     colorText: tokens.colors.text.primary.light,
     colorTextSec: tokens.colors.text.secondary.light,
     colorAccent: tokens.colors.eucalyptus[700],
-    colorAccentHover: tokens.colors.eucalyptus[800]
+    colorAccentRgb,
+    colorAccentHover: tokens.colors.eucalyptus[800],
+    colorTextDark: tokens.colors.text.primary.dark,
+    colorTextSecDark: tokens.colors.text.secondary.dark,
+    colorAccentDark: tokens.colors.dark.accent,
+    colorAccentHoverDark: tokens.colors.eucalyptus[300]
   }}>
   .cookie-banner {
     position: fixed;
@@ -261,9 +276,12 @@ const copy = {
     max-height: calc(100dvh - 4rem);
     overflow-y: auto;
     overscroll-behavior: contain;
-    background: rgba(var(--color-bg-rgb), 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    /* Fully opaque solid surface — backdrop-filter measured as non-functional
+       (computed "none") in this deployment's rendering path, and a translucent
+       rgba() background left page content faintly visible through the banner.
+       A plain solid color is the only combination that is both correct and
+       verifiable: no blur dependency, no residual alpha to leak through. */
+    background: var(--colorBg);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 1rem;
     padding: 1.5rem;
@@ -282,10 +300,64 @@ const copy = {
     transform: translateY(0) scale(1);
   }
 
-  /* Specific dark mode adjustments for the glass effect */
+  /* Specific dark mode surface */
   :global(.dark) .cookie-banner {
-    background: rgba(20, 20, 20, 0.6);
+    background: rgb(20, 20, 20);
     border-color: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Astro's define:vars inlines every declared custom property as a `style`
+     attribute on every element the component renders, not just the root —
+     so a class-based rule can never win a cascade fight over --colorText/
+     --colorTextSec/--colorAccent/--colorAccentHover/--colorBg themselves:
+     each element's own inline (non-!important) declaration always beats
+     both inheritance from an ancestor and any external stylesheet rule
+     targeting that same element. Dark mode therefore overrides the
+     *resolved* properties (color/background/border) directly, reading the
+     always-correct --colorTextDark/--colorTextSecDark/--colorAccentDark/
+     --colorAccentHoverDark values instead of trying to reassign the base
+     custom properties. */
+  :global(.dark) .cookie-icon,
+  :global(.dark) .cookie-link,
+  :global(.dark) .cookie-toggle-meta {
+    color: var(--colorAccentDark);
+  }
+
+  :global(.dark) .cookie-title,
+  :global(.dark) .cookie-toggle-label {
+    color: var(--colorTextDark);
+  }
+
+  :global(.dark) .cookie-description,
+  :global(.dark) .cookie-toggle-desc,
+  :global(.dark) .btn-settings {
+    color: var(--colorTextSecDark);
+  }
+
+  :global(.dark) .cookie-toggle-row {
+    border-bottom-color: color-mix(in srgb, var(--colorTextDark) 12%, transparent);
+  }
+
+  :global(.dark) .cookie-toggle-label input {
+    accent-color: var(--colorAccentDark);
+  }
+
+  :global(.dark) .btn-settings {
+    border-color: color-mix(in srgb, var(--colorTextDark) 20%, transparent);
+  }
+
+  :global(.dark) .btn-settings:hover {
+    color: var(--colorAccentDark);
+    border-color: var(--colorAccentDark);
+  }
+
+  :global(.dark) .btn-reject {
+    background: color-mix(in srgb, var(--colorTextDark) 82%, transparent);
+    color: rgb(20, 20, 20);
+  }
+
+  :global(.dark) .btn-reject:hover {
+    background: var(--colorTextDark);
   }
 
   .cookie-layer {
@@ -409,10 +481,22 @@ const copy = {
     border: none;
   }
 
+  /* Dark-mode accent (#8BC299) is light — white text on it fails contrast
+     (~2:1), so dark mode swaps both the surface (to the dark accent token)
+     and the ink (to the near-black banner literal) together. */
+  :global(.dark) .btn-accept {
+    background: var(--colorAccentDark);
+    color: rgb(20, 20, 20);
+  }
+
   .btn-accept:hover {
     background: var(--colorAccentHover);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(var(--color-accent-rgb), 0.3);
+    box-shadow: 0 4px 12px rgba(var(--colorAccentRgb, 74, 100, 81), 0.3);
+  }
+
+  :global(.dark) .btn-accept:hover {
+    background: var(--colorAccentHoverDark);
   }
 
   .btn-accept:active {
@@ -449,11 +533,27 @@ const copy = {
 
   @media (max-width: 640px) {
     .cookie-banner {
-      bottom: 1rem;
-      right: 1rem;
-      left: 1rem;
-      width: auto;
-      max-height: calc(100dvh - 2rem);
+      bottom: 0;
+      right: 0;
+      left: 0;
+      width: 100%;
+      max-height: min(85dvh, calc(100dvh - 2rem));
+      border-radius: 1rem 1rem 0 0;
+      padding: 1.25rem max(1.25rem, env(safe-area-inset-right)) max(1.25rem, env(safe-area-inset-bottom))
+        max(1.25rem, env(safe-area-inset-left));
+    }
+
+    .cookie-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .btn-accept,
+    .btn-reject,
+    .btn-settings {
+      width: 100%;
+      min-height: 48px;
+      text-align: center;
     }
   }
 </style>
