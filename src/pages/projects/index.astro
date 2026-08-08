@@ -253,6 +253,7 @@ const categoryIconMap: Record<string, string> = {
 </script>
 
 <style>
+@reference "../../styles/global.css";
   /* Hero Section */
   .hero {
     padding: 4rem 0 3rem;
@@ -266,17 +267,17 @@ const categoryIconMap: Record<string, string> = {
   }
 
   .hero-title {
-    font-family: var(--font-heading);
+    @apply font-sans;
     font-size: clamp(2rem, 5vw, 3rem);
     font-weight: 700;
-    color: var(--color-text-primary);
+    color: var(--text-primary);
     margin: 0 0 1rem;
     line-height: 1.2;
   }
 
   .hero-description {
     font-size: clamp(1rem, 2vw, 1.125rem);
-    color: var(--color-text-secondary);
+    color: var(--text-secondary);
     line-height: 1.6;
     margin: 0;
   }
@@ -298,10 +299,10 @@ const categoryIconMap: Record<string, string> = {
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1.25rem;
-    font-family: var(--font-body);
+    @apply font-sans;
     font-size: 0.9375rem;
     font-weight: 600;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary);
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 9999px;
@@ -316,7 +317,7 @@ const categoryIconMap: Record<string, string> = {
   .filter-btn:hover {
     background: rgba(255, 255, 255, 0.1);
     border-color: var(--color-primary);
-    color: var(--color-text-primary);
+    color: var(--text-primary);
     transform: translateY(-2px);
   }
 
@@ -383,20 +384,20 @@ const categoryIconMap: Record<string, string> = {
     justify-content: center;
     margin-bottom: 1rem;
     opacity: 0.5;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary);
   }
 
   .empty-title {
-    font-family: var(--font-heading);
+    @apply font-sans;
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--color-text-primary);
+    color: var(--text-primary);
     margin: 0 0 0.5rem;
   }
 
   .empty-description {
     font-size: 1rem;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary);
     margin: 0;
   }
 
@@ -442,7 +443,7 @@ const categoryIconMap: Record<string, string> = {
   }
 
   .stat-value {
-    font-family: var(--font-heading);
+    @apply font-sans;
     font-size: 2.5rem;
     font-weight: 700;
     color: var(--color-primary);
@@ -453,7 +454,7 @@ const categoryIconMap: Record<string, string> = {
   .stat-label {
     font-size: 0.9375rem;
     font-weight: 500;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary);
   }
 
   /* Responsive */

@@ -9,14 +9,13 @@ interface Props {
     description?: string;
   }>;
   columns?: 2 | 3 | 4;
-  theme?: 'light' | 'dark';
 }
 
-const { metrics, columns = 4, theme = 'light' } = Astro.props;
+const { metrics, columns = 4 } = Astro.props;
 ---
 
 <div class="metrics-container">
-  <div class={`metrics-grid metrics-cols-${columns}`} data-theme={theme}>
+  <div class={`metrics-grid metrics-cols-${columns}`}>
     {metrics.map((metric) => (
       <div
         class="metric-card"
@@ -38,6 +37,7 @@ const { metrics, columns = 4, theme = 'light' } = Astro.props;
 </div>
 
 <style>
+@reference "../../styles/global.css";
   .metrics-container {
     container-type: inline-size;
     min-width: 0;
@@ -95,8 +95,8 @@ const { metrics, columns = 4, theme = 'light' } = Astro.props;
     align-items: center;
     text-align: center;
     padding: 1.5rem 1rem;
-    background: color-mix(in srgb, var(--color-text-primary) 4%, transparent);
-    border: 1px solid color-mix(in srgb, var(--color-text-primary) 12%, transparent);
+    background: color-mix(in srgb, var(--text-primary) 4%, transparent);
+    border: 1px solid color-mix(in srgb, var(--text-primary) 12%, transparent);
     border-radius: 0.75rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: default;
@@ -105,7 +105,7 @@ const { metrics, columns = 4, theme = 'light' } = Astro.props;
   }
 
   .metric-card:hover {
-    background: color-mix(in srgb, var(--color-text-primary) 8%, transparent);
+    background: color-mix(in srgb, var(--text-primary) 8%, transparent);
     border-color: var(--color-primary);
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -116,7 +116,7 @@ const { metrics, columns = 4, theme = 'light' } = Astro.props;
     align-items: center;
     justify-content: center;
     margin-bottom: 0.75rem;
-    color: color-mix(in srgb, var(--color-primary) 78%, var(--color-text-primary));
+    color: color-mix(in srgb, var(--color-primary) 78%, var(--text-primary));
     transition: color 0.3s ease, transform 0.3s ease;
   }
 
@@ -136,18 +136,18 @@ const { metrics, columns = 4, theme = 'light' } = Astro.props;
   .metric-value {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--color-text-primary);
+    color: var(--text-primary);
     line-height: 1.2;
-    font-family: var(--font-heading);
+    @apply font-sans;
     overflow-wrap: anywhere;
   }
 
   .metric-label {
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary);
     line-height: 1.4;
-    font-family: var(--font-body);
+    @apply font-sans;
     overflow-wrap: anywhere;
   }
 
@@ -164,14 +164,14 @@ const { metrics, columns = 4, theme = 'light' } = Astro.props;
     border-width: 0;
   }
 
-  /* Dark theme adjustments */
-  [data-theme="dark"] .metric-card {
-    background: color-mix(in srgb, var(--color-text-primary) 7%, transparent);
-    border-color: color-mix(in srgb, var(--color-text-primary) 16%, transparent);
+  /* Dark theme adjustments (class-based, aligned with site theme toggle) */
+  :global(.dark) .metric-card {
+    background: color-mix(in srgb, var(--text-primary) 7%, transparent);
+    border-color: color-mix(in srgb, var(--text-primary) 16%, transparent);
   }
 
-  [data-theme="dark"] .metric-card:hover {
-    background: color-mix(in srgb, var(--color-text-primary) 12%, transparent);
+  :global(.dark) .metric-card:hover {
+    background: color-mix(in srgb, var(--text-primary) 12%, transparent);
     border-color: var(--color-primary);
   }
 

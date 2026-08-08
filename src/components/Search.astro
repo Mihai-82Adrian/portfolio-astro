@@ -72,6 +72,7 @@
 </script>
 
 <style>
+@reference "../styles/global.css";
   .search-container {
     width: 100%;
     margin: 2rem 0;
@@ -88,50 +89,91 @@
     min-height: 56px;
   }
 
-  /* Custom Pagefind UI styling to match eucalyptus theme */
-  :global(.pagefind-ui__search-input) {
-    border: 2px solid var(--color-eucalyptus-500);
+  /* Custom Pagefind UI styling to match eucalyptus theme.
+     Prefixed with the stable #pagefind-search container id (this component's own markup, id="pagefind-search")
+     rather than a bare .pagefind-ui__* class: Pagefind's own generated CSS scopes its defaults with a
+     Svelte build-hash class (e.g. .pagefind-ui__search-input.svelte-e9gkc3, .pagefind-ui__result-link
+     stacked with .svelte-j9e30 twice on a compound descendant selector), which outranks a single bare
+     class by CSS specificity regardless of source order. An ID always outranks any number of classes,
+     so this stays correct across Pagefind version bumps without depending on its internal hash.
+
+     Colors applied via Tailwind @apply utilities (border-eucalyptus-500 etc.), not
+     var(--color-eucalyptus-*)/var(--color-dark-*)/var(--color-text-*-dark) custom properties: this
+     project's Tailwind v4 + legacy `@config` setup (see global.css's `@import "tailwindcss"; @config
+     "../../tailwind.config.mjs";`) never emits CSS custom properties for palette entries defined only
+     in tailwind.config.mjs's theme.extend.colors — confirmed by compiling and grepping the full
+     dist/ output for these exact names (zero matches; only Tailwind's own built-in default palette
+     ships pre-defined --color-* variables). A bare var(--color-eucalyptus-500) reference is therefore
+     an undefined-custom-property bug of the same class as CSS-UNDEFINED-VARS-P1, silently collapsing
+     to the initial value. See TAILWIND_V4_LEGACY_CONFIG_CSS_VAR_GAP.md (repo-wide inventory,
+     out of this phase's scope beyond this file). box-shadow below uses Tailwind's theme() CSS
+     function (resolved to the real token value at build time, not a hardcoded hex) rather than an
+     @apply utility: Tailwind's ring-* utilities use a different --tw-ring-* stacking mechanism that
+     would change this glow's rendering semantics, not a safe drop-in for a plain color swap. */
+  :global(#pagefind-search .pagefind-ui__search-input) {
+    border: 2px solid;
+    @apply border-eucalyptus-500;
     border-radius: 0.5rem;
     padding: 0.75rem 1rem;
     font-size: 1rem;
     transition: all 0.2s;
   }
 
-  :global(.pagefind-ui__search-input:focus) {
+  :global(#pagefind-search .pagefind-ui__search-input:focus) {
     outline: none;
-    border-color: var(--color-eucalyptus-600);
-    box-shadow: 0 0 0 3px var(--color-eucalyptus-100);
+    @apply border-eucalyptus-600;
+    box-shadow: 0 0 0 3px theme(--color-eucalyptus-100);
   }
 
-  :global(.pagefind-ui__result-link) {
-    color: var(--color-eucalyptus-700);
+  :global(#pagefind-search .pagefind-ui__result-link) {
+    @apply text-eucalyptus-700;
     font-weight: 600;
   }
 
-  :global(.pagefind-ui__result-link:hover) {
-    color: var(--color-eucalyptus-800);
+  :global(#pagefind-search .pagefind-ui__result-link:hover) {
+    @apply text-eucalyptus-800;
   }
 
-  :global(.pagefind-ui__result-excerpt mark) {
-    background-color: var(--color-eucalyptus-100);
-    color: var(--color-eucalyptus-900);
+  :global(#pagefind-search .pagefind-ui__result-excerpt mark) {
+    @apply bg-eucalyptus-100 text-eucalyptus-900;
     padding: 0.125rem 0.25rem;
     border-radius: 0.25rem;
   }
 
-  /* Dark mode support */
-  :global([data-theme='dark'] .pagefind-ui__search-input) {
-    background-color: var(--color-dark-surface);
-    border-color: var(--color-eucalyptus-400);
-    color: var(--color-text-primary-dark);
+  /* Dark mode support (class-based, aligned with site theme toggle).
+
+     Pagefind's own generated CSS (dist/pagefind/pagefind-ui.css) themes itself through a small,
+     real, documented custom-property contract: `.pagefind-ui{color:var(--pagefind-ui-text)}` is
+     the single inheritance root every un-styled descendant (the result-count message, normal
+     excerpt body text, sub-result title/excerpt text, the loading indicator, the search-clear
+     control, and the "Load more results" button) falls back to. Only three leaf elements
+     (search input, result link, highlighted <mark>) had their own explicit color/background
+     override below — everything else silently kept Pagefind's own never-overridden light-theme
+     default value for `--pagefind-ui-text` (a dark grey — see PAGEFIND_THEME_CONTRACT.md for the
+     literal value), which reads as near-illegible against this project's dark page background.
+     Setting the four color-bearing Pagefind variables
+     here, once, on the container, themes every current and future un-styled descendant through
+     Pagefind's own contract — not a per-Svelte-node selector — using this project's existing
+     runtime semantic tokens (already switch under .dark; not the undefined Tailwind names this
+     file used to reference, see TAILWIND_V4_LEGACY_CONFIG_CSS_VAR_GAP.md). Light mode is
+     untouched (no rule outside .dark), so Pagefind's already-correct light appearance cannot
+     regress. */
+  :global(.dark #pagefind-search) {
+    --pagefind-ui-text: var(--text-primary);
+    --pagefind-ui-background: var(--bg-surface);
+    --pagefind-ui-border: var(--border-color);
+    --pagefind-ui-primary: var(--color-primary);
   }
 
-  :global([data-theme='dark'] .pagefind-ui__result-link) {
-    color: var(--color-eucalyptus-300);
+  :global(.dark #pagefind-search .pagefind-ui__search-input) {
+    @apply bg-dark-surface border-eucalyptus-400 text-text-primary-dark;
   }
 
-  :global([data-theme='dark'] .pagefind-ui__result-excerpt mark) {
-    background-color: var(--color-eucalyptus-800);
-    color: var(--color-eucalyptus-100);
+  :global(.dark #pagefind-search .pagefind-ui__result-link) {
+    @apply text-eucalyptus-300;
+  }
+
+  :global(.dark #pagefind-search .pagefind-ui__result-excerpt mark) {
+    @apply bg-eucalyptus-800 text-eucalyptus-100;
   }
 </style>

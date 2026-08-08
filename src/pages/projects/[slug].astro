@@ -211,6 +211,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
 </BaseLayout>
 
 <style>
+@reference "../../styles/global.css";
   /* Hero Section */
   .hero {
     position: relative;
@@ -268,7 +269,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
   }
 
   .project-title {
-    font-family: var(--font-heading);
+    @apply font-sans;
     font-size: clamp(2.5rem, 6vw, 4rem);
     font-weight: 700;
     color: white;
@@ -297,7 +298,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
     align-items: center;
     gap: 0.5rem;
     padding: 1rem 2rem;
-    font-family: var(--font-body);
+    @apply font-sans;
     font-size: 1rem;
     font-weight: 600;
     border-radius: 0.5rem;
@@ -342,10 +343,10 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
   }
 
   .section-title {
-    font-family: var(--font-heading);
+    @apply font-sans;
     font-size: 2rem;
     font-weight: 700;
-    color: var(--color-text-primary);
+    color: var(--text-primary);
     margin: 0 0 2rem;
     padding-bottom: 1rem;
     border-bottom: 2px solid var(--color-primary);
@@ -355,7 +356,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
   .project-description {
     font-size: 1.125rem;
     line-height: 1.8;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary);
   }
 
   /* Tech Grid */
@@ -420,7 +421,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
     gap: 2rem;
     flex-wrap: wrap;
     font-size: 0.9375rem;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary);
   }
 
   .timeline {
@@ -471,7 +472,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
   .milestone-phase {
     font-size: 1.125rem;
     font-weight: 700;
-    color: var(--color-text-primary);
+    color: var(--text-primary);
     margin: 0 0 0.5rem;
   }
 
@@ -484,7 +485,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
 
   .milestone-description {
     font-size: 0.9375rem;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary);
     margin: 0;
     line-height: 1.6;
   }
@@ -510,7 +511,7 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
   }
 
   .detail-value {
-    color: var(--color-text-secondary);
+    color: var(--text-secondary);
     margin: 0;
   }
 
@@ -550,13 +551,13 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
   .related-content h3 {
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--color-text-primary);
+    color: var(--text-primary);
     margin: 0 0 0.5rem;
   }
 
   .related-content p {
     font-size: 0.9375rem;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary);
     margin: 0;
   }
 
@@ -611,14 +612,14 @@ const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex +
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary);
     font-weight: 600;
   }
 
   .nav-title {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--color-text-primary);
+    color: var(--text-primary);
   }
 
   /* Responsive */

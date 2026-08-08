@@ -1018,6 +1018,307 @@ export async function runFirefoxRelease({
       }
     }
 
+    // ── 7.10 Phase 5-D1B/R1: Search/Pagefind dark-mode theme repair (SEARCH-DARK-DEAD-P1) ────
+    // Pagefind's UI mounts asynchronously (a dynamically injected <script src="/pagefind/pagefind-ui.js">
+    // loaded on DOMContentLoaded), so this polls for the real input element rather than a fixed sleep.
+    const DESKTOP_VIEWPORT_WIDTH = 1280;
+    async function waitForCondition(scriptReturningBoolean, timeoutMs, label) {
+      const deadline = Date.now() + timeoutMs;
+      while (Date.now() < deadline) {
+        if (await execute(client, scriptReturningBoolean)) return;
+        await sleep(150);
+      }
+      throw new Error(`Timed out waiting for: ${label}`);
+    }
+
+    // R1: real WCAG contrast ratio from two computed rgb()/rgba() strings — not a name comparison.
+    // Self-tested against the black/white = 21:1 reference before anything trusts it (same pattern
+    // as tests/cookie-consent-contrast.test.mjs).
+    function contrastRatioRgb(fgRgbString, bgRgbString) {
+      function parseRgb(s) {
+        const m = s.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+        if (!m) throw new Error(`Cannot parse rgb color: ${s}`);
+        return [Number(m[1]), Number(m[2]), Number(m[3])];
+      }
+      function srgbToLinear(c) { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }
+      function luminance([r, g, b]) { return 0.2126 * srgbToLinear(r) + 0.7152 * srgbToLinear(g) + 0.0722 * srgbToLinear(b); }
+      const lf = luminance(parseRgb(fgRgbString));
+      const lb = luminance(parseRgb(bgRgbString));
+      const [hi, lo] = lf > lb ? [lf, lb] : [lb, lf];
+      return (hi + 0.05) / (lo + 0.05);
+    }
+    invariant(Math.abs(contrastRatioRgb('rgb(0,0,0)', 'rgb(255,255,255)') - 21) < 0.01, 'contrastRatioRgb self-check failed (black/white must be 21:1).');
+    // Pagefind's own never-overridden light-theme default (--pagefind-ui-text:#393939) — the exact
+    // regression this section guards against reappearing on any of the newly-covered elements.
+    const PAGEFIND_LIGHT_DEFAULT_TEXT_RGB = 'rgb(57, 57, 57)';
+
+    // Smoke: Search initializes on all three localized blog surfaces.
+    for (const { path: blogPath, locale } of [
+      { path: '/blog/', locale: 'de' },
+      { path: '/en/blog/', locale: 'en' },
+      { path: '/ro/blog/', locale: 'ro' },
+    ]) {
+      await client.command('WebDriver:SetWindowRect', { width: TARGET_VIEWPORT_WIDTH, height: 800, x: 0, y: 0 });
+      await setActualContentViewportWidth(client, TARGET_VIEWPORT_WIDTH);
+      await client.command('WebDriver:Navigate', { url: new URL(blogPath, base).href });
+      await sleep(400);
+      await execute(client, `document.querySelector('#reject-analytics')?.click(); return true;`);
+      await waitForCondition(`return !!document.querySelector('input.pagefind-ui__search-input');`, 8000, `7.10 ${locale}: Pagefind input init`);
+      const smoke = await execute(client, `
+        const input = document.querySelector('input.pagefind-ui__search-input');
+        return { id: input.id, ariaLabel: input.getAttribute('aria-label') };
+      `);
+      invariant(smoke.id === 'search-input' && smoke.ariaLabel === 'Search blog posts', `7.10 ${locale}: Pagefind search input must initialize with the accessible id/aria-label contract.`);
+    }
+
+    // Full dark-mode computed-style + real-query acceptance on the representative EN locale, at
+    // dark mobile (360x800), dark 421x869, and dark desktop (runbook R1 §12 minimum matrix).
+    for (const { width, height, label } of [
+      { width: 360, height: 800, label: 'dark mobile 360x800' },
+      { width: 421, height: 869, label: 'dark 421x869' },
+      { width: DESKTOP_VIEWPORT_WIDTH, height: 900, label: 'dark desktop' },
+    ]) {
+      await client.command('WebDriver:SetWindowRect', { width, height, x: 0, y: 0 });
+      await setActualContentViewportWidth(client, width);
+      await client.command('WebDriver:Navigate', { url: new URL('/en/blog/', base).href });
+      await execute(client, `document.documentElement.classList.add('dark'); return true;`);
+      await sleep(400);
+      await execute(client, `document.querySelector('#reject-analytics')?.click(); return true;`);
+      await waitForCondition(`return !!document.querySelector('input.pagefind-ui__search-input');`, 8000, `7.10 ${label}: Pagefind input init`);
+      const inputState = await execute(client, `
+        const input = document.querySelector('input.pagefind-ui__search-input');
+        const cs = getComputedStyle(input);
+        return {
+          hasDark: document.documentElement.classList.contains('dark'),
+          hasDataTheme: document.documentElement.hasAttribute('data-theme') || !!document.querySelector('[data-theme]'),
+          background: cs.backgroundColor,
+          color: cs.color,
+          borderColor: cs.borderTopColor,
+        };
+      `);
+      invariant(inputState.hasDark, `7.10 ${label}: .dark must be active on <html>.`);
+      invariant(!inputState.hasDataTheme, `7.10 ${label}: no [data-theme] attribute may exist anywhere (Search dark styling must not depend on it).`);
+      invariant(inputState.background === 'rgb(26, 25, 22)', `7.10 ${label}: Pagefind input dark background must be the dark surface token, got ${inputState.background}.`);
+      invariant(inputState.color === 'rgb(232, 230, 225)', `7.10 ${label}: Pagefind input dark text must be the dark text-primary token, got ${inputState.color}.`);
+      invariant(inputState.borderColor === 'rgb(123, 168, 136)', `7.10 ${label}: Pagefind input dark border must be the eucalyptus-400 token, got ${inputState.borderColor}.`);
+
+      // Deterministic query known to return at least one result: "Astro" appears 20x in the
+      // indexed EN post src/content/blog/portfolio-tech-stack.md (its own title even names it).
+      await execute(client, `
+        const input = document.querySelector('input.pagefind-ui__search-input');
+        input.focus();
+        input.value = 'Astro';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        return true;
+      `);
+      await waitForCondition(`return !!document.querySelector('.pagefind-ui__result-link');`, 8000, `7.10 ${label}: Pagefind result for "Astro"`);
+      // R1: also wait for a sub-result to render (showSubResults: true in Search.astro's PagefindUI
+      // config) and for "Load more results" to appear (33 results for "Astro", more than page 1) —
+      // both are real DOM discovered at runtime, not coupled to any generated Svelte hash class.
+      await waitForCondition(`return !!document.querySelector('.pagefind-ui__result-nested .pagefind-ui__result-link');`, 8000, `7.10 ${label}: Pagefind sub-result for "Astro"`);
+      const resultState = await execute(client, `
+        const bg = getComputedStyle(document.body).backgroundColor;
+        const link = document.querySelector('.pagefind-ui__result-link');
+        const mark = document.querySelector('.pagefind-ui__result-excerpt mark');
+        const message = document.querySelector('.pagefind-ui__message');
+        const excerpt = document.querySelector('.pagefind-ui__result-excerpt');
+        const subLink = document.querySelector('.pagefind-ui__result-nested .pagefind-ui__result-link');
+        const subExcerpt = document.querySelector('.pagefind-ui__result-nested .pagefind-ui__result-excerpt');
+        const clearBtn = document.querySelector('.pagefind-ui__search-clear');
+        const loadMoreBtn = document.querySelector('.pagefind-ui__button');
+        const pick = (el) => el ? { color: getComputedStyle(el).color, background: getComputedStyle(el).backgroundColor } : null;
+        return {
+          bodyBackground: bg,
+          linkColor: getComputedStyle(link).color,
+          markPresent: !!mark,
+          markBackground: mark ? getComputedStyle(mark).backgroundColor : null,
+          markColor: mark ? getComputedStyle(mark).color : null,
+          message: pick(message),
+          excerpt: pick(excerpt),
+          subLinkPresent: !!subLink,
+          subLink: pick(subLink),
+          subExcerptPresent: !!subExcerpt,
+          subExcerpt: pick(subExcerpt),
+          clearBtnPresent: !!clearBtn,
+          clearBtn: pick(clearBtn),
+          loadMoreBtnPresent: !!loadMoreBtn,
+          loadMoreBtn: pick(loadMoreBtn),
+          scrollWidth: document.documentElement.scrollWidth,
+          clientWidth: document.documentElement.clientWidth,
+        };
+      `);
+      invariant(resultState.linkColor === 'rgb(159, 191, 168)', `7.10 ${label}: result-link dark color must be the eucalyptus-300 token, got ${resultState.linkColor}.`);
+      if (resultState.markPresent) {
+        invariant(resultState.markBackground === 'rgb(58, 78, 65)', `7.10 ${label}: highlighted <mark> dark background must be the eucalyptus-800 token, got ${resultState.markBackground}.`);
+        invariant(resultState.markColor === 'rgb(225, 235, 228)', `7.10 ${label}: highlighted <mark> dark color must be the eucalyptus-100 token, got ${resultState.markColor}.`);
+      }
+
+      // R1: full text-coverage closure — result count/message, normal excerpt body text,
+      // sub-result title/excerpt, clear control, and "Load more results" button must all be a
+      // real, readable color against their real background, at real AA contrast (>= 4.5:1), and
+      // must never have silently kept Pagefind's un-themed light default.
+      invariant(resultState.message, `7.10 ${label}: expected a real .pagefind-ui__message (result count) element.`);
+      invariant(resultState.message.color !== PAGEFIND_LIGHT_DEFAULT_TEXT_RGB, `7.10 ${label}: .pagefind-ui__message still shows Pagefind's un-themed light-mode default color.`);
+      const messageRatio = contrastRatioRgb(resultState.message.color, resultState.bodyBackground);
+      invariant(messageRatio >= 4.5, `7.10 ${label}: .pagefind-ui__message (result count) contrast ${messageRatio.toFixed(2)}:1 is below the 4.5:1 AA floor (color ${resultState.message.color} on ${resultState.bodyBackground}).`);
+
+      invariant(resultState.excerpt, `7.10 ${label}: expected a real .pagefind-ui__result-excerpt element.`);
+      invariant(resultState.excerpt.color !== PAGEFIND_LIGHT_DEFAULT_TEXT_RGB, `7.10 ${label}: .pagefind-ui__result-excerpt normal text still shows Pagefind's un-themed light-mode default color.`);
+      const excerptRatio = contrastRatioRgb(resultState.excerpt.color, resultState.bodyBackground);
+      invariant(excerptRatio >= 4.5, `7.10 ${label}: .pagefind-ui__result-excerpt contrast ${excerptRatio.toFixed(2)}:1 is below the 4.5:1 AA floor (color ${resultState.excerpt.color} on ${resultState.bodyBackground}).`);
+
+      invariant(resultState.subLinkPresent, `7.10 ${label}: expected a real sub-result title/link (showSubResults: true) for the "Astro" query.`);
+      invariant(resultState.subLink.color === 'rgb(159, 191, 168)', `7.10 ${label}: sub-result title/link dark color must be the eucalyptus-300 token, got ${resultState.subLink.color}.`);
+      invariant(resultState.subExcerptPresent, `7.10 ${label}: expected a real sub-result excerpt for the "Astro" query.`);
+      invariant(resultState.subExcerpt.color !== PAGEFIND_LIGHT_DEFAULT_TEXT_RGB, `7.10 ${label}: sub-result excerpt text still shows Pagefind's un-themed light-mode default color.`);
+      const subExcerptRatio = contrastRatioRgb(resultState.subExcerpt.color, resultState.bodyBackground);
+      invariant(subExcerptRatio >= 4.5, `7.10 ${label}: sub-result excerpt contrast ${subExcerptRatio.toFixed(2)}:1 is below the 4.5:1 AA floor.`);
+
+      invariant(resultState.clearBtnPresent, `7.10 ${label}: expected a real .pagefind-ui__search-clear control.`);
+      invariant(resultState.clearBtn.color !== PAGEFIND_LIGHT_DEFAULT_TEXT_RGB, `7.10 ${label}: clear/reset control still shows Pagefind's un-themed light-mode default color.`);
+      const clearBtnRatio = contrastRatioRgb(resultState.clearBtn.color, resultState.clearBtn.background);
+      invariant(clearBtnRatio >= 4.5, `7.10 ${label}: clear/reset control contrast ${clearBtnRatio.toFixed(2)}:1 is below the 4.5:1 AA floor (color ${resultState.clearBtn.color} on ${resultState.clearBtn.background}).`);
+
+      invariant(resultState.loadMoreBtnPresent, `7.10 ${label}: expected a real "Load more results" .pagefind-ui__button for the 33-result "Astro" query.`);
+      invariant(resultState.loadMoreBtn.color !== PAGEFIND_LIGHT_DEFAULT_TEXT_RGB, `7.10 ${label}: "Load more results" button still shows Pagefind's un-themed light-mode default color.`);
+      const loadMoreRatio = contrastRatioRgb(resultState.loadMoreBtn.color, resultState.loadMoreBtn.background);
+      invariant(loadMoreRatio >= 4.5, `7.10 ${label}: "Load more results" button contrast ${loadMoreRatio.toFixed(2)}:1 is below the 4.5:1 AA floor (color ${resultState.loadMoreBtn.color} on ${resultState.loadMoreBtn.background}).`);
+
+      invariant(resultState.scrollWidth <= resultState.clientWidth, `7.10 ${label}: no new horizontal overflow.`);
+    }
+
+    // R1: light-mode smoke — the .dark-scoped Pagefind theme-contract fix must not alter light
+    // mode's already-correct appearance (runbook R1 §12/§21 "light smoke: no Search visual
+    // regression"). Same query, same elements, asserted against Pagefind's own light-theme
+    // literal defaults (never touched by this phase).
+    {
+      await client.command('WebDriver:SetWindowRect', { width: 360, height: 800, x: 0, y: 0 });
+      await setActualContentViewportWidth(client, 360);
+      await client.command('WebDriver:Navigate', { url: new URL('/en/blog/', base).href });
+      await sleep(400);
+      await execute(client, `document.querySelector('#reject-analytics')?.click(); return true;`);
+      await waitForCondition(`return !!document.querySelector('input.pagefind-ui__search-input');`, 8000, '7.10 light smoke: Pagefind input init');
+      invariant(await execute(client, `return !document.documentElement.classList.contains('dark');`), '7.10 light smoke: .dark must not be active for this check.');
+      await execute(client, `
+        const input = document.querySelector('input.pagefind-ui__search-input');
+        input.focus();
+        input.value = 'Astro';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        return true;
+      `);
+      await waitForCondition(`return !!document.querySelector('.pagefind-ui__result-link');`, 8000, '7.10 light smoke: Pagefind result for "Astro"');
+      const lightState = await execute(client, `
+        const link = document.querySelector('.pagefind-ui__result-link');
+        const message = document.querySelector('.pagefind-ui__message');
+        const excerpt = document.querySelector('.pagefind-ui__result-excerpt');
+        return {
+          linkColor: getComputedStyle(link).color,
+          messageColor: message ? getComputedStyle(message).color : null,
+          excerptColor: excerpt ? getComputedStyle(excerpt).color : null,
+          scrollWidth: document.documentElement.scrollWidth,
+          clientWidth: document.documentElement.clientWidth,
+        };
+      `);
+      invariant(lightState.linkColor === 'rgb(74, 100, 81)', `7.10 light smoke: result-link light color must remain the eucalyptus-700 token, got ${lightState.linkColor} (regression from this phase's .dark-only fix).`);
+      invariant(lightState.messageColor === 'rgb(57, 57, 57)', `7.10 light smoke: .pagefind-ui__message must remain Pagefind's own light default (untouched by this phase), got ${lightState.messageColor}.`);
+      invariant(lightState.excerptColor === 'rgb(57, 57, 57)', `7.10 light smoke: .pagefind-ui__result-excerpt must remain Pagefind's own light default (untouched by this phase), got ${lightState.excerptColor}.`);
+      invariant(lightState.scrollWidth <= lightState.clientWidth, '7.10 light smoke: no new horizontal overflow.');
+    }
+
+    // ── 7.11 Phase 5-D1B: Projects surface — undefined-token repair (CSS-UNDEFINED-VARS-P1) ──
+    // and ProjectMetrics dark-mode mechanism repair (PROJECTMETRICS-DATATHEME-P2).
+    async function measureMetricCard() {
+      return execute(client, `
+        const card = document.querySelector('.metric-card');
+        if (!card) return null;
+        const cardCs = getComputedStyle(card);
+        const value = card.querySelector('.metric-value');
+        const label = card.querySelector('.metric-label');
+        return {
+          background: cardCs.backgroundColor,
+          borderColor: cardCs.borderTopColor,
+          borderWidth: cardCs.borderTopWidth,
+          valueColor: value ? getComputedStyle(value).color : null,
+          valueFont: value ? getComputedStyle(value).fontFamily : null,
+          labelColor: label ? getComputedStyle(label).color : null,
+          hasDataTheme: !!document.querySelector('[data-theme]'),
+          scrollWidth: document.documentElement.scrollWidth,
+          clientWidth: document.documentElement.clientWidth,
+        };
+      `);
+    }
+    function assertNotTransparent(value, what, label) {
+      invariant(typeof value === 'string' && value.length > 0, `${label}: ${what} was not measurable.`);
+      const alphaMatch = value.match(/rgba\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*,\s*([\d.]+)\s*\)/);
+      const alpha = alphaMatch ? Number(alphaMatch[1]) : 1; // rgb() with no alpha channel is fully opaque
+      invariant(alpha > 0, `${label}: ${what} must not be transparent (regression: CSS-UNDEFINED-VARS-P1 collapsed this to transparent), got "${value}".`);
+    }
+    const TEXT_PRIMARY = { light: 'rgb(44, 44, 44)', dark: 'rgb(232, 230, 225)' };
+    const TEXT_SECONDARY = { light: 'rgb(90, 90, 90)', dark: 'rgb(169, 158, 148)' };
+
+    for (const { width, height, label } of [
+      { width: 360, height: 800, label: 'mobile' },
+      { width: DESKTOP_VIEWPORT_WIDTH, height: 900, label: 'desktop' },
+    ]) {
+      for (const mode of ['light', 'dark']) {
+        const viewLabel = `7.11 /projects ${label} ${mode}`;
+        await client.command('WebDriver:SetWindowRect', { width, height, x: 0, y: 0 });
+        await setActualContentViewportWidth(client, width);
+        await client.command('WebDriver:Navigate', { url: new URL('/projects/', base).href });
+        if (mode === 'dark') await execute(client, `document.documentElement.classList.add('dark'); return true;`);
+        await sleep(600);
+        await execute(client, `document.querySelector('#reject-analytics')?.click(); return true;`);
+        await sleep(200);
+        const m = await measureMetricCard();
+        invariant(m, `${viewLabel}: expected at least one real .metric-card on /projects.`);
+        invariant(!m.hasDataTheme, `${viewLabel}: no [data-theme] attribute may exist anywhere on the page.`);
+        assertNotTransparent(m.background, 'metric-card background', viewLabel);
+        assertNotTransparent(m.borderColor, 'metric-card border', viewLabel);
+        invariant(parseFloat(m.borderWidth) > 0, `${viewLabel}: metric-card border must have non-zero width.`);
+        invariant(m.valueColor === TEXT_PRIMARY[mode], `${viewLabel}: metric value text must resolve to the ${mode} text-primary token, got ${m.valueColor}.`);
+        invariant(m.labelColor === TEXT_SECONDARY[mode], `${viewLabel}: metric label text must resolve to the ${mode} text-secondary token, got ${m.labelColor}.`);
+        invariant(/inter/i.test(m.valueFont), `${viewLabel}: metric value font-family must resolve to the real font-sans stack (Inter), got "${m.valueFont}".`);
+        invariant(m.scrollWidth <= m.clientWidth, `${viewLabel}: no new horizontal overflow.`);
+      }
+    }
+
+    // Dark differs visibly from light on the same card (not merely "not transparent" in both).
+    await client.command('WebDriver:SetWindowRect', { width: 360, height: 800, x: 0, y: 0 });
+    await setActualContentViewportWidth(client, 360);
+    await client.command('WebDriver:Navigate', { url: new URL('/projects/', base).href });
+    await sleep(600);
+    const lightCard = await measureMetricCard();
+    await execute(client, `document.documentElement.classList.add('dark'); return true;`);
+    await sleep(200);
+    const darkCard = await measureMetricCard();
+    invariant(lightCard.background !== darkCard.background, '7.11: dark-mode .metric-card background must differ from light mode (the .dark override must actually apply).');
+
+    // One real /projects/[slug] detail route (mindhafen — also exercises MediaGallery's filter
+    // buttons, which share the same undefined-token repair).
+    for (const mode of ['light', 'dark']) {
+      const viewLabel = `7.11 /projects/mindhafen ${mode}`;
+      await client.command('WebDriver:Navigate', { url: new URL('/projects/mindhafen/', base).href });
+      if (mode === 'dark') await execute(client, `document.documentElement.classList.add('dark'); return true;`);
+      await sleep(600);
+      await execute(client, `document.querySelector('#reject-analytics')?.click(); return true;`);
+      await sleep(200);
+      const detail = await execute(client, `
+        const sectionTitle = document.querySelector('.section-title');
+        const desc = document.querySelector('.project-description');
+        return {
+          hasDataTheme: !!document.querySelector('[data-theme]'),
+          sectionTitleColor: sectionTitle ? getComputedStyle(sectionTitle).color : null,
+          descColor: desc ? getComputedStyle(desc).color : null,
+          scrollWidth: document.documentElement.scrollWidth,
+          clientWidth: document.documentElement.clientWidth,
+        };
+      `);
+      invariant(!detail.hasDataTheme, `${viewLabel}: no [data-theme] attribute may exist anywhere on the page.`);
+      invariant(detail.sectionTitleColor === TEXT_PRIMARY[mode], `${viewLabel}: section title must resolve to the ${mode} text-primary token, got ${detail.sectionTitleColor}.`);
+      invariant(detail.descColor === TEXT_SECONDARY[mode], `${viewLabel}: project description must resolve to the ${mode} text-secondary token, got ${detail.descColor}.`);
+      invariant(detail.scrollWidth <= detail.clientWidth, `${viewLabel}: no new horizontal overflow.`);
+    }
+
     await client.command('WebDriver:Navigate', { url: new URL('/', base).href });
     const zoomActions = [{ type: 'keyDown', value: '\uE009' }];
     for (let step = 0; step < 6; step += 1) {
@@ -1055,6 +1356,14 @@ export async function runFirefoxRelease({
       optionalResources: ['cloudflare-rum', 'ahrefs', 'giscus', 'youtube-or-spotify'],
       sampleReview: 'disabled',
       aiConsentInteractionMatrix: aiRequestLog,
+      themeColorSystemMatrix: {
+        searchDarkLocalesSmoked: ['de', 'en', 'ro'],
+        searchDarkFullViewports: ['360x800', '421x869', `${DESKTOP_VIEWPORT_WIDTH}x900`],
+        searchDarkTextStatesCovered: ['input', 'message', 'result-link', 'result-excerpt', 'sub-result-link', 'sub-result-excerpt', 'mark', 'search-clear', 'load-more-button'],
+        searchLightSmoke: true,
+        projectsViewports: ['360x800', `${DESKTOP_VIEWPORT_WIDTH}x900`],
+        projectDetailRoute: '/projects/mindhafen/',
+      },
     };
   } catch (error) {
     if (firefox.exitCode !== null) error.message += ` Firefox exited ${firefox.exitCode}: ${stderr.trim()}`;

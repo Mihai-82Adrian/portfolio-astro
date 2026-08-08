@@ -34,8 +34,8 @@
 
   --text-primary: #2C2C2C;
   /* Main text color */
-  --text-secondary: #6B6B6B;
-  /* Secondary text */
+  --text-secondary: #5A5A5A;
+  /* Secondary text — matches canonical text.secondary.light in tailwind.config.mjs/design-tokens.json */
   --text-tertiary: #9E9E9E;
   /* Tertiary text */
   --text-inverse: #E8E6E1;

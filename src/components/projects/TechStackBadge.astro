@@ -71,18 +71,19 @@ const config = categoryConfig[tech.category || 'platform'];
   <span class="tech-name">{tech.name}</span>
 </span>
 
-<style define:vars={{ 
+<style define:vars={{
   badgeColor: config.color,
   badgeBg: config.bgColor,
   badgeBorder: config.borderColor
 }}>
+@reference "../../styles/global.css";
   .tech-badge {
     display: inline-flex;
     align-items: center;
     border-radius: 9999px;
     background: var(--badgeBg);
     border: 1px solid var(--badgeBorder);
-    font-family: var(--font-body);
+    @apply font-sans;
     font-weight: 500;
     color: var(--badgeColor);
     max-width: 100%;

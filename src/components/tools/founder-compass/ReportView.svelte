@@ -117,7 +117,7 @@
     font-weight: 700;
     margin-top: 1.5rem;
     margin-bottom: 0.5rem;
-    color: var(--color-text-primary);
+    color: var(--text-primary);
     border-bottom: 1px solid color-mix(in srgb, var(--color-eucalyptus-500) 25%, transparent);
     padding-bottom: 0.375rem;
   }
@@ -131,19 +131,19 @@
     font-weight: 600;
     margin-top: 1.25rem;
     margin-bottom: 0.375rem;
-    color: var(--color-text-primary);
+    color: var(--text-primary);
   }
 
   .compass-report :global(p) {
     font-size: 0.875rem;
     line-height: 1.625;
     margin-bottom: 0.75rem;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary);
   }
 
   .compass-report :global(strong) {
     font-weight: 600;
-    color: var(--color-text-primary);
+    color: var(--text-primary);
   }
 
   .compass-report :global(ul),
@@ -152,7 +152,7 @@
     line-height: 1.625;
     margin-bottom: 0.75rem;
     padding-left: 1.25rem;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary);
   }
 
   .compass-report :global(ul) {

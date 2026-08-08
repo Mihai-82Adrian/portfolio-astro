@@ -79,10 +79,11 @@ const config = statusConfig[status.indicator];
   )}
 </div>
 
-<style define:vars={{ 
-  statusColor: config.color, 
-  statusBg: config.bgColor 
+<style define:vars={{
+  statusColor: config.color,
+  statusBg: config.bgColor
 }}>
+@reference "../../styles/global.css";
   .status-indicator {
     display: inline-flex;
     flex-direction: column;
@@ -90,7 +91,7 @@ const config = statusConfig[status.indicator];
     border-radius: 0.5rem;
     background: var(--statusBg);
     border: 1px solid var(--statusColor);
-    font-family: var(--font-body);
+    @apply font-sans;
     transition: all 0.2s ease;
     max-width: 100%;
   }
@@ -167,7 +168,7 @@ const config = statusConfig[status.indicator];
 
   .status-detail {
     font-size: 0.875em;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary);
     margin: 0;
     line-height: 1.4;
   }
