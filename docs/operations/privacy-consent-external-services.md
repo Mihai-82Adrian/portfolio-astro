@@ -94,6 +94,11 @@ interpretation — shows an unchecked-by-default, explicit consent checkbox imme
 action that would transmit data externally. The checkbox is scoped to its own surface (checking it
 for one tool or tab never grants consent for another) and is not persisted to `localStorage`, a
 cookie, or any global toggle; it resets to unchecked on reload or when the component remounts.
+On the chat and JD-analysis surfaces (`ChatWidget.astro`), checking the box immediately collapses
+the full disclosure into a compact "consent active" status row with a withdrawal control (Phase
+5-D1A) — this returns space to the message area and happens before any submit, with no network
+request of its own; withdrawing restores the full disclosure and re-blocks future submissions,
+and consent remains just as transient and per-surface as described above.
 Deterministic fact-chip answers on the chat widget (contact, role, certifications, projects) never
 call OpenAI and are therefore never gated by this checkbox — no result is hidden or degraded, and
 the same applies to the fully client-side Cashflow/Investment deterministic calculations.

@@ -837,6 +837,156 @@ export async function runFirefoxRelease({
     const nav78 = await recordAiRequests('7.8-post-navigation');
     invariant(nav78.length === 1, `7.8: exactly one request expected after a ClientRouter round-trip (no duplicate listeners), got ${nav78.length}.`);
 
+    // \u2500\u2500 7.9 Phase 5-D1A: immediate consent-collapse lifecycle (owner amendment over the \u2500\u2500\u2500\u2500\u2500\u2500
+    // original Phase 5-C "collapse after successful submit" design) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+    // Checking either consent checkbox must immediately collapse that surface's own disclosure
+    // into a compact status row -- before any submit, with zero network requests -- and return
+    // the freed height to `.chat-messages`. This exercises the real ChatDrawer mobile sheet
+    // (`h-5/6`), the actual constrained context the P1 finding was measured against (unlike the
+    // /ai full-page widget's fixed h-128 container already covered by 7.1/7.2 above).
+    async function measureConsentGeometry() {
+      return execute(client, `
+        const rectOf = (el) => { if (!el) return null; const r = el.getBoundingClientRect(); return { top: r.top, height: r.height, width: r.width, left: r.left, right: r.right }; };
+        return {
+          messages: rectOf(document.querySelector('.chat-messages')),
+          chatConsentState: document.querySelector('.chat-consent')?.dataset.consentState,
+          jdConsentState: document.querySelector('.jd-consent')?.dataset.consentState,
+          chatExpandedHidden: document.querySelector('.chat-consent-expanded')?.classList.contains('hidden'),
+          chatStatusHidden: document.querySelector('.chat-consent-status')?.classList.contains('hidden'),
+          withdrawRect: rectOf(document.querySelector('.chat-consent-withdraw')),
+          clientWidth: document.documentElement.clientWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+        };
+      `);
+    }
+    async function focusableClassNames() {
+      return execute(client, `
+        return [...document.querySelectorAll('#chat-drawer a[href], #chat-drawer button, #chat-drawer textarea, #chat-drawer input[type="text"], #chat-drawer input[type="radio"], #chat-drawer input[type="checkbox"], #chat-drawer select')]
+          .filter((el) => el.offsetParent !== null)
+          .map((el) => el.className || el.tagName);
+      `);
+    }
+
+    for (const { width, height } of [{ width: 360, height: 800 }, { width: 421, height: 869 }]) {
+      for (const mode of ['light', 'dark']) {
+        const label = `5D1A ${width}x${height} ${mode}`;
+        await client.command('WebDriver:SetWindowRect', { width, height, x: 0, y: 0 });
+        await setActualContentViewportWidth(client, width);
+        await client.command('WebDriver:Navigate', { url: new URL('/', base).href });
+        await sleep(1300);
+        if (mode === 'dark') await execute(client, `document.documentElement.classList.add('dark'); return true;`);
+        await execute(client, `document.querySelector('#reject-analytics')?.click(); return true;`);
+        await execute(client, patchAiFetch);
+        await execute(client, `window.dispatchEvent(new CustomEvent('chat:toggle', { detail: {} })); return true;`);
+        await sleep(500);
+
+        const before = await measureConsentGeometry();
+        invariant(before.chatConsentState === 'undecided', `${label}: chat consent must start undecided.`);
+        invariant(!before.chatExpandedHidden && before.chatStatusHidden, `${label}: expanded disclosure must be visible and the compact row hidden before grant.`);
+
+        // Immediate grant -- before any submit, must not call /api/chat.
+        await execute(client, `
+          const box = document.querySelector('.chat-consent-checkbox');
+          box.checked = true;
+          box.dispatchEvent(new Event('change', { bubbles: true }));
+          return true;
+        `);
+        await sleep(200);
+        invariant((await recordAiRequests(`${label}-immediate-grant`)).length === 0, `${label}: checking the box must not itself call /api/chat.`);
+        const afterGrant = await measureConsentGeometry();
+        invariant(afterGrant.chatConsentState === 'granted', `${label}: state must become granted immediately, before any submit.`);
+        invariant(afterGrant.chatExpandedHidden && !afterGrant.chatStatusHidden, `${label}: expanded disclosure must collapse and the compact row must show.`);
+        const heightDelta = afterGrant.messages.height - before.messages.height;
+        invariant(heightDelta >= 40, `${label}: .chat-messages height must grow by at least 40px after collapse, got ${heightDelta.toFixed(1)}px.`);
+        invariant(afterGrant.messages.height >= 120, `${label}: .chat-messages usable height must be at least 120px after collapse, got ${afterGrant.messages.height.toFixed(1)}px.`);
+        invariant(
+          afterGrant.withdrawRect.height >= 44 && afterGrant.withdrawRect.width >= 44,
+          `${label}: withdrawal control must meet the 44x44 touch-target minimum, got ${afterGrant.withdrawRect.width.toFixed(1)}x${afterGrant.withdrawRect.height.toFixed(1)}.`,
+        );
+        invariant(afterGrant.withdrawRect.left >= 0 && afterGrant.withdrawRect.right <= afterGrant.clientWidth, `${label}: withdrawal control must stay within the viewport horizontally.`);
+        invariant(afterGrant.scrollWidth <= afterGrant.clientWidth, `${label}: no horizontal overflow after collapse.`);
+        const focusableGranted = await focusableClassNames();
+        invariant(!focusableGranted.some((c) => String(c).includes('chat-consent-checkbox')), `${label}: the hidden checkbox must not be part of the focusable set while granted (no orphaned tab stop).`);
+        invariant(focusableGranted.some((c) => String(c).includes('chat-consent-withdraw')), `${label}: the withdraw button must be part of the focusable set while granted.`);
+
+        // Withdrawal: restores expanded state, focuses checkbox, blocks future submit without re-check.
+        await execute(client, `document.querySelector('.chat-consent-withdraw').click(); return true;`);
+        await sleep(150);
+        const afterWithdraw = await measureConsentGeometry();
+        invariant(afterWithdraw.chatConsentState === 'withdrawn', `${label}: state must become withdrawn.`);
+        invariant(!afterWithdraw.chatExpandedHidden && afterWithdraw.chatStatusHidden, `${label}: withdrawal must restore the expanded disclosure and hide the compact row.`);
+        invariant(
+          await execute(client, `return document.activeElement === document.querySelector('.chat-consent-checkbox');`),
+          `${label}: focus must move to the checkbox after withdrawal.`,
+        );
+        invariant(
+          await execute(client, `return document.querySelector('.chat-consent-checkbox')?.checked === false;`),
+          `${label}: checkbox must be unchecked after withdrawal.`,
+        );
+        const focusableWithdrawn = await focusableClassNames();
+        invariant(focusableWithdrawn.some((c) => String(c).includes('chat-consent-checkbox')), `${label}: the checkbox must be reachable again after withdrawal.`);
+        await execute(client, `
+          const ta = document.querySelector('.chat-input');
+          ta.value = 'post-withdrawal resubmit without re-check';
+          ta.dispatchEvent(new Event('input', { bubbles: true }));
+          document.querySelector('.chat-form').requestSubmit();
+          return true;
+        `);
+        await sleep(150);
+        invariant((await recordAiRequests(`${label}-post-withdrawal`)).length === 0, `${label}: a submit without re-checking after withdrawal must not call /api/chat.`);
+        invariant(
+          await execute(client, `return !document.querySelector('.chat-consent-error')?.classList.contains('hidden');`),
+          `${label}: the existing consent error path must still fire after withdrawal.`,
+        );
+
+        // Re-grant: immediate collapse again, no submit required.
+        await execute(client, `
+          const box = document.querySelector('.chat-consent-checkbox');
+          box.checked = true;
+          box.dispatchEvent(new Event('change', { bubbles: true }));
+          return true;
+        `);
+        await sleep(150);
+        invariant((await measureConsentGeometry()).chatConsentState === 'granted', `${label}: re-checking after withdrawal must grant again immediately.`);
+        invariant((await recordAiRequests(`${label}-regrant`)).length === 0, `${label}: re-granting must not itself call /api/chat.`);
+
+        // Chat/JD independence: switching to JD must show it undecided/expanded/unchecked while
+        // Chat stays granted; granting/withdrawing JD must not affect Chat's granted state.
+        await execute(client, `document.querySelector('.chat-tab[data-tab="jd"]')?.click(); return true;`);
+        const jdFresh = await measureConsentGeometry();
+        invariant(jdFresh.jdConsentState === 'undecided', `${label}: JD consent must remain independently undecided while chat is granted.`);
+        invariant(
+          await execute(client, `return document.querySelector('.jd-consent-checkbox')?.checked === false;`),
+          `${label}: JD checkbox must remain unchecked while chat is granted.`,
+        );
+        await execute(client, `
+          const box = document.querySelector('.jd-consent-checkbox');
+          box.checked = true;
+          box.dispatchEvent(new Event('change', { bubbles: true }));
+          return true;
+        `);
+        await sleep(150);
+        const jdGranted = await measureConsentGeometry();
+        invariant(jdGranted.jdConsentState === 'granted', `${label}: JD must grant independently.`);
+        invariant(jdGranted.chatConsentState === 'granted', `${label}: granting JD must not disturb chat's already-granted state.`);
+        await execute(client, `document.querySelector('.jd-consent-withdraw')?.click(); return true;`);
+        await sleep(150);
+        const jdWithdrawn = await measureConsentGeometry();
+        invariant(jdWithdrawn.jdConsentState === 'withdrawn', `${label}: JD must withdraw independently.`);
+        invariant(jdWithdrawn.chatConsentState === 'granted', `${label}: withdrawing JD must not disturb chat's granted state.`);
+
+        // Full reload resets both surfaces (existing non-persistence policy, re-asserted).
+        await client.command('WebDriver:Navigate', { url: new URL('/', base).href });
+        await sleep(1300);
+        if (mode === 'dark') await execute(client, `document.documentElement.classList.add('dark'); return true;`);
+        await execute(client, `window.dispatchEvent(new CustomEvent('chat:toggle', { detail: {} })); return true;`);
+        await sleep(500);
+        const afterReload = await measureConsentGeometry();
+        invariant(afterReload.chatConsentState === 'undecided', `${label}: chat consent must reset to undecided after a full reload.`);
+        invariant(afterReload.jdConsentState === 'undecided', `${label}: JD consent must reset to undecided after a full reload.`);
+      }
+    }
+
     await client.command('WebDriver:Navigate', { url: new URL('/', base).href });
     const zoomActions = [{ type: 'keyDown', value: '\uE009' }];
     for (let step = 0; step < 6; step += 1) {

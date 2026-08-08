@@ -35,6 +35,8 @@ const copy = {
     aiDisclosure: 'Deine Nachrichten werden bei Absenden zur Verarbeitung an OpenAI (USA) übermittelt.',
     aiConsentLabel: 'Ich stimme zu, dass meine Eingabe und die KI-generierte Antwort an OpenAI übermittelt werden. Für dieses Projekt ist die freiwillige Weitergabe von API-Eingaben und -Ausgaben an OpenAI aktiviert. OpenAI kann diese Daten zur Qualitätsbewertung sowie zur Verbesserung und zum Training seiner Modelle verwenden. Bitte geben Sie keine sensiblen, vertraulichen oder personenbezogenen Daten über sich oder Dritte ein. Verwenden Sie nach Möglichkeit anonymisierte oder synthetische Angaben. Die KI-Funktion ist optional.',
     aiConsentRequired: 'Bitte bestätige zuerst die Zustimmung zur externen Verarbeitung oben.',
+    aiConsentActive: '✓ KI-Einwilligung aktiv',
+    aiConsentWithdraw: 'Widerrufen',
     jdConsentWarning: 'Verwenden Sie keine echten Steuer-, Konto-, Gehalts-, Kunden- oder vertraulichen Unternehmensdaten.',
     chips: ['📋 Kontakt', '💼 Aktuelle Rolle', '🎓 Zertifikate', '🚀 Projekte'],
     askPlaceholder: 'Eine Frage stellen...',
@@ -62,6 +64,8 @@ const copy = {
     aiDisclosure: 'Your messages are sent to OpenAI (USA) for processing when you submit them.',
     aiConsentLabel: 'I consent to my input and the AI-generated response being sent to OpenAI. This project has enabled voluntary sharing of API inputs and outputs with OpenAI. OpenAI may use this data for quality evaluation and to improve or train its models. Do not enter sensitive, confidential, or third-party personal data. Use anonymized or synthetic information whenever possible. AI is optional.',
     aiConsentRequired: 'Please confirm the consent to external processing above first.',
+    aiConsentActive: '✓ AI consent active',
+    aiConsentWithdraw: 'Withdraw',
     jdConsentWarning: 'Do not use real tax, account, salary, customer, or confidential business data.',
     chips: ['📋 Contact', '💼 Current Role', '🎓 Certifications', '🚀 Projects'],
     askPlaceholder: 'Ask a question...',
@@ -89,6 +93,8 @@ const copy = {
     aiDisclosure: 'Mesajele tale sunt trimise către OpenAI (SUA) pentru procesare atunci când le trimiți.',
     aiConsentLabel: 'Sunt de acord ca textul introdus de mine și răspunsul generat de AI să fie transmise către OpenAI. Pentru acest proiect este activată partajarea voluntară cu OpenAI a datelor de intrare și ieșire din API. OpenAI poate utiliza aceste date pentru evaluarea calității și pentru îmbunătățirea sau antrenarea modelelor sale. Nu introduceți date sensibile sau confidențiale și nici date cu caracter personal despre dumneavoastră sau despre terți. Folosiți, pe cât posibil, informații anonimizate sau sintetice. Funcția AI este opțională.',
     aiConsentRequired: 'Te rugăm să confirmi mai întâi consimțământul pentru procesarea externă de mai sus.',
+    aiConsentActive: '✓ Consimțământ AI activ',
+    aiConsentWithdraw: 'Retrage',
     jdConsentWarning: 'Nu introduceți date fiscale, de cont, salariale, ale clienților sau confidențiale ale companiei, reale.',
     chips: ['📋 Contact', '💼 Rol curent', '🎓 Certificări', '🚀 Proiecte'],
     askPlaceholder: 'Pune o întrebare...',
@@ -184,16 +190,22 @@ const title = props.title || copy.title;
     </div>
 
     <!-- AI contextual consent (chat tab) -->
-    <div class="chat-consent px-3 pt-2 bg-white dark:bg-dark-surface border-t border-gray-200 dark:border-dark-border shrink-0">
-      <label class="flex items-start gap-2 text-xs text-text-secondary-light dark:text-text-secondary-dark cursor-pointer">
-        <input
-          type="checkbox"
-          class="chat-consent-checkbox mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 dark:border-gray-600 text-eucalyptus-600 focus-visible:ring-2 focus-visible:ring-eucalyptus-500"
-          aria-describedby={`${id}-chat-consent-error`}
-        />
-        <span>{copy.aiConsentLabel}</span>
-      </label>
-      <p id={`${id}-chat-consent-error`} class="chat-consent-error hidden mt-1 text-xs text-error" role="alert">{copy.aiConsentRequired}</p>
+    <div class="chat-consent shrink-0" data-consent-state="undecided">
+      <div class="chat-consent-expanded px-3 pt-2 bg-white dark:bg-dark-surface border-t border-gray-200 dark:border-dark-border">
+        <label class="flex items-start gap-2 text-xs text-text-secondary-light dark:text-text-secondary-dark cursor-pointer">
+          <input
+            type="checkbox"
+            class="chat-consent-checkbox mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 dark:border-gray-600 text-eucalyptus-600 focus-visible:ring-2 focus-visible:ring-eucalyptus-500"
+            aria-describedby={`${id}-chat-consent-error`}
+          />
+          <span>{copy.aiConsentLabel}</span>
+        </label>
+        <p id={`${id}-chat-consent-error`} class="chat-consent-error hidden mt-1 text-xs text-error" role="alert">{copy.aiConsentRequired}</p>
+      </div>
+      <div class="chat-consent-status hidden flex items-center justify-between gap-2 px-3 min-h-11 bg-white dark:bg-dark-surface border-t border-gray-200 dark:border-dark-border text-xs text-text-secondary-light dark:text-text-secondary-dark">
+        <span class="py-2">{copy.aiConsentActive}</span>
+        <button type="button" class="chat-consent-withdraw min-h-11 min-w-11 px-2 -mr-2 font-medium text-eucalyptus-700 dark:text-eucalyptus-300 hover:underline focus-visible:ring-2 focus-visible:ring-eucalyptus-500 rounded">{copy.aiConsentWithdraw}</button>
+      </div>
     </div>
 
     <!-- Chat Input -->
@@ -263,17 +275,23 @@ const title = props.title || copy.title;
       ></textarea>
 
       <!-- AI contextual consent (JD tab) -->
-      <div class="jd-consent mt-2">
-        <p class="mb-1 text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark">{copy.jdConsentWarning}</p>
-        <label class="flex items-start gap-2 text-xs text-text-secondary-light dark:text-text-secondary-dark cursor-pointer">
-          <input
-            type="checkbox"
-            class="jd-consent-checkbox mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 dark:border-gray-600 text-eucalyptus-600 focus-visible:ring-2 focus-visible:ring-eucalyptus-500"
-            aria-describedby={`${id}-jd-consent-error`}
-          />
-          <span>{copy.aiConsentLabel}</span>
-        </label>
-        <p id={`${id}-jd-consent-error`} class="jd-consent-error hidden mt-1 text-xs text-error" role="alert">{copy.aiConsentRequired}</p>
+      <div class="jd-consent mt-2" data-consent-state="undecided">
+        <div class="jd-consent-expanded">
+          <p class="mb-1 text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark">{copy.jdConsentWarning}</p>
+          <label class="flex items-start gap-2 text-xs text-text-secondary-light dark:text-text-secondary-dark cursor-pointer">
+            <input
+              type="checkbox"
+              class="jd-consent-checkbox mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 dark:border-gray-600 text-eucalyptus-600 focus-visible:ring-2 focus-visible:ring-eucalyptus-500"
+              aria-describedby={`${id}-jd-consent-error`}
+            />
+            <span>{copy.aiConsentLabel}</span>
+          </label>
+          <p id={`${id}-jd-consent-error`} class="jd-consent-error hidden mt-1 text-xs text-error" role="alert">{copy.aiConsentRequired}</p>
+        </div>
+        <div class="jd-consent-status hidden flex items-center justify-between gap-2 min-h-11 text-xs text-text-secondary-light dark:text-text-secondary-dark">
+          <span class="py-2">{copy.aiConsentActive}</span>
+          <button type="button" class="jd-consent-withdraw min-h-11 min-w-11 px-2 -mr-2 font-medium text-eucalyptus-700 dark:text-eucalyptus-300 hover:underline focus-visible:ring-2 focus-visible:ring-eucalyptus-500 rounded">{copy.aiConsentWithdraw}</button>
+        </div>
       </div>
 
       <!-- Character Counter -->
@@ -305,6 +323,10 @@ const title = props.title || copy.title;
     messagesEl: HTMLElement;
     submitBtn: HTMLButtonElement | null;
     chipsContainer: HTMLElement | null;
+    chatConsentContainer: HTMLElement | null;
+    chatConsentExpanded: HTMLElement | null;
+    chatConsentStatus: HTMLElement | null;
+    chatConsentWithdrawBtn: HTMLButtonElement | null;
     chatConsentCheckbox: HTMLInputElement | null;
     chatConsentError: HTMLElement | null;
     // JD tab elements
@@ -312,6 +334,10 @@ const title = props.title || copy.title;
     jdAnalyzeBtn: HTMLButtonElement | null;
     jdCharCount: HTMLElement | null;
     jdResults: HTMLElement | null;
+    jdConsentContainer: HTMLElement | null;
+    jdConsentExpanded: HTMLElement | null;
+    jdConsentStatus: HTMLElement | null;
+    jdConsentWithdrawBtn: HTMLButtonElement | null;
     jdConsentCheckbox: HTMLInputElement | null;
     jdConsentError: HTMLElement | null;
     // Tab & language
@@ -331,6 +357,10 @@ const title = props.title || copy.title;
       this.messagesEl = el.querySelector('.chat-messages') as HTMLElement;
       this.submitBtn = this.form.querySelector('.chat-send-btn');
       this.chipsContainer = el.querySelector('.quick-chips');
+      this.chatConsentContainer = el.querySelector('.chat-consent');
+      this.chatConsentExpanded = el.querySelector('.chat-consent-expanded');
+      this.chatConsentStatus = el.querySelector('.chat-consent-status');
+      this.chatConsentWithdrawBtn = el.querySelector('.chat-consent-withdraw');
       this.chatConsentCheckbox = el.querySelector('.chat-consent-checkbox');
       this.chatConsentError = el.querySelector('.chat-consent-error');
 
@@ -338,6 +368,10 @@ const title = props.title || copy.title;
       this.jdAnalyzeBtn = el.querySelector('.jd-analyze-btn');
       this.jdCharCount = el.querySelector('.jd-char-count');
       this.jdResults = el.querySelector('.jd-results');
+      this.jdConsentContainer = el.querySelector('.jd-consent');
+      this.jdConsentExpanded = el.querySelector('.jd-consent-expanded');
+      this.jdConsentStatus = el.querySelector('.jd-consent-status');
+      this.jdConsentWithdrawBtn = el.querySelector('.jd-consent-withdraw');
       this.jdConsentCheckbox = el.querySelector('.jd-consent-checkbox');
       this.jdConsentError = el.querySelector('.jd-consent-error');
 
@@ -390,6 +424,14 @@ const title = props.title || copy.title;
       if (this.jdAnalyzeBtn) {
         this.jdAnalyzeBtn.addEventListener('click', () => this.handleJdAnalyze());
       }
+
+      // AI contextual consent — checking either box immediately grants and collapses that
+      // surface's own disclosure (owner amendment, Phase 5-D1A); each tab's checkbox/withdrawal
+      // is wired independently, so granting or withdrawing one never touches the other.
+      this.chatConsentCheckbox?.addEventListener('change', () => this.handleConsentChecked('chat'));
+      this.jdConsentCheckbox?.addEventListener('change', () => this.handleConsentChecked('jd'));
+      this.chatConsentWithdrawBtn?.addEventListener('click', () => this.handleConsentWithdraw('chat'));
+      this.jdConsentWithdrawBtn?.addEventListener('click', () => this.handleConsentWithdraw('jd'));
     }
 
     // ─── Helpers ─────────────────────────────────────────────────
@@ -411,11 +453,51 @@ const title = props.title || copy.title;
     requireConsent(checkbox: HTMLInputElement | null, errorEl: HTMLElement | null): boolean {
       if (checkbox?.checked) {
         errorEl?.classList.add('hidden');
+        checkbox?.setAttribute('aria-invalid', 'false');
         return true;
       }
       errorEl?.classList.remove('hidden');
+      checkbox?.setAttribute('aria-invalid', 'true');
       checkbox?.focus();
       return false;
+    }
+
+    // ─── AI contextual consent lifecycle (undecided -> granted -> withdrawn) ───
+    // Each surface (chat/jd) owns its own transient state; granting or withdrawing one never
+    // touches the other (privacy-consent-external-services.md: consent is scoped per surface).
+
+    setConsentState(surface: 'chat' | 'jd', state: 'undecided' | 'granted' | 'withdrawn') {
+      const container = surface === 'chat' ? this.chatConsentContainer : this.jdConsentContainer;
+      const expanded = surface === 'chat' ? this.chatConsentExpanded : this.jdConsentExpanded;
+      const status = surface === 'chat' ? this.chatConsentStatus : this.jdConsentStatus;
+      if (!container) return;
+      container.dataset.consentState = state;
+      const granted = state === 'granted';
+      expanded?.classList.toggle('hidden', granted);
+      status?.classList.toggle('hidden', !granted);
+    }
+
+    // Checking the box immediately grants and collapses the disclosure — no submit required, no
+    // network request triggered. Unchecking it directly (without using Withdraw) only matters
+    // while still undecided, where the expanded disclosure is already showing, so no transition
+    // is needed.
+    handleConsentChecked(surface: 'chat' | 'jd') {
+      const checkbox = surface === 'chat' ? this.chatConsentCheckbox : this.jdConsentCheckbox;
+      const errorEl = surface === 'chat' ? this.chatConsentError : this.jdConsentError;
+      if (!checkbox?.checked) return;
+      errorEl?.classList.add('hidden');
+      checkbox.setAttribute('aria-invalid', 'false');
+      this.setConsentState(surface, 'granted');
+    }
+
+    handleConsentWithdraw(surface: 'chat' | 'jd') {
+      const checkbox = surface === 'chat' ? this.chatConsentCheckbox : this.jdConsentCheckbox;
+      const errorEl = surface === 'chat' ? this.chatConsentError : this.jdConsentError;
+      if (checkbox) checkbox.checked = false;
+      errorEl?.classList.add('hidden');
+      checkbox?.setAttribute('aria-invalid', 'false');
+      this.setConsentState(surface, 'withdrawn');
+      checkbox?.focus();
     }
 
     updateQuota(quotaData: { q: number; jd: number; maxQ: number; maxJd: number } | undefined) {

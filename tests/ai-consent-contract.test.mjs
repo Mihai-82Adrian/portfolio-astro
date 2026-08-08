@@ -284,3 +284,94 @@ test("pages-functions-contracts.md classifies chat.ts's ordering as an accepted 
     const source = readSource('docs/operations/pages-functions-contracts.md');
     assert.match(source, /ACCEPTED-SECURITY-ORDERING-EXCEPTION/);
 });
+
+// ─────────────────────────────────────────────────────────────────────────
+// Phase 5-D1A: chat/JD consent collapse lifecycle (undecided -> granted -> withdrawn). Immediate
+// collapse on checkbox change is a client-side layout transition; these are the static/build-time
+// contracts a regex/DOM-parse test can prove. Computed-height, real-network, and keyboard-focus
+// behavior require the browser-level Firefox regression instead (see the AI contextual-consent
+// matrix in scripts/release/firefox-release.mjs).
+// ─────────────────────────────────────────────────────────────────────────
+
+test('ChatWidget.astro: chat and JD consent blocks each render fully expanded with a hidden compact status row on first load', () => {
+    const html = readDist('index.html');
+    const root = parse(html);
+    for (const [expandedSel, statusSel, containerSel] of [
+        ['.chat-consent-expanded', '.chat-consent-status', '.chat-consent'],
+        ['.jd-consent-expanded', '.jd-consent-status', '.jd-consent'],
+    ]) {
+        const expanded = root.querySelector(expandedSel);
+        const status = root.querySelector(statusSel);
+        const container = root.querySelector(containerSel);
+        assert.ok(expanded, `expected ${expandedSel} in built HTML`);
+        assert.ok(status, `expected ${statusSel} in built HTML`);
+        assert.ok(!expanded.classList.contains('hidden'), `${expandedSel} must be visible on first load`);
+        assert.ok(status.classList.contains('hidden'), `${statusSel} must be hidden on first load`);
+        assert.equal(container.getAttribute('data-consent-state'), 'undecided', `${containerSel} must start in the undecided state`);
+    }
+});
+
+test('ChatWidget.astro: chat and JD consent state containers are structurally independent (two distinct data-consent-state hooks, two distinct listener pairs)', () => {
+    const source = readSource('src/components/ChatWidget.astro');
+    assert.match(source, /class="chat-consent shrink-0" data-consent-state="undecided"/);
+    assert.match(source, /class="jd-consent mt-2" data-consent-state="undecided"/);
+    // Each surface is wired via its own checkbox `change` listener and its own withdraw button
+    // click listener -- granting/withdrawing one must never reference the other surface's element.
+    assert.match(source, /chatConsentCheckbox\?\.addEventListener\('change', \(\) => this\.handleConsentChecked\('chat'\)\)/);
+    assert.match(source, /jdConsentCheckbox\?\.addEventListener\('change', \(\) => this\.handleConsentChecked\('jd'\)\)/);
+    assert.match(source, /chatConsentWithdrawBtn\?\.addEventListener\('click', \(\) => this\.handleConsentWithdraw\('chat'\)\)/);
+    assert.match(source, /jdConsentWithdrawBtn\?\.addEventListener\('click', \(\) => this\.handleConsentWithdraw\('jd'\)\)/);
+});
+
+test('ChatWidget.astro: granting or withdrawing consent never triggers a fetch -- the state transition is presentation-only', () => {
+    const source = readSource('src/components/ChatWidget.astro');
+    const checkedMethod = source.match(/handleConsentChecked\(surface: 'chat' \| 'jd'\) \{[\s\S]*?\n {4}\}/);
+    const withdrawMethod = source.match(/handleConsentWithdraw\(surface: 'chat' \| 'jd'\) \{[\s\S]*?\n {4}\}/);
+    assert.ok(checkedMethod, 'expected a handleConsentChecked method');
+    assert.ok(withdrawMethod, 'expected a handleConsentWithdraw method');
+    assert.doesNotMatch(checkedMethod[0], /fetch\(/, 'checking the box must not itself call fetch()');
+    assert.doesNotMatch(withdrawMethod[0], /fetch\(/, 'withdrawing consent must not itself call fetch()');
+});
+
+test("ChatWidget.astro: aria-invalid is toggled on both success and failure, matching AIDisclosureNote.svelte's pattern", () => {
+    const source = readSource('src/components/ChatWidget.astro');
+    assert.match(source, /checkbox\?\.setAttribute\('aria-invalid', 'false'\)/);
+    assert.match(source, /checkbox\?\.setAttribute\('aria-invalid', 'true'\)/);
+});
+
+test('ChatWidget.astro: withdrawal restores the expanded disclosure, clears the error, and re-focuses the checkbox', () => {
+    const source = readSource('src/components/ChatWidget.astro');
+    const withdrawMethod = source.match(/handleConsentWithdraw\(surface: 'chat' \| 'jd'\) \{[\s\S]*?\n {4}\}/)[0];
+    assert.match(withdrawMethod, /checkbox\.checked = false/);
+    assert.match(withdrawMethod, /errorEl\?\.classList\.add\('hidden'\)/);
+    assert.match(withdrawMethod, /this\.setConsentState\(surface, 'withdrawn'\)/);
+    assert.match(withdrawMethod, /checkbox\?\.focus\(\)/);
+});
+
+test('built dist output localizes the compact withdrawal control for all three locales, with an accessible name from its own text content', () => {
+    const expectations = [
+        ['index.html', 'Widerrufen'],
+        ['en/index.html', 'Withdraw'],
+        ['ro/index.html', 'Retrage'],
+    ];
+    for (const [file, expectedText] of expectations) {
+        const html = readDist(file);
+        const root = parse(html);
+        const chatWithdraw = root.querySelector('.chat-consent-withdraw');
+        const jdWithdraw = root.querySelector('.jd-consent-withdraw');
+        assert.ok(chatWithdraw, `${file}: expected a .chat-consent-withdraw button`);
+        assert.ok(jdWithdraw, `${file}: expected a .jd-consent-withdraw button`);
+        assert.equal(chatWithdraw.getAttribute('type'), 'button');
+        assert.equal(jdWithdraw.getAttribute('type'), 'button');
+        assert.equal(chatWithdraw.text.trim(), expectedText, `${file}: chat withdrawal button must be localized`);
+        assert.equal(jdWithdraw.text.trim(), expectedText, `${file}: JD withdrawal button must be localized`);
+    }
+});
+
+test('ChatWidget.astro: the consent lifecycle addition stays presentation-only -- no new sessionStorage/cookie/localStorage persistence', () => {
+    const source = readSource('src/components/ChatWidget.astro');
+    assert.doesNotMatch(source, /sessionStorage/);
+    // Reasserts the existing whole-file guard still holds after the Phase 5-D1A lifecycle addition.
+    assert.doesNotMatch(source, /document\.cookie\s*=/);
+    assert.doesNotMatch(source, /localStorage\.setItem\([^)]*[Cc]onsent/);
+});
