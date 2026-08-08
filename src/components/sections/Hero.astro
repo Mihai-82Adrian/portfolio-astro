@@ -175,7 +175,7 @@ const heroSkills = skills as string[];
     background:
       radial-gradient(
         1200px 500px at 50% -10%,
-        color-mix(in srgb, var(--color-eucalyptus-500) 12%, transparent),
+        color-mix(in srgb, theme(--color-eucalyptus-500) 12%, transparent),
         transparent 60%
       ),
       linear-gradient(180deg, color-mix(in srgb, var(--bg-primary) 92%, transparent), var(--bg-primary));
@@ -286,9 +286,9 @@ const heroSkills = skills as string[];
     @apply rounded-full;
     background: linear-gradient(
       90deg,
-      var(--color-eucalyptus-500) 0%,
-      var(--color-eucalyptus-600) 50%,
-      var(--color-eucalyptus-700) 100%
+      theme(--color-eucalyptus-500) 0%,
+      theme(--color-eucalyptus-600) 50%,
+      theme(--color-eucalyptus-700) 100%
     );
     animation: expandLine 0.8s ease-out 0.3s both;
   }
@@ -304,12 +304,12 @@ const heroSkills = skills as string[];
     }
   }
 
-  .dark .hero-accent-line {
+  :global(.dark) .hero-accent-line {
     background: linear-gradient(
       90deg,
-      var(--color-eucalyptus-400) 0%,
-      var(--color-eucalyptus-500) 50%,
-      var(--color-eucalyptus-600) 100%
+      theme(--color-eucalyptus-400) 0%,
+      theme(--color-eucalyptus-500) 50%,
+      theme(--color-eucalyptus-600) 100%
     );
   }
 
@@ -415,18 +415,18 @@ const heroSkills = skills as string[];
     @apply bg-clip-text text-transparent;
     background-image: linear-gradient(
       135deg,
-      var(--color-eucalyptus-600) 0%,
-      var(--color-eucalyptus-700) 50%,
-      var(--color-eucalyptus-800) 100%
+      theme(--color-eucalyptus-600) 0%,
+      theme(--color-eucalyptus-700) 50%,
+      theme(--color-eucalyptus-800) 100%
     );
   }
 
-  .dark .text-gradient {
+  :global(.dark) .text-gradient {
     background-image: linear-gradient(
       135deg,
-      var(--color-eucalyptus-300) 0%,
-      var(--color-eucalyptus-400) 50%,
-      var(--color-eucalyptus-500) 100%
+      theme(--color-eucalyptus-300) 0%,
+      theme(--color-eucalyptus-400) 50%,
+      theme(--color-eucalyptus-500) 100%
     );
   }
 

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -207,4 +207,74 @@ test('--text-secondary (dark) is unchanged at the canonical value', () => {
   const runtimeMatch = darkBlock.match(/--text-secondary:\s*(#[0-9A-Fa-f]{6})/);
   assert.ok(runtimeMatch, '.dark must declare --text-secondary as a hex color.');
   assert.equal(runtimeMatch[1].toUpperCase(), DESIGN_TOKENS.colors.text.secondary.dark.toUpperCase());
+});
+
+// --- E. Hero gradient runtime resolution (HERO-GRADIENT-TEXT-RUNTIME-VAR) -------
+
+// Phase 5-D1D: the homepage subtitle's .text-gradient (and the decorative .hero-accent-line /
+// .hero-section ambient glow sharing the same mechanism) used var(--color-eucalyptus-*), which this
+// project's Tailwind v4 @config (legacy JS-config) mode never emits as a runtime custom property —
+// background-image computed to `none`, leaving text-transparent with nothing to clip against
+// (fully invisible subtitle, live-verified). theme(--color-eucalyptus-*) resolves to a literal value
+// at build time instead, matching the already-proven pattern in Search.astro:125.
+const HERO_SOURCE = readFileSync(path.join(SRC, 'components/sections/Hero.astro'), 'utf8');
+
+test('Hero.astro gradient declarations (.hero-section, .hero-accent-line, .text-gradient) never reference var(--color-eucalyptus-*)', () => {
+  const styleBlock = HERO_SOURCE.slice(HERO_SOURCE.indexOf('<style>'));
+  assert.doesNotMatch(
+    styleBlock,
+    /var\(--color-eucalyptus-\d+\)/,
+    'Regression: a Hero gradient declaration reverted to the runtime var() form, which this project\'s Tailwind config never emits — use theme(--color-eucalyptus-N) instead (build-time literal resolution, proven in Search.astro:125).',
+  );
+});
+
+test('Hero.astro dark gradient overrides use :global(.dark), not a bare .dark that Astro would scope unreachably', () => {
+  for (const selector of ['.text-gradient', '.hero-accent-line']) {
+    assert.match(
+      HERO_SOURCE,
+      new RegExp(`:global\\(\\.dark\\)\\s*${selector.replace('.', '\\.')}`),
+      `Regression: dark-mode ${selector} must be written as ":global(.dark) ${selector}" — a bare ".dark ${selector}" compiles to ".dark[data-astro-cid-*] ${selector}[data-astro-cid-*]" (Astro scopes every compound in the chain), which can never match <html class="dark"> since <html> is never rendered by Hero.astro and never carries the scope attribute.`,
+    );
+  }
+});
+
+test('the built Hero-scoped CSS resolves real, non-none gradient stops in both light and dark (requires a prior npm run build)', () => {
+  const DIST = path.join(ROOT, 'dist');
+  if (!existsSync(path.join(DIST, 'index.html'))) {
+    // Proportional to change type: skip rather than fail when no build is present in this run —
+    // the source-level tests above already cover the mechanism; this test adds compiled-output
+    // confirmation whenever a build happens to be available (e.g. after `npm run build`).
+    return;
+  }
+  const indexHtml = readFileSync(path.join(DIST, 'index.html'), 'utf8');
+  const scopeMatch = indexHtml.match(/class="hero-section"\s+data-astro-cid-([a-z0-9]+)/);
+  assert.ok(scopeMatch, 'Expected to find the Hero component\'s Astro scope id via .hero-section in dist/index.html.');
+  const scopeId = scopeMatch[1];
+
+  const astroDir = path.join(DIST, '_astro');
+  const cssFiles = readdirSync(astroDir).filter((f) => f.endsWith('.css'));
+  const compiledCss = cssFiles.map((f) => readFileSync(path.join(astroDir, f), 'utf8')).join('\n');
+
+  assert.doesNotMatch(
+    compiledCss,
+    new RegExp(`\\[data-astro-cid-${scopeId}\\][^}]*var\\(--color-eucalyptus`),
+    'Regression: the built Hero-scoped CSS still contains an unresolved var(--color-eucalyptus-*) reference.',
+  );
+
+  for (const [selector, mustContainDark] of [
+    ['.text-gradient', true],
+    ['.hero-accent-line', true],
+    ['.hero-section', false],
+  ]) {
+    const localRuleRe = new RegExp(`\\${selector}\\[data-astro-cid-${scopeId}\\]\\{[^}]*\\}`);
+    const localRule = compiledCss.match(localRuleRe)?.[0] ?? '';
+    assert.ok(localRule.includes('gradient('), `Expected a compiled gradient() background for ${selector}, found: ${localRule || '(no matching rule)'}`);
+    assert.doesNotMatch(localRule, /:\s*none\b/, `${selector}'s compiled background must not resolve to none.`);
+
+    if (mustContainDark) {
+      const darkRuleRe = new RegExp(`\\.dark\\s*\\${selector}\\[data-astro-cid-${scopeId}\\]\\{[^}]*\\}`);
+      const darkRule = compiledCss.match(darkRuleRe)?.[0] ?? '';
+      assert.ok(darkRule.includes('gradient('), `Expected a reachable compiled dark-mode gradient() for ${selector} via ".dark ${selector}[data-astro-cid-${scopeId}]" (ancestor .dark left unscoped), found: ${darkRule || '(no matching rule — selector may be unreachable, see HERO_DARK_SELECTOR_AUDIT.md)'}`);
+    }
+  }
 });

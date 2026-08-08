@@ -144,6 +144,14 @@ const linkRel = target === '_blank' ? (rel || 'noopener noreferrer') : rel;
     @apply ring-2 ring-offset-2;
   }
 
+  /* Disabled state — must stay visible even when [disabled]/aria-disabled is toggled at runtime
+     after render (e.g. during an in-flight form submission), not only when the disabled/loading
+     prop was already true at Astro's initial SSR render. */
+  .btn:disabled,
+  .btn[aria-disabled="true"] {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
   .btn-primary:focus-visible {
     @apply ring-eucalyptus-500 dark:ring-eucalyptus-400;
   }

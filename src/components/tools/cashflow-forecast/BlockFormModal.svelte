@@ -4,6 +4,7 @@
   import Icon from '@/components/ui/Icon.svelte';
   import type { CashflowBlock, BlockCategory } from '@/lib/cashflow/types';
   import { SUBCATEGORIES, CATEGORY_LABELS } from '@/lib/cashflow/types';
+  import { focusTrap } from '@/lib/utils/focusTrap';
 
   let {
     block,
@@ -79,11 +80,12 @@
 
 <!-- Panel -->
 <div
-  class="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl border-t border-black/10 bg-[var(--bg-elevated)] p-6 pb-10 shadow-2xl dark:border-white/10 sm:left-auto sm:right-6 sm:bottom-6 sm:w-96 sm:rounded-2xl sm:border sm:pb-6"
+  class="fixed bottom-0 left-0 right-0 z-50 max-h-[85vh] overflow-y-auto rounded-t-2xl border-t border-black/10 bg-[var(--bg-elevated)] p-6 pb-10 shadow-2xl dark:border-white/10 sm:left-auto sm:right-6 sm:bottom-6 sm:w-96 sm:rounded-2xl sm:border sm:pb-6"
   role="dialog"
   aria-modal="true"
   aria-label="{isEdit ? 'Block bearbeiten' : 'Block hinzufügen'}"
   transition:fly={{ y: 30, duration: 300, easing: cubicOut }}
+  use:focusTrap
 >
   <!-- Header -->
   <div class="mb-5 flex items-center justify-between">

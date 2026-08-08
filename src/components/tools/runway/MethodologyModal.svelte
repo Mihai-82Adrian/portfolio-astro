@@ -2,6 +2,7 @@
   import { fly, fade } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
   import Icon from '@/components/ui/Icon.svelte';
+  import { focusTrap } from '@/lib/utils/focusTrap';
 
   export let open = false;
 
@@ -26,6 +27,7 @@
     aria-label="Methodik & Guide"
     role="dialog"
     aria-modal="true"
+    use:focusTrap
   >
     <!-- Header -->
     <div class="flex shrink-0 items-center justify-between border-b border-white/10 px-6 py-4">

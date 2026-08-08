@@ -155,6 +155,7 @@ const sizeClasses = {
     private modal: HTMLElement;
     private closeButtons: NodeListOf<HTMLElement>;
     private backdrop: HTMLElement | null;
+    private lastFocused: HTMLElement | null = null;
 
     constructor(modalElement: HTMLElement) {
       this.modal = modalElement;
@@ -162,6 +163,14 @@ const sizeClasses = {
       this.backdrop = modalElement.querySelector('[data-modal-backdrop]');
 
       this.init();
+    }
+
+    private getFocusable(): HTMLElement[] {
+      return Array.from(
+        this.modal.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      );
     }
 
     private init() {
@@ -175,10 +184,33 @@ const sizeClasses = {
         this.backdrop.addEventListener('click', () => this.close());
       }
 
-      // Close on ESC key
+      // Close on ESC key, and trap Tab focus while open
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !this.modal.hidden) {
+        if (this.modal.hidden) return;
+
+        if (e.key === 'Escape') {
           this.close();
+          return;
+        }
+
+        if (e.key !== 'Tab') return;
+        const focusable = this.getFocusable();
+        if (focusable.length === 0) {
+          e.preventDefault();
+          return;
+        }
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement;
+
+        if (e.shiftKey) {
+          if (active === first || !this.modal.contains(active)) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else if (active === last || !this.modal.contains(active)) {
+          e.preventDefault();
+          first.focus();
         }
       });
 
@@ -188,13 +220,13 @@ const sizeClasses = {
     }
 
     public open() {
+      this.lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
       this.modal.hidden = false;
       document.body.style.overflow = 'hidden';
 
       // Focus first focusable element
-      const firstFocusable = this.modal.querySelector<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
+      const firstFocusable = this.getFocusable()[0];
       firstFocusable?.focus();
 
       // Dispatch opened event
@@ -204,6 +236,9 @@ const sizeClasses = {
     public close() {
       this.modal.hidden = true;
       document.body.style.overflow = '';
+
+      this.lastFocused?.focus();
+      this.lastFocused = null;
 
       // Dispatch closed event
       this.modal.dispatchEvent(new CustomEvent('modal:closed'));

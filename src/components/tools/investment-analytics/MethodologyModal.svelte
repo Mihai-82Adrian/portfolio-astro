@@ -2,6 +2,7 @@
   import { fly, fade } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
   import Icon from '@/components/ui/Icon.svelte';
+  import { focusTrap } from '@/lib/utils/focusTrap';
 
   let { open = $bindable(false) }: { open: boolean } = $props();
 
@@ -28,6 +29,7 @@
     aria-label="Methodik & Guide"
     role="dialog"
     aria-modal="true"
+    use:focusTrap
   >
     <!-- Header -->
     <div class="shrink-0 border-b border-white/10">
