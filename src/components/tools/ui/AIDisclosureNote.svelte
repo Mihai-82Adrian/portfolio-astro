@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AI_PRIVACY_NOTICE_VERSION } from '../../../../functions/_lib/privacy-consent.ts';
+  import { AI_PRIVACY_NOTICE_VERSION } from '../../../../functions/_lib/ai-privacy-notice.ts';
 
   let {
     privacyPolicyUrl = '/datenschutz',

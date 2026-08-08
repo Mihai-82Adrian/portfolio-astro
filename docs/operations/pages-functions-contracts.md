@@ -43,7 +43,7 @@ PROVIDER_TIMEOUT PROVIDER_UNAVAILABLE PROVIDER_REJECTED INTERNAL_ERROR
 `PRIVACY_CONSENT_REQUIRED` (HTTP 400) is specific to the four AI-backed routes
 (`/api/chat`, `/api/compass`, `/api/cashflow-scenario`, `/api/investment-analysis`): the request
 body must carry `{ privacyConsent: true, privacyNoticeVersion: "ai-openai-v2" }` — the single
-authoritative version constant lives in `functions/_lib/privacy-consent.ts` — or the route rejects
+authoritative version constant lives in `functions/_lib/ai-privacy-notice.ts` — or the route rejects
 before any quota write or provider call. Deterministic fact-chip answers on `/api/chat` (explicit
 intent, no free-text question or JD analysis) never call OpenAI and are therefore never gated by
 this check; `chat`'s pre-existing burst rate limiter and read-only quota lookup (needed to render

@@ -13,7 +13,7 @@ import {
     type ResponsesInputItem,
 } from '../_lib/responses.ts';
 import { readFeatureControl } from '../_lib/feature-controls.ts';
-import { hasValidAiPrivacyConsent } from '../_lib/privacy-consent.ts';
+import { hasValidAiPrivacyConsent } from '../_lib/ai-privacy-notice.ts';
 import {
     createOperationalHandler,
     getOperationalState,

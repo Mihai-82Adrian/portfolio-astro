@@ -5,15 +5,6 @@
 /images/*
   Cache-Control: public, max-age=31536000, immutable
 
-# /_astro/* deliberately has no custom immutable rule here: this glob matches
-# on request path alone, regardless of the actual response status or
-# content-type, so a transiently cached HTML/error response under a hashed
-# JS path would otherwise stay "immutable" for a year at both edge and
-# browser. Cloudflare Pages' own default asset caching (ETag revalidation,
-# scoped to files that actually exist in the deployment) already gives
-# hash-named build output effectively-permanent, but safely revalidatable,
-# caching without this footgun.
-
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
 
@@ -43,6 +34,25 @@
 # SVG images - cache for 1 year
 /*.svg
   Cache-Control: public, max-age=31536000, immutable
+
+# /_astro/* must never inherit a custom Cache-Control. Cloudflare Pages
+# _headers splats match greedily across path separators, so every generic
+# extension rule above (/*.css, /*.js, /*.webp, /*.svg) also matches
+# /_astro/*.js, /_astro/*.css, etc. Empirically verified against real
+# Cloudflare Pages preview deployments (not just documentation): when two
+# matching rules touch the same header, the LAST one in file order wins —
+# an earlier-listed detach does NOT defeat a later-listed set. This block
+# must therefore stay positioned after every rule above that can set
+# Cache-Control for a /_astro/* path; moving any such rule below this point
+# would silently re-poison /_astro/* with an immutable Cache-Control again.
+# Absent this detach, a transiently cached HTML/error response under a
+# hashed module path could stay "immutable" for a year at both edge and
+# browser (the incident this guards against). Cloudflare Pages' own default
+# asset caching (ETag revalidation, scoped to files that actually exist in
+# the deployment) already gives hash-named build output effectively
+# permanent, but safely revalidatable, caching without this footgun.
+/_astro/*
+  ! Cache-Control
 
 # Favicon - cache for 1 week
 /favicon.ico

@@ -17,7 +17,7 @@ import {
     type StructuredFormat,
 } from '../_lib/responses.ts';
 import { readFeatureControl } from '../_lib/feature-controls.ts';
-import { hasValidAiPrivacyConsent } from '../_lib/privacy-consent.ts';
+import { hasValidAiPrivacyConsent } from '../_lib/ai-privacy-notice.ts';
 import { RECRUITER_RESULT_SCHEMA, RECRUITER_RESULT_SCHEMA_NAME, validateRecruiterResult } from '../_lib/recruiter-schema.ts';
 import {
     createOperationalHandler,

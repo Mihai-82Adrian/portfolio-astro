@@ -104,7 +104,7 @@ call OpenAI and are therefore never gated by this checkbox — no result is hidd
 the same applies to the fully client-side Cashflow/Investment deterministic calculations.
 
 Checking the box attaches `{ privacyConsent: true, privacyNoticeVersion: "ai-openai-v2" }` to the
-request. `AI_PRIVACY_NOTICE_VERSION` in `functions/_lib/privacy-consent.ts` is the single
+request. `AI_PRIVACY_NOTICE_VERSION` in `functions/_lib/ai-privacy-notice.ts` is the single
 authoritative constant for that version string, imported by both the client components and the
 four AI Functions rather than duplicated. `ai-openai-v2` (Phase 3-C Step 3D) is a material
 correction over the prior `ai-openai-v1` notice: it discloses that organization-level OpenAI

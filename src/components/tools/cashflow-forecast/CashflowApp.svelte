@@ -15,7 +15,7 @@
     applyCostShock,
   } from '@/lib/cashflow/projectionEngine';
   import { generateCashflowPdf } from '@/lib/cashflow/pdfExport';
-  import { AI_PRIVACY_NOTICE_VERSION } from '../../../../functions/_lib/privacy-consent.ts';
+  import { AI_PRIVACY_NOTICE_VERSION } from '../../../../functions/_lib/ai-privacy-notice.ts';
 
   import CashflowChart   from './CashflowChart.svelte';
   import MetricsSummary  from './MetricsSummary.svelte';

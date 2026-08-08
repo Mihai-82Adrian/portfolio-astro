@@ -64,7 +64,18 @@ export async function verifyPostdeploy({
     await request(route);
   }
   await request('/phase-2c-missing-document', { status: 404 });
-  await request(deriveMissingAssetPath(expectedReleaseId), { status: 404 });
+  const missingAsset = await request(deriveMissingAssetPath(expectedReleaseId), { status: 404 });
+  // Phase 5-D1A-R1: the 404 fallback for a nonexistent /_astro/*.js path must never inherit a
+  // custom immutable Cache-Control merely because its path ends in .js — this is exactly the
+  // shape of the Phase 5-D1A-P production incident (a non-JS response cached "immutable" for a
+  // year under a hashed module path). public/_headers' /_astro/* detach rule is the fix; this
+  // assertion verifies it end-to-end against a real local Wrangler-served response, not just the
+  // _headers source text.
+  const missingAssetCacheControl = missingAsset.headers.get('cache-control') ?? '';
+  invariant(
+    !missingAssetCacheControl.includes('immutable'),
+    `A missing /_astro/*.js path must not receive an immutable Cache-Control (got: "${missingAssetCacheControl}").`,
+  );
   await request('/release-manifest.json', { status: 404 });
   await request('/sbom.cdx.json', { status: 404 });
 
@@ -84,7 +95,7 @@ export async function verifyPostdeploy({
     origin: base.origin,
     releaseId: expectedReleaseId,
     sourceRevision: expectedSourceRevision,
-    checks: 17,
+    checks: 18,
     methods: ['GET', 'HEAD'],
     providerCanary: 'not-run',
     moduleGraph,

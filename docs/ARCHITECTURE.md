@@ -182,7 +182,7 @@ independently — accepting one does not grant the other, and a v2 record's sing
 migrates only to the Ahrefs channel, never to Cloudflare RUM. Giscus and YouTube (privacy-enhanced
 `youtube-nocookie.com` domain) are click-to-load. AI processing occurs only after the visitor
 requests it, sees contextual disclosure, and confirms an unchecked-by-default, per-surface consent
-checkbox (`AI_PRIVACY_NOTICE_VERSION` in `functions/_lib/privacy-consent.ts`); the checkbox state is
+checkbox (`AI_PRIVACY_NOTICE_VERSION` in `functions/_lib/ai-privacy-notice.ts`); the checkbox state is
 never persisted and each of the four AI Functions enforces the same pair server-side
 (`400 PRIVACY_CONSENT_REQUIRED` otherwise). Founder Compass, Cashflow, and Investment check it
 immediately after body parsing, before any rate-limit consumption, quota lookup/write, or provider

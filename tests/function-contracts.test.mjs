@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { installFakeCaches } from './helpers/fake-caches.mjs';
 import { createFetchRouter, jsonResponse, abortError } from './helpers/fetch-router.mjs';
-import { AI_PRIVACY_NOTICE_VERSION } from '../functions/_lib/privacy-consent.ts';
+import { AI_PRIVACY_NOTICE_VERSION } from '../functions/_lib/ai-privacy-notice.ts';
 
 // Default AI contextual consent, merged into every request body built via jsonRequest()/
 // prodChatRequest() below unless a test explicitly overrides privacyConsent/privacyNoticeVersion

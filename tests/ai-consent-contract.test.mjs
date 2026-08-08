@@ -8,7 +8,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import { parse } from 'node-html-parser';
-import { AI_PRIVACY_NOTICE_VERSION } from '../functions/_lib/privacy-consent.ts';
+import { AI_PRIVACY_NOTICE_VERSION } from '../functions/_lib/ai-privacy-notice.ts';
 
 const ROOT = path.resolve(new URL('..', import.meta.url).pathname);
 const DIST = path.join(ROOT, 'dist');
@@ -72,9 +72,9 @@ test('every page-embedded ChatDrawer/ChatWidget instance renders both consent ch
 // Single authoritative notice-version constant — no divergent duplication
 // ─────────────────────────────────────────────────────────────────────────
 
-test('AI_PRIVACY_NOTICE_VERSION is a single literal, defined only in functions/_lib/privacy-consent.ts', () => {
+test('AI_PRIVACY_NOTICE_VERSION is a single literal, defined only in functions/_lib/ai-privacy-notice.ts', () => {
     assert.equal(AI_PRIVACY_NOTICE_VERSION, 'ai-openai-v2');
-    const owner = readSource('functions/_lib/privacy-consent.ts');
+    const owner = readSource('functions/_lib/ai-privacy-notice.ts');
     assert.match(owner, /export const AI_PRIVACY_NOTICE_VERSION = 'ai-openai-v2';/);
 });
 
@@ -89,7 +89,7 @@ const CLIENT_SITES_IMPORTING_NOTICE_VERSION = [
 for (const file of CLIENT_SITES_IMPORTING_NOTICE_VERSION) {
     test(`${file} imports AI_PRIVACY_NOTICE_VERSION rather than hardcoding it`, () => {
         const source = readSource(file);
-        assert.match(source, /import\s*\{\s*AI_PRIVACY_NOTICE_VERSION\s*\}\s*from\s*['"].*privacy-consent\.ts['"]/);
+        assert.match(source, /import\s*\{\s*AI_PRIVACY_NOTICE_VERSION\s*\}\s*from\s*['"].*ai-privacy-notice\.ts['"]/);
         assert.doesNotMatch(source, /['"]ai-openai-v2['"]/, `${file} must reference the constant, not a duplicated literal`);
     });
 }
@@ -108,7 +108,7 @@ const AI_FUNCTIONS = [
 for (const file of AI_FUNCTIONS) {
     test(`${file} imports and calls hasValidAiPrivacyConsent before any provider call`, () => {
         const source = readSource(file);
-        assert.match(source, /import\s*\{\s*hasValidAiPrivacyConsent\s*\}\s*from\s*['"]\.\.\/_lib\/privacy-consent\.ts['"]/);
+        assert.match(source, /import\s*\{\s*hasValidAiPrivacyConsent\s*\}\s*from\s*['"]\.\.\/_lib\/ai-privacy-notice\.ts['"]/);
         assert.match(source, /hasValidAiPrivacyConsent\(/);
         assert.match(source, /PRIVACY_CONSENT_REQUIRED/);
     });

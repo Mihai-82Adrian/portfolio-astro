@@ -68,8 +68,8 @@ function buildFakeFetch(releaseId, sourceRevision) {
     }
     if (pathname === '/api/health' && method === 'HEAD') return withUrl(new Response('', { status: 200 }), url);
     if (pathname === '/api/sample-review' && method === 'HEAD') return withUrl(new Response(null, { status: 204 }), url);
-    if (pathname === '/_astro/entry.ABC123.js') return js(`import{t}from"./privacy-consent.DEF456.js";console.log(t);`);
-    if (pathname === '/_astro/privacy-consent.DEF456.js') return js(`var a="ai-openai-v2";export{a as t};`);
+    if (pathname === '/_astro/entry.ABC123.js') return js(`import{t}from"./ai-privacy-notice.DEF456.js";console.log(t);`);
+    if (pathname === '/_astro/ai-privacy-notice.DEF456.js') return js(`var a="ai-openai-v2";export{a as t};`);
     throw new Error(`fakeFetch: unexpected request for ${pathname}`);
   };
 }
@@ -125,5 +125,25 @@ test('verifyPostdeploy fails closed if the derived diagnostic path does not retu
   await assert.rejects(
     () => verifyPostdeploy({ baseUrl: BASE, expectedReleaseId: releaseId, expectedSourceRevision: sourceRevision, fetchImpl: badFetch }),
     /expected 404, received 200/,
+  );
+});
+
+test('verifyPostdeploy fails closed if the missing-asset 404 carries an immutable Cache-Control (Phase 5-D1A-P/R1 regression)', () => {
+  const releaseId = 'git-4444444444444444';
+  const sourceRevision = 'c'.repeat(40);
+  const poisonedFetch = async (input, init = {}) => {
+    const url = typeof input === 'string' ? input : input.href;
+    const pathname = new URL(url).pathname;
+    if (pathname === deriveMissingAssetPath(releaseId)) {
+      return withUrl(new Response('not found', {
+        status: 404,
+        headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'public, max-age=31536000, immutable' },
+      }), url);
+    }
+    return buildFakeFetch(releaseId, sourceRevision)(input, init);
+  };
+  return assert.rejects(
+    () => verifyPostdeploy({ baseUrl: BASE, expectedReleaseId: releaseId, expectedSourceRevision: sourceRevision, fetchImpl: poisonedFetch }),
+    /must not receive an immutable Cache-Control/,
   );
 });

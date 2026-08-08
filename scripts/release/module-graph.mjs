@@ -76,17 +76,20 @@ export async function verifyModuleGraph({ baseUrl, fetchImpl = fetch, entryPaths
     }
   }
 
-  const privacyConsentModuleChecked = checked.some((entry) => /\/privacy-consent\.[^/]+\.js$/.test(new URL(entry.url).pathname));
+  // Renamed from privacy-consent.ts to ai-privacy-notice.ts (Phase 5-D1A-R1, static-asset
+  // cache-safety repair) — the chunk name check below must track the built module's actual
+  // name, not the old one.
+  const aiPrivacyNoticeModuleChecked = checked.some((entry) => /\/ai-privacy-notice\.[^/]+\.js$/.test(new URL(entry.url).pathname));
   invariant(
-    privacyConsentModuleChecked,
-    'Module graph traversal never reached the privacy-consent chunk — the regression fixture requires it to be covered.',
+    aiPrivacyNoticeModuleChecked,
+    'Module graph traversal never reached the ai-privacy-notice chunk — the regression fixture requires it to be covered.',
   );
 
   return {
     result: 'PASS',
     moduleCount: checked.length,
     modules: checked.map((entry) => new URL(entry.url).pathname),
-    privacyConsentModuleChecked: true,
+    aiPrivacyNoticeModuleChecked: true,
   };
 }
 

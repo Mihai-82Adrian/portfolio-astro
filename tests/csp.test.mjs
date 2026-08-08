@@ -5,6 +5,7 @@ import test from 'node:test';
 import { parse } from 'node-html-parser';
 import { installFakeCaches } from './helpers/fake-caches.mjs';
 import { textMentionsHost } from './helpers/url-assertions.mjs';
+import { effectiveCacheControl, effectiveHeaders, parseHeadersFile } from './helpers/pages-headers-match.mjs';
 
 const ROOT = path.resolve(new URL('..', import.meta.url).pathname);
 const DIST = path.join(ROOT, 'dist');
@@ -77,17 +78,109 @@ test('generated CSS never embeds a font as a data: URI — font-src stays self-h
   );
 });
 
-test('public/_headers has no blanket immutable rule that can cache a non-asset response under /_astro/*', () => {
+test('public/_headers: no EFFECTIVE custom Cache-Control reaches /_astro/* for any representative extension', () => {
+  // A literal-text/regex check on the source (grepping for a "/_astro/*" line) cannot
+  // catch this class of defect: Cloudflare's documented _headers splat semantics
+  // (developers.cloudflare.com/workers/static-assets/headers/) make "*" match greedily
+  // across path separators, so an unrelated "/*.js" rule ALSO matches "/_astro/foo.js",
+  // and Cloudflare merges every matching rule's headers rather than letting a narrower
+  // path win. This is exactly how a stale HTML/error response cached under a hashed
+  // module path (privacy-consent.DMSTLOq8.js, Phase 5-D1A-P/R1 incident) stayed
+  // "immutable" for a year at both edge and browser even though the file had a comment
+  // claiming otherwise. This test models the real matching semantics instead.
   const source = readFileSync(path.join(ROOT, 'public', '_headers'), 'utf8');
-  const nonCommentSource = source
-    .split('\n')
-    .filter((line) => !line.trim().startsWith('#'))
-    .join('\n');
-  assert.doesNotMatch(
-    nonCommentSource,
-    /\/_astro\/\*\s*\n\s*Cache-Control:[^\n]*immutable/,
-    'A path-only /_astro/* rule with "immutable" can freeze a stale HTML/error response cached under a hashed module URL for a year — rely on Cloudflare Pages\' own default asset caching instead.',
+  for (const extension of ['js', 'css', 'svg', 'webp', 'woff2']) {
+    const value = effectiveCacheControl(source, `/_astro/example.${extension}`);
+    assert.ok(
+      value === undefined || !/immutable/.test(value),
+      `/_astro/example.${extension} must not effectively receive an immutable Cache-Control (got: ${value})`,
+    );
+  }
+  // Same invariant for a release-derived nonexistent module path, matching the
+  // real diagnostic probe scripts/release/postdeploy.mjs sends.
+  const missingValue = effectiveCacheControl(source, '/_astro/postdeploy-missing-c170b4eec3c2fae7.js');
+  assert.ok(
+    missingValue === undefined || !/immutable/.test(missingValue),
+    `a missing/fallback response under /_astro/*.js must not become immutable merely because the path ends in .js (got: ${missingValue})`,
   );
+  // Nested chunk paths (real Astro build output nests some chunks under /_astro/) must
+  // be covered too — the splat matches across path separators either way.
+  const nestedValue = effectiveCacheControl(source, '/_astro/chunks/vendor.ABC123xy.js');
+  assert.ok(
+    nestedValue === undefined || !/immutable/.test(nestedValue),
+    `nested /_astro/* chunk paths must not effectively receive an immutable Cache-Control (got: ${nestedValue})`,
+  );
+});
+
+test('public/_headers: generic cache policies for non-Astro paths are intentionally retained', () => {
+  // Guards against "fixing" /_astro/* by accidentally deleting unrelated intended policy.
+  const source = readFileSync(path.join(ROOT, 'public', '_headers'), 'utf8');
+  assert.match(effectiveCacheControl(source, '/example.js') ?? '', /immutable/);
+  assert.match(effectiveCacheControl(source, '/example.css') ?? '', /immutable/);
+  assert.match(effectiveCacheControl(source, '/images/example.webp') ?? '', /immutable/);
+  assert.match(effectiveCacheControl(source, '/fonts/example.woff2') ?? '', /immutable/);
+});
+
+test('public/_headers: no rule after the /_astro/* detach can re-set Cache-Control for /_astro/* paths', () => {
+  // Structural, defense-in-depth ordering guard: independent of the semantic matrix
+  // above, walk the parsed rule list directly and fail if a future edit reintroduces
+  // a Cache-Control-setting rule after the detach (the exact R1 defect class).
+  const source = readFileSync(path.join(ROOT, 'public', '_headers'), 'utf8');
+  const rules = parseHeadersFile(source);
+  const detachIndex = rules.findIndex(
+    (rule) => rule.pattern === '/_astro/*' && rule.headers.some((h) => h.detach && h.name.toLowerCase() === 'cache-control'),
+  );
+  assert.notEqual(detachIndex, -1, 'expected a /_astro/* rule with a Cache-Control detach in public/_headers');
+  const probe = '/_astro/example.js';
+  const offenders = rules
+    .slice(detachIndex + 1)
+    .filter((rule) => rule.matcher.test(probe) && rule.headers.some((h) => !h.detach && h.name.toLowerCase() === 'cache-control'))
+    .map((rule) => rule.pattern);
+  assert.deepEqual(offenders, [], 'a rule listed after the /_astro/* detach sets Cache-Control and would re-poison /_astro/* assets');
+});
+
+test('matcher model: sequential file order — an earlier detach does NOT defeat a later set (unsafe fixture)', () => {
+  const fixture = ['/_astro/*', '  ! Cache-Control', '', '/*.js', '  Cache-Control: public, max-age=31536000, immutable', ''].join('\n');
+  assert.equal(effectiveCacheControl(fixture, '/_astro/foo.js'), 'public, max-age=31536000, immutable');
+});
+
+test('matcher model: sequential file order — a later detach DOES defeat an earlier set (safe fixture)', () => {
+  const fixture = ['/*.js', '  Cache-Control: public, max-age=31536000, immutable', '', '/_astro/*', '  ! Cache-Control', ''].join('\n');
+  assert.equal(effectiveCacheControl(fixture, '/_astro/foo.js'), undefined);
+});
+
+test('matcher model: a Cache-Control detach does not remove an unrelated header', () => {
+  const fixture = [
+    '/*.js',
+    '  Cache-Control: public, max-age=31536000, immutable',
+    '  X-Custom-Header: keep-me',
+    '',
+    '/_astro/*',
+    '  ! Cache-Control',
+    '',
+  ].join('\n');
+  const headers = effectiveHeaders(parseHeadersFile(fixture), '/_astro/foo.js');
+  assert.equal(headers['Cache-Control'], undefined);
+  assert.equal(headers['X-Custom-Header'], 'keep-me');
+});
+
+test('the effective-matching model itself catches the historical bug — regression fixture', () => {
+  // Proves the test above has teeth: reproduce the exact pre-repair /_headers shape
+  // (a "/*.js" immutable rule with no /_astro/* detach, matching the file as it stood
+  // during the Phase 5-D1A-P production incident) and assert the SAME check fails
+  // against it. If this fixture ever stopped failing, the effective-matching model
+  // itself would have regressed and would no longer be trustworthy.
+  const buggyFixture = [
+    '/*.js',
+    '  Cache-Control: public, max-age=31536000, immutable',
+    '',
+    '/*',
+    '  X-Frame-Options: DENY',
+    '',
+  ].join('\n');
+  const value = effectiveCacheControl(buggyFixture, '/_astro/example.js');
+  assert.equal(value, 'public, max-age=31536000, immutable');
+  assert.match(value, /immutable/);
 });
 
 test('policy grants only inventoried browser resource origins, not ordinary external links', () => {

@@ -17,7 +17,7 @@
     calcTax,
   } from '@/lib/investment/analytics';
   import { generateInvestmentPdf } from '@/lib/investment/pdfExport';
-  import { AI_PRIVACY_NOTICE_VERSION } from '../../../../functions/_lib/privacy-consent.ts';
+  import { AI_PRIVACY_NOTICE_VERSION } from '../../../../functions/_lib/ai-privacy-notice.ts';
 
   import InputPanel        from './InputPanel.svelte';
   import MetricsDashboard  from './MetricsDashboard.svelte';

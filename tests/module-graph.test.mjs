@@ -22,16 +22,16 @@ const HOMEPAGE_HTML = `<!DOCTYPE html><html><head></head><body>
   <script type="module" src="/_astro/entry.ABC123.js"></script>
 </body></html>`;
 
-test('follows same-origin static imports and confirms the privacy-consent chunk', async () => {
+test('follows same-origin static imports and confirms the ai-privacy-notice chunk', async () => {
   const routes = {
     '/': { body: HOMEPAGE_HTML, contentType: 'text/html; charset=utf-8' },
-    '/_astro/entry.ABC123.js': { body: `import{t}from"./privacy-consent.DEF456.js";console.log(t);` },
-    '/_astro/privacy-consent.DEF456.js': { body: `var a="ai-openai-v2";export{a as t};` },
+    '/_astro/entry.ABC123.js': { body: `import{t}from"./ai-privacy-notice.DEF456.js";console.log(t);` },
+    '/_astro/ai-privacy-notice.DEF456.js': { body: `var a="ai-openai-v2";export{a as t};` },
   };
   const result = await verifyModuleGraph({ baseUrl: BASE, fetchImpl: fakeFetch(routes) });
   assert.equal(result.result, 'PASS');
-  assert.equal(result.privacyConsentModuleChecked, true);
-  assert.deepEqual(result.modules.sort(), ['/_astro/entry.ABC123.js', '/_astro/privacy-consent.DEF456.js'].sort());
+  assert.equal(result.aiPrivacyNoticeModuleChecked, true);
+  assert.deepEqual(result.modules.sort(), ['/_astro/entry.ABC123.js', '/_astro/ai-privacy-notice.DEF456.js'].sort());
 });
 
 test('fails closed when a module URL returns HTML instead of JavaScript (wrong content-type)', async () => {
@@ -73,14 +73,14 @@ test('fails closed when a module URL claims a JavaScript content-type but the bo
   );
 });
 
-test('fails when the graph never reaches the privacy-consent chunk', async () => {
+test('fails when the graph never reaches the ai-privacy-notice chunk', async () => {
   const routes = {
     '/': { body: HOMEPAGE_HTML, contentType: 'text/html; charset=utf-8' },
     '/_astro/entry.ABC123.js': { body: `console.log("no imports here");` },
   };
   await assert.rejects(
     () => verifyModuleGraph({ baseUrl: BASE, fetchImpl: fakeFetch(routes) }),
-    /never reached the privacy-consent chunk/,
+    /never reached the ai-privacy-notice chunk/,
   );
 });
 
@@ -91,8 +91,8 @@ test('ignores cross-origin module scripts referenced from the entry page', async
   </body></html>`;
   const routes = {
     '/': { body: html, contentType: 'text/html; charset=utf-8' },
-    '/_astro/entry.ABC123.js': { body: `import{t}from"./privacy-consent.DEF456.js";console.log(t);` },
-    '/_astro/privacy-consent.DEF456.js': { body: `var a="ai-openai-v2";export{a as t};` },
+    '/_astro/entry.ABC123.js': { body: `import{t}from"./ai-privacy-notice.DEF456.js";console.log(t);` },
+    '/_astro/ai-privacy-notice.DEF456.js': { body: `var a="ai-openai-v2";export{a as t};` },
   };
   const result = await verifyModuleGraph({ baseUrl: BASE, fetchImpl: fakeFetch(routes) });
   assert.equal(result.result, 'PASS');

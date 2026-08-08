@@ -484,6 +484,37 @@ export async function runFirefoxRelease({
       return log;
     }
 
+    // 7.0 Module initialization contract (Phase 5-D1A-R1): protects against the class of defect
+    // where ChatWidget's static import of its privacy-notice dependency fails to load/execute
+    // (Phase 5-D1A-P production incident — a stale HTML response served under the old hashed
+    // module URL caused the browser's native ES-module loader to reject the import, silently
+    // leaving every handler in ChatWidget's init() unattached). If the module graph did not
+    // fully initialize, checking the consent checkbox would still toggle its native `checked`
+    // DOM property (default browser behavior, not JS-driven) but `data-consent-state` would
+    // never advance past "undecided" — exactly the discriminating signal asserted below, and
+    // exactly what was reproduced live against production during that incident.
+    await client.command('WebDriver:Navigate', { url: new URL('/ai/', base).href });
+    await sleep(500);
+    await execute(client, patchAiFetch);
+    invariant(
+      await execute(client, `return document.querySelector('.chat-consent')?.dataset.consentState === 'undecided';`),
+      '7.0 module-init: chat consent state must start undecided (ChatWidget module reachable).',
+    );
+    await execute(client, `
+      const box = document.querySelector('.chat-consent-checkbox');
+      box.checked = true;
+      box.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    `);
+    invariant(
+      await execute(client, `return document.querySelector('.chat-consent')?.dataset.consentState === 'granted';`),
+      '7.0 module-init: checking the consent checkbox must advance data-consent-state to "granted" immediately — if this fails, ChatWidget\'s module import chain (e.g. its static import of ai-privacy-notice.ts) did not execute.',
+    );
+    invariant(
+      (await recordAiRequests('7.0-module-init-grant')).length === 0,
+      '7.0 module-init: checking the consent checkbox must not itself call /api/chat.',
+    );
+
     // 7.1 Ask Mihai — free-text chat
     await client.command('WebDriver:Navigate', { url: new URL('/ai/', base).href });
     await sleep(500);

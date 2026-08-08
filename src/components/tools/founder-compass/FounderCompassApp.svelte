@@ -10,7 +10,7 @@
     cooldownRemainingLabel,
     type CompassState,
   } from '@/lib/founder-compass/types';
-  import { AI_PRIVACY_NOTICE_VERSION } from '../../../../functions/_lib/privacy-consent.ts';
+  import { AI_PRIVACY_NOTICE_VERSION } from '../../../../functions/_lib/ai-privacy-notice.ts';
 
   const STORAGE_KEY = 'tools.founder-compass.state.v1';
   const TOTAL = QUESTIONS.length;
