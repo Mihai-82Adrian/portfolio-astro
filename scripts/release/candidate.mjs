@@ -23,13 +23,14 @@ function readAdvisoryFreshness() {
 
 export const phases = [
   ['Governance and living documentation', ['verify:governance', 'verify:repo-truth']],
-  ['Toolchain and dependency evidence', ['verify:toolchain', 'verify:dependency-tree', 'verify:advisory-register', 'verify:advisory-scanner']],
-  ['Workflow and release policy', ['verify:workflows', 'verify:release-policy', 'verify:public-release-lineage']],
+  ['Toolchain and dependency evidence', ['verify:toolchain', 'verify:dependency-tree', 'verify:advisory-register', 'verify:advisory-scanner', 'verify:live-advisories']],
+  ['Workflow and release policy', ['verify:workflows', 'verify:release-policy', 'verify:public-release-lineage', 'verify:release-diff-hygiene']],
   ['Release and operational foundations', ['verify:release-provenance', 'verify:operational-controls']],
   ['CSP and privacy boundaries', ['verify:csp', 'verify:privacy']],
   ['Function, provider, and security contracts', ['verify:function-contracts', 'verify:ai-provider-contracts', 'verify:ai-reliability', 'verify:release-orchestrator', 'verify:reportview-security']],
   ['Financial and XML contracts', ['verify:finance', 'verify:fintools-persistence', 'verify:pap', 'verify:xrechnung:fixtures', 'verify:xrechnung:kosit:tooling']],
-  ['Product quality', ['lint:chat', 'verify:content:strict', 'lint:design-system:strict', 'check', 'build', 'verify:wave1-launch-truth:built', 'verify:pagefind-a11y', 'verify:final-product-acceptance', 'verify:markdown-processor:built', 'verify:katex-assets:built', 'verify:pdf-exports', 'lint:a11y:strict', 'check:contrast', 'check:corpus:strict']],
+  ['Release determinism', ['verify:cross-date-reproducibility']],
+  ['Product quality', ['lint:chat', 'verify:content:strict', 'lint:design-system:strict', 'check', 'build', 'verify:wave1-launch-truth:built', 'verify:pagefind-a11y', 'verify:final-product-acceptance', 'verify:markdown-processor:built', 'verify:katex-assets:built', 'verify:pdf-exports', 'lint:a11y:strict', 'check:contrast', 'check:corpus:strict', 'verify:compiled-runtime-vars', 'verify:focus-visible-regression']],
   ['Full KoSIT validation', ['kosit:preflight', 'verify:xrechnung:kosit']],
 ];
 
@@ -58,7 +59,8 @@ function writeSummary(summary) {
     `- Release ID: \`${summary.releaseId ?? 'unavailable'}\``,
     `- Artifact digest: \`${summary.artifactDigest ?? 'unavailable'}\``,
     `- Build dependency SBOM digest: \`${summary.sbomDigest ?? 'unavailable'}\``,
-    `- Advisory boundary: ${summary.advisoryFreshness}`,
+    `- Advisory boundary (committed snapshot): ${summary.advisoryFreshness}`,
+    `- Live advisory gate: ${summary.liveAdvisoryFreshness === 'PENDING' ? 'PENDING' : `${summary.liveAdvisoryFreshness.result} — lockfile ${summary.liveAdvisoryFreshness.lockfileSha256}, observed ${summary.liveAdvisoryFreshness.observedAt}, ${summary.liveAdvisoryFreshness.applicableGhsaIds.length} applicable GHSA id(s)`}`,
     '',
     '| Phase | Result |',
     '| --- | --- |',
@@ -90,6 +92,7 @@ async function main() {
     localWrangler: 'PENDING',
     reproducibility: 'PENDING',
     advisoryFreshness: readAdvisoryFreshness(),
+    liveAdvisoryFreshness: 'PENDING',
     phases: [],
   };
   try {
@@ -102,6 +105,9 @@ async function main() {
       for (const script of scripts) runScript(script);
       summary.phases.push({ name, result: 'PASS' });
     }
+    summary.liveAdvisoryFreshness = JSON.parse(
+      readFileSync(path.join(ROOT, '.artifacts/release-candidate/live-advisories/live-advisory-summary.json'), 'utf8'),
+    );
     summary.workflowPins = 'PASS';
     summary.releasePolicy = 'PASS';
     summary.dependencies = 'PASS';

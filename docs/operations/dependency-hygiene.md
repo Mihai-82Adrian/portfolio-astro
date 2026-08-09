@@ -24,9 +24,13 @@ automation) — this does not yet exist and is not provided by either (1) or (2)
 
 ## Canonical dependency graph — Astro 7.1.6 (Phase 2D-A, updated Phase 3-B3R)
 
-**Exact target lockfile**: `package-lock.json` SHA-256
-`ef0484b4b4bd6c782f7eef2c99b3c9b89d5dc950d723a41b286b8c930d206e41` (matches
-`config/dependency-advisories.json`'s `lockfileSha256`). Phase 3-B3R adopted Dependabot PR #38
+**Exact target lockfile at the time this framework graph was recorded**: `package-lock.json`
+SHA-256 `ef0484b4b4bd6c782f7eef2c99b3c9b89d5dc950d723a41b286b8c930d206e41`. Phase 5-D1E's
+security-only dependency patches (see below) changed this hash to
+`3be86d36c28f3071cdd9e11e7635c8dd58d365d61a50d03f89b9f19ce730c2b2` without touching any of the
+`astro`/`@astrojs/*`/`vite` versions this section describes — the framework graph table below
+remains current. `config/dependency-advisories.json`'s `lockfileSha256` tracks the current one.
+Phase 3-B3R adopted Dependabot PR #38
 (`astro` 7.1.3→7.1.6, `@astrojs/mdx` 7.0.3→7.0.5, `@lucide/astro` 1.26.0→1.28.0, plus the
 coupled `@astrojs/markdown-remark` 7.2.1→7.2.2 peer bump astro 7.1.5 itself requires) after
 confirming every intermediate release is patch-only with no breaking changes against the official
@@ -44,7 +48,7 @@ confirming every intermediate release is patch-only with no breaking changes aga
 | `vite` | 8.1.5 | transitive via `astro`, `@astrojs/svelte`, `@tailwindcss/vite` (single deduped version) |
 | `pagefind` | 1.5.2 | direct |
 | `sharp` | 0.35.3 | `astro@7.1.3 -> sharp` (optional) |
-| `sharp` | 0.35.2 | `wrangler@4.114.0 -> miniflare -> sharp` (optional) |
+| `sharp` | 0.35.2 | `wrangler -> miniflare -> sharp` (optional; `wrangler` at 4.120.0 as of Phase 5-D1E, see below) |
 | `esbuild` | 0.28.1 | single deduped version across `astro`, `vite`, `wrangler` |
 
 **No `overrides` or `resolutions` are used to reach this graph.** `npm install` alone resolved every
@@ -121,6 +125,52 @@ future dependency-upgrade work, not a release blocker for the current preview ca
 Two of the seven (`fast-uri`, `brace-expansion`) are not yet Dependabot alerts for this repository
 even though the underlying GHSA records already exist in the live GitHub Advisory Database — a
 GHAD-to-Dependabot sync-lag observation, not a repository misconfiguration.
+
+### Live advisory remediation and gate (Phase 5-D1E)
+
+The Phase 3-C Step 3E-A review above deliberately left its 7 findings unpatched
+(`devDependencies`, judged unreachable). Phase 5-D1E revisited that decision: a
+fresh live scan (`scripts/security/github-advisory-scan.mjs`, all three types)
+against the unchanged lockfile (`ef0484b4b4bd6c782f7eef2c99b3c9b89d5dc950d723a41b286b8c930d206e41`)
+found **10 applicable GHSA records** — the prior 6 (`fast-uri`, `brace-expansion`,
+5× `undici`) plus 4 newly published since: `dompurify` (GHSA-55q2-fjhq-7xh7,
+IN_PLACE hook removal XSS, direct runtime dependency used by
+`src/lib/security/report-markdown.ts`), two `js-yaml` ranges (GHSA-5p4m-2wfm-xmqj,
+quadratic-CPU `!!omap` resolution, via `astro`/`gray-matter` build tooling), and
+`nanoid` (GHSA-2v37-7h3g-55p8, indefinite loop on a zero-size custom generator,
+via `vite`/`postcss` build tooling).
+
+Because every one of the 10 has a compatible patch release and none required a
+breaking or major-version change, Phase 5-D1E's default policy (patch when
+safe, regardless of reachability) superseded Step 3E-A's "leave it, it's
+unreachable" disposition:
+
+| Package | Installed → patched | Path | Mechanism |
+| --- | --- | --- | --- |
+| `dompurify` | 3.4.12 → 3.4.13 | direct | exact-pin bump in `package.json` |
+| `js-yaml` | 4.3.0 → 4.3.1, 3.15.0 → 3.15.1 | `astro`/`@astrojs/internal-helpers`, `gray-matter` | `npm update` (parent semver range already allowed it) |
+| `fast-uri` | 3.1.4 → 3.1.5 | `@astrojs/check` → ... → `ajv` | `npm update` |
+| `brace-expansion` | 5.0.8 → 5.0.9 | `glob` → `minimatch` | `npm update` |
+| `undici` | 7.28.0 (nested under `miniflare`) → 7.29.0 (deduped with the existing `jsdom` copy) | `wrangler` → `miniflare` | `wrangler` 4.114.0 → 4.120.0 exact-pin bump (same major version; `npm update` alone could not cross `miniflare`'s pin) |
+| `nanoid` | 3.3.16 → 3.3.18 | `@astrojs/svelte` → `vite` → `postcss` | `npm update` |
+
+A final live scan against the resulting lockfile
+(`3be86d36c28f3071cdd9e11e7635c8dd58d365d61a50d03f89b9f19ce730c2b2`) found **0
+applicable records** across `reviewed`, `unreviewed`, and `malware`. `npm run
+build`, `npm run verify:dependency-tree`, `npm run verify:reportview-security`
+(DOMPurify contract), and `npm run verify:advisory-scanner` (unaffected
+mocked-fetch contract) all pass unchanged.
+
+**Freshness-authority change:** `config/dependency-advisories.json` remains a
+tracked point-in-time snapshot for human/audit reference, but it is no longer
+the release's security authority. `npm run verify:live-advisories`
+(`scripts/release/live-advisory-gate.mjs`) performs a fresh, exact-lockfile,
+all-three-type live scan on every `verify:release-candidate` run and fails
+closed — a network failure, rate limit, or any unresolved applicable advisory
+fails the gate; it never falls back to the committed snapshot. This is
+distinct from `verify:advisory-scanner` (`tests/github-advisory-scan.test.mjs`),
+which remains a mocked-fetch contract test proving the scanner's
+batching/pagination/fail-closed logic and performs no network access.
 
 ## Historical baseline — Astro 6.4.8 (superseded)
 

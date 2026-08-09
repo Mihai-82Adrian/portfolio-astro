@@ -88,6 +88,16 @@ function trailers(root, revision = 'HEAD') {
   return Object.fromEntries(matches.map((match) => [match[1], match[2]]));
 }
 
+// The internal implementation source last actually published to the public master, read from that
+// commit's own trailers rather than hardcoded — so a future release automatically shifts the base
+// this resolves to, instead of a maintainer having to remember to update a literal SHA.
+export function resolvePublicCanonicalSource(root = ROOT, explicitPublicParent) {
+  const parent = publicMaster(root, explicitPublicParent);
+  const values = trailers(root, parent);
+  invariant(SHA.test(values['Canonical-Source'] ?? ''), `Public master ${parent} is missing a Canonical-Source trailer.`);
+  return values['Canonical-Source'];
+}
+
 export function verifyReleaseCommit(root = ROOT, { publicParent: explicitPublicParent } = {}) {
   const values = trailers(root);
   invariant(SHA.test(values['Canonical-Source'] ?? ''), 'Missing canonical source trailer.');
