@@ -106,9 +106,13 @@ export function verifyReleaseDiffHygiene(root = ROOT, { base, head = 'HEAD' } = 
 
 function main() {
   // RELEASE_DIFF_BASE is an optional CI-supplied override (see .github/workflows/quality-gates.yml):
-  // present and non-empty only for the pull_request trigger, where it carries GitHub's actual PR
-  // base SHA, resolving the synthetic-merge-checkout ambiguity documented on verifyReleaseDiffHygiene
-  // above. Absent for push/workflow_dispatch, where auto-resolution behavior is unchanged.
+  // present and non-empty for pull_request (GitHub's actual PR base SHA, resolving the synthetic
+  // refs/pull/N/merge two-parent checkout ambiguity documented on verifyReleaseDiffHygiene above)
+  // and for push to refs/heads/master (the previous master HEAD via github.event.before, resolving
+  // the same class of ambiguity when a repository-sync commit — Canonical-Source/Canonical-Tree only,
+  // no Canonical-Artifact/Release-Manifest — becomes the new master HEAD in a fresh public checkout
+  // that never has its internal Canonical-Source object). Absent for push to release/** and for
+  // workflow_dispatch, where existing auto-resolution behavior is unchanged.
   const envBase = process.env.RELEASE_DIFF_BASE;
   const base = envBase && envBase.trim() ? envBase.trim() : undefined;
   const result = verifyReleaseDiffHygiene(ROOT, { base });

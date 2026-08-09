@@ -54,5 +54,5 @@ jobs:
         run: npm run setup:firefox:release
       - name: Run complete local release-candidate gate
         env:
-          RELEASE_DIFF_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || '' }}
+          RELEASE_DIFF_BASE: ${{ (github.event_name == 'pull_request' && github.event.pull_request.base.sha) || (github.event_name == 'push' && github.ref == 'refs/heads/master' && github.event.before) || '' }}
         run: npm run verify:release-candidate

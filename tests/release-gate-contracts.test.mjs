@@ -164,19 +164,34 @@ test('canonical quality workflow explicitly emits the required branch-protection
   assert.doesNotMatch(release, /^\s+(push|pull_request):/m, 'release.yml must remain workflow_dispatch-only');
 });
 
-// Phase 5-D2-B PR-CI closure: GitHub's pull_request checkout is a synthetic two-parent
-// `refs/pull/N/merge` commit, which scripts/release/diff-hygiene.mjs's auto-resolution always
-// rejects (see tests/release-diff-hygiene.test.mjs). RELEASE_DIFF_BASE is the CI-supplied override
-// that resolves this, only for pull_request, always from GitHub's own reported PR base SHA — never a
-// hardcoded literal, and absent (empty) for push/workflow_dispatch, preserving their existing
-// auto-resolution behavior exactly.
-test('quality-gates.yml supplies RELEASE_DIFF_BASE from the actual PR base SHA for pull_request only, never a hardcoded value', () => {
+// Phase 5-D2-B PR-CI and master-push closure: GitHub's pull_request checkout is a synthetic
+// two-parent `refs/pull/N/merge` commit, and a repository-sync commit that becomes the new master
+// HEAD via a normal push carries no Canonical-Artifact/Release-Manifest — both shapes are rejected by
+// scripts/release/diff-hygiene.mjs's auto-resolution (see tests/release-diff-hygiene.test.mjs).
+// RELEASE_DIFF_BASE is the CI-supplied override that resolves both, from two distinct GitHub-reported
+// values only — never a hardcoded literal — and stays absent (empty) for push to release/** and for
+// workflow_dispatch, preserving their existing auto-resolution behavior exactly.
+test('quality-gates.yml supplies RELEASE_DIFF_BASE from PR base SHA or master push.before only, never a hardcoded value', () => {
   const quality = read('.github/workflows/quality-gates.yml');
+  const expression = /RELEASE_DIFF_BASE:\s*\$\{\{\s*\(github\.event_name == 'pull_request' && github\.event\.pull_request\.base\.sha\)\s*\|\|\s*\(github\.event_name == 'push' && github\.ref == 'refs\/heads\/master' && github\.event\.before\)\s*\|\|\s*''\s*\}\}/;
   assert.match(
     quality,
-    /RELEASE_DIFF_BASE:\s*\$\{\{\s*github\.event_name == 'pull_request' && github\.event\.pull_request\.base\.sha \|\| ''\s*\}\}/,
-    "quality-gates.yml must set RELEASE_DIFF_BASE from github.event.pull_request.base.sha for pull_request and '' otherwise",
+    expression,
+    "quality-gates.yml must set RELEASE_DIFF_BASE from github.event.pull_request.base.sha for pull_request, github.event.before for push to refs/heads/master, and '' otherwise",
   );
+  // The three-branch ternary above already proves the master-specific override is gated to
+  // refs/heads/master specifically (not any push, so a release/** push falls through to the final
+  // '' branch) and that workflow_dispatch (matching neither the pull_request nor push+master.ref
+  // condition) also falls through to ''. Assert those two exclusions explicitly too, so a future
+  // edit that widens the condition (e.g. dropping the `github.ref ==` clause) fails loudly here
+  // rather than only being caught by the semantic English description above.
+  assert.doesNotMatch(
+    quality,
+    /RELEASE_DIFF_BASE:[^\n]*github\.event_name == 'workflow_dispatch'/,
+    'workflow_dispatch must never receive an explicit RELEASE_DIFF_BASE override',
+  );
+  const releaseDiffBaseLine = quality.split('\n').find((line) => line.includes('RELEASE_DIFF_BASE:'));
+  assert.ok(releaseDiffBaseLine.includes("github.ref == 'refs/heads/master'"), 'the push-context override must be scoped to refs/heads/master, excluding release/** pushes');
   assert.doesNotMatch(
     quality,
     /RELEASE_DIFF_BASE:\s*['"]?[a-f0-9]{40}['"]?\s*$/m,

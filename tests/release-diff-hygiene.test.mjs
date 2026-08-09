@@ -238,6 +238,48 @@ test('D: an unresolvable explicit base fails clearly instead of being silently i
   );
 });
 
+// Phase 5-D2-B master-push closure: distinct from the PR synthetic-merge shape above (a two-parent
+// commit rejected purely on parent count). A repository-sync commit that becomes the new master HEAD
+// via a normal push is single-parented, so publicSafeReleaseParent() proceeds past the parent-count
+// check and rejects it for a different reason — it carries Canonical-Source/Canonical-Tree but
+// deliberately no Canonical-Artifact/Release-Manifest (not a full release build), so the DIGEST checks
+// fail. The fallback then reads the pushed commit's own Canonical-Source, which — being purely
+// internal — never exists in a fresh public checkout either. Explicit base (github.event.before, the
+// previous master) resolves this the same way it resolves the PR case.
+function masterPushSyncFixture(newContentLine) {
+  const root = mkdtempSync(path.join(tmpdir(), 'portfolio-diff-hygiene-master-push-'));
+  const git = (args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
+  git(['init', '-q', '-b', 'master']);
+  git(['config', 'user.name', 'Release Test']);
+  git(['config', 'user.email', 'release@example.invalid']);
+  writeFileSync(path.join(root, 'public.txt'), 'public content\n');
+  git(['add', '.']);
+  git(['commit', '-qm', 'previous public master content']);
+  const oldMaster = git(['rev-parse', 'HEAD']);
+  writeFileSync(path.join(root, 'public.txt'), `public content\n${newContentLine}\n`);
+  git(['add', '.']);
+  const unavailableInternalSource = 'd'.repeat(40);
+  const tree = git(['write-tree']);
+  git(['commit', '-qm', `chore: reconcile post-release repository state\n\nCanonical-Source: ${unavailableInternalSource}\nCanonical-Tree: ${tree}`]);
+  const newHead = git(['rev-parse', 'HEAD']);
+  return { root, git, oldMaster, newHead };
+}
+
+test('A: master-push repository-sync HEAD with an explicit base (github.event.before) passes cleanly', () => {
+  const { root, oldMaster, newHead } = masterPushSyncFixture('a clean added line');
+  const result = verifyReleaseDiffHygiene(root, { base: oldMaster, head: newHead });
+  assert.equal(result.base, oldMaster);
+  assert.equal(result.head, newHead);
+});
+
+test('B: master-push repository-sync HEAD with an explicit base still catches a real whitespace defect', () => {
+  const { root, oldMaster, newHead } = masterPushSyncFixture('bad line ');
+  assert.throws(
+    () => verifyReleaseDiffHygiene(root, { base: oldMaster, head: newHead }),
+    /public\.txt.*trailing whitespace/s,
+  );
+});
+
 test('the guard is wired into the unified release-candidate gate under Workflow and release policy', async () => {
   const { phases } = await import('../scripts/release/candidate.mjs');
   const [, scripts] = phases.find(([name]) => name === 'Workflow and release policy');
