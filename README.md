@@ -20,45 +20,6 @@ The public product has three goals:
 - make technical capability reviewable through real tools and source-level contracts;
 - show where AI helps interpretation while deterministic engines retain numeric authority.
 
-## Current development and release state
-
-The deployed production site is built from `master`. Repository canonical state on the local
-integration lineage is ahead of that deployment and contains completed hardening that is not yet
-live. A successful local check or build describes the repository; it does not prove preview or
-production state.
-
-Locally complete foundations include Function transport contracts, OpenAI Responses integration,
-financial validation, privacy and consent boundaries, repository-truth checks, agent governance,
-dependency closure, CSP Report-Only with minimized first-party reporting, exact release tooling,
-and the unified local release-candidate gate. They still require human/remote readiness and a
-controlled public release.
-
-Remaining public release gates include:
-
-- execution of the documented public-release lineage after owner review;
-- confirmation of the documented GitHub Actions deployment-ownership prerequisites;
-- approved preview and production deployments;
-- post-deployment identity, route, cache, privacy, AI, and finance verification;
-- Turnstile and Resend only if the currently disabled Sample Review flow is activated.
-
-Closed since the list above was last revised (Phase 3-C Step 3E-A, read-only): one explicitly
-authorized OpenAI canary passed for each configured GPT-5.6 tier; remote configuration,
-required-check, and branch-protection review is complete.
-
-**Owner privacy release decision (Phase 3-C Step 3E-A):** the technical/privacy review is complete,
-and the owner has recorded an explicit risk-acceptance decision for this personal, non-commercial
-portfolio scope. Qualified external legal review is trigger-based, not completed, for this scope —
-it is not claimed as done, and this is not a claim of absolute legal compliance. External review
-becomes required again under the explicit trigger conditions recorded in
-[docs/ROADMAP.md](docs/ROADMAP.md) and
-[privacy-consent-external-services.md](docs/operations/privacy-consent-external-services.md) — for
-example, commercial/contractual use, real client data, or activating Sample Review/Resend. Those same
-documents record that qualified privacy-policy review of specific open legal questions (the
-Cloudflare controller/processor role split and the Art. 6(1)(a)/Art. 22 legal-basis wording) remains
-open and required before any individualized legal conclusion can be drawn.
-
-See [docs/ROADMAP.md](docs/ROADMAP.md) for exit criteria and authorization boundaries.
-
 ## Product surfaces
 
 ### Portfolio and content
@@ -289,7 +250,8 @@ build dependency SBOM evidence. This complete lockfile graph includes developmen
 a precise deployed-runtime SBOM. The local `/api/health` Function returns only the three public identity fields inside
 the normalized response envelope, uses `no-store`, and does not check provider availability.
 
-The future release path is:
+The release path — already exercised once for the Phase 4 controlled production release, and the
+durable operating model for any future release — is:
 
 1. prepare and identify a local release candidate;
 2. obtain qualified review and explicit authorization for remote actions;
@@ -301,9 +263,10 @@ The future release path is:
    rollback readiness.
 
 Raw internal audits were removed from the active tree, but deletion does not erase existing local
-integration history. A future public release must not blindly fast-forward that internal lineage
-into public `master`; use the reviewed release-commit procedure in the
-[public release lineage strategy](docs/operations/public-release-lineage-strategy.md).
+integration history. The Phase 4 production release used the reviewed release-commit procedure in the
+[public release lineage strategy](docs/operations/public-release-lineage-strategy.md) rather than a
+blind fast-forward of that internal lineage into public `master`; any future release must do the
+same.
 
 ## Repository map
 
@@ -354,85 +317,101 @@ tests/                 permanent contracts and repository truth guards
 docs/operations/       focused living technical records
 ```
 
+## Current development and release state
+
+The deployed production site is built from public `master`. Public master/repository state and
+deployed production state remain separate states as a matter of mechanism — a git commit and a live
+deployment are always two different systems — even though, since the Phase 4 controlled production
+release, they currently carry the same canonical content. A successful local check or build still
+only describes the repository; the live release identity a deployment is actually serving is
+observed independently through `/api/health` (see [Release workflow](#release-workflow)), not
+inferred from a local build. **The Phase 4 controlled production release is complete** — production
+was independently confirmed, via both the Cloudflare API and a live `/api/health` fetch, to serve the
+canonical release; a local green build or a repository commit is still not, by itself, deployment
+approval for any future change beyond this point.
+
+Foundations delivered through Phase 4 include Function transport contracts, OpenAI Responses
+integration, financial validation, privacy and consent boundaries, repository-truth checks, agent
+governance, dependency closure, CSP Report-Only with minimized first-party reporting, exact release
+tooling, and the unified local release-candidate gate. The documented public-release lineage was
+executed after owner review, GitHub Actions deployment-ownership prerequisites were confirmed, and
+post-deployment identity, route, cache, privacy, AI, and finance verification passed. Turnstile and
+Resend remain inactive and are only required if the currently disabled Sample Review flow is
+activated (Phase 6, trigger-based).
+
+CodeQL default setup is configured; the two open alerts on the default branch
+(`js/incomplete-url-substring-sanitization` in test-only source) are root-caused as a scanner pattern
+match on a trusted-local-file documentation check rather than an untrusted-URL sanitization gap, with
+a source fix prepared locally and pending a separately authorized remote CodeQL confirmation. GitHub
+Dependabot vulnerability alerts are configured with 0 open alerts; a fresh `npm audit` and a live
+GitHub Advisory Database scan (all record types) both found 0 unresolved applicable advisories
+against the exact current lockfile. Automatic Cloudflare production deployment remains disabled
+(`production_deployments_enabled: false`) — production is promoted only through the authorized
+release-workflow path. The Phase 3/Phase 4 release-dependency freeze was lifted in
+repository-canonical configuration once Phase 4 completed (`open-pull-requests-limit: 8` npm / `5`
+github-actions); Dependabot security alerts/updates were never subject to that freeze, and the
+restored limits take effect on GitHub only once merged to the default branch. See
+[dependency-hygiene.md](docs/operations/dependency-hygiene.md) for the full disposition.
+
+Phase 5 post-release stabilization is now active: its field-observation deliverables (Core Web
+Vitals/INP, Function error rates, provider latency/cost, quota hit rates, CSP report analysis, 404
+edge behavior, SLO calibration) are not yet actionable, since production has been live only a short
+time as of this revision — each needs its own observation window before it produces meaningful
+evidence.
+
+**Owner privacy release decision (Phase 3-C Step 3E-A):** the technical/privacy review is complete,
+and the owner has recorded an explicit risk-acceptance decision for this personal, non-commercial
+portfolio scope. Qualified external legal review is trigger-based, not completed, for this scope —
+it is not claimed as done, and this is not a claim of absolute legal compliance. External review
+becomes required again under the explicit trigger conditions recorded in
+[docs/ROADMAP.md](docs/ROADMAP.md) and
+[privacy-consent-external-services.md](docs/operations/privacy-consent-external-services.md) — for
+example, commercial/contractual use, real client data, or activating Sample Review/Resend. Those same
+documents record that qualified privacy-policy review of specific open legal questions (the
+Cloudflare controller/processor role split and the Art. 6(1)(a)/Art. 22 legal-basis wording) remains
+open and required before any individualized legal conclusion can be drawn.
+
+See [docs/ROADMAP.md](docs/ROADMAP.md) for exit criteria and authorization boundaries.
+
 ## Known limitations
 
-Repository/public `master` and deployed production are two separate states. GitHub `master` now
-carries the public-safe hardening and security-closure work through Phase 3-B and Phase 3-C Step 1B:
-CodeQL default setup is configured with zero open alerts (verified Phase 3-C Step 3E-A); Dependabot
-alerts are configured and, as of Step 3E-A's live reconciliation, show 5 open alerts (1 high, 4
-moderate, all a transitive `undici` copy pulled in by `wrangler`/`miniflare`) plus 2 further advisory
-records (`fast-uri`, `brace-expansion`) found by a live GitHub Advisory Database scan but not yet
-surfaced as repository Dependabot alerts — every one of the 7 is a `devDependency` finding classified
-not-applicable to the deployed site (see
-[dependency-hygiene.md](docs/operations/dependency-hygiene.md) for the full reconciliation);
-automatic Cloudflare production deployment is disabled (`production_deployments_enabled: false`);
-routine Dependabot version-update pull requests are frozen for the duration of Phase 3-C and Phase 4,
-while Dependabot security alerts and security updates remain enabled. **Production still serves the
-deployment predating this work** — none of the `master` changes described above are live at
-`me-mateescu.de` yet; a local green build or a `master` update is not deployment approval.
+Beyond the CodeQL/Dependabot/freeze status above:
 
-Remaining gates before a controlled production release:
-
-- execution of the documented public-release lineage after owner review;
-- owner confirmation of secret presence/configuration for the routes that require it;
-- final release-candidate preview evidence;
-- explicit Phase 4 production-release authorization.
-
-Closed as of Phase 3-C Step 3E-A (read-only reconciliation): the technical/privacy review and owner
-release decision (qualified external legal review is now trigger-based, not a blocker, for this
-non-commercial scope — see
-[privacy-consent-external-services.md](docs/operations/privacy-consent-external-services.md));
-remote configuration and observability parity between the repository's candidate configuration and
-live Cloudflare/GitHub state (with the pre-existing `NODE_VERSION` production/candidate gap remaining
-open for the eventual Phase 4 cutover, see
-[cloudflare-pages-configuration.md](docs/operations/cloudflare-pages-configuration.md) §9/§21); and
-one live canary request against the `gpt-5.6-terra` tier and one against `gpt-5.6-sol`, both passed.
-
-Further known limitations:
-
+- production `NODE_VERSION` (`22`) versus the formal-evidence toolchain pin is a pre-existing,
+  disclosed parity gap — see
+  [cloudflare-pages-configuration.md](docs/operations/cloudflare-pages-configuration.md) §9/§21;
 - Cache API quotas are not globally exact;
 - Sample Review, Resend, secure uploads, and client intake are disabled;
 - no authentication, client portal, admin portal, queue, or multi-provider layer exists;
 - operational events and endpoint controls are local contracts only; remote collection, dashboards,
   alerts, configured remote switches, and measured production SLOs do not exist;
 - the disclosed Vorabpauschale model uses a smoothed annual path;
-- public history needs an explicit disclosure-safe release decision (Phase 3-B1/Step 1B already
-  exercised the reviewed-release-commit method for real, on non-production branches; a production
-  release still requires separate Phase 4 authorization);
 - Cloudflare account-level Logpush is confirmed not configured, and the Workers Observability API
   cannot retrieve the Pages-managed Functions script (a platform surface limitation for Pages
   Functions, not a permission denial) — accepted for this personal, low-volume, non-commercial
-  release rather than a blocker (Phase 3-C Step 3E-A).
+  release rather than a blocker.
 
 ## Roadmap
 
-[docs/ROADMAP.md](docs/ROADMAP.md) is the only active roadmap. Phase 2 (Astro 7.1.3 migration,
-Phase 2D-B launch-scope lock, Phase 2D-C Product Completion, and Phase 2D-D dependency/security
-acceptance, including a closure wave that fixed a bounded GitHub Advisory Database audit-coverage
-gap) is done, fast-forward integrated into canonical, full 12-phase release-candidate gate passing —
-locally only, no preview or production deployment has occurred. Phase 3 Human and Remote Readiness
-stays active as an umbrella (all three sub-phases below are done; it does not auto-close into Phase 4,
-which needs its own separate authorization): Phase 3-A's read-only GitHub/Cloudflare audit is done
-(`REMOTE-READINESS-CONDITIONAL`, no
-remote mutation or deployment performed); Phase 3-B (remote controls and preview readiness) is done —
-all three sub-phases closed: Phase 3-B1 disabled Cloudflare's automatic production deployment and
-validated a real public-safe preview live; Phase 3-B2 configured the repository security baseline
-(Dependabot alerts/automated security fixes, CodeQL default setup, consolidated `master` branch
-protection, dedicated `preview`/`production` GitHub Environments) and closed a regulated-claims
-finding found still live in canonical source; Phase 3-B3 closed the remaining CodeQL/Dependabot
-findings, added the scheduled read-only security-audit workflow, and reconciled GitHub `master` to
-the validated state via one reviewed release commit. Phase 3-C (human and provider release readiness)
-is now done: Step 1A/1B instituted the Dependabot release freeze described above and retired the
-legacy deployment guide, reconciling `master` again via a second reviewed release commit; the AI
-consent notice was corrected to `ai-openai-v2` disclosing owner-confirmed OpenAI organization-level
-sharing (Step 3D/3D-R); both OpenAI canaries passed (Step 3C); and Step 3E-A's read-only
-reconciliation closed the remaining human/provider/security gates — a fresh dependency-advisory
-review, Cloudflare remote parity and logging classification, and an explicit owner privacy release
-decision (qualified external legal review is trigger-based, not a blocker, for this non-commercial
-scope) — before Step 3E-B produces the final build-verified preview candidate. Throughout all of
-this, GitHub `master` and Cloudflare production remained two separate states, and production has not
-changed. Secure intake, external APIs, portals, queues, provider abstraction, and Workers Static
-Assets remain trigger-based or optional rather than implied features.
+[docs/ROADMAP.md](docs/ROADMAP.md) is the only active roadmap and owns full phase-by-phase detail;
+this section is a durable summary.
+
+Phase 2 (Astro 7.1.3 migration and product completion) is done — Phase 2 itself involved no preview
+or production deployment; that came later, through Phase 4.
+
+Phase 3 Human and Remote Readiness is done: Phase 3-A (read-only GitHub/Cloudflare audit) is done,
+Phase 3-B (remote controls and preview readiness — including disabling Cloudflare's automatic
+production deployment and hardening the repository security baseline) is done, and Phase 3-C (human
+and provider release readiness — including the Dependabot release freeze, live OpenAI canaries, and
+the owner's privacy release decision) is done. Throughout Phase 3, GitHub `master` and Cloudflare
+production remained two separate states and production did not change.
+
+Phase 4 then executed the controlled production release, independently confirmed via both the
+Cloudflare API and a live `/api/health` fetch; public master and production now converge on the same
+canonical content while remaining, mechanically, separate states. Phase 5 post-release stabilization
+is active; its field-observation deliverables are not yet actionable. Secure intake, external APIs,
+portals, queues, provider abstraction, and Workers Static Assets remain trigger-based or optional
+rather than implied features.
 
 ## License and contact
 

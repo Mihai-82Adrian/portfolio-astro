@@ -293,17 +293,27 @@ reachable through the previously committed, unused, and version-drifted `katex.j
 (the same non-global `.replace()` calls exist in the upstream `katex@0.16.47` source itself and are
 not reachable from any code path this project executes).
 
-## Dependabot release freeze (Phase 3-C / Phase 4)
+## Dependabot release freeze (Phase 3-C / Phase 4, lifted Phase 5-D2-B)
 
-`.github/dependabot.yml` sets `open-pull-requests-limit: 0` on both the `npm` and `github-actions`
-`updates` entries, pausing **routine version-update pull requests** for the duration of Phase 3-C and
-Phase 4. This does not touch Dependabot vulnerability alerts, automated security fixes, or
-security-update pull requests — those are governed independently of `open-pull-requests-limit`
-(confirmed against official GitHub Dependabot documentation: the limit "manages how many version
-update pull requests Dependabot can have open simultaneously" and security-update PRs are not
-counted against it). This repository does not claim security-update PRs are *unlimited* in an
-absolute sense — GitHub.com may apply its own separate internal ceiling to security-update PRs that
-this configuration does not control and this document does not attempt to characterize.
+Phase 3-C through Phase 4 set `open-pull-requests-limit: 0` on both the `npm` and `github-actions`
+`updates` entries in `.github/dependabot.yml`, pausing **routine version-update pull requests** for
+the duration of those phases. This never touched Dependabot vulnerability alerts, automated security
+fixes, or security-update pull requests — those are governed independently of
+`open-pull-requests-limit` (confirmed against official GitHub Dependabot documentation: the limit
+"manages how many version update pull requests Dependabot can have open simultaneously" and
+security-update PRs are not counted against it). This repository does not claim security-update PRs
+are *unlimited* in an absolute sense — GitHub.com may apply its own separate internal ceiling to
+security-update PRs that this configuration does not control and this document does not attempt to
+characterize.
+
+Phase 4's controlled production release is now complete (verified in the Phase 5-D2A evidence
+baseline: live Cloudflare production deployment and `/api/health` both independently confirmed
+serving the canonical release). Phase 5-D2-B restored `open-pull-requests-limit: 8` (npm) and `5`
+(github-actions) — the pre-freeze values — in the repository-canonical `.github/dependabot.yml`.
+**This is a repository-canonical config change, not yet a remote effect:** Dependabot only reads the
+version of `dependabot.yml` present on the repository's actual default branch. Routine version-update
+pull requests will not resume on GitHub until this change is authorized onto that default branch;
+until then, GitHub continues operating under the `0`-limit configuration it can currently see.
 
 Both `updates` entries also dropped the redundant `target-branch: master` key: the repository's
 actual GitHub default branch is already `master` (confirmed live via the repository API), so the key
@@ -320,9 +330,8 @@ auto-merge (no such mechanism exists in this repository). The `npm` and `github-
 blocks, their weekly schedules, their `labels`, and the `npm` block's `framework-runtime` /
 `security-sensitive` groups are all otherwise unchanged.
 
-**Unfreeze trigger:** the freeze is explicitly scoped to Phase 3-C and Phase 4
-(`docs/ROADMAP.md`). Re-enable routine version updates only after Phase 4's controlled production
-release is complete, by restoring `open-pull-requests-limit: 8` (npm) and `5` (github-actions) — the
-values in force immediately before this freeze — or by setting new values if the owner decides
-differently at that time. Do not restore `target-branch: master`; it remains redundant regardless of
-freeze state as long as `master` stays the actual default branch.
+**Unfreeze trigger (met):** the freeze was explicitly scoped to Phase 3-C and Phase 4
+(`docs/ROADMAP.md`). Its trigger — Phase 4's controlled production release being complete — is now
+met, and the pre-freeze limits (`8` npm, `5` github-actions) were restored in the repository-canonical
+config above. Do not restore `target-branch: master`; it remains redundant regardless of freeze state
+as long as `master` stays the actual default branch.
