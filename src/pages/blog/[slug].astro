@@ -203,16 +203,16 @@ const blogPostingSchema = generateBlogPostingSchema(post, Astro.url.toString());
   /* Custom prose styling for code blocks with Shiki */
   .prose pre {
     @apply border rounded-lg p-4 max-w-full overflow-x-auto;
-    background-color: var(--color-light-surface) !important;
-    border-color: var(--color-light-border) !important;
+    background-color: #F5F3F0 !important;
+    border-color: #E8E4DD !important;
     overscroll-behavior-inline: contain;
     overflow-wrap: normal !important;
     white-space: pre !important;
   }
 
   .dark .prose pre {
-    background-color: var(--color-dark-surface) !important;
-    border-color: var(--color-dark-border) !important;
+    background-color: #1A1916 !important;
+    border-color: #3A3530 !important;
   }
 
   .prose code {
@@ -248,13 +248,13 @@ const blogPostingSchema = generateBlogPostingSchema(post, Astro.url.toString());
   .prose pre,
   .prose pre code,
   .prose pre code span {
-    color: var(--color-text-primary-light) !important;
+    color: #2C2C2C !important;
   }
 
   .dark .prose pre,
   .dark .prose pre code,
   .dark .prose pre code span {
-    color: var(--color-text-primary-dark) !important;
+    color: #E8E6E1 !important;
   }
 
   /* Smooth scroll for TOC links */

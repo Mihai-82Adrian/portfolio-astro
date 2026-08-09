@@ -118,7 +118,7 @@
     margin-top: 1.5rem;
     margin-bottom: 0.5rem;
     color: var(--text-primary);
-    border-bottom: 1px solid color-mix(in srgb, var(--color-eucalyptus-500) 25%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, #6B8E6F 25%, transparent);
     padding-bottom: 0.375rem;
   }
 
@@ -168,12 +168,12 @@
   }
 
   .compass-report :global(a) {
-    color: var(--color-eucalyptus-700);
+    color: #4A6451;
     text-decoration: underline;
     text-underline-offset: 2px;
   }
 
   :global(.dark) .compass-report :global(a) {
-    color: var(--color-eucalyptus-300);
+    color: #9FBFA8;
   }
 </style>

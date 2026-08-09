@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-08-01",
-  "lockfileSha256": "ef0484b4b4bd6c782f7eef2c99b3c9b89d5dc950d723a41b286b8c930d206e41",
-  "freshnessBoundary": "Point-in-time npm audit against this lockfile (astro 7.1.6, @astrojs/mdx 7.0.5, @astrojs/markdown-remark 7.2.2, @lucide/astro 1.28.0 adopted from Dependabot PR #38), performed in Phase 3-B3R (2026-08-01); 0 applicable records in any class, consistent with the prior Phase 2D-D full review (2026-07-28). Phase 3 still owns remote GitHub/Cloudflare security posture (Dependabot, CodeQL, branch protection) and recurring scheduled monitoring, not this dependency-advisory review.",
+  "observedDate": "2026-08-09",
+  "lockfileSha256": "3be86d36c28f3071cdd9e11e7635c8dd58d365d61a50d03f89b9f19ce730c2b2",
+  "freshnessBoundary": "Point-in-time committed snapshot, refreshed in Phase 5-D1E (2026-08-09) after a live GitHub Advisory Database scan (all three types) found and remediated 10 applicable GHSA records against the prior lockfile (dompurify 3.4.13, js-yaml 3.15.1/4.3.1, fast-uri 3.1.5, brace-expansion 5.0.9, undici 7.29.0 via wrangler 4.120.0, nanoid 3.3.18); a subsequent live scan against this exact lockfile found 0 applicable records. This file is no longer the release's security authority: the formal release-candidate gate (`npm run verify:live-advisories`) performs its own fresh, exact-lockfile live scan on every run and fails closed on any unresolved applicable advisory, superseding this static, point-in-time snapshot. Phase 3 still owns remote GitHub/Cloudflare security posture (Dependabot, CodeQL, branch protection) and recurring scheduled monitoring, not this dependency-advisory review.",
   "advisoryRecordCounts": {
     "info": 0,
     "low": 0,

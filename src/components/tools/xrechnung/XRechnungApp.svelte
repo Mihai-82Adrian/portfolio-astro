@@ -93,12 +93,16 @@
     };
   }
 
+  // Date/year fields start empty and are filled in onMount (client-only) so the
+  // SSR/static-build snapshot never bakes in the build machine's wall-clock date
+  // — see projectCashflow() in src/lib/cashflow/projectionEngine.ts for the same
+  // pattern applied to another fin-core tool.
   let invoice: Invoice = {
     profileId: XRECHNUNG_CIUS_URN,
-    invoiceNumber: `INV-${new Date().getFullYear()}-001`,
+    invoiceNumber: "",
     buyerReference: "PO-REF-001",
-    issueDate: toIsoDate(),
-    serviceDate: toIsoDate(),
+    issueDate: "",
+    serviceDate: "",
     dueDate: "",
     paymentMeansCode: "58",
     payeeIban: "",
@@ -625,6 +629,14 @@
   }
 
   onMount(() => {
+    const today = toIsoDate();
+    invoice = {
+      ...invoice,
+      invoiceNumber:
+        invoice.invoiceNumber || `INV-${new Date().getFullYear()}-001`,
+      issueDate: invoice.issueDate || today,
+      serviceDate: invoice.serviceDate || today,
+    };
     readStoredDefaults();
   });
 
