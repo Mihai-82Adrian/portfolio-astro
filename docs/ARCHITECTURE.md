@@ -198,17 +198,21 @@ interpretation layer is gated.
 Cloudflare Web Analytics (RUM) is loaded by the application itself — a manually embedded, consent-gated
 `<script>` in `BaseLayout.astro` — rather than relying on Cloudflare's platform-level automatic
 injection, so it can be withheld until performance-analytics consent. Remotely, Cloudflare's
-platform-level automatic injection has been disabled for future deployments (Phase 3-C Step 2C-1:
-Pages Web Analytics tag/token nulled, zone Automatic Setup switched to manual-install), and the
-application loader's site token now matches the current manual-install token. Phase 3-C Step 2C-2 is
-implemented, locally validated, and integrated into canonical; it is not yet deployed to preview or
-production. See [cloudflare-pages-configuration.md](operations/cloudflare-pages-configuration.md) for
-the remote cutover record and the currently-live production deployment's legacy baked-in beacon,
-which persists until a new deployment carrying this canonical state is released.
+platform-level automatic injection has been disabled (Phase 3-C Step 2C-1: Pages Web Analytics
+tag/token nulled, zone Automatic Setup switched to manual-install), and the application loader's site
+token matches the current manual-install token. Phase 3-C Step 2C-2's canonical state was promoted to
+production by the Phase 4 controlled production release, replacing the legacy baked-in beacon
+described in
+[cloudflare-pages-configuration.md](operations/cloudflare-pages-configuration.md); that document
+remains the authority for the remote cutover record and any residual gap.
 
 The technical service matrix and validation boundary live in
-[privacy-consent-external-services.md](operations/privacy-consent-external-services.md). The public
-privacy policy still requires qualified review; technical documentation does not replace that review.
+[privacy-consent-external-services.md](operations/privacy-consent-external-services.md). The owner
+has recorded a technical/privacy review and an explicit risk-acceptance decision for this personal,
+non-commercial scope; qualified external legal review of the specific open legal questions in that
+document (the Cloudflare controller/processor role split and the Art. 6(1)(a)/Art. 22 legal-basis
+wording) remains trigger-based, not completed, and is not a blocker for this release — technical
+documentation does not replace that review, and this is not a claim of absolute legal compliance.
 
 ## External-service loading boundaries
 
@@ -410,7 +414,9 @@ in [operational-controls-observability.md](operations/operational-controls-obser
   genuinely open regardless of that decision.
 - Live access to both configured OpenAI tiers is canary-confirmed (Phase 3-C Step 3C,
   `STEP3C-CANARIES-PASS`).
-- Deployed production may lag repository canonical state.
+- Repository canonical state and deployed production state remain separate states as a matter of
+  mechanism — a git commit and a live deployment are always two different systems — even though,
+  since the Phase 4 controlled production release, they currently carry the same content.
 - Vorabpauschale uses the disclosed smoothed annual path.
 - Operational events remain local runtime console output; remote collection, retention, dashboards,
   alerts, and production SLO evidence do not exist.
@@ -420,15 +426,21 @@ in [operational-controls-observability.md](operations/operational-controls-obser
   Functions platform limitation, not a permission denial; accepted for this personal, low-volume,
   non-commercial release rather than a blocker. GitHub's repository security baseline (Dependabot
   alerts and automated security fixes, CodeQL default setup, `master` branch protection,
-  `preview`/`production` Environments) is configured (Phase 3-B2); CodeQL holds zero open alerts and
-  Dependabot shows 5 open alerts plus 2 further live-scanned advisory records (Phase 3-C Step 3E-A
-  reconciliation, all 7 classified not-applicable — see
-  [dependency-hygiene.md](operations/dependency-hygiene.md)); a scheduled read-only security-audit
-  workflow now runs on GitHub Actions (Phase 3-B3); routine Dependabot version-update pull requests
-  are frozen for Phase 3-C/Phase 4 while security alerts and updates stay enabled (Phase 3-C Step
-  1B). Cloudflare production deployment ownership and current production state have been read-only
-  verified as unchanged and separate from these `master` updates; production has not deployed any of
-  this work.
+  `preview`/`production` Environments) is configured (Phase 3-B2). As of the Phase 5-D2A evidence
+  baseline (2026-08-09): CodeQL held 2 open alerts, both `js/incomplete-url-substring-sanitization`
+  findings in test-only source, root-caused as a scanner pattern match on a trusted-local-file
+  documentation check rather than an untrusted-URL sanitization gap, with a source fix prepared in a
+  local Phase 5-D2-B batch but not yet claimed closed pending a separately authorized remote CodeQL
+  run; Dependabot held 0 open alerts, and a fresh `npm audit` plus a fresh exact-lockfile live GitHub
+  Advisory Database scan (all three record types) found 0 unresolved applicable advisories — see
+  [dependency-hygiene.md](operations/dependency-hygiene.md). A scheduled read-only security-audit
+  workflow runs on GitHub Actions (Phase 3-B3). The Phase 3-C/Phase 4 routine-update freeze was
+  lifted in repository-canonical `.github/dependabot.yml` once Phase 4 completed (Phase 5-D2-B),
+  restoring `open-pull-requests-limit: 8` (npm) / `5` (github-actions); security alerts and updates
+  were never subject to that freeze, and the restored limits take effect on GitHub only once merged
+  to the default branch. Cloudflare production deployment ownership and current production state
+  have been read-only verified: production now serves the Phase 4 release, independently confirmed
+  via both the Cloudflare API and a live `/api/health` fetch.
 - There is no auth, client portal, queue, upload pipeline, or multi-provider abstraction.
 
 ## Trigger-based future architecture

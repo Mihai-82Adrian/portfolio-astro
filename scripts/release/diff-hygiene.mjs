@@ -67,7 +67,17 @@ function publicSafeReleaseParent(root, revision) {
 export function verifyReleaseDiffHygiene(root = ROOT, { base, head = 'HEAD' } = {}) {
   const resolvedHead = git(root, ['rev-parse', head]).trim();
   let resolvedBase = base;
-  if (!resolvedBase) {
+  if (resolvedBase) {
+    // An explicit base is an authorized override (e.g. a CI-supplied PR base SHA) for a context
+    // auto-resolution cannot handle — notably GitHub's synthetic two-parent `refs/pull/N/merge`
+    // checkout, which publicSafeReleaseParent() always rejects regardless of trailers (it requires
+    // exactly one parent) and which has no Canonical-Source trailer of its own to fall back to. Still
+    // fails closed: an unresolvable explicit base is a clear error, never silently ignored.
+    if (!objectExists(root, resolvedBase)) {
+      throw new Error(`Explicit release diff base "${resolvedBase}" does not resolve to a commit in this checkout.`);
+    }
+    resolvedBase = git(root, ['rev-parse', resolvedBase]).trim();
+  } else {
     const releaseParent = publicSafeReleaseParent(root, resolvedHead);
     if (releaseParent) {
       resolvedBase = releaseParent;
@@ -95,7 +105,13 @@ export function verifyReleaseDiffHygiene(root = ROOT, { base, head = 'HEAD' } = 
 }
 
 function main() {
-  const result = verifyReleaseDiffHygiene(ROOT);
+  // RELEASE_DIFF_BASE is an optional CI-supplied override (see .github/workflows/quality-gates.yml):
+  // present and non-empty only for the pull_request trigger, where it carries GitHub's actual PR
+  // base SHA, resolving the synthetic-merge-checkout ambiguity documented on verifyReleaseDiffHygiene
+  // above. Absent for push/workflow_dispatch, where auto-resolution behavior is unchanged.
+  const envBase = process.env.RELEASE_DIFF_BASE;
+  const base = envBase && envBase.trim() ? envBase.trim() : undefined;
+  const result = verifyReleaseDiffHygiene(ROOT, { base });
   console.log('release-diff-hygiene: PASS');
   console.log(JSON.stringify(result));
 }

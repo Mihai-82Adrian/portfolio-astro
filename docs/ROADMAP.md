@@ -361,12 +361,13 @@ full register, query matrix, and evidence.
 
 ## Phase 3 — Human and Remote Readiness
 
-Status: `ACTIVE`
+Status: `DONE`
 
 **Objective:** Obtain the human decisions and controlled remote evidence that local tests cannot
-provide. All three sub-phases (3-A, 3-B, 3-C) are `DONE`; this umbrella phase stays `ACTIVE` rather
-than closing automatically into Phase 4, because Phase 4 production release requires a separate,
-not-yet-granted authorization decision rather than an automatic handoff.
+provide. All three sub-phases (3-A, 3-B, 3-C) are `DONE`; this umbrella phase stayed `ACTIVE` rather
+than auto-closing into Phase 4 only because Phase 4 production release required a separate
+authorization decision. That authorization was subsequently granted and Phase 4's controlled
+production release completed (see below), so this umbrella phase is now `DONE` as well.
 
 **Why now:** Only after Phase 2 produces a reviewable candidate.
 
@@ -541,7 +542,9 @@ production release.
 **Deliverables:**
 
 - release dependency freeze (routine Dependabot version updates paused; security alerts/updates
-  unaffected) and retirement of the legacy `.github/DEPLOYMENT.md` deployment guide — Step 1A
+  unaffected — lifted in Phase 5-D2-B once Phase 4's production release completed, per
+  [dependency-hygiene.md](operations/dependency-hygiene.md)'s unfreeze trigger) and retirement of the
+  legacy `.github/DEPLOYMENT.md` deployment guide — Step 1A
   (read-only baseline/classification) and Step 1B (implementation);
 - analytics-consent and visitor-egress remediation — Step 2B-1 (implemented, validated, and
   integrated into canonical): versioned two-channel consent (`performanceAnalytics.cloudflareRum`,
@@ -616,13 +619,14 @@ read-only.
 **Exit criteria:** Human review is recorded, both live model tiers are confirmed, remote controls match
 the candidate, and preview evidence supports or rejects production release. Met: Step 3E-A closed
 every open Phase 3-C human/provider/security gap read-only (`STEP3E-PREFLIGHT-GO`), and Step 3E-B
-produces the final build-verified preview candidate from the reconciled canonical state. Production
-remains the unchanged legacy deployment throughout, and Phase 4 production release remains a
-separate, not-yet-authorized decision.
+produces the final build-verified preview candidate from the reconciled canonical state. At Phase
+3-C's own closure, production remained the unchanged legacy deployment and Phase 4 production release
+was a separate, not-yet-authorized decision; Phase 4 has since been separately authorized and
+completed (see below) — this sentence describes Phase 3-C's closure state, not current state.
 
 ## Phase 4 — Controlled Production Release
 
-Status: `NEXT`
+Status: `DONE`
 
 **Objective:** Release an approved artifact into the public production lineage with verification and
 rollback readiness.
@@ -649,20 +653,34 @@ rollback readiness.
 authorization.
 
 **Exit criteria:** Approved production serves the identified artifact, post-deployment checks pass,
-and the rollback path is ready.
+and the rollback path is ready. **Met:** the controlled production release was executed and closed
+through the Phase 5-D1D, Phase 5-D1D-P, Phase 5-D1E, Phase 5-D1E-R1b, and Phase 5-D1E-P batches
+(named as Phase 5 sub-batches in their own evidence, though their content performs this phase's exit
+criteria) — a reviewed release commit was promoted to public `master`, carrying `Canonical-Source`/
+`Canonical-Tree` trailers matching the canonical integration HEAD, an authorized GitHub Actions
+production deploy job promoted a pre-verified artifact to Cloudflare, and the resulting production
+deployment was independently confirmed both via the Cloudflare API and a live `/api/health` fetch to
+report the expected `releaseId`/`sourceRevision`. Exact identities are recorded in the external
+Phase 5-D1E-P and Phase 5-D2A evidence packages, not repeated here. Post-deployment
+browser acceptance, XRechnung, network/console invariance, and rollback-readiness checks passed; see
+the external Phase 5-D1E-P evidence package for the full record. These closure points are accepted
+history and are not reopened without new regression evidence.
 
 **Public-history constraint:** Raw internal audits were removed from the current tree, not from local
-integration history. A blind fast-forward of that lineage into public `master` is not assumed safe.
-Use a reviewed squash/release commit or another explicitly approved public-history-safe method. Do
-not rewrite history as part of ordinary release preparation.
+integration history. The production release used a reviewed release commit rather than a blind
+fast-forward of that internal lineage, consistent with this constraint.
 
 ## Phase 5 — Post-release Stabilization
 
-Status: `PLANNED`
+Status: `ACTIVE`
 
 **Objective:** Confirm that the release behaves safely and efficiently under real traffic.
 
-**Why now:** Lab validation cannot supply field performance or operational baselines.
+**Why now:** Lab validation cannot supply field performance or operational baselines. Phase 4's
+controlled production release is complete, opening this phase's observation window; none of its
+field-observation deliverables are actionable yet at the time of Phase 5-D2A/D2-B (production has
+been live only hours, not the days-to-weeks each deliverable below needs for a meaningful sample —
+see the Phase 5-D2A residual-backlog register for the specific evidence/time horizon per item).
 
 **Deliverables:**
 
@@ -675,13 +693,16 @@ Status: `PLANNED`
 - 404 edge behavior review;
 - SLO review and threshold adjustment.
 
-**Dependencies:** Phase 4 release and enough observation time for meaningful baselines.
+**Dependencies:** Phase 4 release (met) and enough observation time for meaningful baselines (not yet
+met for any deliverable above).
 
 **Remote mutation required:** **Yes** for dashboards or enforcement changes; read-only observation
 still requires appropriate access.
 
 **Exit criteria:** SLOs reflect field evidence, regressions are classified, CSP has an explicit
-decision, and unresolved release risks have owners.
+decision, and unresolved release risks have owners. None of these deliverables should be promoted
+into implementation merely because this phase is `ACTIVE`; each remains gated on its own observation
+window.
 
 ## Phase 6 — Sample Review & Secure Client Intake
 

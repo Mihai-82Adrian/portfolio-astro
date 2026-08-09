@@ -1,9 +1,14 @@
 // Phase 3-B2 (Workstream C §6.1): repository security baseline — Dependabot configuration.
-// Phase 3-C Step 1B: release dependency freeze — routine version-update PRs paused via
-// open-pull-requests-limit: 0 on both entries; the redundant target-branch: master key (the
-// repository's actual default branch) is removed. Dependabot vulnerability alerts and
-// security-update PRs are a separate, repository-level GitHub feature, not configured by this
-// file, and are intentionally not asserted here.
+// Phase 3-C Step 1B froze routine version-update PRs at open-pull-requests-limit: 0 for the
+// duration of Phase 3-C/Phase 4; Phase 5-D2-B lifted that freeze once Phase 4's controlled
+// production release completed, restoring the pre-freeze limits (see
+// docs/operations/dependency-hygiene.md). The routine-update limit is therefore a legitimate,
+// intentionally variable policy value (frozen vs. thawed) — this file asserts the structural
+// shape of the config instead of hard-coding either state as permanent. The redundant
+// target-branch: master key (the repository's actual default branch) stays removed regardless of
+// freeze state. Dependabot vulnerability alerts and security-update PRs are a separate,
+// repository-level GitHub feature, not configured by this file, and are intentionally not
+// asserted here.
 // Checked with plain string/regex assertions against the YAML source, matching the convention
 // scripts/release/guards.mjs already uses for workflow YAML — no new YAML-parsing dependency.
 import assert from 'node:assert/strict';
@@ -23,18 +28,22 @@ test('dependabot.yml declares version 2 with exactly one npm and one github-acti
   assert.equal(actionsMatches.length, 1, 'expected exactly one github-actions ecosystem entry');
 });
 
-test('every update entry is weekly, roots at /, and frozen at open-pull-requests-limit: 0', () => {
+test('every update entry is weekly, roots at /, and declares a well-formed non-negative routine-PR limit', () => {
   const entries = source.split(/^  - package-ecosystem:/m).slice(1);
   assert.equal(entries.length, 2, 'expected exactly two update entries (npm, github-actions)');
   for (const entry of entries) {
     assert.match(entry, /^\s*directory: \/$/m, 'must root at the repository root');
     assert.match(entry, /interval: weekly/, 'schedule must be weekly');
-    assert.doesNotMatch(entry, /target-branch:/, 'target-branch is redundant while master is the actual default branch and must stay removed for the freeze');
-    assert.match(entry, /open-pull-requests-limit: 0/, 'routine version-update PRs must stay frozen at 0 for Phase 3-C/Phase 4');
-    assert.doesNotMatch(entry, /open-pull-requests-limit: (?!0)\d+/, 'no non-zero open-pull-requests-limit is permitted while the freeze is active');
+    assert.doesNotMatch(entry, /target-branch:/, 'target-branch is redundant while master is the actual default branch and must stay removed regardless of freeze state');
+    // The routine-update limit is a legitimate, intentionally variable policy value (frozen at 0
+    // during Phase 3-C/Phase 4, restored to its pre-freeze value once Phase 4 completed) — assert
+    // it is present exactly once as a well-formed non-negative integer, not a specific number.
+    const limitMatches = entry.match(/^\s*open-pull-requests-limit: (\d+)\s*$/m);
+    assert.ok(limitMatches, 'open-pull-requests-limit must be present as a plain non-negative integer');
+    assert.ok(Number(limitMatches[1]) >= 0, 'open-pull-requests-limit must not be negative');
     assert.match(entry, /- dependencies/);
     assert.match(entry, /- security/);
-    assert.doesNotMatch(entry, /^\s*ignore:/m, 'no ignore rule may be introduced by the freeze');
+    assert.doesNotMatch(entry, /^\s*ignore:/m, 'no ignore rule may be introduced regardless of freeze state');
   }
 });
 

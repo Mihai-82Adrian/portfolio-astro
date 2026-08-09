@@ -53,4 +53,6 @@ jobs:
       - name: Prepare checksum-pinned Firefox runtime
         run: npm run setup:firefox:release
       - name: Run complete local release-candidate gate
+        env:
+          RELEASE_DIFF_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || '' }}
         run: npm run verify:release-candidate

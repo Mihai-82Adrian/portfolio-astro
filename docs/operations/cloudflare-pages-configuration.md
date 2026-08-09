@@ -259,17 +259,19 @@ Cloudflare to issue a new site token for the manual snippet, distinct from the p
 `build_config.web_analytics_token`.
 
 **Canonical application state (Phase 3-C Step 2C-2):** the application loader's `CF_BEACON_TOKEN`
-constant in `BaseLayout.astro` now carries this new manual-install token. Step 2C-2 is implemented,
-locally validated, and integrated into canonical; it is not yet deployed to preview or production.
+constant in `BaseLayout.astro` carries this manual-install token. Step 2C-2 is implemented, locally
+validated, integrated into canonical, and was promoted to production by the Phase 4 controlled
+production release.
 
-**Legacy production remains unchanged by both of the above:** the currently-live production
-deployment (built before Step 2B-1 existed) still serves an unconditional Cloudflare beacon and an
-unconditional Ahrefs script, baked into its already-built static HTML at the time it was built. Neither
-the Step 2C-1 remote-configuration cutover nor the Step 2C-2 application-token update can retroactively
-change already-built HTML; only a new deployment carrying the consent-aware loader removes it from what
-visitors actually receive. This is a website-hosting/security-neutral analytics-only gap, confirmed by
-a live, read-only, zero-consent browser inspection of production during Step 2C-1 (recorded in that
-step's evidence package, not part of this repository).
+**The legacy pre-Phase-4 production build (built before Step 2B-1 existed) is superseded:** that
+earlier deployment served an unconditional Cloudflare beacon and an unconditional Ahrefs script,
+baked into its already-built static HTML at the time it was built — neither the Step 2C-1
+remote-configuration cutover nor the Step 2C-2 application-token update could retroactively change
+that already-built HTML, only a new deployment carrying the consent-aware loader could. The Phase 4
+controlled production release is that new deployment: the currently-live production build now serves
+the consent-gated loader. This historical gap (recorded via a live, read-only, zero-consent browser
+inspection of the legacy production build during Step 2C-1, evidence not part of this repository)
+described the pre-Phase-4 legacy build only, not current production state.
 
 ## 21. Read-only remote parity and logging review (Phase 3-C Step 3E-A)
 

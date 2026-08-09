@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { startsWithOrigin } from './helpers/url-assertions.mjs';
+import { startsWithOrigin, textMentionsHost } from './helpers/url-assertions.mjs';
 
 const ROOT = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '..');
 const README = readFileSync(path.join(ROOT, 'README.md'), 'utf8');
@@ -147,6 +147,11 @@ test('README framework major matches package.json and release language remains q
   // already reviewed — that would overclaim beyond the owner's documented risk-acceptance decision.
   assert.doesNotMatch(README, /qualified (?:legal|privacy-policy) review (?:has|was|is) (?:completed|received|done)/i);
   assert.doesNotMatch(README, /currently reviewed statement of legal bases/i);
+  // Phase 5-D2-B: the "Privacy and external services" section once said qualified policy review
+  // "remains a release gate" (a generic, undated claim) — stale the moment the owner recorded the
+  // trigger-based decision below, since a release had already shipped without it being a blocker.
+  // Fails closed against that phrasing returning while the current owner decision stays in force.
+  assert.doesNotMatch(README, /qualified (?:policy|legal) review remains an? (?:open )?release gate/i);
   // OWNER-AUTHORIZED GOVERNANCE TEST SYNCHRONIZATION (Phase 3-C Step 3E-A): the prior assertion here
   // required README to state qualified privacy-policy review "remains open" in the general sense.
   // That framing is now stale — the owner recorded an explicit, durable release decision distinguishing
@@ -172,7 +177,7 @@ test('README links the privacy operations boundary and states inactive email del
   assert.match(README, /Resend[\s\S]{0,160}(?:inactive|not configured)/i);
 });
 
-test('README and Architecture agree on the local release identity without claiming deployment', () => {
+test('README and Architecture agree on the local release identity and the /api/health mechanism', () => {
   const architecture = readFileSync(path.join(ROOT, 'docs/ARCHITECTURE.md'), 'utf8');
   const health = readFileSync(path.join(ROOT, 'functions/api/health.ts'), 'utf8');
   const contracts = readFileSync(path.join(ROOT, 'functions/_lib/contracts.ts'), 'utf8');
@@ -183,7 +188,9 @@ test('README and Architecture agree on the local release identity without claimi
   }
   assert.match(contracts, /'Cache-Control': 'no-store'/);
   assert.match(health, /jsonSuccess/);
-  assert.doesNotMatch(README, /(?:deployed|production)[^.\n]{0,100}(?:now |currently )?(?:serves|exposes|includes)[^.\n]*\/api\/health/i);
+  // /api/health is the runtime mechanism for observing deployed release identity, so README/
+  // Architecture may legitimately state that a deployment serves it (a controlled production
+  // release has occurred) — it is a factual observation channel, not an overclaim to guard against.
   assert.doesNotMatch(README, /Phase 2A[^.\n]{0,80}deployed/i);
 });
 
@@ -246,21 +253,17 @@ test('.github/DEPLOYMENT.md stays a compatibility index, not a second deployment
 test('README and Architecture distinguish public master from deployed production, and never claim CodeQL/Dependabot are unconfigured or that no public-safe release commit exists', () => {
   const architecture = readFileSync(path.join(ROOT, 'docs/ARCHITECTURE.md'), 'utf8');
 
+  // Repository/public-master state and deployed-production state are always distinct
+  // operational concepts (a git commit vs. a live deployment) whether or not they are
+  // currently aligned — this must remain durably true regardless of release status, so it
+  // is not pinned to "production lags" language that only held before Phase 4 completed.
   for (const document of [README, architecture]) {
-    // Production lag must stay explicit until Phase 4 — this is a stable truth, not a volatile fact.
     assert.match(
       document,
-      /production[^.\n]{0,120}(?:lag|has not|not (?:yet )?(?:deployed|live)|predat|serves the deployment predating)/i,
-      'must explicitly state that deployed production lags/has not received the described repository work'
+      /(?:master|repository|canonical)[^.\n]{0,200}separate state/i,
+      'must explicitly distinguish public master/repository state from deployed production as separate operational concepts'
     );
   }
-
-  // Public master vs. production must be stated as two separate states somewhere in README.
-  assert.match(
-    README,
-    /master[^.\n]{0,200}separate state/i,
-    'README must explicitly distinguish public master from deployed production as separate states'
-  );
 
   const stalenessPatterns = [
     /Dependabot[^.\n]{0,80}(?:not|un)configured/i,
@@ -299,7 +302,7 @@ test('any browser-side fetch to api.github.com stays documented in the living pr
   };
   walk('src');
   const fetchedFromSrc = srcFiles.some((file) =>
-    readFileSync(path.join(ROOT, file), 'utf8').includes('https://api.github.com')
+    textMentionsHost(readFileSync(path.join(ROOT, file), 'utf8'), 'api.github.com')
   );
 
   if (!cspAllowsIt && !fetchedFromSrc) return; // the egress no longer exists; nothing to document.
@@ -309,7 +312,7 @@ test('any browser-side fetch to api.github.com stays documented in the living pr
     'utf8'
   );
   assert.ok(
-    privacyDoc.includes('api.github.com'),
+    textMentionsHost(privacyDoc, 'api.github.com'),
     'api.github.com is CSP-permitted and/or fetched from src/, but is not mentioned in docs/operations/privacy-consent-external-services.md'
   );
 });

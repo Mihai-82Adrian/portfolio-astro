@@ -4,9 +4,11 @@ updates:
     directory: /
     schedule:
       interval: weekly
-    # Phase 3-C / Phase 4 release freeze: routine version-update PRs are paused.
-    # Dependabot security alerts and security-update PRs remain enabled separately.
-    open-pull-requests-limit: 0
+    # Phase 3-C / Phase 4 release freeze lifted (Phase 4 controlled production release complete,
+    # 2026-08-09; see docs/operations/dependency-hygiene.md). Routine version-update PRs resume at
+    # the pre-freeze limit. Dependabot security alerts and security-update PRs remain enabled
+    # separately and were never limited by this freeze.
+    open-pull-requests-limit: 8
     labels:
       - dependencies
       - security
@@ -28,9 +30,11 @@ updates:
     directory: /
     schedule:
       interval: weekly
-    # Phase 3-C / Phase 4 release freeze: routine version-update PRs are paused.
-    # Dependabot security alerts and security-update PRs remain enabled separately.
-    open-pull-requests-limit: 0
+    # Phase 3-C / Phase 4 release freeze lifted (Phase 4 controlled production release complete,
+    # 2026-08-09; see docs/operations/dependency-hygiene.md). Routine version-update PRs resume at
+    # the pre-freeze limit. Dependabot security alerts and security-update PRs remain enabled
+    # separately and were never limited by this freeze.
+    open-pull-requests-limit: 5
     labels:
       - dependencies
       - security

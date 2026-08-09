@@ -164,6 +164,30 @@ test('canonical quality workflow explicitly emits the required branch-protection
   assert.doesNotMatch(release, /^\s+(push|pull_request):/m, 'release.yml must remain workflow_dispatch-only');
 });
 
+// Phase 5-D2-B PR-CI closure: GitHub's pull_request checkout is a synthetic two-parent
+// `refs/pull/N/merge` commit, which scripts/release/diff-hygiene.mjs's auto-resolution always
+// rejects (see tests/release-diff-hygiene.test.mjs). RELEASE_DIFF_BASE is the CI-supplied override
+// that resolves this, only for pull_request, always from GitHub's own reported PR base SHA — never a
+// hardcoded literal, and absent (empty) for push/workflow_dispatch, preserving their existing
+// auto-resolution behavior exactly.
+test('quality-gates.yml supplies RELEASE_DIFF_BASE from the actual PR base SHA for pull_request only, never a hardcoded value', () => {
+  const quality = read('.github/workflows/quality-gates.yml');
+  assert.match(
+    quality,
+    /RELEASE_DIFF_BASE:\s*\$\{\{\s*github\.event_name == 'pull_request' && github\.event\.pull_request\.base\.sha \|\| ''\s*\}\}/,
+    "quality-gates.yml must set RELEASE_DIFF_BASE from github.event.pull_request.base.sha for pull_request and '' otherwise",
+  );
+  assert.doesNotMatch(
+    quality,
+    /RELEASE_DIFF_BASE:\s*['"]?[a-f0-9]{40}['"]?\s*$/m,
+    'RELEASE_DIFF_BASE must never be a hardcoded literal SHA',
+  );
+  // fetch-depth: 0 (already asserted structurally elsewhere by requiring the checkout action) keeps
+  // the full history verify:release-diff-hygiene needs to diff against the supplied base — this
+  // assertion protects that precondition from silently narrowing.
+  assert.match(quality, /fetch-depth:\s*0/, 'checkout must keep fetch-depth: 0 for the diff-hygiene base to be resolvable');
+});
+
 test('security-audit workflow is a read-only, scheduled, non-deploying, minimal-permission audit', () => {
   const workflow = read('.github/workflows/security-audit.yml');
   assert.match(workflow, /^\s*schedule:$/m, 'must run on a schedule');

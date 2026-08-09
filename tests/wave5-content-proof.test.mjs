@@ -128,30 +128,32 @@ test('the 3 Anthropic AI Fluency certificates are integrated with issuer, date, 
   }
 });
 
-test('README roadmap summary reflects Phase 2 done / Phase 3-B done / Phase 3-C done', () => {
+test('README roadmap summary reflects Phase 2 done / Phase 3 done / Phase 4 complete', () => {
   const readme = readFileSync(path.join(ROOT, 'README.md'), 'utf8');
   assert.doesNotMatch(readme, /Phase 2D-B Product Scope Audit and Launch Lock is next/);
   assert.doesNotMatch(readme, /Wave 6 next/);
   assert.doesNotMatch(readme, /Phase 2D-D\s+security\/dependency acceptance is next/);
   assert.match(readme, /Phase 2[\s\S]{0,400}is done/);
-  // OWNER-AUTHORIZED GOVERNANCE TEST SYNCHRONIZATION (Phase 3-C Step 3E-R): the umbrella phase's
-  // prose changed from "is active" to "stays active as an umbrella" when its sub-phases closed;
-  // still fail-closed on the actual status word, just tolerant of either verb.
+
+  // OWNER-AUTHORIZED GOVERNANCE TEST SYNCHRONIZATION (Phase 5-D2-B): Phase 3 stayed an "active"
+  // umbrella only pending Phase 4's separate production-release authorization (Step 3E-R); that
+  // authorization was granted and Phase 4 completed, so Phase 3 closed to "done" — this
+  // synchronizes the snapshot assertion with that legitimate, evidence-backed status change
+  // (Phase 5-D2A baseline, 2026-08-09), the same durable-contract family already fixed once in
+  // tests/repo-truth.test.mjs and tests/governance.test.mjs.
   const phase3Top = readme.match(/Phase 3 Human and Remote Readiness\s+(?:is|stays)\s+(\w+)/);
   assert.ok(phase3Top, 'README must state Phase 3\'s top-level status inline');
   assert.equal(
     phase3Top[1].toLowerCase(),
-    'active',
-    `Phase 3 (top-level umbrella) must be stated as active, found "${phase3Top[1]}"`
+    'done',
+    `Phase 3 (top-level umbrella) must be stated as done, found "${phase3Top[1]}"`
   );
   assert.match(readme, /Phase 3-A[\s\S]{0,80}done/i);
 
   // Phase 3-B and Phase 3-C are both closed — anchored on the exact status word following each
   // phase's own parenthetical, not a windowed substring search, so this fails loudly the moment
   // either phase's stated status actually changes (including a regression back to next/active)
-  // instead of only when unrelated nearby prose happens to shift. Phase 3 itself stays the
-  // active umbrella (asserted above) — Phase 4 needs its own separate authorization and must
-  // never be implied as started or as production having been released.
+  // instead of only when unrelated nearby prose happens to shift.
   const phase3B = readme.match(/Phase 3-B \([^)]*\)\s+is\s+(\w+)/);
   assert.ok(phase3B, 'README must state Phase 3-B\'s status inline as "Phase 3-B (...) is <status>"');
   assert.equal(
@@ -160,10 +162,6 @@ test('README roadmap summary reflects Phase 2 done / Phase 3-B done / Phase 3-C 
     `Phase 3-B must be stated as done, found "${phase3B[1]}" — Phase 3-B must never regress to next/active in the README`
   );
 
-  // OWNER-AUTHORIZED GOVERNANCE TEST SYNCHRONIZATION (Phase 3-C Step 3E-R): Phase 3-C's remaining
-  // human/provider/security gates closed read-only (STEP3E-PREFLIGHT-GO) and the roadmap/README
-  // were updated accordingly; this synchronizes the snapshot assertion with that legitimate,
-  // owner-authorized status change from active to done.
   const phase3C = readme.match(/Phase 3-C \([^)]*\)\s+is\s+(?:now\s+)?(\w+)/);
   assert.ok(phase3C, 'README must state Phase 3-C\'s status inline as "Phase 3-C (...) is [now] <status>"');
   assert.equal(
@@ -172,19 +170,30 @@ test('README roadmap summary reflects Phase 2 done / Phase 3-B done / Phase 3-C 
     `Phase 3-C must be stated as done, found "${phase3C[1]}"`
   );
 
-  assert.doesNotMatch(
+  // Phase 4's controlled production release is complete (verified independently via the
+  // Cloudflare API and a live /api/health fetch in the Phase 5-D2A baseline, not inferred from a
+  // local build) — README must state this accurately, the same anchored-status-word discipline
+  // used for Phase 3-B/3-C above, rather than either forbidding or merely tolerating the fact.
+  assert.match(
     readme,
-    /Phase 4\s+(?:is\s+(?:now\s+)?(?:active|done|authorized)|has\s+been\s+authorized|has\s+started)/i,
-    'README must never imply Phase 4 is authorized, active, done, or started'
+    /Phase 4[^.\n]{0,120}(?:complete|closed|is done)/i,
+    'README must state Phase 4 as complete/closed, matching the verified production release'
   );
-  assert.doesNotMatch(
+  assert.match(
     readme,
-    /production\s+release\s+has\s+(?:started|occurred)/i,
-    'README must never imply a production release has occurred'
+    /independently confirmed[\s\S]{0,80}Cloudflare API[\s\S]{0,80}\/api\/health/i,
+    'README must state that production identity was independently confirmed via the Cloudflare API and /api/health, not merely inferred from a local build'
   );
 
-  // Local/canonical state must not be conflated with deployed production.
-  assert.match(readme, /production has not\s+changed/i);
+  // Repository/public-master state and deployed-production state remain separate operational
+  // concepts (a git commit vs. a live deployment) whether or not they are currently aligned — the
+  // same durable invariant tests/repo-truth.test.mjs enforces, checked here too since this test
+  // owns README's Roadmap-section content-proof responsibility specifically.
+  assert.match(
+    readme,
+    /(?:master|repository|canonical)[^.\n]{0,200}separate state/i,
+    'README must distinguish public master/repository state from deployed production as separate operational concepts'
+  );
 });
 
 // --- Wave 5 closure: dedicated AI & Professional Development certificate category ---

@@ -112,7 +112,13 @@ test('ROADMAP.md uses the allowed lifecycle and preserves deferred capabilities'
   assert.ok(statuses.length >= 10, 'roadmap must assign statuses to phases and major decisions');
   for (const status of statuses) assert.ok(allowed.has(status), `unsupported roadmap status: ${status}`);
   assert.equal(topLevelStatuses.filter((status) => status === 'ACTIVE').length, 1, 'Phase 2 and its Phase 2D subphase are closed; exactly one top-level phase is active (its active sub-phase chain does not count against this)');
-  assert.equal(statuses.filter((status) => status === 'NEXT').length, 1, 'final roadmap must have one NEXT phase');
+  // OWNER-AUTHORIZED GOVERNANCE TEST SYNCHRONIZATION (Phase 5-D2-B): the roadmap previously always
+  // had exactly one `NEXT` phase (Phase 4) queued as the immediate next implementation phase. Phase
+  // 4 is now `DONE`, and its successor, Phase 5, is `ACTIVE`-but-observation-blocked rather than
+  // queued for implementation — a legitimate state where zero phases are currently `NEXT`. The
+  // invariant that matters is that at most one phase is ever `NEXT` at a time (no competing next
+  // steps), not that exactly one must always exist.
+  assert.ok(statuses.filter((status) => status === 'NEXT').length <= 1, 'roadmap must never have more than one NEXT phase');
   assert.match(roadmap, /## Phase 2 — Operational Release Candidate\s+Status: `DONE`/);
   assert.match(roadmap, /### Phase 2A — Release Identity, Provenance & Dependency Closure\s+Status: `DONE`/);
   assert.match(roadmap, /### Phase 2B — Operational Controls & Observability\s+Status: `DONE`/);
@@ -128,7 +134,11 @@ test('ROADMAP.md uses the allowed lifecycle and preserves deferred capabilities'
   assert.match(roadmap, /##### Wave 5 — Content, SEO, Localization and Proof\s+Status: `DONE`/);
   assert.match(roadmap, /##### Wave 6 — Product Acceptance and Security Handoff\s+Status: `DONE`/);
   assert.match(roadmap, /#### Phase 2D-D — Product and Dependency Security Acceptance\s+Status: `DONE`/);
-  assert.match(roadmap, /## Phase 3 — Human and Remote Readiness\s+Status: `ACTIVE`/);
+  // OWNER-AUTHORIZED GOVERNANCE TEST SYNCHRONIZATION (Phase 5-D2-B): Phase 3 stayed `ACTIVE` only
+  // pending Phase 4's separate production-release authorization; that authorization was granted and
+  // Phase 4 completed, so Phase 3 closed into `DONE` — this synchronizes the snapshot assertion with
+  // that legitimate, evidence-backed roadmap status change (Phase 5-D2A baseline, 2026-08-09).
+  assert.match(roadmap, /## Phase 3 — Human and Remote Readiness\s+Status: `DONE`/);
   assert.match(roadmap, /### Phase 3-A — Remote Inventory\s+Status: `DONE`/);
   assert.match(roadmap, /### Phase 3-B — Remote Controls and Preview Readiness\s+Status: `DONE`/);
   assert.match(roadmap, /#### Phase 3-B1 — Public-Safe Preview and Deployment Control\s+Status: `DONE`/);

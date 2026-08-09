@@ -47,11 +47,11 @@ loader is application/runtime implementation: it is implemented, validated, and 
 canonical. Remotely, Cloudflare's platform-level automatic RUM injection has been disabled for future
 deployments (Phase 3-C Step 2C-1: Pages Web Analytics tag/token nulled, zone Automatic Setup switched
 to manual-install), and the application loader's site token has been updated to match the new
-manual-install token. Phase 3-C Step 2C-2 is implemented, locally validated, and integrated into
-canonical; it is not yet deployed to preview or production. The currently-live production deployment predates this
-loader entirely and continues to serve its own, separately baked-in beacon until a new deployment is
-released; see [cloudflare-pages-configuration.md](cloudflare-pages-configuration.md) for the full
-remote-cutover record and the legacy-production distinction.
+manual-install token. Phase 3-C Step 2C-2's canonical state was promoted to production by the Phase 4 controlled
+production release: the currently-live production deployment now serves this consent-gated loader
+rather than the legacy, separately baked-in beacon; see
+[cloudflare-pages-configuration.md](cloudflare-pages-configuration.md) for the full remote-cutover
+record and any residual gap.
 
 Giscus remains a separate user-requested embed. No request to `giscus.app` occurs before the visitor
 uses the load control.
@@ -181,17 +181,16 @@ npm run lint:a11y:strict
 - live-state confirmation during an authorized release candidate;
 - Turnstile and Resend only if Sample Review is deliberately activated;
 - post-deployment no-egress checks for analytics, embeds, AI actions, and the inactive form;
-- **legacy production artifact**: the remote automatic-injection cutover (Step 2C-1) and the local
-  application-token update (Step 2C-2) do not retroactively change the currently-live production
-  deployment's already-built HTML, which predates the consent-gated loader and still serves its own
-  unconditional Cloudflare and Ahrefs scripts. Only a new deployment carrying the current canonical
-  loader removes this. See [cloudflare-pages-configuration.md](cloudflare-pages-configuration.md) for
-  the full record;
+- **legacy production artifact — resolved by Phase 4**: the remote automatic-injection cutover
+  (Step 2C-1) and the local application-token update (Step 2C-2) did not retroactively change the
+  production deployment that predated them; that legacy deployment was superseded by the Phase 4
+  controlled production release, which promotes the canonical consent-gated loader. See
+  [cloudflare-pages-configuration.md](cloudflare-pages-configuration.md) for the full record;
 - Step 2B-1 and Step 2B-2 are implemented, validated, and integrated into canonical. Step 2C-1 (remote
   cutover) is executed and verified remotely. Step 2C-2 (application token update) is implemented,
-  locally validated, and integrated into canonical; it is not yet deployed to preview or production.
-  Preview deployment and preview acceptance for this canonical state are still pending; local validation
-  alone does not demonstrate preview or production behavior.
+  locally validated, integrated into canonical, and promoted to production by the Phase 4 controlled
+  production release — confirmed independently via the Cloudflare API and a live `/api/health` fetch,
+  not inferred from local validation alone.
 
 Resolved by Phase 3-C Step 2B-1 (implemented, validated, and integrated into canonical): the former
 GitHub REST API widget on `/projects` is now a static build-time snapshot with no browser-side

@@ -171,6 +171,73 @@ test('a normal non-release HEAD whose public master points at an unavailable Can
   );
 });
 
+// Phase 5-D2-B PR-CI closure: GitHub's pull_request checkout is neither of the two contexts above —
+// it is `refs/pull/N/merge`, a synthetic two-parent commit ("Merge <head> into <base>") that
+// publicSafeReleaseParent() always rejects (it requires exactly one parent, checked before any
+// trailer inspection) and that carries no Canonical-Source trailer of its own for the fallback to
+// resolve. This reproduces that exact shape — a plain GitHub-style merge commit, not a hand-built
+// release-trailer-shaped one — to prove the explicit `base` override (wired from
+// github.event.pull_request.base.sha in quality-gates.yml) resolves it correctly.
+function syntheticPrMergeFixture(prLine) {
+  const root = mkdtempSync(path.join(tmpdir(), 'portfolio-diff-hygiene-pr-merge-'));
+  const git = (args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
+  git(['init', '-q', '-b', 'master']);
+  git(['config', 'user.name', 'Release Test']);
+  git(['config', 'user.email', 'release@example.invalid']);
+  writeFileSync(path.join(root, 'public.txt'), 'public content\n');
+  git(['add', '.']);
+  git(['commit', '-qm', 'public master content']);
+  const master = git(['rev-parse', 'HEAD']);
+  git(['checkout', '-qb', 'pr-head', master]);
+  writeFileSync(path.join(root, 'public.txt'), `public content\n${prLine}\n`);
+  git(['add', '.']);
+  git(['commit', '-qm', 'public-safe PR head commit']);
+  const prHead = git(['rev-parse', 'HEAD']);
+  const tree = git(['write-tree']);
+  const mergeCommit = execFileSync(
+    'git',
+    ['commit-tree', tree, '-p', master, '-p', prHead],
+    { cwd: root, encoding: 'utf8', input: `Merge ${prHead} into ${master}\n` },
+  ).trim();
+  git(['checkout', '-q', 'master']);
+  return { root, git, master, prHead, mergeCommit };
+}
+
+test('A: synthetic PR-merge HEAD with an explicit base passes cleanly, without needing the internal Canonical-Source object', () => {
+  const { root, master, mergeCommit } = syntheticPrMergeFixture('a clean added line');
+  const result = verifyReleaseDiffHygiene(root, { base: master, head: mergeCommit });
+  assert.equal(result.base, master);
+  assert.equal(result.head, mergeCommit);
+});
+
+test('B: synthetic PR-merge HEAD with an explicit base still catches a real whitespace defect', () => {
+  const { root, master, mergeCommit } = syntheticPrMergeFixture('bad line ');
+  assert.throws(
+    () => verifyReleaseDiffHygiene(root, { base: master, head: mergeCommit }),
+    /public\.txt.*trailing whitespace/s,
+  );
+});
+
+test('C: synthetic PR-merge HEAD without an explicit base remains fail-closed (the exact real-world bug, unfixed)', () => {
+  const { root, mergeCommit } = syntheticPrMergeFixture('a clean added line');
+  // No Canonical-Source trailer exists anywhere in this fixture's master, so the two-parent
+  // rejection falls through to the same "missing trailer" diagnostic covered by the existing
+  // release-trailer-shaped two-parent test above — proving this plain GitHub-style merge commit
+  // (no trailers of its own at all) is never silently treated as public-safe either.
+  assert.throws(
+    () => verifyReleaseDiffHygiene(root, { head: mergeCommit }),
+    /Canonical-Source trailer/,
+  );
+});
+
+test('D: an unresolvable explicit base fails clearly instead of being silently ignored', () => {
+  const { root, mergeCommit } = syntheticPrMergeFixture('a clean added line');
+  assert.throws(
+    () => verifyReleaseDiffHygiene(root, { base: 'not-a-real-commit-ish', head: mergeCommit }),
+    /Explicit release diff base "not-a-real-commit-ish" does not resolve to a commit/,
+  );
+});
+
 test('the guard is wired into the unified release-candidate gate under Workflow and release policy', async () => {
   const { phases } = await import('../scripts/release/candidate.mjs');
   const [, scripts] = phases.find(([name]) => name === 'Workflow and release policy');
