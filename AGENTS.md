@@ -186,10 +186,17 @@ are not remote authorization.
 | Financial logic | Official-source fixtures, boundary tests, and deterministic reconciliation |
 | XRechnung or XML | Relevant fixtures and KoSIT under the documented proportionality rule |
 | Privacy or external service | Source/build guards and focused no-egress browser validation |
-| Release, security, or infrastructure | Full release-candidate gate and explicit operational review |
+| Repository governance or release control-plane | Focused, fail-closed workflow, release-policy, lineage, and diff-hygiene contracts plus governance/repo-truth |
+| Actual production release candidate, system-wide blast radius, or unclassified impact | Full release-candidate gate and explicit operational review |
 
 Do not run full KoSIT, browser, or provider validation for unrelated microchanges. Formal validation is
-mandatory for finance, security, provider, release, and XML-contract changes.
+mandatory for finance, security, provider, release, and XML-contract changes. Formal validation does not
+automatically mean full-system production qualification: the required gate is determined by affected
+surface and blast radius, not by category label alone. Quality Checks enforces this deterministically
+via [scripts/ci/change-impact.mjs](scripts/ci/change-impact.mjs), which fails closed to the full
+release-candidate gate for any changed path it does not recognize and for every actual release or
+production context regardless of diff size — proportional selection narrows which focused gates run,
+it never narrows what an actual production release candidate must pass.
 
 ## Documentation synchronization
 

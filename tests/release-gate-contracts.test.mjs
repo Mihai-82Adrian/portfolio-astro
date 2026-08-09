@@ -203,6 +203,40 @@ test('quality-gates.yml supplies RELEASE_DIFF_BASE from PR base SHA or master pu
   assert.match(quality, /fetch-depth:\s*0/, 'checkout must keep fetch-depth: 0 for the diff-hygiene base to be resolvable');
 });
 
+// Phase 5-D2-B proportional-validation closure: Quality Checks previously always ran the complete
+// production-oriented verify:release-candidate, so an unrelated release-control-plane fix could be
+// blocked by an unrelated KoSIT-tooling flake (see tests/change-impact.test.mjs for the classifier
+// itself). Quality Checks now dispatches through the deterministic change-impact classifier, which
+// always falls back to the full gate for an actual release/production context or an unclassified
+// path — never a bypass, only a proportional selection.
+test('quality-gates.yml dispatches through the proportional change-impact classifier, which always falls back to the full gate for release/unknown contexts', () => {
+  const quality = read('.github/workflows/quality-gates.yml');
+  assert.match(quality, /run: npm run ci:quality-gate/, 'Quality Checks must run through the proportional classifier, not invoke verify:release-candidate directly');
+  assert.doesNotMatch(quality, /run: npm run verify:release-candidate/, 'the unified gate must be reached via the classifier fallback, not a second direct invocation');
+  // RELEASE_DIFF_BASE wiring must be unchanged by this refactor -- the classifier reuses the same
+  // env var both to compute the changed-file diff and to pass through to verify:release-diff-hygiene.
+  assert.match(
+    quality,
+    /RELEASE_DIFF_BASE:\s*\$\{\{\s*\(github\.event_name == 'pull_request' && github\.event\.pull_request\.base\.sha\)\s*\|\|\s*\(github\.event_name == 'push' && github\.ref == 'refs\/heads\/master' && github\.event\.before\)\s*\|\|\s*''\s*\}\}/,
+    'RELEASE_DIFF_BASE must remain wired from the PR base SHA or master push.before, never a hardcoded value',
+  );
+
+  const classifier = read('scripts/ci/change-impact.mjs');
+  assert.match(classifier, /shouldForceFullGate/, 'the classifier must expose a testable force-full-gate decision');
+  assert.match(
+    classifier,
+    /eventName === 'workflow_dispatch'.*return true/s,
+    'a manual workflow_dispatch must always force the full gate',
+  );
+  assert.match(
+    classifier,
+    /ref\.startsWith\('refs\/heads\/release\/'\)/,
+    'a push to a release/** branch must always force the full gate',
+  );
+  assert.match(classifier, /verify:release-candidate/, 'the classifier must fall back to the unified gate for release/unknown contexts');
+  assert.match(classifier, /unclassified path/, 'an unrecognized changed path must fail closed to the unified gate');
+});
+
 test('security-audit workflow is a read-only, scheduled, non-deploying, minimal-permission audit', () => {
   const workflow = read('.github/workflows/security-audit.yml');
   assert.match(workflow, /^\s*schedule:$/m, 'must run on a schedule');

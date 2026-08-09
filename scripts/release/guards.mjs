@@ -209,7 +209,12 @@ export function verifyWorkflows(root = ROOT) {
     const quality = read(root, '.github/workflows/quality-gates.yml');
     invariant(!quality.includes('secrets.'), 'Quality workflow must not receive secrets.');
     invariant(!/pages deploy|wrangler deploy/.test(quality), 'Quality workflow must not deploy.');
-    invariant(quality.includes('verify:release-candidate'), 'Quality workflow omits unified gate.');
+    // Phase 5-D2-B: Quality Checks now dispatches through the proportional change-impact
+    // classifier (ci:quality-gate) rather than invoking the unified gate directly on every run —
+    // but the classifier itself always falls back to verify:release-candidate for an actual
+    // release/production context or an unclassified path (see scripts/ci/change-impact.mjs), so the
+    // unified gate must remain reachable one way or the other.
+    invariant(quality.includes('verify:release-candidate') || quality.includes('ci:quality-gate'), 'Quality workflow omits unified gate (directly or via the proportional classifier).');
     invariant(quality.includes('node-version-file: .node-version') && quality.includes('npm@11.16.0'), 'Quality toolchain drift.');
     invariant(/^ {2}pull_request:$/m.test(quality), 'Quality workflow must trigger on pull_request.');
     invariant(/^ {2}push:\n {4}branches:\n(?:.*\n)*? {6}- master\n/m.test(quality), 'Quality workflow must trigger on push to master.');
