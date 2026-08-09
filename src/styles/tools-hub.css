@@ -1,3 +1,8 @@
+/* This file is imported directly (not via global.css's `@import "tailwindcss"`
+   chain), so Tailwind's build-time theme()/@apply macros don't resolve here
+   (confirmed: adding theme() broke the build) — decorative eucalyptus tints
+   below are the literal palette values from tailwind.config.mjs instead of
+   var(--color-eucalyptus-*), which was never a real runtime custom property. */
 .tools-hub {
   position: relative;
   isolation: isolate;
@@ -14,7 +19,7 @@
   background:
     radial-gradient(
       62% 50% at 72% 14%,
-      color-mix(in oklab, var(--color-eucalyptus-500) 16%, transparent),
+      color-mix(in oklab, #6B8E6F 16%, transparent),
       transparent 72%
     );
   opacity: 0.72;
@@ -35,7 +40,7 @@
 }
 
 .tools-hub .tool-card--live::before {
-  border: 1px solid color-mix(in oklab, var(--color-eucalyptus-500) 44%, transparent);
+  border: 1px solid color-mix(in oklab, #6B8E6F 44%, transparent);
   opacity: 0.22;
   transform: scale(1);
   transition: opacity 220ms ease, transform 220ms ease;
@@ -46,7 +51,7 @@
   background: linear-gradient(
     118deg,
     transparent 35%,
-    color-mix(in oklab, var(--color-eucalyptus-300) 26%, transparent) 48%,
+    color-mix(in oklab, #9FBFA8 26%, transparent) 48%,
     transparent 62%
   );
   opacity: 0.14;
@@ -66,8 +71,8 @@
 
 .tools-hub .tool-card--live {
   box-shadow:
-    inset 0 0 0 1px color-mix(in oklab, var(--color-eucalyptus-500) 18%, transparent),
-    0 0 24px color-mix(in oklab, var(--color-eucalyptus-500) 14%, transparent);
+    inset 0 0 0 1px color-mix(in oklab, #6B8E6F 18%, transparent),
+    0 0 24px color-mix(in oklab, #6B8E6F 14%, transparent);
 }
 
 @supports (backdrop-filter: blur(1px)) {
@@ -77,7 +82,7 @@
 }
 
 .tools-hub .tool-card--live a:focus-visible {
-  outline: 2px solid var(--color-eucalyptus-500);
+  outline: 2px solid #6B8E6F;
   outline-offset: 2px;
 }
 

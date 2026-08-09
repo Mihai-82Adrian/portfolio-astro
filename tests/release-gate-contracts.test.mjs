@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
@@ -95,6 +96,52 @@ test('tracked workflow topology has one non-deploying quality owner and one manu
   assert.equal(result.externalActionPins, 11);
   assert.equal(result.deploymentOwners, 1);
   assert.deepEqual(result.workflows, files);
+});
+
+test('deployment Wrangler pin is exact and identical across package.json, package-lock.json, and release.yml', async () => {
+  const { verifyWranglerPinParity } = await import('../scripts/release/guards.mjs');
+  const pkgWrangler = json('package.json').devDependencies.wrangler;
+  assert.match(pkgWrangler, /^\d+\.\d+\.\d+$/, 'package.json wrangler must be an exact pin');
+  const lockWrangler = json('package-lock.json').packages['node_modules/wrangler'].version;
+  assert.equal(lockWrangler, pkgWrangler, 'package-lock top-level wrangler must match package.json');
+  const release = read('.github/workflows/release.yml');
+  assert.equal(verifyWranglerPinParity(ROOT, release), pkgWrangler);
+  assert.match(release, new RegExp(`wranglerVersion: '${pkgWrangler.replaceAll('.', '\\.')}'`));
+});
+
+test('the Wrangler parity guard fails closed on a synthetic package/lockfile/workflow mismatch', async () => {
+  const { verifyWranglerPinParity } = await import('../scripts/release/guards.mjs');
+  const dir = mkdtempSync(path.join(tmpdir(), 'portfolio-wrangler-parity-'));
+  try {
+    const write = (pkgWrangler, lockWrangler) => {
+      writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ devDependencies: { wrangler: pkgWrangler } }));
+      writeFileSync(path.join(dir, 'package-lock.json'), JSON.stringify({ packages: { 'node_modules/wrangler': { version: lockWrangler } } }));
+    };
+
+    // Baseline: all three agree.
+    write('4.120.0', '4.120.0');
+    assert.equal(verifyWranglerPinParity(dir, "wranglerVersion: '4.120.0'"), '4.120.0');
+
+    // package-lock resolved version differs from package.json.
+    write('4.120.0', '4.114.0');
+    assert.throws(() => verifyWranglerPinParity(dir, "wranglerVersion: '4.120.0'"), /package-lock top-level wrangler/);
+
+    // release.yml pin differs from package.json/package-lock.
+    write('4.120.0', '4.120.0');
+    assert.throws(() => verifyWranglerPinParity(dir, "wranglerVersion: '4.114.0'"), /release\.yml wranglerVersion/);
+
+    // release.yml pin is absent.
+    assert.throws(() => verifyWranglerPinParity(dir, 'command: pages deploy'), /must be an exact, non-floating pin/);
+
+    // release.yml pin is floating (not an exact patch version).
+    assert.throws(() => verifyWranglerPinParity(dir, "wranglerVersion: '4'"), /must be an exact, non-floating pin/);
+
+    // package.json version itself is not an exact pin.
+    write('^4.120.0', '4.120.0');
+    assert.throws(() => verifyWranglerPinParity(dir, "wranglerVersion: '4.120.0'"), /package\.json wrangler devDependency must be an exact pin/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test('canonical quality workflow explicitly emits the required branch-protection check name', () => {

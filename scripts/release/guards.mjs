@@ -164,6 +164,17 @@ export function verifyReleasePolicy(root = ROOT) {
     return policy;
 }
 
+export function verifyWranglerPinParity(root, release) {
+    const pkgWrangler = readJson(root, 'package.json').devDependencies?.wrangler;
+    invariant(/^\d+\.\d+\.\d+$/.test(pkgWrangler ?? ''), 'package.json wrangler devDependency must be an exact pin.');
+    const lockWrangler = readJson(root, 'package-lock.json').packages?.['node_modules/wrangler']?.version;
+    invariant(lockWrangler === pkgWrangler, `package-lock top-level wrangler (${lockWrangler}) must match package.json (${pkgWrangler}).`);
+    const match = release.match(/wranglerVersion:\s*'([^']*)'/);
+    invariant(match && /^\d+\.\d+\.\d+$/.test(match[1]), 'release.yml wranglerVersion must be an exact, non-floating pin.');
+    invariant(match[1] === pkgWrangler, `release.yml wranglerVersion (${match[1]}) must match package.json/package-lock wrangler (${pkgWrangler}).`);
+    return pkgWrangler;
+}
+
 export function verifyWorkflows(root = ROOT) {
     const directory = path.join(root, '.github', 'workflows');
     const workflows = readdirSync(directory).filter((file) => /\.ya?ml$/.test(file)).sort();
@@ -224,8 +235,9 @@ export function verifyWorkflows(root = ROOT) {
     ]) invariant(release.includes(value), `Release workflow omits ${value}.`);
     invariant(!release.slice(0, release.indexOf('\n  deploy:')).includes('secrets.'), 'Quality job must not receive deploy secrets.');
     invariant(deploymentOwners === 1, 'Exactly one tracked deployment owner is required.');
+    const wranglerVersion = verifyWranglerPinParity(root, release);
     verifyReleasePolicy(root);
-    return { workflows, externalActionPins, deploymentOwners };
+    return { workflows, externalActionPins, deploymentOwners, wranglerVersion };
 }
 
 function main() {

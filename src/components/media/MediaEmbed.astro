@@ -36,7 +36,7 @@ const placeholderStyle = hasPoster
 ---
 
 {isSafeEmbed ? (
-  <div class="relative overflow-hidden rounded-xl border bg-white shadow-subtle dark:bg-dark-elevated" style="border-color: color-mix(in srgb, var(--color-eucalyptus-500) 34%, transparent);">
+  <div class="media-embed-frame relative overflow-hidden rounded-xl border bg-white shadow-subtle dark:bg-dark-elevated">
     <div class={frameWrapperClass}>
       <!--
         Click-to-load facade: no iframe is injected until the user explicitly
@@ -78,3 +78,13 @@ const placeholderStyle = hasPoster
     Embed source unavailable.
   </div>
 )}
+
+<style>
+  /* var(--color-eucalyptus-500) was never a real runtime custom property (only
+     a Tailwind palette entry) and was silently dropped, plus an inline
+     style="" attribute is never processed by Tailwind's theme()/@apply macros
+     regardless; literal palette value from tailwind.config.mjs instead. */
+  .media-embed-frame {
+    border-color: color-mix(in srgb, #6B8E6F 34%, transparent);
+  }
+</style>
