@@ -247,6 +247,68 @@ to the allowlist, and disabled responses to exit before provider/quota preparati
 does not deep-clone requests or provider objects, access the filesystem, buffer streams, or change
 provider retry/timeout behavior. No Cloudflare production-performance claim is made.
 
+## Post-release observation contract (Phase 5-A)
+
+This section is the durable authority for [docs/ROADMAP.md](../ROADMAP.md) Phase 5-B/5-C: it defines,
+for each field question Phase 5 needs to answer, the existing evidence source, the earliest point that
+evidence becomes meaningful, the minimum condition before drawing a conclusion, the privacy constraint
+on collecting it, and what result counts as healthy, a regression, insufficient evidence, or
+unavailable evidence. **Observation before instrumentation:** every row below uses a source that
+already exists. Build new monitoring or telemetry only when a concrete decision cannot be made
+responsibly with evidence already available — the absence of a dashboard is not itself a justification
+for building one.
+
+### Observation windows
+
+Windows are earliest useful review points, not deadlines, regulatory requirements, or immutable
+constants. If traffic is too low at a window's earliest point, extending the window is correct;
+manufacturing certainty from an undersized sample is not.
+
+| Window | Suitable for |
+| --- | --- |
+| Immediate / 24–72 hours | availability, release identity, catastrophic route regressions, obvious 404 anomalies, obvious Function failure spikes, new security-scanner findings |
+| About 7 days, only if enough activity exists | preliminary Function error patterns, provider latency/cost, quota behavior, CSP report patterns |
+| About 14–28 days or a sufficient sample | Core Web Vitals/INP, analytics-informed navigation/conversion, SLO calibration, product/recruiter journey decisions |
+
+### Field questions
+
+| # | Question | Evidence source (existing) | Earliest window | Minimum condition | Privacy constraint |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Is the expected release actually being served? | `/api/health` `releaseId`/`sourceRevision`, Cloudflare deployment record | Immediate | One authorized fetch per check | No provider/storage call; identity fields only, already public |
+| 2 | Is real 404 behavior anomalous? | Manual/synthetic route checks against the 404 and cache matrix already exercised at release | Immediate–72h | At least the known route matrix re-checked once | No visitor-identifying data collected |
+| 3 | Are Functions failing beyond expected rejection classes? | Local operational-logger allowlisted terminal events (`request.completed`, `INTERNAL_FAILURE` class) if and when a remote sink exists; otherwise none | 7 days, only with a remote sink | A rolling window with a non-trivial request count | Allowlist in this document still applies; no new field may be added to answer this question |
+| 4 | Is provider latency acceptable? | `providerDurationMs`/`timeToFirstOutputMs` from the operational schema, if and when a remote sink exists | 7 days | Enough completed calls per route/tier to be non-anecdotal | No prompt/output content; aggregate durations only |
+| 5 | Is provider cost proportional to usage? | `inputTokens`/`outputTokens`/`totalTokens` aggregate fields, if and when a remote sink exists, cross-checked against OpenAI's own usage dashboard | 7 days | At least one full quota-window cycle per route | No per-request content; token counts only |
+| 6 | Are quota controls hit more/less than expected? | `quotaDecision` aggregate counts, if and when a remote sink exists | 7 days | Multiple quota-window cycles | No quota subject or cache key, per existing prohibition |
+| 7 | Is CSP Report-Only surfacing real violations? | `/api/csp-report`'s bounded `csp.summary` aggregate, if and when a remote sink exists | 7 days | Enough batches to distinguish signal from a single noisy client | Existing collector minimization (no raw URLs/bodies) applies unchanged |
+| 8 | Is any unexpected egress occurring? | The existing no-egress permanent test suite (`verify:privacy`, `verify:csp`) re-run against the live build, plus a manual browser check of the deployed site | Immediate–72h | One clean pass against the deployed artifact | No third-party request before its documented consent/click-to-load gate, per [privacy-consent-external-services.md](privacy-consent-external-services.md) |
+| 9 | Are Core Web Vitals/INP acceptable in the field? | Cloudflare Web Analytics (RUM), only for visitors who opted in | 14–28 days | Enough opted-in sessions per route to be statistically meaningful, not a handful of hits | Only aggregate, consent-gated RUM data; never joined to another identifier |
+| 10 | Do opt-in analytics show meaningful navigation/conversion signals? | Cloudflare Web Analytics and Ahrefs Web Analytics, only for visitors who opted into each respective channel | 14–28 days | Enough opted-in sessions to distinguish signal from noise | Two independent consent channels stay independent; no cross-channel joining beyond what each provider's own dashboard already does |
+| 11 | Is the security/dependency posture still clean? | Scheduled `security-audit.yml`, Dependabot alerts, CodeQL default-branch state — all already configured and running | Immediate, continuous | Each scheduled run or alert event | No change; this is already a configured, running control |
+
+### Result classes
+
+Each question above resolves to exactly one of:
+
+- **Healthy** — evidence exists, meets the minimum condition, and shows no regression against the
+  known baseline (the accepted state at Phase 4/Phase 5-D2-B closure, or the relevant candidate
+  indicator in this document).
+- **Regression** — evidence exists, meets the minimum condition, and shows a material deviation from
+  that baseline. A regression gets a classification and an owner in Phase 5-C; it is not silently
+  absorbed into "still observing."
+- **Insufficient evidence** — the source exists and was checked, but volume/duration has not yet met
+  the minimum condition. This is expected at low traffic and is itself a valid, honestly recorded
+  result — extend the window rather than manufacturing a conclusion.
+- **Unavailable evidence** — the source does not exist yet (for example, no remote log sink), or is
+  structurally inaccessible (for example, the confirmed Workers Observability API gap for Pages-managed
+  Functions in [cloudflare-pages-configuration.md](cloudflare-pages-configuration.md) §21). Recording
+  `unavailable` is the honest result; it is not, by itself, justification for building new
+  instrumentation unless Phase 5-C decides a concrete unanswerable decision requires it.
+
+Follow-up beyond continued observation is justified only when Phase 5-C can name the concrete decision
+a new instrument would unlock (matching the Phase 9 experiment discipline in
+[docs/ROADMAP.md](../ROADMAP.md)) — never merely because a metric would be "nice to have."
+
 ## Verification and future activation
 
 ```bash

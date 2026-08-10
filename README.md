@@ -322,16 +322,18 @@ docs/operations/       focused living technical records
 
 ## Current development and release state
 
-The deployed production site is built from public `master`. Public master/repository state and
-deployed production state remain separate states as a matter of mechanism — a git commit and a live
-deployment are always two different systems — even though, since the Phase 4 controlled production
-release, they currently carry the same canonical content. A successful local check or build still
-only describes the repository; the live release identity a deployment is actually serving is
-observed independently through `/api/health` (see [Release workflow](#release-workflow)), not
-inferred from a local build. **The Phase 4 controlled production release is complete** — production
-was independently confirmed, via both the Cloudflare API and a live `/api/health` fetch, to serve the
-canonical release; a local green build or a repository commit is still not, by itself, deployment
-approval for any future change beyond this point.
+Public master/repository state and deployed production state remain separate states as a matter of
+mechanism — a git commit and a live deployment are always two different systems — and that separation
+is currently substantive, not just theoretical: repository `master` has continued to accumulate
+post-release repository, security, governance, and control-plane work (Phase 5) that has not been
+promoted as a new production release. Production continues to serve the artifact from the Phase 4
+controlled production release. A successful local check or build still only describes the repository;
+the live release identity a deployment is actually serving is observed independently through
+`/api/health` (see [Release workflow](#release-workflow)), not inferred from a local build or a
+repository commit. **The Phase 4 controlled production release is complete** — production was
+independently confirmed, via both the Cloudflare API and a live `/api/health` fetch, to serve the
+canonical release at that time; a local green build or a repository commit is still not, by itself,
+deployment approval for any future change beyond this point.
 
 Foundations delivered through Phase 4 include Function transport contracts, OpenAI Responses
 integration, financial validation, privacy and consent boundaries, repository-truth checks, agent
@@ -342,18 +344,16 @@ post-deployment identity, route, cache, privacy, AI, and finance verification pa
 Resend remain inactive and are only required if the currently disabled Sample Review flow is
 activated (Phase 6, trigger-based).
 
-CodeQL default setup is configured; the two open alerts on the default branch
-(`js/incomplete-url-substring-sanitization` in test-only source) are root-caused as a scanner pattern
-match on a trusted-local-file documentation check rather than an untrusted-URL sanitization gap, with
-a source fix prepared locally and pending a separately authorized remote CodeQL confirmation. GitHub
-Dependabot vulnerability alerts are configured with 0 open alerts; a fresh `npm audit` and a live
-GitHub Advisory Database scan (all record types) both found 0 unresolved applicable advisories
-against the exact current lockfile. Automatic Cloudflare production deployment remains disabled
-(`production_deployments_enabled: false`) — production is promoted only through the authorized
-release-workflow path. The Phase 3/Phase 4 release-dependency freeze was lifted in
-repository-canonical configuration once Phase 4 completed (`open-pull-requests-limit: 8` npm / `5`
-github-actions); Dependabot security alerts/updates were never subject to that freeze, and the
-restored limits take effect on GitHub only once merged to the default branch. See
+CodeQL default setup is configured with 0 open alerts on the default branch — the prior
+`js/incomplete-url-substring-sanitization` findings (a scanner pattern match on a trusted-local-file
+documentation check rather than an untrusted-URL sanitization gap) were closed through source-level
+remediation. GitHub Dependabot vulnerability alerts are configured with 0 open alerts; a fresh
+`npm audit` and a live GitHub Advisory Database scan (all record types) both found 0 unresolved
+applicable advisories against the exact current lockfile. Automatic Cloudflare production deployment
+remains disabled (`production_deployments_enabled: false`) — production is promoted only through the
+authorized release-workflow path. Routine Dependabot version-update limits are active
+(`open-pull-requests-limit: 8` npm / `5` github-actions) on the default branch; Dependabot security
+alerts and automated security fixes remain enabled independent of that limit. See
 [dependency-hygiene.md](docs/operations/dependency-hygiene.md) for the full disposition.
 
 Phase 5 post-release stabilization is now active: its field-observation deliverables (Core Web
@@ -410,11 +410,14 @@ the owner's privacy release decision) is done. Throughout Phase 3, GitHub `maste
 production remained two separate states and production did not change.
 
 Phase 4 then executed the controlled production release, independently confirmed via both the
-Cloudflare API and a live `/api/health` fetch; public master and production now converge on the same
-canonical content while remaining, mechanically, separate states. Phase 5 post-release stabilization
-is active; its field-observation deliverables are not yet actionable. Secure intake, external APIs,
-portals, queues, provider abstraction, and Workers Static Assets remain trigger-based or optional
-rather than implied features.
+Cloudflare API and a live `/api/health` fetch. Phase 5 post-release stabilization is active: it began
+with repository-side truth, security, and governance synchronization work that has not itself been
+promoted to a new production release, so public master and deployed production are currently distinct
+states again by content, not only by mechanism — see
+[Current development and release state](#current-development-and-release-state). Phase 5's
+field-observation deliverables are not yet actionable. Secure intake, external APIs, portals, queues,
+provider abstraction, and Workers Static Assets remain trigger-based or optional rather than implied
+features.
 
 ## License and contact
 

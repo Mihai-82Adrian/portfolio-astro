@@ -415,8 +415,11 @@ in [operational-controls-observability.md](operations/operational-controls-obser
 - Live access to both configured OpenAI tiers is canary-confirmed (Phase 3-C Step 3C,
   `STEP3C-CANARIES-PASS`).
 - Repository canonical state and deployed production state remain separate states as a matter of
-  mechanism — a git commit and a live deployment are always two different systems — even though,
-  since the Phase 4 controlled production release, they currently carry the same content.
+  mechanism — a git commit and a live deployment are always two different systems. This separation is
+  currently substantive: repository `master` has accumulated further post-release repository, security,
+  governance, and control-plane work (Phase 5-D2-B and later) that has not been promoted as a new
+  production release, so repository state and deployed production content have diverged again since
+  the Phase 4 controlled production release.
 - Vorabpauschale uses the disclosed smoothed annual path.
 - Operational events remain local runtime console output; remote collection, retention, dashboards,
   alerts, and production SLO evidence do not exist.
@@ -426,21 +429,22 @@ in [operational-controls-observability.md](operations/operational-controls-obser
   Functions platform limitation, not a permission denial; accepted for this personal, low-volume,
   non-commercial release rather than a blocker. GitHub's repository security baseline (Dependabot
   alerts and automated security fixes, CodeQL default setup, `master` branch protection,
-  `preview`/`production` Environments) is configured (Phase 3-B2). As of the Phase 5-D2A evidence
-  baseline (2026-08-09): CodeQL held 2 open alerts, both `js/incomplete-url-substring-sanitization`
-  findings in test-only source, root-caused as a scanner pattern match on a trusted-local-file
-  documentation check rather than an untrusted-URL sanitization gap, with a source fix prepared in a
-  local Phase 5-D2-B batch but not yet claimed closed pending a separately authorized remote CodeQL
-  run; Dependabot held 0 open alerts, and a fresh `npm audit` plus a fresh exact-lockfile live GitHub
-  Advisory Database scan (all three record types) found 0 unresolved applicable advisories — see
+  `preview`/`production` Environments) is configured (Phase 3-B2). The Phase 5-D2A evidence baseline
+  (2026-08-09) recorded CodeQL at 2 open `js/incomplete-url-substring-sanitization` alerts, root-caused
+  as a scanner pattern match on a trusted-local-file documentation check rather than an untrusted-URL
+  sanitization gap; Phase 5-D2-B closed both alerts through source-level remediation (`dismissed_at`
+  null; not dismissed). Repository-wide open CodeQL alerts are 0 as of Phase 5-D2-B closure. Dependabot
+  holds 0 open alerts, and a fresh `npm audit` plus a fresh exact-lockfile live GitHub Advisory Database
+  scan (all three record types) found 0 unresolved applicable advisories — see
   [dependency-hygiene.md](operations/dependency-hygiene.md). A scheduled read-only security-audit
-  workflow runs on GitHub Actions (Phase 3-B3). The Phase 3-C/Phase 4 routine-update freeze was
-  lifted in repository-canonical `.github/dependabot.yml` once Phase 4 completed (Phase 5-D2-B),
-  restoring `open-pull-requests-limit: 8` (npm) / `5` (github-actions); security alerts and updates
-  were never subject to that freeze, and the restored limits take effect on GitHub only once merged
-  to the default branch. Cloudflare production deployment ownership and current production state
-  have been read-only verified: production now serves the Phase 4 release, independently confirmed
-  via both the Cloudflare API and a live `/api/health` fetch.
+  workflow runs on GitHub Actions (Phase 3-B3). The Phase 3-C/Phase 4 routine-update freeze was lifted
+  in repository-canonical `.github/dependabot.yml` once Phase 4 completed (Phase 5-D2-B), restoring
+  `open-pull-requests-limit: 8` (npm) / `5` (github-actions) and resuming routine Dependabot
+  version-update PR creation on the default branch; security alerts and automated security fixes were
+  never subject to that freeze. Cloudflare production deployment ownership and current production
+  state have been read-only verified: production continues to serve the Phase 4 release artifact,
+  independently confirmed via both the Cloudflare API and a live `/api/health` fetch, and remains
+  unchanged by Phase 5-D2-B's repository-only closure.
 - There is no auth, client portal, queue, upload pipeline, or multi-provider abstraction.
 
 ## Trigger-based future architecture

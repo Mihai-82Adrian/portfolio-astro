@@ -670,39 +670,176 @@ history and are not reopened without new regression evidence.
 integration history. The production release used a reviewed release commit rather than a blind
 fast-forward of that internal lineage, consistent with this constraint.
 
+## Strategic execution overview
+
+A fresh reader should be able to answer, in order: where are we, what are we doing now, what comes
+next, what is deliberately deferred, and what evidence unlocks the next step. Full phase-by-phase
+detail follows below; this section is the map.
+
+```text
+NOW
+│
+├─ Phase 5-A — post-release truth sync + observation contract
+│
+└─ Phase 5-B — collect field evidence; leave production alone
+        │
+        ▼
+NEAR TERM
+│
+├─ routine security/dependency maintenance as an operating lane
+├─ bounded KoSIT CI reliability research as separate non-blocking debt
+└─ Phase 5-C — stabilization synthesis / SLO / CSP decisions
+        │
+        ▼
+HIGH-VALUE PRODUCT WORK
+│
+└─ Phase 8 — Product Authority & Conversion
+   ├─ professional positioning
+   ├─ flagship public case studies
+   ├─ recruiter / reviewer journey and proof hierarchy
+   └─ SEO + conversion informed by actual evidence
+        │
+        ▼
+ONLY WHEN TRIGGERED
+│
+├─ Phase 6 — secure client intake
+└─ Phase 7 — API / auth / portal / platform capabilities
+        │
+        ▼
+OPTIONAL R&D
+└─ Phase 9 — bounded modernization experiments
+```
+
+**Observation before instrumentation:** use existing evidence sources first (see Phase 5-B). Build new
+monitoring or telemetry only when a concrete decision cannot be made responsibly with the evidence
+already available — do not respond to the absence of dashboards by building dashboards. Current project
+scale remains personal, low-volume, and non-commercial; architecture stays proportional to that
+reality. The full contract lives in
+[operational-controls-observability.md](operations/operational-controls-observability.md).
+
 ## Phase 5 — Post-release Stabilization
 
 Status: `ACTIVE`
 
-**Objective:** Confirm that the release behaves safely and efficiently under real traffic.
+**Objective:** Confirm that the release behaves safely and efficiently under real traffic, sequenced
+into three workstreams: reconcile documentation truth and define the observation contract (5-A),
+collect real field evidence using existing sources (5-B), and synthesize that evidence into
+operational decisions (5-C).
 
 **Why now:** Lab validation cannot supply field performance or operational baselines. Phase 4's
-controlled production release is complete, opening this phase's observation window; none of its
-field-observation deliverables are actionable yet at the time of Phase 5-D2A/D2-B (production has
-been live only hours, not the days-to-weeks each deliverable below needs for a meaningful sample —
-see the Phase 5-D2A residual-backlog register for the specific evidence/time horizon per item).
+controlled production release is complete, opening this phase's observation window.
 
-**Deliverables:**
-
-- field Core Web Vitals and INP review;
-- Function error-rate monitoring;
-- provider latency and cost review;
-- quota hit-rate analysis;
-- CSP report analysis and enforcement decision;
-- privacy-boundary revalidation;
-- 404 edge behavior review;
-- SLO review and threshold adjustment.
-
-**Dependencies:** Phase 4 release (met) and enough observation time for meaningful baselines (not yet
-met for any deliverable above).
+**Dependencies:** Phase 4 release (met).
 
 **Remote mutation required:** **Yes** for dashboards or enforcement changes; read-only observation
 still requires appropriate access.
 
 **Exit criteria:** SLOs reflect field evidence, regressions are classified, CSP has an explicit
-decision, and unresolved release risks have owners. None of these deliverables should be promoted
+decision, and unresolved release risks have owners. None of Phase 5's deliverables should be promoted
 into implementation merely because this phase is `ACTIVE`; each remains gated on its own observation
 window.
+
+### Phase 5-A — Post-Release Truth Sync & Observation Contract
+
+Status: `ACTIVE`
+
+**Objective:** Synchronize living documentation with the exact post-Phase-5-D2-B repository/production
+state, and establish the field-observation questions, evidence sources, minimum useful windows,
+privacy constraints, and decision triggers for Phase 5-B, before any new monitoring infrastructure or
+product work is built.
+
+**Why now:** Phase 5-D2-B closed repository/security/governance/control-plane state on `master`
+without a new production deployment; public claims about repository-vs-production convergence and
+CodeQL/Dependabot state went stale the moment that closure landed, and no durable observation contract
+existed yet to bound Phase 5-B's scope.
+
+**Deliverables:**
+
+- README/ROADMAP/ARCHITECTURE truth reconciliation against Phase 5-D2-B closure facts;
+- this strategic execution overview and the Phase 5-A/5-B/5-C split;
+- a durable post-release observation contract in
+  [operational-controls-observability.md](operations/operational-controls-observability.md);
+- a baseline read-only sanity snapshot (git identity, evidence-package verification, `/api/health`) —
+  not a stabilization conclusion.
+
+**Dependencies:** Phase 5-D2-B closure (met).
+
+**Remote mutation required:** **No.**
+
+**Exit criteria:** Living documents agree with Phase 5-D2-B closure facts, the observation contract
+exists and is referenced from this roadmap, and a baseline snapshot is recorded without claiming
+premature field conclusions.
+
+### Phase 5-B — Field Observation Window
+
+Status: `NEXT`
+
+**Objective:** Collect real field evidence using existing sources — release identity/availability, 404
+edge behavior, Function failures, provider latency/cost, quota hit patterns, CSP reports, privacy/
+unexpected egress, Core Web Vitals/INP, opt-in analytics/conversion signals, and security/dependency
+monitoring — before building any new telemetry.
+
+**Why now:** Only after Phase 5-A's observation contract defines what evidence answers which question
+and over what window, so this phase collects evidence against a stated bar rather than an open-ended
+fishing expedition.
+
+**Deliverables:** Evidence gathered per the observation contract's minimum windows and sample
+conditions. `INSUFFICIENT_SAMPLE` is a valid, explicitly recorded observation result for any indicator
+that has not yet accumulated enough traffic; it does not justify inventing metrics or building a new
+collector to compensate.
+
+**Dependencies:** Phase 5-A observation contract.
+
+**Remote mutation required:** **No** for observation itself; **Yes** only if a concrete decision from
+Phase 5-C later authorizes a dashboard, alert, or configuration change.
+
+**Exit criteria:** Every observation-contract question has a recorded `healthy` / `regression` /
+`insufficient evidence` / `unavailable evidence` result, feeding Phase 5-C.
+
+### Phase 5-C — Stabilization Synthesis & Operational Decisions
+
+Status: `PLANNED`
+
+**Objective:** Once Phase 5-B evidence exists, classify actual regressions, calibrate or retain SLOs,
+decide whether CSP remains Report-Only or has enough evidence for a separate enforcement decision,
+identify any demonstrated observability gap, decide whether any instrumentation improvement is
+justified, and identify UX/performance/product improvements grounded in field evidence.
+
+**Why now:** Decisions here should rest on Phase 5-B evidence, not on the absence of dashboards.
+
+**Deliverables:** Recorded decisions — not automatically new implementation projects — covering SLO
+calibration, the CSP enforcement question, and any justified instrumentation or product follow-up.
+
+**Dependencies:** Phase 5-B evidence.
+
+**Remote mutation required:** **Yes** for any decision that changes dashboards, alerts, CSP
+enforcement, or remote configuration.
+
+**Exit criteria:** Every Phase 5-B evidence question has either an accepted-healthy disposition, a
+classified regression with an owner, or an explicit continued-observation decision.
+
+## Routine maintenance operating lane
+
+Routine patch/minor dependency work, security advisories, and major/breaking upgrades are an ongoing
+operating lane, not a phase of their own:
+
+- **Routine patch/minor:** classify → inspect upstream change where relevant → proportional Quality
+  Checks → merge only when evidence is green.
+- **Security advisory:** assess applicability → patch promptly when safe → relevant security
+  validation.
+- **Major/breaking upgrade:** research → isolated experiment → explicit adoption decision.
+
+Not every Dependabot PR becomes a new release-hardening phase. See
+[dependency-hygiene.md](operations/dependency-hygiene.md) for the current dependency-graph state.
+
+## Known reliability findings
+
+**KoSIT shared-cache/concurrency flake.** Real, non-blocking for unrelated changes, still relevant at
+XRechnung/release boundaries. Suitable for a later bounded research task evaluating shared directory
+ownership, lock semantics, temp-directory collisions, atomic extraction/rename, partial cache
+visibility, and serialization as a simpler alternative to sophisticated concurrency control. Not
+investigated or modified as part of Phase 5-A; see
+[kosit-offline-validation.md](operations/kosit-offline-validation.md) for the current tooling.
 
 ## Phase 6 — Sample Review & Secure Client Intake
 
@@ -793,11 +930,13 @@ and deprecation are testable and documented.
 
 Status: `PLANNED`
 
-**Objective:** Strengthen public authority and conversion using released proof rather than claims.
+**Objective:** Strengthen public authority and conversion using released proof rather than claims,
+sequenced through positioning, case studies, journey validation, and SEO/conversion work.
 
-**Why now:** Proof-based positioning is most credible after production stabilization.
+**Why now:** Proof-based positioning is most credible after production stabilization; do not begin
+before Phase 5 supplies field evidence.
 
-**Deliverables:**
+**Deliverables (full phase):**
 
 - disciplined “CFO meets CTO” positioning;
 - proof-based homepage and project hierarchy;
@@ -817,6 +956,40 @@ Status: `PLANNED`
 
 **Exit criteria:** Every authority claim links to public proof, inactive offers are absent, and
 conversion decisions use privacy-compliant evidence.
+
+### Phase 8-A — Professional Positioning
+
+Status: `PLANNED`
+
+Make the portfolio communicate the intersection of finance operations, automation/engineering, and AI
+with deterministic authority boundaries. Technology is evidence, not the positioning itself.
+
+### Phase 8-B — Flagship Public Case Studies
+
+Status: `PLANNED`
+
+Potential themes already supported by the product: finance correctness / official-source deterministic
+validation; XRechnung generation with separate KoSIT validation; AI interpretation where deterministic
+engines retain numeric authority; consent-before-egress / privacy-aware AI architecture. Recorded as
+planned work only — not written during Phase 5-A.
+
+### Phase 8-C — Recruiter / Reviewer Journey
+
+Status: `PLANNED`
+
+Evaluate whether a recruiter, Head of Finance, CFO, CTO, collaborator, or technical reviewer can
+understand within roughly 1–2 minutes what professional profile the portfolio represents, what
+problems the owner can solve, where the strongest proof is, and which projects demonstrate finance +
+engineering + AI competence. No homepage redesign during Phase 5-A.
+
+### Phase 8-D — SEO & Conversion
+
+Status: `PLANNED`
+
+Only after positioning is stable and Phase 5 supplies enough field evidence. Focus future SEO on
+professional discoverability — finance automation, finance operations, Rechnungswesen Digitalisierung,
+AI + finance workflows, XRechnung, privacy-aware AI engineering — rather than generic score chasing. No
+SEO optimization during Phase 5-A.
 
 ## Phase 9 — Modernization Experiments
 
