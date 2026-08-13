@@ -7,8 +7,9 @@ configuration, loaders, source files, and the locked dependency tree, using the 
 lockfile, `npm ls --all`, `npm outdated --json`, and the read-only npm advisory inventory on
 2026-07-24. Phase 2D-A migrated the canonical toolchain to Astro 7.1.3 and re-ran the same evidence
 basis — `npm ls --all`, `npm outdated --json`, and a point-in-time, registry-backed `npm audit --json`
-— against the new lockfile on 2026-07-26. The sections below describe the current canonical
-`integration/portfolio-hardening-2026-07` graph (Astro 7.1.3). The Astro 6.4.8 graph is preserved
+— against the new lockfile on 2026-07-26. Phase 3-B3R later adopted Dependabot PR #38, bumping the
+graph from Astro 7.1.3 to Astro 7.1.6 (see below). The sections below describe the current canonical
+`integration/portfolio-hardening-2026-07` graph (Astro 7.1.6). The Astro 6.4.8 graph is preserved
 as a historical baseline further below; it no longer describes canonical state.
 
 **Precision note on "fresh" vs. "offline" (Phase 2D-B audit correction, 2026-07-26):** three
@@ -47,7 +48,7 @@ confirming every intermediate release is patch-only with no breaking changes aga
 | `@astrojs/markdown-remark` | 7.2.2 | transitive via `astro`; supplies the pinned `unified()` processor |
 | `vite` | 8.1.5 | transitive via `astro`, `@astrojs/svelte`, `@tailwindcss/vite` (single deduped version) |
 | `pagefind` | 1.5.2 | direct |
-| `sharp` | 0.35.3 | `astro@7.1.3 -> sharp` (optional) |
+| `sharp` | 0.35.3 | `astro@7.1.6 -> sharp` (optional) |
 | `sharp` | 0.35.2 | `wrangler -> miniflare -> sharp` (optional; `wrangler` at 4.120.0 as of Phase 5-D1E, see below) |
 | `esbuild` | 0.28.1 | single deduped version across `astro`, `vite`, `wrangler` |
 
@@ -228,7 +229,7 @@ On the Astro 6.4.8 graph, `npm run verify:dependency-tree` reported exactly two 
 selection diagnostics under `wrangler@4.114.0 > miniflare@4.20260722.0 > sharp@0.35.2`:
 `@img/sharp-libvips-linuxmusl-x64@1.2.4` invalid against optional `1.3.1`, and
 `@img/sharp-linuxmusl-x64@0.34.5` invalid against optional `0.35.2`. Both diagnostics no longer
-occur on the current Astro 7.1.3 graph; `config/dependency-tree-exceptions.json` is empty.
+occur on the current Astro 7.1.6 graph; `config/dependency-tree-exceptions.json` is empty.
 
 ## npm-script disposition
 
@@ -242,7 +243,7 @@ absence from `package.json` alone is not evidence that they are obsolete.
 
 `npm run verify:dependency-tree` parses `npm ls --all --json`; a non-zero npm exit is never accepted
 by itself. On Node 22.22.3, npm 11.16.0, Linux x64 glibc, npm reports zero optional, peer, or
-non-optional diagnostics for the current Astro 7.1.3 graph. The exact machine-readable contract is
+non-optional diagnostics for the current Astro 7.1.6 graph. The exact machine-readable contract is
 `config/dependency-tree-exceptions.json`, currently empty. The verifier normalizes paths and
 ordering, accepts only pre-approved exceptions, and fails for a new, changed, missing, peer, or
 non-optional problem, and for a stale exception. Reevaluate for an npm major/minor change, a
