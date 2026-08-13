@@ -741,7 +741,7 @@ window.
 
 ### Phase 5-A — Post-Release Truth Sync & Observation Contract
 
-Status: `ACTIVE`
+Status: `DONE`
 
 **Objective:** Synchronize living documentation with the exact post-Phase-5-D2-B repository/production
 state, and establish the field-observation questions, evidence sources, minimum useful windows,
@@ -755,12 +755,19 @@ existed yet to bound Phase 5-B's scope.
 
 **Deliverables:**
 
-- README/ROADMAP/ARCHITECTURE truth reconciliation against Phase 5-D2-B closure facts;
+- README/ROADMAP/ARCHITECTURE truth reconciliation against Phase 5-D2-B closure facts, closed by a
+  final correction: `README.md`, `ARCHITECTURE.md`, `cloudflare-pages-configuration.md`, and
+  `dependency-hygiene.md` still described the current Astro toolchain as 7.1.3 (or, in the Cloudflare
+  configuration doc, the pre-Phase-2D-A 6.4.8) after Phase 3-B3R's routine Dependabot bump to 7.1.6;
+  corrected to match `package.json`/`package-lock.json` truth without touching historical narrative
+  about what each past phase migrated to at the time;
 - this strategic execution overview and the Phase 5-A/5-B/5-C split;
 - a durable post-release observation contract in
   [operational-controls-observability.md](operations/operational-controls-observability.md);
 - a baseline read-only sanity snapshot (git identity, evidence-package verification, `/api/health`) —
-  not a stabilization conclusion.
+  recorded as the external, non-committed
+  `phase5b-initial-observation-2026-08-10.tar.gz` evidence package (verified against its reported
+  SHA-256); not a stabilization conclusion.
 
 **Dependencies:** Phase 5-D2-B closure (met).
 
@@ -768,11 +775,11 @@ existed yet to bound Phase 5-B's scope.
 
 **Exit criteria:** Living documents agree with Phase 5-D2-B closure facts, the observation contract
 exists and is referenced from this roadmap, and a baseline snapshot is recorded without claiming
-premature field conclusions.
+premature field conclusions. Met.
 
 ### Phase 5-B — Field Observation Window
 
-Status: `NEXT`
+Status: `ACTIVE`
 
 **Objective:** Collect real field evidence using existing sources — release identity/availability, 404
 edge behavior, Function failures, provider latency/cost, quota hit patterns, CSP reports, privacy/
@@ -782,6 +789,17 @@ monitoring — before building any new telemetry.
 **Why now:** Only after Phase 5-A's observation contract defines what evidence answers which question
 and over what window, so this phase collects evidence against a stated bar rather than an open-ended
 fishing expedition.
+
+**Status note (2026-08-13):** An initial observation checkpoint already ran on 2026-08-10 (external,
+non-committed `phase5b-initial-observation-2026-08-10.tar.gz`), spot-checking release identity, 404
+behavior, privacy/egress, and security/dependency posture. The observation window remains open, not
+closed by that checkpoint: several field questions (Function failure evidence, AI provider
+latency/cost, quota patterns, CSP report patterns, Core Web Vitals/INP, opt-in analytics) returned
+`unavailable evidence` or `insufficient sample` rather than a conclusion. Neither result is a
+regression or a failure — extending the window is the correct response, per this document's result
+classes. Production has not changed since that checkpoint, and no new observability infrastructure
+(dashboards, alerts, remote log sink) has been authorized; observation-before-instrumentation remains
+binding.
 
 **Deliverables:** Evidence gathered per the observation contract's minimum windows and sample
 conditions. `INSUFFICIENT_SAMPLE` is a valid, explicitly recorded observation result for any indicator
