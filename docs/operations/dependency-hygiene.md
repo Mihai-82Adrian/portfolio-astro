@@ -194,6 +194,30 @@ applicable GHSA record against the resulting lockfile. `astro`/`@astrojs/*`/`sve
 tracked in the Dependabot backlog — `typescript` 7.0.2 additionally cannot install cleanly today
 (`@astrojs/check@0.9.10` peer-depends on `typescript@^5.0.0 || ^6.0.0`, not 7.x).
 
+### Security-sensitive maintenance Batch 2 (2026-08-14)
+
+Dependabot's regrouped security-sensitive PR (#65, superseding the closed #58) proposed `katex`
+0.16.47→0.18.4, `marked` 18.0.6→18.0.9, and `wrangler` 4.120.0→4.120.1 together. Evidence-based
+triage split the group: `marked` and `wrangler` were adopted; `katex` was deferred. `marked`
+18.0.7 contains real O(n²) regex/tokenizer backtracking hardening reachable from this project's
+actual trust boundary (`src/lib/security/report-markdown.ts`, which renders AI-provider-generated
+Founder Compass report text — untrusted per this project's AI-provider policy — through `marked`
+before DOMPurify sanitization); no formal GHSA/CVE applies to 18.0.6, and the existing
+`tests/report-markdown.test.mjs` sanitization-contract coverage (8/8) passed unchanged against
+18.0.9, confirming no parsing-semantics regression. `wrangler` 4.120.1 is an upstream patch-only
+release (dependency currency for `workerd`/`@cloudflare/workers-types`, an internal Miniflare
+config-shape refactor upstream explicitly describes as producing no user-visible change);
+devDependency-only, used solely for local `wrangler pages dev` simulation and local release
+tooling, never deployed. `katex` was deferred for the version-coupling reason documented above in
+"Vendored runtime assets — KaTeX": `rehype-katex@7.0.1` (latest) hard-pins `katex@^0.16.0`, so a
+top-level bump to 0.18.4 cannot change actual math rendering and, left as-is, would ship a
+CSS/HTML version mismatch. KaTeX 0.18.2's "prevent prototype pollution in settings" fix is a real
+upstream hardening commit (guards `Settings`/`Namespace` lookups with `hasOwnProperty` against an
+already-polluted `Object.prototype`) with no assigned CVE/GHSA; it is not reachable in this
+project because `rehype-katex` is invoked in `astro.config.mjs` with a fixed, literal, build-time-only
+options object (`trust: false` explicit) processing only repository-authored Markdown/MDX — no
+runtime or attacker-controlled input ever reaches KaTeX's `Settings` construction.
+
 ## Historical baseline — Astro 6.4.8 (superseded)
 
 The remainder of this section is preserved as a historical record of the Astro 6.4.8 graph reviewed
@@ -314,6 +338,25 @@ generated at all. This removed six CodeQL `js/incomplete-sanitization` findings 
 reachable through the previously committed, unused, and version-drifted `katex.js`/`katex.mjs` copies
 (the same non-global `.replace()` calls exist in the upstream `katex@0.16.47` source itself and are
 not reachable from any code path this project executes).
+
+**Version-coupling constraint with `rehype-katex` (found 2026-08-14, Batch 2 research):** the
+top-level `katex` package and `sync-katex-assets.mjs`'s copied CSS/fonts only matter if they match
+what `rehype-katex` actually renders with — and `rehype-katex@7.0.1` (the latest published version)
+hard-pins `"katex": "^0.16.0"` as a regular `dependencies` entry, not a peer dependency. Because
+`remark-math`'s `micromark-extension-math@3.1.0` pins the same `^0.16.0` range, `npm install` nests
+**separate** `katex@0.16.47` copies under both packages whenever the top-level `katex` is bumped
+past `0.16.x` — confirmed empirically by bumping the top-level pin to `0.18.4` and observing `npm ls
+katex` report three simultaneous installed copies. The actually-rendered math HTML is produced by
+`rehype-katex`'s nested 0.16.47 copy regardless of the top-level version, so bumping only the
+top-level `katex` pin has no effect on rendering while silently shipping a *different* version's
+`katex.min.css` (via `sync-katex-assets.mjs`, which reads `node_modules/katex/dist` — the top-level
+copy) than the version that generated the HTML markup the CSS is meant to style. KaTeX 0.18.0's
+class-prefix rename (`base`, `strut`, `vbox`, and 16 other internal classes renamed to their
+`katex-`-prefixed form) makes this concrete: a build with `katex@0.18.4` at the top level ships a
+stylesheet with only `.katex-strut`/`.katex-base` rules while `rehype-katex`'s nested 0.16.47 still
+emits `class="strut"`/`class="base"` markup — those rules no longer match. Do not adopt a top-level
+`katex` bump past `0.16.x` until `rehype-katex` itself depends on a compatible newer `katex` range;
+until then such a bump is inert at best (no rendering change) and asset-mismatched at worst.
 
 ## Dependabot release freeze (Phase 3-C / Phase 4, lifted Phase 5-D2-B)
 
