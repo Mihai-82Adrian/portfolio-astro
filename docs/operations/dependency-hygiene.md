@@ -261,6 +261,40 @@ repository-control-plane correction, not a security-posture change: actual secur
 determined by Dependabot vulnerability alerts, CodeQL, and the exact-lockfile live advisory gate,
 never by this label.
 
+### Routine maintenance Batch 4 (2026-08-14)
+
+Two independent routine candidates were evaluated: `@lucide/astro` 1.29.0→1.31.0 (Dependabot #71)
+and `@types/node` 25.9.5→26.2.0 (Dependabot #70). Only `@lucide/astro` was adopted.
+
+`@lucide/astro` 1.31.0: the only rename event in the 1.29.0–1.31.0 range is a 1.30.0 redesign of
+the emoji-style icons (`laugh`, `annoyed`, `angry`, `smile`, `frown`, `smile-plus`, `meh` renamed
+to `face-*` names) — none of this project's 62 imported icon names (51 bulk + 11 subpath) are
+among them, verified exhaustively against the published 1.31.0 package's actual export map
+(`src/icons/index.ts` and `src/aliases/aliases.ts`). A source-level diff of every icon file this
+project imports (including the underlying files behind numeric-suffix aliases like `CheckCircle2`,
+`Code2`, `BarChart3`, `LineChart`, `FileCode2`) found zero geometry changes between 1.29.0 and
+1.31.0. `peerDependencies.astro` remains `^4 || ^5 || ^6 || ^7`, compatible with this project's
+Astro 7.2.0. No install-time script exists in the published package.
+
+`@types/node` 26.2.0 was deferred, not because a concrete incompatibility was found, but because
+adopting it would widen an existing, undocumented policy gap. Every formal Node runtime pin in
+this repository — `.node-version` (`22.22.3`), GitHub Actions (`node-version-file:
+.node-version`), the reproducibility container (`release/Dockerfile.reproducibility`), and
+Cloudflare Pages' own `NODE_VERSION` build variable (`wrangler.jsonc`, both `preview` and
+`production`) — is pinned to Node 22.22.3, consistently and without exception. `@types/node` was
+already at `^25.6.0` (three majors ahead of the pinned runtime) before this PR; adopting 26.2.0
+would widen that to four majors ahead, with no recorded owner decision on whether this project
+intentionally tracks "latest `@types/node` regardless of runtime major" or should keep
+`@types/node` aligned to the actual Node 22 runtime line. A static audit of this project's Node
+API usage (`fs`, `path`, `url`, `process`, `crypto`, `os`, `util`, `net`, `module`, `child_process`,
+`stream`, `assert`, `test`) found nothing exotic enough to require Node 26-only typings, and
+`@types/node@26.2.0`'s declared `typeScriptVersion` (`5.6`) is unchanged from `25.9.5` and remains
+compatible with this project's TypeScript `^5.7.3` — so no compiler-version conflict blocks
+adoption technically. The deferral is a policy question for an explicit owner decision, not a
+proven defect; a passing `npm ci`/`astro check` was deliberately not treated as sufficient
+justification on its own, since a devDependency's type declarations compiling successfully does
+not prove the described APIs exist on the actual Node 22.22.3 runtime the code executes on.
+
 ## Historical baseline — Astro 6.4.8 (superseded)
 
 The remainder of this section is preserved as a historical record of the Astro 6.4.8 graph reviewed
