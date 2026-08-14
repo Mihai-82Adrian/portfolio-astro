@@ -243,6 +243,24 @@ repository uses spread attributes). `@astrojs/check` 0.9.10's only change is an 
 remains `typescript@^5.0.0 || ^6.0.0`, reconfirmed unchanged — Dependabot #59 (TypeScript 7) stays
 blocked for this reason, not resolved by this batch.
 
+### Dependabot custom label removal (2026-08-14)
+
+`.github/dependabot.yml`'s `npm` and `github-actions` `updates` entries each configured `labels:
+[dependencies, security]`. The repository never created a `security` label (verified live via the
+repository label API: only `bug`, `dependencies`, `documentation`, `duplicate`, `enhancement`,
+`good first issue`, `help wanted`, `invalid`, `javascript`, `question`, `wontfix` exist), and
+Dependabot posted a warning comment on every open PR (#59, #61, #67 observed) — "The following
+labels could not be found: `security`." Per current official GitHub documentation, a configured
+`labels` list **replaces** Dependabot's default labeling (a `dependencies` label plus an
+ecosystem label) rather than adding to it, and any listed label absent from the repository is
+silently dropped from the PR rather than being created. The prior configuration therefore achieved
+nothing beyond the default `dependencies` label it was overriding, while additionally implying —
+incorrectly — that every routine, non-security version-update PR was security-related. Both
+`labels:` blocks were removed entirely, restoring Dependabot's own default labeling. This is a
+repository-control-plane correction, not a security-posture change: actual security state remains
+determined by Dependabot vulnerability alerts, CodeQL, and the exact-lockfile live advisory gate,
+never by this label.
+
 ## Historical baseline — Astro 6.4.8 (superseded)
 
 The remainder of this section is preserved as a historical record of the Astro 6.4.8 graph reviewed

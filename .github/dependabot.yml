@@ -9,9 +9,6 @@ updates:
     # the pre-freeze limit. Dependabot security alerts and security-update PRs remain enabled
     # separately and were never limited by this freeze.
     open-pull-requests-limit: 8
-    labels:
-      - dependencies
-      - security
     groups:
       framework-runtime:
         patterns:
@@ -35,6 +32,3 @@ updates:
     # the pre-freeze limit. Dependabot security alerts and security-update PRs remain enabled
     # separately and were never limited by this freeze.
     open-pull-requests-limit: 5
-    labels:
-      - dependencies
-      - security
