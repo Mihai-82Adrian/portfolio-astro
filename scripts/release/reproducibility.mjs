@@ -10,9 +10,9 @@ import { verifyToolchain } from './guards.mjs';
 import { assertCleanRepository, verifyReleaseArtifacts } from './provenance.mjs';
 
 const ROOT = path.resolve(fileURLToPath(new URL('../..', import.meta.url)));
-const IMAGE = 'portfolio-astro-repro:node-22.22.3';
+const IMAGE = 'portfolio-astro-repro:node-24.19.0';
 const IMAGE_REPOSITORY = 'node';
-const IMAGE_DIGEST = 'sha256:16d364eebf6b62da439dc993d9b80940c78b0ca38438452f011ab9a25c752644';
+const IMAGE_DIGEST = 'sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03';
 const SUMMARY = path.join(ROOT, '.artifacts/release-candidate/reproducibility.json');
 
 function run(executable, args, options = {}) {
@@ -108,8 +108,8 @@ export async function verifyReproducibility({ containerOnly = false } = {}) {
       schemaVersion: 1,
       result: 'PASS',
       image: `${IMAGE_REPOSITORY}@${IMAGE_DIGEST}`,
-      node: '22.22.3',
-      npm: '11.16.0',
+      node: '24.19.0',
+      npm: '11.17.0',
       osFamily: 'Debian GNU/Linux 12',
       architecture,
       libc: 'glibc',

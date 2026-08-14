@@ -5,11 +5,12 @@
 Phase 2C defines local release policy and future workflow topology. It does not prove or change
 GitHub or Cloudflare remote state and does not deploy.
 
-The exact formal release toolchain is Node `22.22.3`, npm `11.16.0`, Linux x64, and glibc.
+The exact formal release toolchain is Node `24.19.0`, npm `11.17.0`, Linux x64, and glibc.
 `.node-version` is the Node source of truth; `packageManager`, Wrangler configuration, workflow
 setup, the dependency-tree contract, the reproducibility image, and the release manifest must
-agree. Local development may use the documented broader Node 22 engine range, but formal evidence
-does not.
+agree. Local development may use the documented broader `engines.node` range (`>=22.12.0`,
+unchanged by the Node 24 toolchain migration — see `docs/operations/dependency-hygiene.md`), but
+formal evidence does not.
 
 ## Workflow inventory
 
@@ -105,8 +106,8 @@ No real `master`, branch, public history, remote, or worktree is mutated.
 
 ## Reproducibility and unified gate
 
-The isolated environment is the official Node `22.22.3-bookworm-slim` Linux amd64 image pinned to
-`sha256:16d364eebf6b62da439dc993d9b80940c78b0ca38438452f011ab9a25c752644`, npm `11.16.0`,
+The isolated environment is the official Node `24.19.0-bookworm-slim` Linux amd64 image pinned to
+`sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03`, npm `11.17.0`,
 Debian 12, glibc, UTC, and `C.UTF-8`. Dependency installation may use npm; actual container builds
 run with no network, no secrets, no host-mounted `node_modules`, and fixed `SOURCE_DATE_EPOCH`.
 Containers use the invoking Linux UID/GID for generated evidence, a read-only root filesystem, and

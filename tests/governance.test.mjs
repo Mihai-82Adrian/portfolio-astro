@@ -186,7 +186,7 @@ test('Phase 2C living documents preserve local-only CSP and release truth', () =
   assert.match(csp, /Content-Security-Policy-Report-Only/);
   assert.match(csp, /does not enforce CSP/i);
   assert.doesNotMatch(csp, /https:\/\/example\.com\/.*(?:query|token)/i);
-  assert.match(pipeline, /Node `22\.22\.3`[\s\S]{0,80}npm `11\.16\.0`/);
+  assert.match(pipeline, /Node `24\.19\.0`[\s\S]{0,80}npm `11\.17\.0`/);
   assert.match(pipeline, /does not prove or change[\s\S]{0,100}remote state/i);
   assert.match(pipeline, /build dependency SBOM/i);
   assert.match(rollback, /GET and HEAD/);

@@ -295,6 +295,32 @@ proven defect; a passing `npm ci`/`astro check` was deliberately not treated as 
 justification on its own, since a devDependency's type declarations compiling successfully does
 not prove the described APIs exist on the actual Node 22.22.3 runtime the code executes on.
 
+### Node 24 LTS toolchain migration — Wave 1A (2026-08-14)
+
+`.node-version` (`22.22.3` → `24.19.0`), `package.json`'s `packageManager` (`npm@11.16.0` →
+`npm@11.17.0`, exact parity with npm 11.17.0 bundled by Node 24.19.0), `release/Dockerfile.
+reproducibility`'s base image and digest, `config/dependency-tree-exceptions.json`'s `toolchain`
+block, the three GitHub Actions workflows' `npm install --global npm@…` step, and the candidate
+`wrangler.jsonc` `NODE_VERSION` value moved together as one coordinated pin change, per this
+repository's own toolchain-drift invariant (`scripts/release/guards.mjs`'s `verifyToolchain`).
+Node 22 (Jod) crossed from Active LTS into Maintenance LTS on 2025-10-21; Node 24 (Krypton) has
+been Active LTS since 2025-10-28 (EOL 2028-04-30) and was independently reverified live against
+`nodejs.org/dist/index.json` and `nvm ls-remote --lts` at execution time — 24.19.0 remains the
+latest stable Node 24 patch, no newer patch shipped since. `package-lock.json` is **byte-identical**
+before and after this wave (confirmed by SHA-256 comparison after `npm ci` under the new toolchain)
+— no dependency graph, dependency version, or transitive resolution changed, so
+`config/dependency-advisories.json` was **not** touched (no lockfile change to resync against, per
+this file's own `verify:advisory-register` gate contract). `wrangler` stays at `4.120.1`
+(unchanged — explicitly out of scope for this wave, unlike the bundled recommendation in the prior
+modernization-readiness research). `@types/node` stays at `^25.6.0`/resolved `25.9.5` (unchanged —
+explicit owner decision for this wave; see the Batch 4 entry above for the pre-existing policy gap
+this does not resolve, now measured against Node 24 rather than Node 22 as the "how many majors
+ahead" baseline). `engines.node` (`>=22.12.0`) is unchanged: it is the documented ordinary-development
+floor, distinct from the exact formal-release pin `verifyToolchain` enforces, and nothing in this
+repository's source requires a Node 24-only API, so narrowing it would drop legitimate Node
+22.12–22.x contributor support without a technical justification. `typescript`, `astro`, `svelte`,
+`tailwindcss`, `katex`, `jsdom`, `node-html-parser`, and `terser` were not touched.
+
 ## Historical baseline — Astro 6.4.8 (superseded)
 
 The remainder of this section is preserved as a historical record of the Astro 6.4.8 graph reviewed

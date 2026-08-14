@@ -71,6 +71,6 @@ amplifier.
 npm run verify:csp
 ```
 
-The permanent Node 22 suite builds the actual site, verifies the generated header artifact,
+The permanent Node 24 suite builds the actual site, verifies the generated header artifact,
 inventoried origins, consent/activation boundaries, collector parsing and limits, empty 204 bodies,
 bounded logging, and no egress. Enforcement remains a later evidence-based decision.

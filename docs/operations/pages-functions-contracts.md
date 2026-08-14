@@ -149,7 +149,7 @@ npm run verify:release-provenance
 npm run verify:csp
 ```
 
-The suites use Node 22, fake Cache API state, injected fetch/email transports, and synthetic SSE and
+The suites use Node 24, fake Cache API state, injected fetch/email transports, and synthetic SSE and
 Structured Outputs. They cover success, method/origin/media/body/schema rejection, disabled and
 invalid controls, missing configuration, quota outcomes, timeout, provider HTTP failure, refusal,
 malformed output, streaming completion/cancellation, request-ID linkage, no sensitive logging, and

@@ -207,7 +207,7 @@ Browser validation is required for runtime UI behavior, not for a governance-onl
 Requirements:
 
 - Node.js `>=22.12.0` and npm `>=9.6.5` for ordinary development;
-- exact Node `22.22.3`, npm `11.16.0`, Linux x64/glibc for formal release evidence;
+- exact Node `24.19.0`, npm `11.17.0`, Linux x64/glibc for formal release evidence;
 - Java only for the offline KoSIT workflow.
 
 Use a clean reproducible install:

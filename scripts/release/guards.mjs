@@ -215,7 +215,7 @@ export function verifyWorkflows(root = ROOT) {
     // release/production context or an unclassified path (see scripts/ci/change-impact.mjs), so the
     // unified gate must remain reachable one way or the other.
     invariant(quality.includes('verify:release-candidate') || quality.includes('ci:quality-gate'), 'Quality workflow omits unified gate (directly or via the proportional classifier).');
-    invariant(quality.includes('node-version-file: .node-version') && quality.includes('npm@11.16.0'), 'Quality toolchain drift.');
+    invariant(quality.includes('node-version-file: .node-version') && quality.includes('npm@11.17.0'), 'Quality toolchain drift.');
     invariant(/^ {2}pull_request:$/m.test(quality), 'Quality workflow must trigger on pull_request.');
     invariant(/^ {2}push:\n {4}branches:\n(?:.*\n)*? {6}- master\n/m.test(quality), 'Quality workflow must trigger on push to master.');
     const blockingCheckNames = workflows

@@ -82,23 +82,40 @@ dashboard-editable. Concretely for this project:
   "name": "portfolio-astro",
   "pages_build_output_dir": "./dist",
   "compatibility_date": "2025-11-14",
-  "vars": { "NODE_VERSION": "22.22.3" },
+  "vars": { "NODE_VERSION": "24.19.0" },
   "env": {
-    "preview":    { "vars": { "NODE_VERSION": "22.22.3" } },
-    "production": { "vars": { "NODE_VERSION": "22.22.3" } }
+    "preview":    { "vars": { "NODE_VERSION": "24.19.0" } },
+    "production": { "vars": { "NODE_VERSION": "24.19.0" } }
   }
 }
 ```
 
-| Field | Candidate | Live dashboard (MCP) | `wrangler pages download config` | Verdict |
+**Wave 1A update (2026-08-14):** the candidate `NODE_VERSION` above moved from `22.22.3` to
+`24.19.0` alongside the repository-local Node 24 LTS toolchain migration (`.node-version`,
+`release/Dockerfile.reproducibility`, `package.json` `packageManager`). This is a repository-local,
+inactive-candidate edit only — it does not mutate the live Cloudflare dashboard.
+
+**Discrepancy reconciled (2026-08-14, Wave 1A):** prior text in this document described the live
+dashboard `NODE_VERSION` as the bare, broader value `"22"`. A fresh, read-only, live MCP query of
+the `portfolio-astro` Pages project on 2026-08-14 (during this wave) found the actual current
+remote value is the **exact** string `"22.22.3"` for both `preview` and `production` — not `"22"`.
+The `"22"` observation in the rest of this document (§7 second column, §9, §11) is therefore stale
+and is preserved below only as a historical record of what was observed at that earlier time; the
+value confirmed fresh in this wave is `22.22.3` exact, for both environments. This does not change
+the parity conclusion (remote is not `24.19.0`), but it does mean the pre-Wave-1A remote/repository
+gap was narrower than documented — the remote dashboard already matched the repository's exact
+pre-Wave-1A pin. `production_deployments_enabled` was independently reconfirmed `false` in the same
+read, unchanged. No remote value was mutated by this read or by this wave.
+
+| Field | Candidate | Live dashboard (MCP, fresh 2026-08-14) | `wrangler pages download config` (earlier observation) | Verdict |
 |---|---|---|---|---|
 | `name` | `portfolio-astro` | `portfolio-astro` | `portfolio-astro` | exact parity |
 | `pages_build_output_dir` | `./dist` | `destination_dir: dist` | `dist` | intentional normalization (`./dist` is the documented canonical form; resolves identically) |
 | `compatibility_date` | `2025-11-14` | `2025-11-14` (both envs) | `2025-11-14` | exact parity |
 | `compatibility_flags` | omitted | `[]` (both envs) | omitted | exact parity (empty is the schema default) |
-| `vars.NODE_VERSION` (top-level) | `"22.22.3"` | preview & production last observed as `"22"` | `"22"` (top-level + `env.production`) | Phase 3 parity blocker; repository formal toolchain is exact and remote state was not mutated |
-| `env.production.vars.NODE_VERSION` | `"22.22.3"` | last observed `"22"` | `"22"` | Phase 3 parity blocker |
-| `env.preview.vars.NODE_VERSION` | `"22.22.3"` | last observed `"22"` | *(not emitted — download-config only wrote top-level + production)* | explicit preview declaration retained; exact remote parity requires authorized Phase 3 review |
+| `vars.NODE_VERSION` (top-level) | `"24.19.0"` | preview & production: `"22.22.3"` exact (reconciled, see above) | `"22"` (earlier, now superseded observation) | Remote parity blocker, widened by Wave 1A; repository formal toolchain is exact and remote state was not mutated |
+| `env.production.vars.NODE_VERSION` | `"24.19.0"` | fresh 2026-08-14: `"22.22.3"` exact | `"22"` (earlier, superseded) | Remote parity blocker |
+| `env.preview.vars.NODE_VERSION` | `"24.19.0"` | fresh 2026-08-14: `"22.22.3"` exact | *(not emitted — download-config only wrote top-level + production)* | explicit preview declaration retained; exact remote parity requires separately authorized activation |
 | `OPENAI_API_KEY` | not present | secret, set (both envs) | not present (secrets are never downloaded) | secret intentionally excluded from source control |
 | `RESEND_API_KEY`, `SAMPLE_REVIEW_EMAIL_FROM`, `SAMPLE_REVIEW_EMAIL_TO` | not present | **not present in either environment** | not present | unresolved — see §9 blocker |
 | Bindings (KV/D1/R2/DO/queues/Hyperdrive/Vectorize) | none | none | none | exact parity — nothing to represent |
@@ -118,9 +135,12 @@ production) unless explicitly overridden. This is the reasoning behind the expli
 ## 9. Plaintext-variable policy
 
 `NODE_VERSION` is the only plaintext variable in the last dashboard evidence. Repository candidate
-configuration now pins the formal release patch version consistently across local, preview, and
-production declarations. The last observed remote value was the broader `"22"` and therefore
-requires authorized Phase 3 parity review; Phase 2C does not change it.
+configuration now pins the formal release patch version (`24.19.0` as of Wave 1A) consistently
+across local, preview, and production declarations. A fresh 2026-08-14 read found the live remote
+value is the exact `"22.22.3"` for both environments (superseding this document's earlier `"22"`
+observation — see the reconciliation note in §7); this document's Wave 1A update does not change
+the remote value, and a separately authorized remote parity step remains required to align it with
+the new `24.19.0` repository pin.
 
 ## 10. Secret-name inventory (no values)
 
@@ -140,7 +160,7 @@ exclusively a Cloudflare-dashboard/`wrangler pages secret put` action, out of sc
 | `RESEND_API_KEY` | `functions/api/sample-review.ts` → `createResendEmailProvider` | Required only when the sample-review form is submitted (POST). Throws `Missing email configuration.` if absent, caught and surfaced as an error response — does not affect other routes or the build. | in `.dev.vars.example` (empty) | **not set** | **not set** | secret | **missing — controlled-activation blocker** |
 | `SAMPLE_REVIEW_EMAIL_FROM` | `functions/api/sample-review.ts` | Required only when the sample-review form is submitted | in `.dev.vars.example` (empty) | **not set** | **not set** | plaintext | **missing — controlled-activation blocker** |
 | `SAMPLE_REVIEW_EMAIL_TO` | `functions/api/sample-review.ts` | Required only when the sample-review form is submitted | in `.dev.vars.example` (empty) | **not set** | **not set** | plaintext | **missing — controlled-activation blocker** |
-| `NODE_VERSION` | Build system only; no runtime `env.NODE_VERSION` reads found in `functions/` or `src/` | Build-time only | formal release `22.22.3` | last observed `22` | last observed `22` | plaintext | candidate `22.22.3`; Phase 3 remote parity blocker |
+| `NODE_VERSION` | Build system only; no runtime `env.NODE_VERSION` reads found in `functions/` or `src/` | Build-time only | formal release `24.19.0` | fresh 2026-08-14: `22.22.3` exact | fresh 2026-08-14: `22.22.3` exact | plaintext | candidate `24.19.0`; remote parity blocker (widened by Wave 1A; see §7 reconciliation) |
 
 **Missing-binding classification (`RESEND_API_KEY`, `SAMPLE_REVIEW_EMAIL_FROM`,
 `SAMPLE_REVIEW_EMAIL_TO`):** confirmed absent in both preview and production dashboard
