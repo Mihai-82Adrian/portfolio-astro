@@ -13,30 +13,30 @@ const sha256 = (value) => createHash('sha256').update(value).digest('hex');
 test('formal release toolchain is exact and consistent across repository declarations', async () => {
   const { verifyToolchain } = await import('../scripts/release/guards.mjs');
   const pkg = json('package.json');
-  assert.equal(read('.node-version').trim(), '22.22.3');
-  assert.equal(pkg.packageManager, 'npm@11.16.0');
+  assert.equal(read('.node-version').trim(), '24.19.0');
+  assert.equal(pkg.packageManager, 'npm@11.17.0');
   assert.deepEqual(verifyToolchain(ROOT, {
-    nodeVersion: 'v22.22.3',
-    npmVersion: '11.16.0',
+    nodeVersion: 'v24.19.0',
+    npmVersion: '11.17.0',
     platform: 'linux',
     arch: 'x64',
     libc: 'glibc',
   }), {
-    node: '22.22.3',
-    npm: '11.16.0',
+    node: '24.19.0',
+    npm: '11.17.0',
     platform: 'linux',
     arch: 'x64',
     libc: 'glibc',
   });
   assert.throws(
     () => verifyToolchain(ROOT, {
-      nodeVersion: 'v22.22.2',
-      npmVersion: '11.16.0',
+      nodeVersion: 'v24.18.1',
+      npmVersion: '11.17.0',
       platform: 'linux',
       arch: 'x64',
       libc: 'glibc',
     }),
-    /Node.*22\.22\.3/,
+    /Node.*24\.19\.0/,
   );
 });
 
@@ -268,7 +268,7 @@ test('all workflow actions and the release container are immutable and human-rea
   const container = read('release/Dockerfile.reproducibility');
   assert.match(
     container,
-    /^FROM node:22\.22\.3-bookworm-slim@sha256:16d364eebf6b62da439dc993d9b80940c78b0ca38438452f011ab9a25c752644$/m,
+    /^FROM node:24\.19\.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03$/m,
   );
   assert.match(container, /apt-get install --yes --no-install-recommends git/);
   for (const line of container.split('\n').filter((value) => value.startsWith('FROM '))) {

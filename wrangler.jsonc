@@ -4,20 +4,22 @@
   "pages_build_output_dir": "./dist",
   "compatibility_date": "2025-11-14",
   "vars": {
-    "NODE_VERSION": "22.22.3"
+    "NODE_VERSION": "24.19.0"
   },
   "env": {
     // "vars" is non-inheritable in Pages: the top-level value only applies to local dev and
-    // production. Preview does not inherit it and needs its own explicit copy to match the
-    // dashboard, where NODE_VERSION=22 is set for both environments.
+    // production. Preview does not inherit it and needs its own explicit copy. This candidate
+    // targets the Wave 1A repository toolchain (Node 24.19.0); live Cloudflare preview and
+    // production both remain unmutated at "22.22.3" until a separately authorized remote parity
+    // step (see docs/operations/cloudflare-pages-configuration.md).
     "preview": {
       "vars": {
-        "NODE_VERSION": "22.22.3"
+        "NODE_VERSION": "24.19.0"
       }
     },
     "production": {
       "vars": {
-        "NODE_VERSION": "22.22.3"
+        "NODE_VERSION": "24.19.0"
       }
     }
   }

@@ -257,7 +257,7 @@ social-contribution logic. Official artifacts and permanent fixtures are checksu
 ## Build and deployment topology
 
 `npm run build` runs Astro and Pagefind locally. Cloudflare Pages is the deployment target.
-Formal release evidence uses Node 22.22.3, npm 11.16.0, Linux x64/glibc. `wrangler.jsonc` codifies
+Formal release evidence uses Node 24.19.0, npm 11.17.0, Linux x64/glibc. `wrangler.jsonc` codifies
 compatible candidate settings, but configured dashboard state remains live until a separately
 authorized activation and parity review.
 

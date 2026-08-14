@@ -46,8 +46,8 @@ test('dependency-tree verification flags the historical Astro-6-era Sharp/musl d
   const result = verifyDependencyTree(tree, {
     platform: 'linux',
     arch: 'x64',
-    nodeVersion: 'v22.22.3',
-    npmVersion: '11.16.0',
+    nodeVersion: 'v24.19.0',
+    npmVersion: '11.17.0',
   }, root);
   assert.deepEqual(result.accepted, []);
   assert.equal(result.unexpected.length, 2);
@@ -58,8 +58,8 @@ test('dependency-tree verification fails new, missing, peer, changed, and stale 
   const context = {
     platform: 'linux',
     arch: 'x64',
-    nodeVersion: 'v22.22.3',
-    npmVersion: '11.16.0',
+    nodeVersion: 'v24.19.0',
+    npmVersion: '11.17.0',
   };
   const clean = verifyDependencyTree({ name: 'portfolio-astro', problems: [], dependencies: {} }, context, '/workspace');
   assert.equal(clean.stale.length, 0);
