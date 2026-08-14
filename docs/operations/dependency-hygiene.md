@@ -30,8 +30,11 @@ SHA-256 `ef0484b4b4bd6c782f7eef2c99b3c9b89d5dc950d723a41b286b8c930d206e41`. Phas
 security-only dependency patches (see below) changed this hash to
 `3be86d36c28f3071cdd9e11e7635c8dd58d365d61a50d03f89b9f19ce730c2b2` without touching any of the
 `astro`/`@astrojs/*`/`vite` versions this section describes — the framework graph table below
-remains current. `config/dependency-advisories.json`'s `lockfileSha256` tracks the current one.
-Phase 3-B3R adopted Dependabot PR #38
+remains current. The routine-maintenance Safe Batch 1 adoption below (2026-08-13) changed the hash
+again to `5b42bf683a246303001e7dcd133640fba467c9374604f51b7fc6119cd40fd880`, bumping only
+`@lucide/astro` (1.28.0→1.29.0, table updated) and the devDependency `terser` (5.46.1→5.49.2, not
+part of this framework table). `config/dependency-advisories.json`'s `lockfileSha256` tracks the
+current one. Phase 3-B3R adopted Dependabot PR #38
 (`astro` 7.1.3→7.1.6, `@astrojs/mdx` 7.0.3→7.0.5, `@lucide/astro` 1.26.0→1.28.0, plus the
 coupled `@astrojs/markdown-remark` 7.2.1→7.2.2 peer bump astro 7.1.5 itself requires) after
 confirming every intermediate release is patch-only with no breaking changes against the official
@@ -44,7 +47,7 @@ confirming every intermediate release is patch-only with no breaking changes aga
 | `astro` | 7.1.6 | direct |
 | `@astrojs/mdx` | 7.0.5 | direct |
 | `@astrojs/svelte` | 9.0.1 | direct |
-| `@lucide/astro` | 1.28.0 | direct |
+| `@lucide/astro` | 1.29.0 | direct |
 | `@astrojs/markdown-remark` | 7.2.2 | transitive via `astro`; supplies the pinned `unified()` processor |
 | `vite` | 8.1.5 | transitive via `astro`, `@astrojs/svelte`, `@tailwindcss/vite` (single deduped version) |
 | `pagefind` | 1.5.2 | direct |
@@ -172,6 +175,24 @@ fails the gate; it never falls back to the committed snapshot. This is
 distinct from `verify:advisory-scanner` (`tests/github-advisory-scan.test.mjs`),
 which remains a mocked-fetch contract test proving the scanner's
 batching/pagination/fail-closed logic and performs no network access.
+
+### Routine maintenance Safe Batch 1 (2026-08-13)
+
+The routine maintenance operating lane's `npm run verify:advisory-register` gate deterministically
+fails any PR that changes `package-lock.json` without a matching `config/dependency-advisories.json`
+snapshot update — it is a byte-exact `lockfileSha256` consistency check, not a network call, so it
+fails identically for every open Dependabot PR at the moment their lockfile diverges from the
+committed snapshot. This is the gate working as designed, not a defect: the required maintenance step
+is to regenerate the snapshot (`node scripts/release/live-advisory-gate.mjs` against the candidate
+lockfile, then update `config/dependency-advisories.json`'s `lockfileSha256`/`observedDate`/
+`freshnessBoundary` to match) as part of adopting the dependency change, which this batch did.
+`terser` (5.46.1→5.49.2, devDependency-only, invoked via `astro.config.mjs`'s Vite `build.minify:
+'terser'` option) and `@lucide/astro` (1.28.0→1.29.0, runtime icon imports across several pages and
+`src/components/ui/Icon.astro`) were adopted after confirming no breaking upstream change and no
+applicable GHSA record against the resulting lockfile. `astro`/`@astrojs/*`/`svelte` (Dependabot #57),
+`katex`/`marked` (Dependabot #58), and `typescript` (Dependabot #59) remain open, un-adopted, and
+tracked in the Dependabot backlog — `typescript` 7.0.2 additionally cannot install cleanly today
+(`@astrojs/check@0.9.10` peer-depends on `typescript@^5.0.0 || ^6.0.0`, not 7.x).
 
 ## Historical baseline — Astro 6.4.8 (superseded)
 

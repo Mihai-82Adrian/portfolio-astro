@@ -104,7 +104,7 @@
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@fontsource-variable/playfair-display": "^5.2.8",
-    "@lucide/astro": "1.28.0",
+    "@lucide/astro": "1.29.0",
     "astro": "7.1.6",
     "chart.js": "^4.5.1",
     "dompurify": "3.4.13",
@@ -126,7 +126,7 @@
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
     "tailwindcss": "4.2.2",
-    "terser": "5.46.1",
+    "terser": "5.49.2",
     "typescript": "^5.7.3",
     "wrangler": "4.120.0"
   }
