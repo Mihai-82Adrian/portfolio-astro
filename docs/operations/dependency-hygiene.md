@@ -9,7 +9,8 @@ lockfile, `npm ls --all`, `npm outdated --json`, and the read-only npm advisory 
 basis — `npm ls --all`, `npm outdated --json`, and a point-in-time, registry-backed `npm audit --json`
 — against the new lockfile on 2026-07-26. Phase 3-B3R later adopted Dependabot PR #38, bumping the
 graph from Astro 7.1.3 to Astro 7.1.6 (see below). The sections below describe the current canonical
-`integration/portfolio-hardening-2026-07` graph (Astro 7.1.6). The Astro 6.4.8 graph is preserved
+`integration/portfolio-hardening-2026-07` graph (Astro 7.2.0, since the routine-maintenance
+framework-runtime Batch 3 adoption documented further below). The Astro 6.4.8 graph is preserved
 as a historical baseline further below; it no longer describes canonical state.
 
 **Precision note on "fresh" vs. "offline" (Phase 2D-B audit correction, 2026-07-26):** three
@@ -23,7 +24,7 @@ registry, and it cannot discover advisories published after the snapshot was tak
 planned to add **recurring, fresh, online** advisory discovery and alerting (Dependabot-style
 automation) — this does not yet exist and is not provided by either (1) or (2).
 
-## Canonical dependency graph — Astro 7.1.6 (Phase 2D-A, updated Phase 3-B3R)
+## Canonical dependency graph — Astro 7.2.0 (Phase 2D-A, updated Phase 3-B3R, updated framework-runtime Batch 3)
 
 **Exact target lockfile at the time this framework graph was recorded**: `package-lock.json`
 SHA-256 `ef0484b4b4bd6c782f7eef2c99b3c9b89d5dc950d723a41b286b8c930d206e41`. Phase 5-D1E's
@@ -44,14 +45,14 @@ confirming every intermediate release is patch-only with no breaking changes aga
 
 | Package | Version(s) observed | Path |
 | --- | --- | --- |
-| `astro` | 7.1.6 | direct |
+| `astro` | 7.2.0 | direct |
 | `@astrojs/mdx` | 7.0.5 | direct |
 | `@astrojs/svelte` | 9.0.1 | direct |
 | `@lucide/astro` | 1.29.0 | direct |
 | `@astrojs/markdown-remark` | 7.2.2 | transitive via `astro`; supplies the pinned `unified()` processor |
 | `vite` | 8.1.5 | transitive via `astro`, `@astrojs/svelte`, `@tailwindcss/vite` (single deduped version) |
 | `pagefind` | 1.5.2 | direct |
-| `sharp` | 0.35.3 | `astro@7.1.6 -> sharp` (optional) |
+| `sharp` | 0.35.3 | `astro@7.2.0 -> sharp` (optional) |
 | `sharp` | 0.35.2 | `wrangler -> miniflare -> sharp` (optional; `wrangler` at 4.120.0 as of Phase 5-D1E, see below) |
 | `esbuild` | 0.28.1 | single deduped version across `astro`, `vite`, `wrangler` |
 
@@ -218,6 +219,30 @@ project because `rehype-katex` is invoked in `astro.config.mjs` with a fixed, li
 options object (`trust: false` explicit) processing only repository-authored Markdown/MDX — no
 runtime or attacker-controlled input ever reaches KaTeX's `Settings` construction.
 
+### Routine maintenance framework-runtime Batch 3 (2026-08-14)
+
+Dependabot's framework-runtime group (#57) proposed `astro` 7.1.6→7.2.0, `@astrojs/sitemap`
+3.7.2→3.7.3, `svelte` 5.56.6→5.56.8, and `@astrojs/check` 0.9.9→0.9.10 together. All four were
+adopted as a coherent group after evidence showed none individually required deferral. Astro
+7.1.7–7.2.0 contains no breaking changes against the official `withastro/astro` release notes; its
+new opt-in features (`experimental.incrementalBuild`, `astro preview --background`, `session:
+false`, element-specific CSP directives) are all inactive on this project's unconfigured,
+adapter-less, `output: 'static'` build, and `astro preview`/`npm run preview` is never invoked by
+any script, test, or CI workflow in this repository (the release/Firefox/postdeploy harness spawns
+`wrangler pages dev` directly, never `astro preview`), so the new automatic background-preview
+detection has no effect here. `@astrojs/markdown-remark` stayed at 7.2.2 (unchanged), confirming
+the pinned Unified Markdown processor invariant is untouched — verified empirically by the
+unchanged 12/12 `tests/markdown-processor.test.mjs` result. `@astrojs/sitemap` 3.7.3's `<lastmod>`
+accuracy fix is a no-op for this project: neither the integration's `serialize()` callback nor its
+top-level options set any `lastmod` value, so `dist/sitemap-index.xml` and `dist/sitemap-0.xml`
+were confirmed byte-identical before and after the bump. `svelte` 5.56.7/5.56.8 are patch-only; the
+hydration-failed-error-boundary fix is directly relevant to `XRechnungApp.svelte`'s use of
+`svelte:boundary`, and the select-spread-attribute fix does not apply (no `<select>` in this
+repository uses spread attributes). `@astrojs/check` 0.9.10's only change is an internal `yargs`
+17→18 bump (CLI argument parsing for `astro check`, dev-tooling only); its published peer range
+remains `typescript@^5.0.0 || ^6.0.0`, reconfirmed unchanged — Dependabot #59 (TypeScript 7) stays
+blocked for this reason, not resolved by this batch.
+
 ## Historical baseline — Astro 6.4.8 (superseded)
 
 The remainder of this section is preserved as a historical record of the Astro 6.4.8 graph reviewed
@@ -274,7 +299,7 @@ On the Astro 6.4.8 graph, `npm run verify:dependency-tree` reported exactly two 
 selection diagnostics under `wrangler@4.114.0 > miniflare@4.20260722.0 > sharp@0.35.2`:
 `@img/sharp-libvips-linuxmusl-x64@1.2.4` invalid against optional `1.3.1`, and
 `@img/sharp-linuxmusl-x64@0.34.5` invalid against optional `0.35.2`. Both diagnostics no longer
-occur on the current Astro 7.1.6 graph; `config/dependency-tree-exceptions.json` is empty.
+occur on the current Astro 7.2.0 graph; `config/dependency-tree-exceptions.json` is empty.
 
 ## npm-script disposition
 
@@ -288,7 +313,7 @@ absence from `package.json` alone is not evidence that they are obsolete.
 
 `npm run verify:dependency-tree` parses `npm ls --all --json`; a non-zero npm exit is never accepted
 by itself. On Node 22.22.3, npm 11.16.0, Linux x64 glibc, npm reports zero optional, peer, or
-non-optional diagnostics for the current Astro 7.1.6 graph. The exact machine-readable contract is
+non-optional diagnostics for the current Astro 7.2.0 graph. The exact machine-readable contract is
 `config/dependency-tree-exceptions.json`, currently empty. The verifier normalizes paths and
 ordering, accepts only pre-approved exceptions, and fails for a new, changed, missing, peer, or
 non-optional problem, and for a stale exception. Reevaluate for an npm major/minor change, a

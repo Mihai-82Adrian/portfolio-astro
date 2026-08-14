@@ -79,7 +79,7 @@ work.
 
 | Layer | Current implementation |
 | --- | --- |
-| Framework | Astro 7.1.6, static output |
+| Framework | Astro 7.2.0, static output |
 | Styling | Tailwind CSS v4 |
 | Interactive islands | Svelte 5 |
 | Content | Astro content, Markdown/MDX, KaTeX |

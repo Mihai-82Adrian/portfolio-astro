@@ -31,7 +31,7 @@ flowchart LR
 
 ## Static Astro layer
 
-Astro 7.1.6 builds static HTML, localized routes, MDX content, sitemap output, and a Pagefind search
+Astro 7.2.0 builds static HTML, localized routes, MDX content, sitemap output, and a Pagefind search
 index. `astro.config.mjs` is authoritative for integrations, Markdown processing, sitemap rules, and
 static output; it pins the Unified Markdown processor (`@astrojs/markdown-remark`'s `unified()`)
 rather than Astro 7's default Sätteri processor, enforced by a permanent test. Tailwind CSS v4
