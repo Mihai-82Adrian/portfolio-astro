@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "observedDate": "2026-08-14",
-  "lockfileSha256": "dbec5afa7034e87bc2ff4232d475de7fe96f698719574005cb34db0bb7f752b3",
-  "freshnessBoundary": "Point-in-time committed snapshot, refreshed 2026-08-14 for the security-sensitive maintenance Batch 2 dependency adoption (marked 18.0.6 to 18.0.9, wrangler 4.120.0 to 4.120.1, plus wrangler's own workerd/miniflare/@cloudflare/workers-types transitive bump; katex deliberately deferred, see docs/operations/dependency-hygiene.md) after a live GitHub Advisory Database scan (all three types) against the resulting lockfile found 0 applicable records. This file is no longer the release's security authority: the formal release-candidate gate (`npm run verify:live-advisories`) performs its own fresh, exact-lockfile live scan on every run and fails closed on any unresolved applicable advisory, superseding this static, point-in-time snapshot. Phase 3 still owns remote GitHub/Cloudflare security posture (Dependabot, CodeQL, branch protection) and recurring scheduled monitoring, not this dependency-advisory review.",
+  "lockfileSha256": "8447d93f00409eba7c245072991b1805ac3ea83a0272a8f5fdab07749d375636",
+  "freshnessBoundary": "Point-in-time committed snapshot, refreshed 2026-08-14 for the routine maintenance framework-runtime Batch 3 dependency adoption (astro 7.1.6 to 7.2.0, @astrojs/sitemap 3.7.2 to 3.7.3, svelte 5.56.6 to 5.56.8, @astrojs/check 0.9.9 to 0.9.10) after a live GitHub Advisory Database scan (all three types) against the resulting lockfile found 0 applicable records. This file is no longer the release's security authority: the formal release-candidate gate (`npm run verify:live-advisories`) performs its own fresh, exact-lockfile live scan on every run and fails closed on any unresolved applicable advisory, superseding this static, point-in-time snapshot. Phase 3 still owns remote GitHub/Cloudflare security posture (Dependabot, CodeQL, branch protection) and recurring scheduled monitoring, not this dependency-advisory review.",
   "advisoryRecordCounts": {
     "info": 0,
     "low": 0,

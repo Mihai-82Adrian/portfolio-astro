@@ -10,7 +10,7 @@ authoritative on the controlled activation event described below (R10.0b).
 | Field | Value |
 |---|---|
 | Project name | `portfolio-astro` |
-| Framework | Astro 7.1.6 |
+| Framework | Astro 7.2.0 |
 | Production branch | `master` |
 | Git provider | GitHub, `Mihai-82Adrian/portfolio-astro` |
 | Uses Pages Functions | yes (`functions/api/*`) |
