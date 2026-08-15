@@ -380,9 +380,12 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for exit criteria and authorization bound
 
 Beyond the CodeQL/Dependabot/freeze status above:
 
-- production `NODE_VERSION` (`22`) versus the formal-evidence toolchain pin is a pre-existing,
-  disclosed parity gap — see
-  [cloudflare-pages-configuration.md](docs/operations/cloudflare-pages-configuration.md) §9/§21;
+- Cloudflare Pages build-config `NODE_VERSION` for both `preview` and `production` now matches the
+  repository's formal `24.19.0` toolchain pin, and a real Cloudflare Git-integrated preview build on
+  Node 24.19.0/npm 11.17.0 passed — but this is a build-configuration change only. The application
+  currently serving `me-mateescu.de` has not been redeployed since the Phase 4 release and was built
+  under the prior Node 22 toolchain; see
+  [cloudflare-pages-configuration.md](docs/operations/cloudflare-pages-configuration.md) §23;
 - Cache API quotas are not globally exact;
 - Sample Review, Resend, secure uploads, and client intake are disabled;
 - no authentication, client portal, admin portal, queue, or multi-provider layer exists;
