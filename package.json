@@ -105,18 +105,18 @@
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@fontsource-variable/playfair-display": "^5.2.8",
     "@lucide/astro": "1.31.0",
-    "astro": "7.2.0",
+    "astro": "7.2.2",
     "chart.js": "^4.5.1",
     "dompurify": "3.4.13",
     "katex": "^0.16.45",
     "marked": "18.0.9",
     "pdfmake": "^0.3.7",
-    "svelte": "5.56.8"
+    "svelte": "5.56.9"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
     "@tailwindcss/typography": "^0.5.19",
-    "@tailwindcss/vite": "4.2.2",
+    "@tailwindcss/vite": "4.3.3",
     "@types/node": "^25.6.0",
     "glob": "^13.0.6",
     "gray-matter": "^4.0.3",
@@ -125,9 +125,9 @@
     "pagefind": "1.5.2",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
-    "tailwindcss": "4.2.2",
+    "tailwindcss": "4.3.3",
     "terser": "5.49.2",
-    "typescript": "^5.7.3",
-    "wrangler": "4.120.1"
+    "typescript": "6.0.3",
+    "wrangler": "4.123.0"
   }
 }

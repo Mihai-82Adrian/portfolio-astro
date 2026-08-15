@@ -24,6 +24,11 @@ function compileRuntime() {
     'npx',
     [
       'tsc',
+      '--ignoreConfig',
+      '--ignoreDeprecations',
+      '6.0',
+      '--noImplicitAny',
+      'false',
       '--target',
       'ES2022',
       '--module',

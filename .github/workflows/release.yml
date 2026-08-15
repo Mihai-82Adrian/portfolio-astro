@@ -113,5 +113,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: '4.120.1'
+          wranglerVersion: '4.123.0'
           command: pages deploy .artifacts/release-candidate/transfer/deploy --project-name portfolio-astro --branch ${{ inputs.target == 'production' && 'master' || 'preview' }}
