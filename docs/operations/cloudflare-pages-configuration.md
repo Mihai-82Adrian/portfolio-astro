@@ -328,3 +328,68 @@ allowlist is separately verified — see
 [operational-controls-observability.md](operational-controls-observability.md)), and this is an
 owner-accepted limitation, not a silently assumed one. The `NODE_VERSION` production/candidate parity
 gap from §7/§9 remains open and applies only to a future production cutover under Phase 4.
+
+## 22. Wave 1B control-plane provenance finding (2026-08-15, attempt blocked, provenance normalized)
+
+A controlled Node 24 remote-parity attempt (Wave 1B) PATCHed only
+`deployment_configs.preview.env_vars.NODE_VERSION` on the `portfolio-astro` Pages project and
+observed the following, read-only and via one narrow PATCH plus one rollback PATCH — no
+production mutation, no deployment, no build:
+
+- pre-attempt preview and production `NODE_VERSION` were both the exact string `22.22.3`;
+- pre-attempt preview and production `deployment_configs.*.wrangler_config_hash` were both
+  `1574fc1d3e7fccea47bc35249a940ad265db5ac89b777c5ecd974d25570827aa`;
+- that hash is exactly `SHA-256` of the raw bytes of the repository's `wrangler.jsonc` as it stood
+  at the pre-Wave-1A, pre-Node-24 commit (`bea9b6d003a922de3857a4bc90a4e64af2311923`), reproduced
+  independently in this session — direct evidence the field is genuine per-project Wrangler-file
+  provenance, not an opaque or account-wide fingerprint;
+- a PATCH changing only `env_vars.NODE_VERSION` to `24.19.0` on `preview` caused
+  `deployment_configs.preview.wrangler_config_hash` to disappear from the project entirely;
+- an immediate rollback of `NODE_VERSION` to `22.22.3` did **not** restore the hash — it remains
+  absent on `preview` as of this writing;
+- `deployment_configs.production.wrangler_config_hash` was untouched throughout and still reads
+  `1574fc1d3e7fccea47bc35249a940ad265db5ac89b777c5ecd974d25570827aa`;
+- no preview build was started, no production configuration field changed, no production
+  application deployment occurred, and production `sourceRevision`/`releaseId` were unchanged
+  before and after.
+
+**Upstream semantics (verified against primary sources, 2026-08-15):**
+
+- Cloudflare's own Pages "Update project" OpenAPI schema documents
+  `deployment_configs.{preview,production}.wrangler_config_hash` as *"Hash of the Wrangler
+  configuration used for the deployment"* and accepts it as a settable field on the same PATCH
+  endpoint used for environment variables.
+- Wrangler's own deploy implementation
+  (`packages/wrangler/src/api/pages/deploy.ts`, `cloudflare/workers-sdk`, commit
+  `1b73c879c168dcc78b0f2657d04bc784b8af7da3` on `main`) computes this value as
+  `createHash("sha256").update(await readFile(config.configPath)).digest("hex")` — i.e. a plain
+  SHA-256 over the raw bytes of the Wrangler configuration file — and submits it as
+  `wrangler_config_hash` on every `wrangler pages deploy`.
+- Wrangler's own Pages secret-mutation code (`packages/wrangler/src/pages/secret/index.ts`, same
+  commit; used by `wrangler pages secret put`/`bulk`/`delete`) explicitly re-sends
+  `project.deployment_configs[env].wrangler_config_hash` as part of every environment-variable
+  PATCH it issues, rather than omitting it. This is consistent with Wave 1B's finding and implies
+  the field is not implicitly preserved by the API when an `env_vars`-only PATCH omits it.
+
+Cloudflare's public API reference does not explicitly document the exact clearing behavior
+observed when `wrangler_config_hash` is omitted from a `deployment_configs.<env>` PATCH — that
+specific side effect is recorded here as **OBSERVED-API-BEHAVIOR**, corroborated by Wrangler's
+own defensive pattern of always re-sending the field, not as an officially guaranteed contract.
+
+**Provenance normalization (this session):** the repository's `wrangler.jsonc` `env` comment
+previously described the *then-current* remote state ("live Cloudflare preview and production
+both remain unmutated at `22.22.3`..."), a fact that would have gone stale immediately after a
+successful parity mutation and, because Wrangler hashes raw file bytes, would have forced a
+provenance-breaking edit at exactly the moment provenance matters most. The comment was rewritten
+to describe only the stable, non-temporal reason the `preview`/`production` blocks exist (`vars`
+non-inheritance) and to point at this document for current remote state, with no semantic JSON
+change. The resulting raw-byte SHA-256 of `wrangler.jsonc` is the authorized provenance value for the next
+parity attempt and is recorded in that session's external evidence record; this document
+intentionally does not restate that hash inline to avoid re-creating the same staleness problem
+for a document that is not itself hashed for provenance.
+
+**Recommended retry shape (not executed by this session):** the next Cloudflare Node 24 parity
+attempt should PATCH `deployment_configs.preview.env_vars.NODE_VERSION` and
+`deployment_configs.preview.wrangler_config_hash` atomically in the same request, mirroring
+Wrangler's own secret-mutation pattern, then proceed to controlled preview-build validation before
+any production configuration change.
