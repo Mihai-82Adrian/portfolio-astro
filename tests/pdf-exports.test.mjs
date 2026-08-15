@@ -32,7 +32,8 @@ function compileXRechnungPdfRuntime() {
   ];
   execFileSync(
     'npx',
-    ['tsc', '--target', 'ES2022', '--module', 'CommonJS', '--moduleResolution', 'Node',
+    ['tsc', '--ignoreConfig', '--ignoreDeprecations', '6.0', '--noImplicitAny', 'false',
+      '--target', 'ES2022', '--module', 'CommonJS', '--moduleResolution', 'Node',
       '--esModuleInterop', '--skipLibCheck', '--outDir', outDir, ...files],
     { cwd: ROOT, stdio: 'inherit' },
   );

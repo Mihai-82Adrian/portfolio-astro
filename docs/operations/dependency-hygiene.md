@@ -24,7 +24,7 @@ registry, and it cannot discover advisories published after the snapshot was tak
 planned to add **recurring, fresh, online** advisory discovery and alerting (Dependabot-style
 automation) — this does not yet exist and is not provided by either (1) or (2).
 
-## Canonical dependency graph — Astro 7.2.0 (Phase 2D-A, updated Phase 3-B3R, updated framework-runtime Batch 3)
+## Canonical dependency graph — Astro 7.2.2 (Phase 2D-A, updated Phase 3-B3R, updated framework-runtime Batch 3, updated Modernization Wave 2)
 
 **Exact target lockfile at the time this framework graph was recorded**: `package-lock.json`
 SHA-256 `ef0484b4b4bd6c782f7eef2c99b3c9b89d5dc950d723a41b286b8c930d206e41`. Phase 5-D1E's
@@ -39,20 +39,27 @@ current one. Phase 3-B3R adopted Dependabot PR #38
 (`astro` 7.1.3→7.1.6, `@astrojs/mdx` 7.0.3→7.0.5, `@lucide/astro` 1.26.0→1.28.0, plus the
 coupled `@astrojs/markdown-remark` 7.2.1→7.2.2 peer bump astro 7.1.5 itself requires) after
 confirming every intermediate release is patch-only with no breaking changes against the official
-`withastro/astro` release notes.
+`withastro/astro` release notes. The hashes above are retained as historical progression; they are
+not the current lockfile.
 
-**Target graph versions observed on Node 22.22.3 / npm 11.16.0 / Linux x64 glibc**:
+**Current lockfile (Modernization Wave 2, 2026-08-15)**: `package-lock.json` SHA-256
+`85e847fc7dbfa12f3d7720ea56f589f831d02bb4f593315b8c32d48fb8634769` — this is the exact lockfile the
+table below describes, and the one `config/dependency-advisories.json`'s `lockfileSha256` tracks.
+See the dated subsection below for the full Wave 2 rationale.
+
+**Target graph versions observed on Node 24.19.0 / npm 11.17.0 / Linux x64 glibc** (Modernization
+Wave 2, 2026-08-15):
 
 | Package | Version(s) observed | Path |
 | --- | --- | --- |
-| `astro` | 7.2.0 | direct |
+| `astro` | 7.2.2 | direct |
 | `@astrojs/mdx` | 7.0.5 | direct |
 | `@astrojs/svelte` | 9.0.1 | direct |
-| `@lucide/astro` | 1.29.0 | direct |
+| `@lucide/astro` | 1.31.0 | direct |
 | `@astrojs/markdown-remark` | 7.2.2 | transitive via `astro`; supplies the pinned `unified()` processor |
 | `vite` | 8.1.5 | transitive via `astro`, `@astrojs/svelte`, `@tailwindcss/vite` (single deduped version) |
 | `pagefind` | 1.5.2 | direct |
-| `sharp` | 0.35.3 | `astro@7.2.0 -> sharp` (optional) |
+| `sharp` | 0.35.3 | `astro@7.2.2 -> sharp` (optional) |
 | `sharp` | 0.35.2 | `wrangler -> miniflare -> sharp` (optional; `wrangler` at 4.120.0 as of Phase 5-D1E, see below) |
 | `esbuild` | 0.28.1 | single deduped version across `astro`, `vite`, `wrangler` |
 
@@ -320,6 +327,57 @@ floor, distinct from the exact formal-release pin `verifyToolchain` enforces, an
 repository's source requires a Node 24-only API, so narrowing it would drop legitimate Node
 22.12–22.x contributor support without a technical justification. `typescript`, `astro`, `svelte`,
 `tailwindcss`, `katex`, `jsdom`, `node-html-parser`, and `terser` were not touched.
+
+### Modernization Wave 2 (2026-08-15)
+
+Fresh primary-source research (Microsoft TypeScript releases, official `withastro/astro`/Svelte/
+Tailwind/Cloudflare `workers-sdk` changelogs, `rehype-katex`/`micromark-extension-math` npm
+metadata) re-verified every moving target independently of the prior 2026-08-14 modernization
+readiness research, which is prior research only and not current-version authority on its own.
+`typescript` 5.9.3→**6.0.3**, `astro` 7.2.0→**7.2.2**, `svelte` 5.56.8→**5.56.9**, `tailwindcss`
+and `@tailwindcss/vite` 4.2.2→**4.3.3**, and `wrangler` 4.120.1→**4.123.0** were adopted as one
+coherent batch — every changed lockfile entry traced to one of these five direct bumps or their
+own transitives (`@tailwindcss/oxide*` family with `tailwindcss`; `workerd`/`miniflare`/
+`@cloudflare/workerd-*` and net-new `chalk`/`find-process`/`loglevel` with `wrangler`), confirmed
+by a package-by-package lockfile diff against the prior graph. `astro`/`svelte`/`tailwindcss` are
+patch/minor releases with no breaking changes against their official release notes; Wrangler
+4.121.0's only materially relevant change (implicit `nodejs_compat` for
+`compatibility_date >= 2026-08-04`) does not apply — `wrangler.jsonc`'s `compatibility_date` is
+`2025-11-14` and no `nodejs_compat` flag is set.
+
+`typescript` 6.0.3 (not the Dependabot #59-proposed 7.0.2) was chosen deliberately: TypeScript 7 —
+the native/Go-ported compiler line — has no package in this project's toolchain chain
+(`@astrojs/check`, `@astrojs/svelte`, `svelte-check`, `svelte2tsx`) that accepts `^7.0.0` as a
+peer yet, so it remains `WAIT-UPSTREAM`, unchanged from the prior research's conclusion. Two real
+TypeScript 6 breaking changes required root-caused adaptation, confined entirely to the standalone
+CommonJS `tsc` bridge that compiles `fin-core`/`xrechnung` for Node test execution
+(`tests/pdf-exports.test.mjs`, `scripts/verify-xrechnung-fixtures.mjs`) — never the project's real
+`tsconfig.json`, and `npm run check` (`astro check`) is byte-identical before and after this wave
+(293 files, 0 errors, 0 warnings, 61 hints): (1) TS6 now errors (`TS5112`) instead of silently
+ignoring `tsconfig.json` when files are given on the command line — fixed with `--ignoreConfig`,
+the officially documented opt-in for this exact CLI pattern; (2) TS6 now reports `TS7016` for
+untyped `node_modules` JS imports (here, `pdfmake/build/{pdfmake,vfs_fonts}.js`) even without
+`noImplicitAny`/`strict` configured, where TS5 did not — fixed with an explicit `--noImplicitAny
+false`, restoring this bridge's original, never-strict intent. `moduleResolution=Node` (classic)
+is now a TS6 deprecation warning (`TS5107`, silenced with `--ignoreDeprecations 6.0`) but remains
+the semantically correct choice here: these files use extensionless relative imports that
+`node16`/`nodenext` resolution would reject. `.github/workflows/release.yml`'s `wranglerVersion`
+pin was updated to `4.123.0` to satisfy this repository's own `wrangler`-pin-parity guard
+(`scripts/release/guards.mjs`'s `verifyWranglerPinParity`, exercised by
+`tests/release-gate-contracts.test.mjs`).
+
+`katex`/`rehype-katex`/`micromark-extension-math` (0.16.47/7.0.1/3.1.0, `WAIT-UPSTREAM`) and
+`@types/node` (`^25.6.0`/resolved `25.9.5`, unchanged — the Batch 4 policy gap above remains
+unresolved) were re-verified and confirmed unchanged: `rehype-katex@7.0.1` (latest, unpublished
+since 2024-08-19) and `micromark-extension-math@3.1.0` still hard-pin `katex ^0.16.0`, identical to
+every prior review. `npm audit`/a fresh live GitHub Advisory Database scan (`reviewed`,
+`unreviewed`, `malware`) against the resulting lockfile found 0 applicable records;
+`config/dependency-advisories.json`'s `lockfileSha256`/`observedDate`/`freshnessBoundary` were
+regenerated to match, per this file's own required maintenance step. This section records the
+validated Modernization Wave 2 dependency graph (branch `hardening/modernization-wave2-2026-08-15`,
+parented on the canonical `integration/portfolio-hardening-2026-07` HEAD at the time). Integration,
+publication, and production-release state are established by Git history and release evidence, not
+encoded as transient status in this graph description.
 
 ## Historical baseline — Astro 6.4.8 (superseded)
 

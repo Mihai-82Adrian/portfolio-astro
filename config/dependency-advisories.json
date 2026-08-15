@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-08-14",
-  "lockfileSha256": "96379ecd30a7b66ed0707a1ed449a764a0a2380849cb23fc14e8fc47941fe73c",
-  "freshnessBoundary": "Point-in-time committed snapshot, refreshed 2026-08-14 for the routine maintenance Batch 4 dependency adoption (@lucide/astro 1.29.0 to 1.31.0; @types/node 25.9.5 to 26.2.0 was independently reviewed and deferred, see docs/operations/dependency-hygiene.md) after a live GitHub Advisory Database scan (all three types) against the resulting lockfile found 0 applicable records. This file is no longer the release's security authority: the formal release-candidate gate (`npm run verify:live-advisories`) performs its own fresh, exact-lockfile live scan on every run and fails closed on any unresolved applicable advisory, superseding this static, point-in-time snapshot. Phase 3 still owns remote GitHub/Cloudflare security posture (Dependabot, CodeQL, branch protection) and recurring scheduled monitoring, not this dependency-advisory review.",
+  "observedDate": "2026-08-15",
+  "lockfileSha256": "85e847fc7dbfa12f3d7720ea56f589f831d02bb4f593315b8c32d48fb8634769",
+  "freshnessBoundary": "Point-in-time committed snapshot, refreshed 2026-08-15 for the Modernization Wave 2 toolchain adoption (typescript 5.9.3 to 6.0.3; astro 7.2.0 to 7.2.2; svelte 5.56.8 to 5.56.9; tailwindcss and @tailwindcss/vite 4.2.2 to 4.3.3; wrangler 4.120.1 to 4.123.0 — see docs/operations/dependency-hygiene.md) after a live GitHub Advisory Database scan (all three types) against the resulting lockfile found 0 applicable records. This file is no longer the release's security authority: the formal release-candidate gate (`npm run verify:live-advisories`) performs its own fresh, exact-lockfile live scan on every run and fails closed on any unresolved applicable advisory, superseding this static, point-in-time snapshot. Phase 3 still owns remote GitHub/Cloudflare security posture (Dependabot, CodeQL, branch protection) and recurring scheduled monitoring, not this dependency-advisory review.",
   "advisoryRecordCounts": {
     "info": 0,
     "low": 0,
