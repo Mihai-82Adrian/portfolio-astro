@@ -113,9 +113,9 @@ read, unchanged. No remote value was mutated by this read or by this wave.
 | `pages_build_output_dir` | `./dist` | `destination_dir: dist` | `dist` | intentional normalization (`./dist` is the documented canonical form; resolves identically) |
 | `compatibility_date` | `2025-11-14` | `2025-11-14` (both envs) | `2025-11-14` | exact parity |
 | `compatibility_flags` | omitted | `[]` (both envs) | omitted | exact parity (empty is the schema default) |
-| `vars.NODE_VERSION` (top-level) | `"24.19.0"` | preview & production: `"22.22.3"` exact (reconciled, see above) | `"22"` (earlier, now superseded observation) | Remote parity blocker, widened by Wave 1A; repository formal toolchain is exact and remote state was not mutated |
-| `env.production.vars.NODE_VERSION` | `"24.19.0"` | fresh 2026-08-14: `"22.22.3"` exact | `"22"` (earlier, superseded) | Remote parity blocker |
-| `env.preview.vars.NODE_VERSION` | `"24.19.0"` | fresh 2026-08-14: `"22.22.3"` exact | *(not emitted — download-config only wrote top-level + production)* | explicit preview declaration retained; exact remote parity requires separately authorized activation |
+| `vars.NODE_VERSION` (top-level) | `"24.19.0"` | preview & production: `"22.22.3"` exact (reconciled, see above; dated observation, 2026-08-14) | `"22"` (earlier, now superseded observation) | **Resolved (Wave 1B-R1, 2026-08-15) — see §23.** Cloudflare build-config now reads `"24.19.0"` for both environments. |
+| `env.production.vars.NODE_VERSION` | `"24.19.0"` | fresh 2026-08-14: `"22.22.3"` exact (dated observation) | `"22"` (earlier, superseded) | **Resolved (Wave 1B-R1, 2026-08-15) — see §23.** |
+| `env.preview.vars.NODE_VERSION` | `"24.19.0"` | fresh 2026-08-14: `"22.22.3"` exact (dated observation) | *(not emitted — download-config only wrote top-level + production)* | **Resolved (Wave 1B-R1, 2026-08-15) — see §23.** |
 | `OPENAI_API_KEY` | not present | secret, set (both envs) | not present (secrets are never downloaded) | secret intentionally excluded from source control |
 | `RESEND_API_KEY`, `SAMPLE_REVIEW_EMAIL_FROM`, `SAMPLE_REVIEW_EMAIL_TO` | not present | **not present in either environment** | not present | unresolved — see §9 blocker |
 | Bindings (KV/D1/R2/DO/queues/Hyperdrive/Vectorize) | none | none | none | exact parity — nothing to represent |
@@ -137,10 +137,12 @@ production) unless explicitly overridden. This is the reasoning behind the expli
 `NODE_VERSION` is the only plaintext variable in the last dashboard evidence. Repository candidate
 configuration now pins the formal release patch version (`24.19.0` as of Wave 1A) consistently
 across local, preview, and production declarations. A fresh 2026-08-14 read found the live remote
-value is the exact `"22.22.3"` for both environments (superseding this document's earlier `"22"`
-observation — see the reconciliation note in §7); this document's Wave 1A update does not change
-the remote value, and a separately authorized remote parity step remains required to align it with
-the new `24.19.0` repository pin.
+value was the exact `"22.22.3"` for both environments (superseding this document's earlier `"22"`
+observation — see the reconciliation note in §7); that Wave 1A read did not change the remote value.
+**The separately authorized remote parity step has since been performed (Wave 1B-R1, 2026-08-15 —
+see §23): the live Cloudflare build-config `NODE_VERSION` is now `24.19.0` for both environments,**
+matching the repository pin. This is a build-configuration alignment only; it does not by itself
+change what the production application serves — see §23 for that distinction.
 
 ## 10. Secret-name inventory (no values)
 
@@ -160,7 +162,7 @@ exclusively a Cloudflare-dashboard/`wrangler pages secret put` action, out of sc
 | `RESEND_API_KEY` | `functions/api/sample-review.ts` → `createResendEmailProvider` | Required only when the sample-review form is submitted (POST). Throws `Missing email configuration.` if absent, caught and surfaced as an error response — does not affect other routes or the build. | in `.dev.vars.example` (empty) | **not set** | **not set** | secret | **missing — controlled-activation blocker** |
 | `SAMPLE_REVIEW_EMAIL_FROM` | `functions/api/sample-review.ts` | Required only when the sample-review form is submitted | in `.dev.vars.example` (empty) | **not set** | **not set** | plaintext | **missing — controlled-activation blocker** |
 | `SAMPLE_REVIEW_EMAIL_TO` | `functions/api/sample-review.ts` | Required only when the sample-review form is submitted | in `.dev.vars.example` (empty) | **not set** | **not set** | plaintext | **missing — controlled-activation blocker** |
-| `NODE_VERSION` | Build system only; no runtime `env.NODE_VERSION` reads found in `functions/` or `src/` | Build-time only | formal release `24.19.0` | fresh 2026-08-14: `22.22.3` exact | fresh 2026-08-14: `22.22.3` exact | plaintext | candidate `24.19.0`; remote parity blocker (widened by Wave 1A; see §7 reconciliation) |
+| `NODE_VERSION` | Build system only; no runtime `env.NODE_VERSION` reads found in `functions/` or `src/` | Build-time only | formal release `24.19.0` | `24.19.0` (Wave 1B-R1, 2026-08-15; was `22.22.3` at the 2026-08-14 read — see §7 reconciliation) | `24.19.0` (Wave 1B-R1, 2026-08-15; was `22.22.3` at the 2026-08-14 read) | plaintext | **build-config parity resolved — see §23.** Served production application unchanged; see §23. |
 
 **Missing-binding classification (`RESEND_API_KEY`, `SAMPLE_REVIEW_EMAIL_FROM`,
 `SAMPLE_REVIEW_EMAIL_TO`):** confirmed absent in both preview and production dashboard
@@ -393,3 +395,50 @@ attempt should PATCH `deployment_configs.preview.env_vars.NODE_VERSION` and
 `deployment_configs.preview.wrangler_config_hash` atomically in the same request, mirroring
 Wrangler's own secret-mutation pattern, then proceed to controlled preview-build validation before
 any production configuration change.
+
+## 23. Node 24 Cloudflare parity validated — Wave 1B-R1 (2026-08-15)
+
+Following the retry shape recommended in §22, a Wave 1B-R1 session executed the atomic-PATCH retry
+and validated it end to end:
+
+- the atomic preview PATCH carried both `env_vars.NODE_VERSION = "24.19.0"` and
+  `wrangler_config_hash = bba203194506dbe39e3b8d889b88391034461db067c4724c3ce09f46f561fbcf` in the
+  same request;
+- an immediate, independent read-back showed exactly those two fields changed from the pre-attempt
+  preview baseline (`22.22.3` / hash absent, per §22) — no other field moved;
+- a temporary branch (`release/node24-cloudflare-parity-r1-2026-08-15`) was pushed pointing exactly
+  at the existing public master commit (`21598ed8eb65e771d1d128cdeec3fa500f43d7e3`); no new source
+  commit was created;
+- that push triggered a real Cloudflare Git-integrated preview deployment
+  (`3218e514-aeb2-4d26-982d-a63bd3aa7297`), `is_skipped = false`, all five build stages SUCCESS on
+  the first attempt;
+- the build logs directly show `Node 24.19.0` and `npm 11.17.0` in use throughout the build;
+- a post-build provenance re-check confirmed `wrangler_config_hash` on `preview` was unaffected by
+  the build (remained `bba20319...`);
+- preview smoke checks (root, `/api/health`, a tools route, a locale route, a static asset, a 404,
+  the sitemap) all passed with correct security headers and no mutating action;
+- only after preview validation passed, `production` was PATCHed atomically with the same two
+  fields (`NODE_VERSION = "24.19.0"`, the same final `wrangler_config_hash`);
+- the final Cloudflare semantic diff from the session-start baseline contained exactly four
+  authorized field changes (preview `NODE_VERSION`, preview `wrangler_config_hash`, production
+  `NODE_VERSION`, production `wrangler_config_hash`) and nothing else;
+- `production_deployments_enabled` remained `false` throughout; neither PATCH created a new
+  production deployment;
+- `/api/health` was reconfirmed unchanged before and after, still reporting `sourceRevision`
+  `a657b26a61da0f9744b502fc01a049a8be4549ea` and `releaseId` `git-7349a41219a61d1b` (the Phase 4
+  release);
+- the temporary branch was deleted, remotely and locally, after evidence capture; the Cloudflare
+  preview deployment record itself was preserved (not deleted).
+
+**CLOUDFLARE BUILD-CONFIG PARITY: RESOLVED.** Both `preview` and `production` Pages build
+configuration now read `NODE_VERSION = 24.19.0` with matching `wrangler_config_hash` values.
+
+**NODE 24 REMOTE BUILD VALIDATION: PASS.** A real Cloudflare Git-integrated preview build completed
+successfully on Node 24.19.0 / npm 11.17.0.
+
+**PRODUCTION APPLICATION NODE-24 CUTOVER: NOT PERFORMED.** These two PATCHes changed only Pages
+build-environment configuration. No production deployment was created or promoted by this work; the
+application currently served at `me-mateescu.de` remains the Phase 4 release (`a657b26a...`), which
+was itself built under the prior Node 22 toolchain. A future production release that redeploys the
+current repository tree will be the first one actually built under Node 24 — this section records
+that the build *environment* is now ready for that, not that it has happened.
