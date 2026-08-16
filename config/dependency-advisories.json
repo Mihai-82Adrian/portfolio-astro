@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-08-15",
-  "lockfileSha256": "85e847fc7dbfa12f3d7720ea56f589f831d02bb4f593315b8c32d48fb8634769",
-  "freshnessBoundary": "Point-in-time committed snapshot, refreshed 2026-08-15 for the Modernization Wave 2 toolchain adoption (typescript 5.9.3 to 6.0.3; astro 7.2.0 to 7.2.2; svelte 5.56.8 to 5.56.9; tailwindcss and @tailwindcss/vite 4.2.2 to 4.3.3; wrangler 4.120.1 to 4.123.0 — see docs/operations/dependency-hygiene.md) after a live GitHub Advisory Database scan (all three types) against the resulting lockfile found 0 applicable records. This file is no longer the release's security authority: the formal release-candidate gate (`npm run verify:live-advisories`) performs its own fresh, exact-lockfile live scan on every run and fails closed on any unresolved applicable advisory, superseding this static, point-in-time snapshot. Phase 3 still owns remote GitHub/Cloudflare security posture (Dependabot, CodeQL, branch protection) and recurring scheduled monitoring, not this dependency-advisory review.",
+  "observedDate": "2026-08-16",
+  "lockfileSha256": "2d1663e54d4b5320f3f6c01c08cce87a402ea1e734d90878348c6ea233c848b4",
+  "freshnessBoundary": "Point-in-time committed snapshot, refreshed 2026-08-16 for the KaTeX renderer-owned asset-architecture remediation (the direct root `katex` dependency was removed from package.json; `katex` and its own `commander` dependency are now resolved purely transitively through `rehype-katex`/`micromark-extension-math`, reclassified `dev: true` in the lockfile — see docs/operations/dependency-hygiene.md) after a live GitHub Advisory Database scan (all three types) against the resulting lockfile found 0 applicable records. This file is no longer the release's security authority: the formal release-candidate gate (`npm run verify:live-advisories`) performs its own fresh, exact-lockfile live scan on every run and fails closed on any unresolved applicable advisory, superseding this static, point-in-time snapshot. Phase 3 still owns remote GitHub/Cloudflare security posture (Dependabot, CodeQL, branch protection) and recurring scheduled monitoring, not this dependency-advisory review.",
   "advisoryRecordCounts": {
     "info": 0,
     "low": 0,

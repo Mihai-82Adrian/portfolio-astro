@@ -42,10 +42,18 @@ confirming every intermediate release is patch-only with no breaking changes aga
 `withastro/astro` release notes. The hashes above are retained as historical progression; they are
 not the current lockfile.
 
-**Current lockfile (Modernization Wave 2, 2026-08-15)**: `package-lock.json` SHA-256
-`85e847fc7dbfa12f3d7720ea56f589f831d02bb4f593315b8c32d48fb8634769` — this is the exact lockfile the
-table below describes, and the one `config/dependency-advisories.json`'s `lockfileSha256` tracks.
-See the dated subsection below for the full Wave 2 rationale.
+**Historical Modernization Wave 2 lockfile (2026-08-15)**: `package-lock.json` SHA-256
+`85e847fc7dbfa12f3d7720ea56f589f831d02bb4f593315b8c32d48fb8634769` — this was the exact lockfile
+the table below describes when Wave 2 was recorded. See the dated subsection below for the full
+Wave 2 rationale.
+
+**Current lockfile (2026-08-16 KaTeX renderer-owned asset-architecture remediation)**:
+`package-lock.json` SHA-256 `2d1663e54d4b5320f3f6c01c08cce87a402ea1e734d90878348c6ea233c848b4` —
+this is the one `config/dependency-advisories.json`'s `lockfileSha256` currently tracks. The hash
+changed only because the direct top-level `katex` dependency was removed (see the "Vendored
+runtime assets — KaTeX" section below); every `astro`/`@astrojs/*`/`svelte`/`tailwindcss`/
+`wrangler` version in the framework graph table below is unchanged from Wave 2 and remains
+current.
 
 **Target graph versions observed on Node 24.19.0 / npm 11.17.0 / Linux x64 glibc** (Modernization
 Wave 2, 2026-08-15):
@@ -379,6 +387,33 @@ parented on the canonical `integration/portfolio-hardening-2026-07` HEAD at the 
 publication, and production-release state are established by Git history and release evidence, not
 encoded as transient status in this graph description.
 
+### KaTeX renderer-owned asset-architecture remediation and `@types/node` typings policy (2026-08-16)
+
+Two prerequisites identified during Post-Wave-2 modernization-backlog assessment were resolved by
+the 2026-08-16 KaTeX renderer-owned asset-architecture remediation: the KaTeX renderer/asset
+version-coupling constraint (see the "Vendored runtime assets — KaTeX" section above for the full
+before/after) and an explicit `@types/node` typings policy.
+
+**`@types/node` policy — adopted: `RUNTIME-MAJOR-PLUS-ONE-MAXIMUM`.** The Batch 4 entry above
+identified an undocumented policy gap (`@types/node` already ahead of the pinned Node runtime,
+with no recorded owner decision on how far ahead is acceptable) without resolving it. That gap is
+now closed: this project's Node typings must stay within the pinned runtime's major version or
+one major ahead of it (runtime major `N` permits `@types/node` major `N` or `N+1`; `N+2` and
+beyond stay deferred until the runtime itself advances, or an explicit exception is separately
+approved and recorded). This is a **typings dependency ceiling, not a runtime capability
+authorization** — it says nothing about which Node APIs are safe to call at runtime; that remains
+governed entirely by the actual `.node-version`/Cloudflare `NODE_VERSION` pin (currently
+`24.19.0`).
+
+Applied to the current state: runtime is Node 24, so `@types/node` 24 or 25 is policy-compliant.
+The installed `^25.6.0` (resolved `25.9.5`) is compliant — it sits exactly at the `+1` ceiling; no
+change was made. **Dependabot #70 (`@types/node` 25.9.5→26.2.0) is `POLICY-DEFERRED`** under this
+rule — 26 exceeds runtime-major(24)+1 — and remains open on GitHub, unmutated, until the runtime
+pin itself advances to 25 or later, or an explicit exception is approved. No technical
+incompatibility blocks 26.2.0 (its declared `typeScriptVersion` is unchanged from 25.9.5 and this
+project's Node-API surface is unexotic, as the Batch 4 entry already found); the deferral is a
+policy decision, not a defect finding.
+
 ## Historical baseline — Astro 6.4.8 (superseded)
 
 The remainder of this section is preserved as a historical record of the Astro 6.4.8 graph reviewed
@@ -480,44 +515,70 @@ npm run build
 Future review triggers are a lockfile change, new direct import, npm-script change, new advisory,
 supported-runtime change, or activation of an inactive feature.
 
-## Vendored runtime assets — KaTeX (Phase 3-B3)
+## Vendored runtime assets — KaTeX (Phase 3-B3, renderer-owned since 2026-08-16)
 
 `public/katex/` is **not** hand-vendored and is not committed. `scripts/sync-katex-assets.mjs`
-copies exactly `katex.min.css` and `fonts/` from the installed `katex` package (`node_modules/katex/dist`)
-into `public/katex/`, so the served assets always match the locked `katex` version with no manual
-copy-paste drift. `npm run dev` and `npm run build` both invoke this script **explicitly, as their
-own first step** — not through the implicit `predev`/`prebuild` npm lifecycle hooks. This is a
-deliberate release-critical decision: those hooks silently do not run when the operator's npm
-configuration sets `ignore-scripts=true` (a common personal/team npm hardening default, unrelated to
-this project), which previously made a plain `npm run build` produce a build silently missing the
-KaTeX assets on any such host while an isolated container build (which never inherits a host user's
+copies exactly `katex.min.css` and `fonts/` from the `katex` package that **`rehype-katex` itself
+resolves at runtime** (via normal Node module resolution from `rehype-katex`'s own module
+context — `require.resolve('rehype-katex')` then a `createRequire`-scoped `resolve('katex/
+package.json')` — not a hard-coded `node_modules/katex` path) into `public/katex/`, so the served
+assets always match the KaTeX version that actually rendered the math markup, regardless of npm
+hoisting/deduplication placement. This is the KA-1 invariant (`tests/katex-asset-sync.test.mjs`):
+the KaTeX version supplying served CSS/fonts must equal the KaTeX version `rehype-katex` used to
+generate markup — enforced by rendering representative math through the production pipeline and
+asserting every structural class it emits has a matching CSS rule in the served stylesheet. `npm
+run dev` and `npm run build` both invoke the sync script **explicitly, as their own first step** —
+not through the implicit `predev`/`prebuild` npm lifecycle hooks. This is a deliberate
+release-critical decision: those hooks silently do not run when the operator's npm configuration
+sets `ignore-scripts=true` (a common personal/team npm hardening default, unrelated to this
+project), which previously made a plain `npm run build` produce a build silently missing the KaTeX
+assets on any such host while an isolated container build (which never inherits a host user's
 `~/.npmrc`) built correctly — see Phase 3-C Step 2B-1RR2/RR3. Explicit invocation makes the build
-correct regardless of the operator's npm lifecycle-script configuration. Math rendering itself happens at build time through
-`rehype-katex` (see `astro.config.mjs`); the site never loads KaTeX's client-side JavaScript bundle
-(`katex.js`/`katex.mjs`), so those files — and the unused `contrib/` auto-render helpers — are not
-generated at all. This removed six CodeQL `js/incomplete-sanitization` findings that were only
-reachable through the previously committed, unused, and version-drifted `katex.js`/`katex.mjs` copies
-(the same non-global `.replace()` calls exist in the upstream `katex@0.16.47` source itself and are
-not reachable from any code path this project executes).
+correct regardless of the operator's npm lifecycle-script configuration. Math rendering itself
+happens at build time through `rehype-katex` (see `astro.config.mjs`); the site never loads
+KaTeX's client-side JavaScript bundle (`katex.js`/`katex.mjs`), so those files — and the unused
+`contrib/` auto-render helpers — are not generated at all. This removed six CodeQL
+`js/incomplete-sanitization` findings that were only reachable through the previously committed,
+unused, and version-drifted `katex.js`/`katex.mjs` copies (the same non-global `.replace()` calls
+exist in the upstream `katex@0.16.47` source itself and are not reachable from any code path this
+project executes).
 
-**Version-coupling constraint with `rehype-katex` (found 2026-08-14, Batch 2 research):** the
-top-level `katex` package and `sync-katex-assets.mjs`'s copied CSS/fonts only matter if they match
-what `rehype-katex` actually renders with — and `rehype-katex@7.0.1` (the latest published version)
-hard-pins `"katex": "^0.16.0"` as a regular `dependencies` entry, not a peer dependency. Because
-`remark-math`'s `micromark-extension-math@3.1.0` pins the same `^0.16.0` range, `npm install` nests
-**separate** `katex@0.16.47` copies under both packages whenever the top-level `katex` is bumped
-past `0.16.x` — confirmed empirically by bumping the top-level pin to `0.18.4` and observing `npm ls
-katex` report three simultaneous installed copies. The actually-rendered math HTML is produced by
-`rehype-katex`'s nested 0.16.47 copy regardless of the top-level version, so bumping only the
-top-level `katex` pin has no effect on rendering while silently shipping a *different* version's
-`katex.min.css` (via `sync-katex-assets.mjs`, which reads `node_modules/katex/dist` — the top-level
-copy) than the version that generated the HTML markup the CSS is meant to style. KaTeX 0.18.0's
-class-prefix rename (`base`, `strut`, `vbox`, and 16 other internal classes renamed to their
-`katex-`-prefixed form) makes this concrete: a build with `katex@0.18.4` at the top level ships a
-stylesheet with only `.katex-strut`/`.katex-base` rules while `rehype-katex`'s nested 0.16.47 still
-emits `class="strut"`/`class="base"` markup — those rules no longer match. Do not adopt a top-level
-`katex` bump past `0.16.x` until `rehype-katex` itself depends on a compatible newer `katex` range;
-until then such a bump is inert at best (no rendering change) and asset-mismatched at worst.
+**Version-coupling constraint with `rehype-katex` — found 2026-08-14 (Batch 2 research), resolved
+2026-08-16 (renderer-owned asset architecture):** a prior top-level `katex` package
+(`dependencies` entry in `package.json`) and `sync-katex-assets.mjs`'s copied CSS/fonts only
+mattered if they matched what `rehype-katex` actually rendered with — and `rehype-katex@7.0.1`
+(the latest published version) hard-pins `"katex": "^0.16.0"` as a regular `dependencies` entry,
+not a peer dependency. Because `remark-math`'s `micromark-extension-math@3.1.0` pins the same
+`^0.16.0` range, `npm install` nested **separate** `katex@0.16.47` copies under both packages
+whenever the top-level `katex` was bumped past `0.16.x` — confirmed empirically by bumping the
+top-level pin to `0.18.4` in an isolated worktree and observing `npm ls katex` report three
+simultaneous installed copies. The actually-rendered math HTML was produced by `rehype-katex`'s
+nested 0.16.47 copy regardless of the top-level version, so bumping only the top-level `katex` pin
+had no effect on rendering while silently shipping a *different* version's `katex.min.css` (via
+the then-existing hard-coded read of `node_modules/katex/dist` — the top-level copy) than the
+version that generated the HTML markup the CSS is meant to style. KaTeX 0.18.0's class-prefix
+rename (`strut` → `katex-strut`, `sizing` → `katex-sizing`, and other internal classes renamed to
+their `katex-`-prefixed form) made this concrete: a build with `katex@0.18.4` at the top level
+shipped a stylesheet with only `.katex-strut`/`.katex-sizing` rules while `rehype-katex`'s nested
+0.16.47 still emitted `class="strut"`/`class="sizing ..."` markup — those rules no longer matched,
+breaking vertical-alignment struts and font-size scaling for every rendered fraction, square root,
+and sized delimiter.
+
+**Resolution:** rather than waiting for `rehype-katex` to depend on a newer `katex` range, the
+direct top-level `katex` dependency was removed from `package.json` entirely (2026-08-16 KaTeX
+renderer-owned asset-architecture remediation) and `scripts/sync-katex-assets.mjs` was rewritten to
+resolve `katex` through `rehype-katex`'s own module graph instead. `katex` is now installed purely
+as a transitive dependency of `rehype-katex`/`micromark-extension-math` (npm reclassified it, and
+its own `commander` CLI dependency, `dev: true` in `package-lock.json`, matching its actual
+build-time-only role — `rehype-katex`/`remark-math` were already `devDependencies`). This
+eliminates the skew class structurally: there is no longer an independent top-level version to
+drift out of sync, and a future `rehype-katex`/`micromark-extension-math` upgrade that itself
+adopts a newer `katex` range will now automatically carry the served assets forward with it,
+proven both ways by `tests/katex-asset-sync.test.mjs`'s KA-1 assertion (passes on the corrected
+resolution; fails with an exact diagnostic naming `strut`/`sizing` when the skew is deliberately
+reintroduced in a disposable fixture). A future KaTeX version change must therefore arrive through
+the `rehype-katex`/`micromark-extension-math` dependency graph itself (or a separately-designed
+math-stack migration that also updates their pinned range), not a standalone top-level bump.
 
 ## Dependabot release freeze (Phase 3-C / Phase 4, lifted Phase 5-D2-B)
 
