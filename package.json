@@ -125,7 +125,7 @@
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
     "tailwindcss": "4.3.3",
-    "terser": "5.49.2",
+    "terser": "5.50.0",
     "typescript": "6.0.3",
     "wrangler": "4.123.0"
   }
