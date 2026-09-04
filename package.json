@@ -96,21 +96,21 @@
     "ci:quality-gate": "node scripts/ci/change-impact.mjs"
   },
   "dependencies": {
-    "@astrojs/markdown-remark": "7.2.2",
-    "@astrojs/mdx": "7.0.5",
+    "@astrojs/markdown-remark": "7.3.0",
+    "@astrojs/mdx": "8.0.0",
     "@astrojs/rss": "4.0.19",
-    "@astrojs/sitemap": "3.7.3",
+    "@astrojs/sitemap": "3.7.4",
     "@astrojs/svelte": "9.0.1",
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@fontsource-variable/playfair-display": "^5.2.8",
     "@lucide/astro": "1.31.0",
-    "astro": "7.2.2",
+    "astro": "7.2.10",
     "chart.js": "^4.5.1",
     "dompurify": "3.4.13",
     "marked": "18.0.9",
     "pdfmake": "^0.3.7",
-    "svelte": "5.56.9"
+    "svelte": "5.57.0"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
