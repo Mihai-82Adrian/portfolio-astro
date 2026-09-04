@@ -45,11 +45,13 @@ function buildFixture() {
   const output = path.join(root, 'output');
   const deploy = path.join(output, 'deploy');
   mkdirSync(path.join(repository, 'config'), { recursive: true });
+  mkdirSync(path.join(repository, 'functions', 'api'), { recursive: true });
   mkdirSync(deploy, { recursive: true });
   writeFileSync(path.join(repository, 'package.json'), '{"name":"portfolio-astro"}\n');
   writeFileSync(path.join(repository, 'package-lock.json'), '{"lockfileVersion":3}\n');
   writeFileSync(path.join(repository, 'wrangler.jsonc'), '{}\n');
   writeFileSync(path.join(repository, 'config', 'release-policy.json'), '{}\n');
+  writeFileSync(path.join(repository, 'functions', 'api', 'health.ts'), 'export const onRequest = () => new Response();\n');
   execFileSync('git', ['init', '-q'], { cwd: repository });
   execFileSync('git', ['config', 'user.name', 'Release Test'], { cwd: repository });
   execFileSync('git', ['config', 'user.email', 'release@example.invalid'], { cwd: repository });
@@ -57,6 +59,7 @@ function buildFixture() {
   execFileSync('git', ['commit', '-qm', 'fixture'], { cwd: repository });
   writeFileSync(path.join(deploy, 'index.html'), '<h1>candidate</h1>\n');
   writeFileSync(path.join(deploy, '_worker.js'), 'export default { fetch() { return new Response("ok"); } };\n');
+  writeFileSync(path.join(deploy, '_routes.json'), '{"version":1,"include":["/api/health"],"exclude":[]}\n');
   writeFileSync(path.join(deploy, '.htaccess'), 'Options -Indexes\n');
   return { root, repository, output, deploy };
 }

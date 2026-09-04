@@ -16,6 +16,7 @@ const ALTERNATE_LINKS = [
   '<link\n  rel="alternate"\n  hreflang="ro"\n  href="https://me-mateescu.de/ro/">',
   '<link rel = "alternate" href = "https://me-mateescu.de/" hreflang = "x-default">',
 ];
+const MODULE_ENTRY = '<script type="module" src="/_astro/entry.ABC123.js"></script>';
 
 function response(url, status, { headers = {}, text = '', json } = {}) {
   return {
@@ -29,9 +30,10 @@ function response(url, status, { headers = {}, text = '', json } = {}) {
 
 function postdeployFetch(homeText, calls = []) {
   const fetchImpl = async (url, init) => {
-    calls.push([url.pathname, init.method]);
-    if (url.pathname === '/') {
-      return response(url.href, 200, {
+    const target = url instanceof URL ? url : new URL(url);
+    calls.push([target.pathname, init?.method ?? 'GET']);
+    if (target.pathname === '/') {
+      return response(target.href, 200, {
         headers: {
           'Content-Security-Policy-Report-Only': 'default-src self; report-uri /api/csp-report; report-to csp-endpoint',
           'Reporting-Endpoints': 'csp-endpoint="/api/csp-report"',
@@ -40,16 +42,28 @@ function postdeployFetch(homeText, calls = []) {
         text: homeText,
       });
     }
-    if (url.pathname === '/api/health') {
-      return response(url.href, 200, {
+    if (target.pathname === '/api/health') {
+      return response(target.href, 200, {
         json: { data: { release: { releaseId: RELEASE_ID, sourceRevision: REVISION } } },
       });
     }
-    if (url.pathname === '/api/sample-review') return response(url.href, 204);
-    if (url.pathname.includes('missing') || /(?:release-manifest|sbom\.cdx)/.test(url.pathname)) {
-      return response(url.href, 404);
+    if (target.pathname === '/_astro/entry.ABC123.js') {
+      return response(target.href, 200, {
+        headers: { 'Content-Type': 'text/javascript; charset=utf-8' },
+        text: 'import "./ai-privacy-notice.DEF456.js";',
+      });
     }
-    return response(url.href, 200);
+    if (target.pathname === '/_astro/ai-privacy-notice.DEF456.js') {
+      return response(target.href, 200, {
+        headers: { 'Content-Type': 'text/javascript; charset=utf-8' },
+        text: 'export const noticeVersion = "ai-openai-v2";',
+      });
+    }
+    if (target.pathname === '/api/sample-review') return response(target.href, 204);
+    if (target.pathname.includes('missing') || /(?:release-manifest|sbom\.cdx)/.test(target.pathname)) {
+      return response(target.href, 404);
+    }
+    return response(target.href, 200);
   };
   return fetchImpl;
 }
@@ -59,7 +73,7 @@ function verifyHome(homeText, calls = []) {
     baseUrl: 'http://127.0.0.1:8788/',
     expectedReleaseId: RELEASE_ID,
     expectedSourceRevision: REVISION,
-    fetchImpl: postdeployFetch(homeText, calls),
+    fetchImpl: postdeployFetch(`${homeText}\n${MODULE_ENTRY}`, calls),
   });
 }
 

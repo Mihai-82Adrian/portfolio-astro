@@ -1,9 +1,13 @@
 #!/usr/bin/env node
-import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { execProjectLocalBin } from './project-local-executable.mjs';
+
+const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
 function assert(condition, message) {
   if (!condition) {
@@ -20,10 +24,11 @@ function compileRuntime() {
     'src/lib/fin-core/xrechnung.ts',
   ];
 
-  execFileSync(
-    'npx',
+  execProjectLocalBin(
+    ROOT,
+    'typescript',
+    'tsc',
     [
-      'tsc',
       '--ignoreConfig',
       '--ignoreDeprecations',
       '6.0',

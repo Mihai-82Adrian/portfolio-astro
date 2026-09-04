@@ -225,12 +225,15 @@ test('release artifact verification links manifest, SBOM, config, and deploy tre
   const deploy = path.join(output, 'deploy');
   mkdirSync(repository);
   mkdirSync(path.join(repository, 'config'));
+  mkdirSync(path.join(repository, 'functions', 'api'), { recursive: true });
   mkdirSync(output);
   mkdirSync(deploy);
   writeFileSync(path.join(repository, 'package.json'), '{"name":"portfolio-astro"}\n');
   writeFileSync(path.join(repository, 'package-lock.json'), '{"lockfileVersion":3}\n');
   writeFileSync(path.join(repository, 'wrangler.jsonc'), '{}\n');
   writeFileSync(path.join(repository, 'config', 'release-policy.json'), '{}\n');
+  writeFileSync(path.join(repository, 'functions', 'api', 'health.ts'), 'export const onRequest = () => new Response();\n');
+  writeFileSync(path.join(repository, 'functions', 'api', 'chat.ts'), 'export const onRequest = () => new Response();\n');
   execFileSync('git', ['init', '-q'], { cwd: repository });
   execFileSync('git', ['config', 'user.name', 'Release Test'], { cwd: repository });
   execFileSync('git', ['config', 'user.email', 'release@example.invalid'], { cwd: repository });
@@ -238,6 +241,13 @@ test('release artifact verification links manifest, SBOM, config, and deploy tre
   execFileSync('git', ['commit', '-qm', 'fixture'], { cwd: repository });
   writeFileSync(path.join(deploy, 'index.html'), '<h1>candidate</h1>\n');
   writeFileSync(path.join(deploy, '_worker.js'), 'export default { fetch() { return new Response("ok"); } };\n');
+  const safeRoutes = {
+    version: 1,
+    description: 'fixture',
+    include: ['/api/health', '/api/chat'],
+    exclude: [],
+  };
+  writeFileSync(path.join(deploy, '_routes.json'), `${JSON.stringify(safeRoutes)}\n`);
   const sbom = {
     $schema: 'http://cyclonedx.org/schema/bom-1.5.schema.json',
     bomFormat: 'CycloneDX',
@@ -272,6 +282,26 @@ test('release artifact verification links manifest, SBOM, config, and deploy tre
   writeFileSync(path.join(output, 'release-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 
   await assert.doesNotReject(() => verifyReleaseArtifacts(repository, output));
+
+  writeFileSync(
+    path.join(deploy, '_routes.json'),
+    `${JSON.stringify({ ...safeRoutes, include: ['/*'] })}\n`,
+  );
+  const broadArtifact = await digestArtifactTree(deploy);
+  writeFileSync(
+    path.join(output, 'release-manifest.json'),
+    `${JSON.stringify({
+      ...manifest,
+      checksums: { ...manifest.checksums, artifactTree: broadArtifact.digest },
+    }, null, 2)}\n`,
+  );
+  await assert.rejects(
+    () => verifyReleaseArtifacts(repository, output),
+    /Pages Functions route scope/i,
+  );
+
+  writeFileSync(path.join(deploy, '_routes.json'), `${JSON.stringify(safeRoutes)}\n`);
+  writeFileSync(path.join(output, 'release-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
   writeFileSync(
     path.join(output, 'sbom.cdx.json'),
     `${JSON.stringify({

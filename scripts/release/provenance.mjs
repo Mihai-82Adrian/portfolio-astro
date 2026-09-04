@@ -242,6 +242,59 @@ export function createManifest({
   return manifest;
 }
 
+function collectFunctionFiles(root, current = '', files = []) {
+  for (const entry of readdirSync(path.join(root, current), { withFileTypes: true })) {
+    const relative = current ? `${current}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) collectFunctionFiles(root, relative, files);
+    else if (entry.isFile()) files.push(relative);
+    else throw new Error(`Unsupported Pages Functions source path: ${relative}`);
+  }
+  return files;
+}
+
+function expectedPagesRoutes(repository) {
+  const functions = path.join(repository, 'functions');
+  return collectFunctionFiles(functions)
+    .filter((relative) => !relative.startsWith('_lib/') && !relative.startsWith('_generated/'))
+    .map((relative) => {
+      if (!/^api\/(?!_)[A-Za-z0-9/_-]+\.ts$/.test(relative) || relative.includes('[')) {
+        throw new Error(`Pages Function is outside the intended static-first /api contract: ${relative}`);
+      }
+      const route = `/${relative.slice(0, -3)}`.replace(/\/index$/, '');
+      return route;
+    })
+    .sort();
+}
+
+export function validatePagesRoutes(repository, routesPath) {
+  let routes;
+  try {
+    routes = JSON.parse(readFileSync(routesPath, 'utf8'));
+  } catch (error) {
+    throw new Error('Invalid generated Cloudflare Pages _routes.json.', { cause: error });
+  }
+  if (
+    routes?.version !== 1
+    || !Array.isArray(routes.include)
+    || !routes.include.every((route) => typeof route === 'string')
+    || !Array.isArray(routes.exclude)
+    || !routes.exclude.every((route) => typeof route === 'string')
+  ) {
+    throw new Error('Invalid generated Cloudflare Pages _routes.json schema.');
+  }
+
+  const expected = expectedPagesRoutes(repository);
+  const included = [...new Set(routes.include)].sort();
+  if (
+    included.length !== routes.include.length
+    || routes.exclude.length !== 0
+    || included.length !== expected.length
+    || included.some((route, index) => route !== expected[index])
+  ) {
+    throw new Error('Generated Cloudflare Pages Functions route scope is not the intended API-only surface.');
+  }
+}
+
 export async function verifyReleaseArtifacts(repository, output) {
   const manifest = JSON.parse(readFileSync(path.join(output, 'release-manifest.json'), 'utf8'));
   validateManifest(manifest);
@@ -276,6 +329,7 @@ export async function verifyReleaseArtifacts(repository, output) {
   if (!existsSync(worker) || !lstatSync(worker).isFile()) {
     throw new Error('Deploy tree is missing the Cloudflare Pages _worker.js Functions entry point.');
   }
+  validatePagesRoutes(repository, path.join(output, 'deploy', '_routes.json'));
   return { manifest, sbom, artifact };
 }
 

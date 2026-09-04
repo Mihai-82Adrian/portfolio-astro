@@ -7,6 +7,8 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { execProjectLocalBin } from '../scripts/project-local-executable.mjs';
+
 const ROOT = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const SHIM = path.join(ROOT, 'scripts/release/date-shim.cjs');
 
@@ -35,7 +37,7 @@ function digestTree(dir) {
 }
 
 function buildAt(outDir, fixedNow) {
-  execFileSync('npx', ['astro', 'build', '--outDir', outDir], {
+  execProjectLocalBin(ROOT, 'astro', 'astro', ['build', '--outDir', outDir], {
     cwd: ROOT,
     stdio: 'pipe',
     env: {

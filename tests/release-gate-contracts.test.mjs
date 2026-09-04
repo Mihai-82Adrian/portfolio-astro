@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -295,7 +296,11 @@ test('release scripts expose every Phase 2C verifier and keep generated evidence
   ]) assert.ok(scripts[command], command);
   const ignore = read('.gitignore');
   assert.match(ignore, /\.artifacts\/release-candidate\//);
-  assert.equal(existsSync(path.join(ROOT, '.artifacts', 'release-candidate', 'summary.json')), false);
+  const trackedEvidence = execFileSync('git', ['ls-files', '--', '.artifacts/release-candidate'], {
+    cwd: ROOT,
+    encoding: 'utf8',
+  }).trim();
+  assert.equal(trackedEvidence, '', 'release-candidate evidence must never be tracked');
 });
 
 test('isolated builds use mapped ownership, bounded temporary state, and no network', () => {

@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 
 import { verifyReleaseDiffHygiene } from '../scripts/release/diff-hygiene.mjs';
+import { resolvePublicCanonicalSource } from '../scripts/release/public-lineage.mjs';
 
 const ROOT = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '..');
 
@@ -287,6 +288,10 @@ test('the guard is wired into the unified release-candidate gate under Workflow 
 });
 
 test('the D1E-era mixed-line-ending defect in src/pages/blog/[slug].astro is repaired in the current release delta', () => {
-  const result = verifyReleaseDiffHygiene(ROOT);
+  // The real development repository intentionally permits local master and the public remote-tracking
+  // ref to differ. Select the public identity explicitly for this test; the production guard remains
+  // fail-closed when its caller does not disambiguate multiple refs.
+  const base = resolvePublicCanonicalSource(ROOT, 'refs/remotes/origin/master');
+  const result = verifyReleaseDiffHygiene(ROOT, { base });
   assert.equal(result.head.length, 40);
 });

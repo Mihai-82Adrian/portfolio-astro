@@ -47,13 +47,12 @@ not the current lockfile.
 the table below describes when Wave 2 was recorded. See the dated subsection below for the full
 Wave 2 rationale.
 
-**Current lockfile (2026-08-16 KaTeX renderer-owned asset-architecture remediation)**:
-`package-lock.json` SHA-256 `2d1663e54d4b5320f3f6c01c08cce87a402ea1e734d90878348c6ea233c848b4` —
-this is the one `config/dependency-advisories.json`'s `lockfileSha256` currently tracks. The hash
-changed only because the direct top-level `katex` dependency was removed (see the "Vendored
-runtime assets — KaTeX" section below); every `astro`/`@astrojs/*`/`svelte`/`tailwindcss`/
-`wrangler` version in the framework graph table below is unchanged from Wave 2 and remains
-current.
+**Current lockfile (2026-09-02 targeted transitive security remediation)**:
+`package-lock.json` SHA-256 `16d7504e5bd17c46b20d74e29749b465c0af96081a4a838f3b07190ec6323ecd` —
+this is the one `config/dependency-advisories.json`'s `lockfileSha256` currently tracks. The only
+dependency resolution changed from the 2026-08-16 lockfile is `fast-uri` 3.1.5 -> 3.1.7; the
+`astro`/`@astrojs/*`/`svelte`/`tailwindcss`/`wrangler` versions in the framework graph table below
+remain unchanged.
 
 **Target graph versions observed on Node 24.19.0 / npm 11.17.0 / Linux x64 glibc** (Modernization
 Wave 2, 2026-08-15):
@@ -191,6 +190,36 @@ fails the gate; it never falls back to the committed snapshot. This is
 distinct from `verify:advisory-scanner` (`tests/github-advisory-scan.test.mjs`),
 which remains a mocked-fetch contract test proving the scanner's
 batching/pagination/fail-closed logic and performs no network access.
+
+### Pre-publication `fast-uri` security closure (2026-09-02)
+
+The fresh exact-lock publication gate stopped before candidate creation after four new high-severity
+GitHub advisories matched `fast-uri@3.1.5`: `GHSA-5jgf-p345-68v8`,
+`GHSA-f65p-4m7j-42xc`, `GHSA-fph4-wmhf-6fwf`, and `GHSA-jqff-g426-hqxp`. The package is a transitive
+development dependency on the path `@astrojs/check -> @astrojs/language-server ->
+volar-service-yaml -> yaml-language-server -> ajv -> fast-uri`; `ajv@8.20.0` already permits the
+patched v3 releases through its existing `^3.0.1` constraint.
+
+An initial local candidate selected 3.1.6, but independent review stopped it before canonical
+integration because upstream published the same-line 3.1.7 security release later that day. That
+release fixes two more high-severity advisories, `GHSA-qw65-cvwx-89v3` and
+`GHSA-58mr-gqgx-xq4g`, and directs v3 users to 3.1.7. The amended remediation therefore used npm's
+natural targeted lock-only resolution and changed only the existing `node_modules/fast-uri` entry
+from the canonical 3.1.5 baseline to the current safe compatible v3 patch, 3.1.7, with its registry
+URL and integrity. `package.json` is unchanged, no direct `fast-uri` ownership or override was added,
+and no Astro, `@astrojs/check`, framework, or other dependency was upgraded. The ordinary Dependabot
+backlog remains separate.
+
+A fresh `npm audit --json` and exact-lock live GitHub Advisory Database API scan (`reviewed`,
+`unreviewed`, and `malware`) against the amended lockfile found zero applicable records. At that
+observation time the API also returned HTTP 404 for direct lookups of both new upstream GHSA IDs, so
+its zero result records a database propagation/visibility boundary, not evidence that the upstream
+advisories did not exist. The official upstream 3.1.7 release and repository advisories provide the
+additional security evidence. No ignore, suppression, allowlist, or risk acceptance was used.
+
+A targeted security remediation must inspect the current latest compatible patch and its upstream
+security/release metadata; do not hold an older patch merely because it was the initially identified
+fix.
 
 ### Routine maintenance Safe Batch 1 (2026-08-13)
 

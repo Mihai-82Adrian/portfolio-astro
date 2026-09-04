@@ -37,7 +37,10 @@ toolchain, secret, quota, or platform-account details.
 
 `npm run build:release-artifacts` requires a clean tracked tree, runs the repository build, copies
 `dist/`, and adds Wrangler's locally bundled Pages Functions worker and route manifest. That combined
-`deploy/` tree is the deployable artifact.
+`deploy/` tree is the deployable artifact. Verification derives the intended API route set from
+`functions/api/` and requires Wrangler's generated `_routes.json` to match it semantically, without
+depending on JSON ordering. A missing route, static-route expansion, catch-all, exclusion, or
+Function outside the explicit `/api` boundary fails closed.
 
 The artifact-tree SHA-256 walks ordinary files in stable lexical relative-path order. Each entry
 hashes an explicit record marker, UTF-8 relative-path length and bytes, file-byte length, and file
@@ -102,7 +105,7 @@ npm run verify:reproducibility
 
 Generation fails for tracked changes, unexpected untracked production input, a failed build or
 Function bundle, inconsistent lockfile/SBOM, unsupported filesystem entries, invalid schemas, or
-checksum drift. Permanent tests are offline and cover identity determinism, dirty-source rejection,
+checksum or generated-route drift. Permanent tests are offline and cover identity determinism, dirty-source rejection,
 path ordering, mtime independence, self-reference, symlink rejection, SBOM normalization, manifest
 validation, health linkage, prohibited public fields, Pagefind byte identity across opposite
 input-creation orders, the `include-hidden-files: true` workflow contract, a faithful

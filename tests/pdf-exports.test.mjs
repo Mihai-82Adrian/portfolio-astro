@@ -4,11 +4,12 @@
 // the network, or any provider.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { execProjectLocalBin } from '../scripts/project-local-executable.mjs';
 
 const ROOT = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '..');
 
@@ -30,9 +31,11 @@ function compileXRechnungPdfRuntime() {
     'src/lib/fin-core/xrechnung.ts',
     'src/lib/xrechnung/pdfExport.ts',
   ];
-  execFileSync(
-    'npx',
-    ['tsc', '--ignoreConfig', '--ignoreDeprecations', '6.0', '--noImplicitAny', 'false',
+  execProjectLocalBin(
+    ROOT,
+    'typescript',
+    'tsc',
+    ['--ignoreConfig', '--ignoreDeprecations', '6.0', '--noImplicitAny', 'false',
       '--target', 'ES2022', '--module', 'CommonJS', '--moduleResolution', 'Node',
       '--esModuleInterop', '--skipLibCheck', '--outDir', outDir, ...files],
     { cwd: ROOT, stdio: 'inherit' },
