@@ -4,8 +4,8 @@
 
 - **Internal integration lineage:** the locally reviewed hardening history and approved tracked tree;
   it contains granular audit-era commits that are not intended as public release history.
-- **Current public `master`:** the existing public-history anchor and production source until a
-  separately authorized release changes it.
+- **Current public `master`:** the public-history anchor. It may be ahead of deployed production;
+  production changes only through separately authorized deployment.
 - **Deployable source tree:** the exact approved tracked tree used to build local release evidence.
 - **Release commit:** a new reviewed commit whose parent is current public `master` and whose tracked
   tree equals the approved source tree.

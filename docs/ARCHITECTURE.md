@@ -310,16 +310,18 @@ generated from the complete lockfile, including development tooling. It is not a
 deployed-runtime SBOM. The manifest and build dependency SBOM are offline evidence, not public
 assets.
 
-An eventual public release commit and this source revision are distinct lineage concepts. The
-release commit must reproduce the approved tracked tree without exposing the raw internal integration
-history. The exact local contracts and future lineage procedure live in
+Canonical source revision and public release commit are distinct lineage concepts. The reviewed
+public-release process has been exercised: a public release commit reproduces the approved canonical
+tracked tree without exposing the raw internal integration history. The exact local contracts and
+future lineage procedure live in
 [release-identity-provenance.md](operations/release-identity-provenance.md) and
 [public-release-lineage-strategy.md](operations/public-release-lineage-strategy.md).
 
-The public lineage contract is machine checked and has a dry-run-only synthetic proof. A future
-release commit has current public `master` as its sole parent, the approved canonical tracked tree,
-and explicit canonical source/tree/artifact/manifest trailers. No real public release commit exists
-yet.
+The public lineage contract is machine checked and has a dry-run-only synthetic proof. Each future
+public release commit has the then-current public `master` as its sole parent, the approved canonical
+tracked tree, and explicit canonical source/tree/artifact/manifest trailers. GitHub publication does
+not imply a Cloudflare production deployment; production promotion remains separately authorized and
+may intentionally lag public source.
 
 The immutable Node image reproducibility gate compares a host-class build and two network-disabled
 container builds. The authoritative `verify:release-candidate` command composes governance,
