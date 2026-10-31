@@ -112,23 +112,12 @@ const defaultStructuredData = {
   "@context": "https://schema.org",
   "@type": "Person",
   "name": "Mihai Adrian Mateescu",
-  "givenName": "Mihai Adrian",
-  "familyName": "Mateescu",
   "jobTitle": lang === 'de' ? 'Finanzbuchhalter' : lang === 'en' ? 'Financial Accountant' : 'Contabil Financiar',
-  "address": {
-    "@type": "PostalAddress",
-    "addressLocality": "Seevetal",
-    "postalCode": "21218",
-    "streetAddress": "Bahnhofstraße 65b",
-    "addressCountry": "DE"
-  },
-  "email": "kontakt@me-mateescu.de",
-  "telephone": "+491704740121",
   "url": siteUrl,
   "sameAs": [
-    "https://www.linkedin.com/in/mihai-adrian-mateescu/"
-  ],
-  "knowsLanguage": ["de", "en", "ro"]
+    "https://www.linkedin.com/in/mihai-adrian-mateescu/",
+    "https://github.com/Mihai-82Adrian"
+  ]
 };
 ---
 
@@ -137,14 +126,13 @@ const defaultStructuredData = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="generator" content={Astro.generator} />
 
     <!-- Primary Meta Tags -->
     <title>{fullTitle}</title>
     <meta name="title" content={fullTitle} />
     <meta name="description" content={description} />
     <meta name="author" content="Mihai Adrian Mateescu" />
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {noindex && <meta name="robots" content="noindex, follow" />}
     {!noindex && <meta name="robots" content="index, follow" />}
 
     <!-- Canonical URL -->

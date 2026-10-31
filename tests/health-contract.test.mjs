@@ -29,7 +29,7 @@ function request(method = 'GET') {
   });
 }
 
-test('GET health returns the normalized public release identity without configuration or egress', async () => {
+test('GET health returns the minimal operational status without configuration or egress', async () => {
   let fetchCalls = 0;
   const handler = createHandler({
     releaseIdentity: IDENTITY,
@@ -45,16 +45,10 @@ test('GET health returns the normalized public release identity without configur
   assert.equal(response.headers.get('Content-Type'), 'application/json; charset=utf-8');
   assert.equal(response.headers.get('Cache-Control'), 'no-store');
   assert.equal(response.headers.get('X-Content-Type-Options'), 'nosniff');
-  assert.deepEqual(body, {
+  assert.deepStrictEqual(body, {
     ok: true,
     data: {
-      service: 'me-mateescu.de',
       status: 'ok',
-      release: {
-        schemaVersion: 1,
-        releaseId: IDENTITY.releaseId,
-        sourceRevision: IDENTITY.sourceRevision,
-      },
     },
     requestId: body.requestId,
   });

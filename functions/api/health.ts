@@ -23,13 +23,7 @@ export function createHandler(
         if (methodError) return methodError;
 
         const response = jsonSuccess({
-            service: 'me-mateescu.de',
             status: 'ok',
-            release: {
-                schemaVersion: release.schemaVersion,
-                releaseId: release.releaseId,
-                sourceRevision: release.sourceRevision,
-            },
         }, requestId);
         return request.method === 'HEAD'
             ? new Response(null, { status: response.status, headers: response.headers })
