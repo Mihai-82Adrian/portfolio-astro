@@ -1312,6 +1312,3 @@ test('turnstile helper: validates without blocking network call when dummy token
     assert.equal(resDummyToken, null);
     assert.equal(calls.length, 0);
 });
-
-
-

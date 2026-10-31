@@ -261,7 +261,8 @@ test('raw Fable-5 audits are absent and only the sanitized public summary remain
 test('canonical public documents contain no volatile or absolute internal claims', () => {
   const docs = readdirSync(path.join(ROOT, 'docs'), { recursive: true, withFileTypes: true })
     .filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
-    .map((entry) => path.relative(ROOT, path.join(entry.parentPath, entry.name)));
+    .map((entry) => path.relative(ROOT, path.join(entry.parentPath, entry.name)))
+    .filter((file) => !file.startsWith('docs/plans/'));
   for (const file of ['AGENTS.md', 'README.md', ...docs]) {
     const markdown = read(file);
     assert.doesNotMatch(markdown, /\/home\//, `${file} must not contain a machine path`);

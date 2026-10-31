@@ -45,7 +45,7 @@ function buildFakeFetch(releaseId, sourceRevision) {
       status: 200,
       headers: {
         'content-type': 'text/html; charset=utf-8',
-        'content-security-policy-report-only': 'default-src \'self\'; report-uri /api/csp-report; report-to csp-endpoint',
+        'content-security-policy': 'default-src \'self\'; frame-ancestors \'none\'; report-uri /api/csp-report; report-to csp-endpoint',
         'reporting-endpoints': 'csp-endpoint="/api/csp-report"',
         'cache-control': 'public, max-age=3600, must-revalidate',
         ...headers,
@@ -61,7 +61,7 @@ function buildFakeFetch(releaseId, sourceRevision) {
     if (pathname === '/release-manifest.json') return notFound();
     if (pathname === '/sbom.cdx.json') return notFound();
     if (pathname === '/api/health' && method === 'GET') {
-      return withUrl(new Response(JSON.stringify({ data: { release: { releaseId, sourceRevision } } }), {
+      return withUrl(new Response(JSON.stringify({ ok: true, data: { status: 'ok' } }), {
         status: 200,
         headers: { 'content-type': 'application/json' },
       }), url);

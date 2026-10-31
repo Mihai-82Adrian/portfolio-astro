@@ -81,7 +81,7 @@ async function main() {
     toolchain: { node: process.version, npm: execFileSync('npm', ['--version'], { encoding: 'utf8' }).trim() },
     artifactDigest: null,
     sbomDigest: null,
-    cspPolicyDigest: sha256(readFileSync(path.join(ROOT, 'public/_headers'), 'utf8').match(/Content-Security-Policy-Report-Only: (.+)/)?.[1] ?? ''),
+    cspPolicyDigest: sha256(readFileSync(path.join(ROOT, 'public/_headers'), 'utf8').match(/Content-Security-Policy(?:-Report-Only)?: (.+)/)?.[1] ?? ''),
     workflowPins: 'PENDING',
     releasePolicy: 'PENDING',
     dependencies: 'PENDING',
