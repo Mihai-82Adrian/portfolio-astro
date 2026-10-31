@@ -18,6 +18,7 @@
   } from '@/lib/investment/analytics';
   import { generateInvestmentPdf } from '@/lib/investment/pdfExport';
   import { AI_PRIVACY_NOTICE_VERSION } from '../../../../functions/_lib/ai-privacy-notice.ts';
+  import { mountTurnstile, type TurnstileController } from '@/lib/turnstile-client';
 
   import InputPanel        from './InputPanel.svelte';
   import MetricsDashboard  from './MetricsDashboard.svelte';
@@ -30,6 +31,9 @@
   let input        = $state<InvestmentInput>({ ...DEFAULT_INPUT });
   let aiConsent    = $state(false);
   let disclosureRef: AIDisclosureNote | undefined = $state();
+  let turnstileEl: HTMLDivElement | undefined = $state();
+  let turnstile: TurnstileController | null = null;
+  let turnstileReady = $state(true);
   let aiNarrative  = $state<string | null>(null);
   let lastAiAt     = $state<number | null>(null);
   let restored     = $state(false);
@@ -130,10 +134,27 @@
     }
   }
 
+  $effect(() => {
+    if (!turnstileEl || weeklyLocked) return;
+    const ctrl = mountTurnstile(turnstileEl, {
+      onStateChange: ({ ready }) => {
+        turnstileReady = ready;
+      },
+    });
+    turnstile = ctrl;
+    return () => {
+      ctrl.destroy();
+      turnstile = null;
+    };
+  });
+
   // ── AI Analysis ───────────────────────────────────────────────────────────
   async function handleAiAnalysis() {
     if (isAnalyzing || weeklyLocked || !hasData) return;
     if (!disclosureRef?.requireConsent()) return;
+    if (turnstile && !turnstile.isReady()) return;
+
+    const turnstileToken = turnstile?.getToken() || '';
     isAnalyzing = true;
     aiError     = null;
 
@@ -176,27 +197,34 @@
           ...payload,
           privacyConsent: true,
           privacyNoticeVersion: AI_PRIVACY_NOTICE_VERSION,
+          turnstileToken,
         }),
       });
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({})) as any;
-        if (res.status === 429) {
-          aiError    = err.message ?? 'Wochenlimit erreicht.';
+        const errCode = err?.error?.code;
+        const errMsg = err?.error?.message ?? err?.message;
+        if (res.status === 429 || errCode === 'RATE_LIMITED') {
+          aiError    = errMsg ?? 'Wochenlimit erreicht.';
           lastAiAt   = Date.now();
+        } else if (errCode === 'CHALLENGE_FAILED' || errCode === 'FORBIDDEN') {
+          aiError = 'Sicherheitsüberprüfung fehlgeschlagen. Bitte versuchen Sie es erneut.';
         } else {
-          aiError = err.message ?? 'Fehler bei der KI-Analyse.';
+          aiError = errMsg ?? 'Fehler bei der KI-Analyse.';
         }
         return;
       }
 
-      const data = await res.json() as any;
+      const raw = await res.json() as any;
+      const data = raw?.data ?? raw;
       aiNarrative = JSON.stringify(data);
       lastAiAt    = Date.now();
     } catch {
       aiError = 'Netzwerkfehler. Bitte Verbindung prüfen.';
     } finally {
       isAnalyzing = false;
+      turnstile?.reset();
     }
   }
 
@@ -386,15 +414,21 @@
              analysis and requireConsent() silently no-ops on every subsequent click. -->
         {#if !weeklyLocked}
           <AIDisclosureNote bind:checked={aiConsent} bind:this={disclosureRef} showFinancialWarning />
+          <div
+            bind:this={turnstileEl}
+            data-turnstile="investment"
+            data-sitekey="0x4AAAAAAFuRxbj5vTrO1z1m"
+            class="mb-2 max-w-full overflow-x-auto"
+          ></div>
         {/if}
         <div class="flex items-center gap-3">
           <button
             type="button"
             onclick={handleAiAnalysis}
             data-testid="investment-analyze"
-            disabled={isAnalyzing || weeklyLocked || !hasData}
+            disabled={isAnalyzing || weeklyLocked || !hasData || !turnstileReady}
             class="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all
-              {isAnalyzing || weeklyLocked || !hasData
+              {isAnalyzing || weeklyLocked || !hasData || !turnstileReady
                 ? 'cursor-not-allowed border border-black/10 text-text-muted-light dark:border-white/10 dark:text-text-muted-dark'
                 : 'bg-eucalyptus-600 text-white hover:bg-eucalyptus-700 dark:bg-eucalyptus-500 dark:hover:bg-eucalyptus-400'}"
           >

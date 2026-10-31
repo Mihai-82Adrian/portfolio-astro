@@ -1044,3 +1044,274 @@ test('sample-review: an injected custom email provider is used instead of the de
     assert.ok(sent);
     assert.equal(sent.replyTo, 'test@example.com');
 });
+
+// ─────────────────────────────────────────────────────────────────────────
+// Cloudflare Turnstile server-side verification (Stage 3: API Shield & DoW Defense)
+// ─────────────────────────────────────────────────────────────────────────
+
+const { verifyTurnstile, extractTurnstileToken } = await import('../functions/_lib/turnstile.ts');
+const { createHandler: createHealthHandler } = await import('../functions/api/health.ts');
+
+test('turnstile helper: extracts token from cf-turnstile-response header, JSON turnstileToken, or FormData', () => {
+    const reqWithHeader = new Request('http://localhost/api/chat', {
+        method: 'POST',
+        headers: { 'cf-turnstile-response': 'header-token-123' },
+    });
+    assert.equal(extractTurnstileToken(reqWithHeader, { turnstileToken: 'body-token-456' }), 'header-token-123');
+
+    const reqWithoutHeader = new Request('http://localhost/api/chat', { method: 'POST' });
+    assert.equal(extractTurnstileToken(reqWithoutHeader, { turnstileToken: 'body-token-456' }), 'body-token-456');
+
+    const form = new FormData();
+    form.set('cf-turnstile-response', 'form-token-789');
+    assert.equal(extractTurnstileToken(reqWithoutHeader, form), 'form-token-789');
+
+    assert.equal(extractTurnstileToken(reqWithoutHeader, {}), null);
+});
+
+test('turnstile helper: controlled bypass in test/dev environment when TURNSTILE_SECRET_KEY is not set', async () => {
+    const { fetchImpl, calls } = createFetchRouter([]);
+    const req = new Request('http://localhost/api/chat', { method: 'POST' });
+    const result = await verifyTurnstile(req, {}, 'req-test-1', { fetchImpl });
+    assert.equal(result, null);
+    assert.equal(calls.length, 0);
+});
+
+test('turnstile helper: fails closed with 403 CHALLENGE_FAILED in production or when TURNSTILE_ENFORCE=true if secret key is missing', async () => {
+    const { fetchImpl, calls } = createFetchRouter([]);
+    const req = new Request('https://me-mateescu.de/api/chat', { method: 'POST' });
+    const resProd = await verifyTurnstile(req, { ENVIRONMENT: 'production' }, 'req-prod-1', { fetchImpl });
+    assert.ok(resProd instanceof Response);
+    await assertErrorEnvelope(resProd, 403, 'CHALLENGE_FAILED');
+
+    const resEnforced = await verifyTurnstile(req, { TURNSTILE_ENFORCE: 'true' }, 'req-enf-1', { fetchImpl });
+    assert.ok(resEnforced instanceof Response);
+    await assertErrorEnvelope(resEnforced, 403, 'CHALLENGE_FAILED');
+    assert.equal(calls.length, 0);
+});
+
+test('turnstile helper: missing token when TURNSTILE_SECRET_KEY is configured returns 403 CHALLENGE_FAILED without calling siteverify', async () => {
+    const { fetchImpl, calls } = createFetchRouter([]);
+    const req = new Request('https://me-mateescu.de/api/chat', {
+        method: 'POST',
+        headers: { 'CF-Connecting-IP': '203.0.113.10' },
+    });
+    const res = await verifyTurnstile(req, { TURNSTILE_SECRET_KEY: 'secret-key' }, 'req-missing', {
+        payload: { message: 'hello' },
+        fetchImpl,
+    });
+    assert.ok(res instanceof Response);
+    await assertErrorEnvelope(res, 403, 'CHALLENGE_FAILED');
+    assert.equal(calls.length, 0);
+});
+
+test('turnstile helper: invalid token rejected by siteverify returns 403 CHALLENGE_FAILED', async () => {
+    const { fetchImpl, calls } = createFetchRouter([
+        ['challenges.cloudflare.com', () => jsonResponse({ success: false, 'error-codes': ['invalid-input-response'] })],
+    ]);
+    const req = new Request('https://me-mateescu.de/api/chat', {
+        method: 'POST',
+        headers: { 'CF-Connecting-IP': '203.0.113.11' },
+    });
+    const res = await verifyTurnstile(req, { TURNSTILE_SECRET_KEY: 'secret-key' }, 'req-invalid', {
+        payload: { turnstileToken: 'bad-token' },
+        fetchImpl,
+    });
+    assert.ok(res instanceof Response);
+    await assertErrorEnvelope(res, 403, 'CHALLENGE_FAILED');
+    assert.equal(calls.length, 1);
+    const sentPayload = JSON.parse(calls[0].init.body);
+    assert.equal(sentPayload.secret, 'secret-key');
+    assert.equal(sentPayload.response, 'bad-token');
+    assert.equal(sentPayload.remoteip, '203.0.113.11');
+});
+
+test('turnstile helper: valid token accepted by siteverify returns null', async () => {
+    const { fetchImpl, calls } = createFetchRouter([
+        ['challenges.cloudflare.com', () => jsonResponse({ success: true })],
+    ]);
+    const req = new Request('https://me-mateescu.de/api/chat', {
+        method: 'POST',
+        headers: {
+            'CF-Connecting-IP': '203.0.113.12',
+            'cf-turnstile-response': 'valid-header-token',
+        },
+    });
+    const res = await verifyTurnstile(req, { TURNSTILE_SECRET_KEY: 'secret-key' }, 'req-valid', {
+        fetchImpl,
+    });
+    assert.equal(res, null);
+    assert.equal(calls.length, 1);
+});
+
+test('investment-analysis: blocks request with 403 CHALLENGE_FAILED when TURNSTILE_SECRET_KEY is set and token is missing or invalid, and succeeds with valid token', async () => {
+    const validBody = {
+        initialInvestment: 1000,
+        returnMetrics: { roi: 10, cagr: 5, irr: 5, npv: 100, paybackYear: 2 },
+        riskMetrics: { sharpeRatio: 1, sortinoRatio: 1, maxDrawdown: 10, annualizedVolatility: 15, var95: 50, var99: 80 },
+    };
+
+    // 1. Missing token -> 403, 0 fetch calls
+    const { fetchImpl: fetchMissing, calls: callsMissing } = createFetchRouter([]);
+    const handlerMissing = createInvestmentHandler({ fetchImpl: fetchMissing });
+    const resMissing = await handlerMissing(ctx(
+        jsonRequest('/api/investment-analysis', { body: validBody }),
+        { OPENAI_API_KEY: 'test-key', TURNSTILE_SECRET_KEY: 'ts-secret' },
+    ));
+    await assertErrorEnvelope(resMissing, 403, 'CHALLENGE_FAILED');
+    assert.equal(callsMissing.length, 0);
+
+    // 2. Invalid token -> 403, only siteverify called (OpenAI never called)
+    const { fetchImpl: fetchInvalid, calls: callsInvalid } = createFetchRouter([
+        ['challenges.cloudflare.com', () => jsonResponse({ success: false })],
+    ]);
+    const handlerInvalid = createInvestmentHandler({ fetchImpl: fetchInvalid });
+    const resInvalid = await handlerInvalid(ctx(
+        jsonRequest('/api/investment-analysis', { body: { ...validBody, turnstileToken: 'invalid-tok' } }),
+        { OPENAI_API_KEY: 'test-key', TURNSTILE_SECRET_KEY: 'ts-secret' },
+    ));
+    await assertErrorEnvelope(resInvalid, 403, 'CHALLENGE_FAILED');
+    assert.equal(callsInvalid.length, 1);
+    assert.match(callsInvalid[0].url, /challenges\.cloudflare\.com/);
+
+    // 3. Valid token -> 200 OK, calls siteverify + OpenAI
+    const { fetchImpl: fetchValid, calls: callsValid } = createFetchRouter([
+        ['challenges.cloudflare.com', () => jsonResponse({ success: true })],
+        ['api.openai.com', () => jsonResponse({
+            status: 'completed',
+            output: [{ type: 'message', content: [{ type: 'output_text', text: JSON.stringify({ summary: 's', strengths: 'st', risks: 'r', recommendation: 'rec' }) }] }],
+        })],
+    ]);
+    const handlerValid = createInvestmentHandler({ fetchImpl: fetchValid });
+    const resValid = await handlerValid(ctx(
+        jsonRequest('/api/investment-analysis', { body: { ...validBody, turnstileToken: 'valid-tok' } }),
+        { OPENAI_API_KEY: 'test-key', TURNSTILE_SECRET_KEY: 'ts-secret' },
+    ));
+    assert.equal(resValid.status, 200);
+    assert.equal(callsValid.length, 2);
+});
+
+test('cashflow-scenario, compass, chat, and sample-review: enforce Turnstile when TURNSTILE_SECRET_KEY is configured', async () => {
+    const envWithTurnstile = { OPENAI_API_KEY: 'test-key', TURNSTILE_SECRET_KEY: 'ts-secret' };
+
+    // cashflow-scenario missing token -> 403
+    const { fetchImpl: cfFetch, calls: cfCalls } = createFetchRouter([]);
+    const resCashflow = await createCashflowHandler({ fetchImpl: cfFetch })(
+        ctx(jsonRequest('/api/cashflow-scenario', { body: validCashflowBody() }), envWithTurnstile),
+    );
+    await assertErrorEnvelope(resCashflow, 403, 'CHALLENGE_FAILED');
+    assert.equal(cfCalls.length, 0);
+
+    // compass missing token -> 403
+    const { fetchImpl: compFetch, calls: compCalls } = createFetchRouter([]);
+    const resCompass = await createCompassHandler({ fetchImpl: compFetch })(
+        ctx(jsonRequest('/api/compass', { body: { answers: validCompassAnswers() } }), envWithTurnstile),
+    );
+    await assertErrorEnvelope(resCompass, 403, 'CHALLENGE_FAILED');
+    assert.equal(compCalls.length, 0);
+
+    // chat missing token -> 403 (and does not consume quota)
+    const { fetchImpl: chatFetch, calls: chatCalls } = createFetchRouter([]);
+    const resChat = await createChatHandler({ fetchImpl: chatFetch })(
+        ctx(jsonRequest('/api/chat', { body: { message: 'What is your experience?' } }), envWithTurnstile),
+    );
+    await assertErrorEnvelope(resChat, 403, 'CHALLENGE_FAILED');
+    assert.equal(chatCalls.length, 0);
+
+    // sample-review POST missing token -> 403 (while HEAD probe remains unaffected)
+    const { fetchImpl: srFetch, calls: srCalls } = createFetchRouter([]);
+    const srHandler = createSampleReviewHandler({ fetchImpl: srFetch });
+    const resSrHead = await srHandler(ctx(new Request('http://localhost/api/sample-review', { method: 'HEAD' }), {
+        ...configuredEnv,
+        TURNSTILE_SECRET_KEY: 'ts-secret',
+    }));
+    assert.equal(resSrHead.status, 409);
+
+    const resSrPost = await srHandler(ctx(sampleReviewRequest(), {
+        ...configuredEnv,
+        TURNSTILE_SECRET_KEY: 'ts-secret',
+    }));
+    await assertErrorEnvelope(resSrPost, 403, 'CHALLENGE_FAILED');
+    assert.equal(srCalls.length, 0);
+
+    // health endpoint does not require Turnstile
+    const resHealth = await createHealthHandler()(ctx(new Request('http://localhost/api/health', { method: 'GET' }), {
+        TURNSTILE_SECRET_KEY: 'ts-secret',
+    }));
+    assert.equal(resHealth.status, 200);
+});
+
+test('frontend OpenAI surfaces and SampleReviewForm integrate Turnstile token, reset lifecycle, and CHALLENGE_FAILED handling', async () => {
+    const { readFileSync } = await import('node:fs');
+    const path = await import('node:path');
+    const rootDir = path.resolve(new URL('..', import.meta.url).pathname);
+    const readSrc = (rel) => readFileSync(path.join(rootDir, rel), 'utf8');
+
+    const turnstileClient = readSrc('src/lib/turnstile-client.ts');
+    assert.match(turnstileClient, /export const TURNSTILE_SITE_KEY = '0x4AAAAAAFuRxbj5vTrO1z1m'/);
+    assert.match(turnstileClient, /1x00000000000000000000AA/);
+    assert.match(turnstileClient, /\['localhost', '127\.0\.0\.1'\]\.includes\(window\.location\.hostname\)/);
+    assert.match(turnstileClient, /https:\/\/challenges\.cloudflare\.com\/turnstile\/v0\/api\.js\?render=explicit/);
+
+    const widgetFiles = [
+        'src/components/ChatWidget.astro',
+        'src/components/services/data-prep/SampleReviewForm.astro',
+        'src/components/tools/founder-compass/ConsentStep.svelte',
+        'src/components/tools/cashflow-forecast/ScenarioPanel.svelte',
+        'src/components/tools/investment-analytics/InvestmentApp.svelte',
+    ];
+    for (const file of widgetFiles) {
+        const src = readSrc(file);
+        assert.match(src, /(mountTurnstile|turnstile\.render)/, `${file} must mount a Turnstile widget`);
+        assert.match(src, /\.reset\(/, `${file} must reset the Turnstile widget after requests`);
+    }
+
+    const requestFiles = [
+        'src/components/ChatWidget.astro',
+        'src/components/services/data-prep/SampleReviewForm.astro',
+        'src/components/tools/founder-compass/FounderCompassApp.svelte',
+        'src/components/tools/cashflow-forecast/CashflowApp.svelte',
+        'src/components/tools/investment-analytics/InvestmentApp.svelte',
+    ];
+    for (const file of requestFiles) {
+        const src = readSrc(file);
+        assert.match(src, /turnstileToken/, `${file} must send turnstileToken in the request payload`);
+        assert.match(src, /CHALLENGE_FAILED/, `${file} must handle CHALLENGE_FAILED errors explicitly`);
+    }
+
+    for (const homeFile of ['src/pages/index.astro', 'src/pages/en/index.astro', 'src/pages/ro/index.astro']) {
+        const homeSrc = readSrc(homeFile);
+        assert.doesNotMatch(homeSrc, /Bahnhofstraße 65b/, `${homeFile} must not expose street address`);
+        assert.doesNotMatch(homeSrc, /\+49 170 474 0121/, `${homeFile} must not expose phone number`);
+        assert.match(homeSrc, /Seevetal \(Metropolregion Hamburg\), Deutschland/);
+        assert.match(homeSrc, /Vollständige Angaben gemäß § 5 DDG im Impressum/);
+    }
+});
+
+test('turnstile helper: validates without blocking network call when dummy token or test secret key is used', async () => {
+    const { verifyTurnstile } = await import('../functions/_lib/turnstile.ts');
+    const { fetchImpl, calls } = createFetchRouter([]);
+
+    // 1. Test secret key 1x000000000000000000000000000000000000000000000000 passes with 0 fetch calls
+    const resTestSecret = await verifyTurnstile(
+        new Request('http://localhost/api/chat', { method: 'POST' }),
+        { TURNSTILE_SECRET_KEY: '1x000000000000000000000000000000000000000000000000', ENVIRONMENT: 'production' },
+        'req-test-secret',
+        { payload: { turnstileToken: 'any-token' }, fetchImpl },
+    );
+    assert.equal(resTestSecret, null);
+    assert.equal(calls.length, 0);
+
+    // 2. Dummy token XXXX.DUMMY.TOKEN.XXXX passes with 0 fetch calls
+    const resDummyToken = await verifyTurnstile(
+        new Request('http://localhost/api/chat', { method: 'POST' }),
+        { TURNSTILE_SECRET_KEY: 'real-secret', ENVIRONMENT: 'production' },
+        'req-dummy-token',
+        { payload: { turnstileToken: 'XXXX.DUMMY.TOKEN.XXXX' }, fetchImpl },
+    );
+    assert.equal(resDummyToken, null);
+    assert.equal(calls.length, 0);
+});
+
+
+

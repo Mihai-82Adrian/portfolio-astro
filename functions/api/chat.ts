@@ -18,6 +18,7 @@ import {
 } from '../_lib/responses.ts';
 import { readFeatureControl } from '../_lib/feature-controls.ts';
 import { hasValidAiPrivacyConsent } from '../_lib/ai-privacy-notice.ts';
+import { verifyTurnstile } from '../_lib/turnstile.ts';
 import { RECRUITER_RESULT_SCHEMA, RECRUITER_RESULT_SCHEMA_NAME, validateRecruiterResult } from '../_lib/recruiter-schema.ts';
 import {
     createOperationalHandler,
@@ -32,6 +33,11 @@ import {
 interface Env {
     OPENAI_API_KEY: string;
     AI_CHAT_ENABLED?: string;
+    TURNSTILE_SECRET_KEY?: string;
+    TURNSTILE_ENFORCE?: string;
+    TURNSTILE_BYPASS?: string;
+    ENVIRONMENT?: string;
+    CF_PAGES?: string;
 }
 
 interface Doc {
@@ -580,6 +586,13 @@ export function createHandler(deps: { fetchImpl?: FetchLike } & OperationalHandl
         if (!env.OPENAI_API_KEY) {
             return jsonError(503, 'FEATURE_NOT_CONFIGURED', 'The AI assistant is temporarily unavailable.', requestId);
         }
+
+        // 4a-bis. Cloudflare Turnstile verification — required before any LLM call or quota consumption.
+        const turnstileError = await verifyTurnstile(request, env, requestId, {
+            payload: body,
+            fetchImpl,
+        });
+        if (turnstileError) return turnstileError;
 
         // 4b. AI contextual consent gate — only requests that actually reach the LLM (no
         // deterministic fact answer above) transmit data externally, so only this path

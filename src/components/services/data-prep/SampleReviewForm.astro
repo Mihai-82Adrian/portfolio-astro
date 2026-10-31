@@ -160,6 +160,12 @@ const isEnabled = FEATURE_CONTROLS.SAMPLE_REVIEW_ENABLED;
       >
       </div>
 
+      <div
+        data-sample-review-turnstile
+        data-sitekey="0x4AAAAAAFuRxbj5vTrO1z1m"
+        class="max-w-full overflow-x-auto"
+      ></div>
+
       <div class="space-y-3">
         <Button type="submit" variant="primary" size="lg" class="w-full">
           {content.submitLabel}
@@ -173,8 +179,16 @@ const isEnabled = FEATURE_CONTROLS.SAMPLE_REVIEW_ENABLED;
   </div>
 </Card>
 
+{isEnabled && (
+  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer data-turnstile-script="true"></script>
+)}
+
 <script is:inline>
   (() => {
+    const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+    const TURNSTILE_SITE_KEY = isLocal
+      ? '1x00000000000000000000AA'
+      : '0x4AAAAAAFuRxbj5vTrO1z1m';
     const form = document.querySelector('[data-sample-review-form]');
     if (!form || form.dataset.bound === 'true') return;
     form.dataset.bound = 'true';
@@ -186,6 +200,82 @@ const isEnabled = FEATURE_CONTROLS.SAMPLE_REVIEW_ENABLED;
 
     const status = form.querySelector('[data-sample-review-status]');
     const submitButton = form.querySelector('button[type="submit"]');
+    const turnstileContainer = form.querySelector('[data-sample-review-turnstile]');
+
+    const isLocalHost =
+      isLocal || window.location.hostname === '[::1]';
+
+    let widgetId = null;
+    let turnstileToken = '';
+    let turnstileVerifying = false;
+    let isSubmitting = false;
+
+    function getTurnstileToken() {
+      if (widgetId && window.turnstile && typeof window.turnstile.getResponse === 'function') {
+        try {
+          const resp = window.turnstile.getResponse(widgetId);
+          if (typeof resp === 'string' && resp.length > 0) {
+            turnstileToken = resp;
+          }
+        } catch {
+          // Ignore lookup error
+        }
+      }
+      return turnstileToken;
+    }
+
+    function isTurnstileReady() {
+      return !turnstileVerifying || getTurnstileToken().length > 0 || isLocalHost;
+    }
+
+    function syncSubmitButton() {
+      if (!(submitButton instanceof HTMLButtonElement)) return;
+      submitButton.disabled = isSubmitting || !isTurnstileReady();
+    }
+
+    function initTurnstileWidget() {
+      if (!(turnstileContainer instanceof HTMLElement)) return;
+      if (!window.turnstile || typeof window.turnstile.render !== 'function') return;
+      if (widgetId !== null) return;
+      try {
+        turnstileVerifying = !isLocalHost;
+        syncSubmitButton();
+        widgetId = window.turnstile.render(turnstileContainer, {
+          sitekey: TURNSTILE_SITE_KEY,
+          theme: 'auto',
+          size: 'flexible',
+          appearance: 'interaction-only',
+          callback: (token) => {
+            turnstileToken = token || '';
+            turnstileVerifying = false;
+            syncSubmitButton();
+          },
+          'expired-callback': () => {
+            turnstileToken = '';
+            turnstileVerifying = !isLocalHost;
+            syncSubmitButton();
+          },
+          'error-callback': () => {
+            turnstileToken = '';
+            turnstileVerifying = false;
+            syncSubmitButton();
+            return true;
+          },
+        });
+      } catch {
+        turnstileVerifying = false;
+        syncSubmitButton();
+      }
+    }
+
+    if (window.turnstile && typeof window.turnstile.render === 'function') {
+      initTurnstileWidget();
+    } else {
+      const scriptEl = document.querySelector('script[data-turnstile-script="true"]');
+      if (scriptEl) {
+        scriptEl.addEventListener('load', initTurnstileWidget, { once: true });
+      }
+    }
 
     function showStatus(message) {
       if (!(status instanceof HTMLElement)) return;
@@ -200,6 +290,9 @@ const isEnabled = FEATURE_CONTROLS.SAMPLE_REVIEW_ENABLED;
         return status.dataset.msgUnavailable || '';
       }
       if (code === 'VALIDATION_FAILED') return status.dataset.msgValidation || '';
+      if (code === 'CHALLENGE_FAILED' || code === 'FORBIDDEN') {
+        return status.dataset.msgChallenge || status.dataset.msgGeneric || '';
+      }
       return status.dataset.msgGeneric || '';
     }
 
@@ -213,20 +306,26 @@ const isEnabled = FEATURE_CONTROLS.SAMPLE_REVIEW_ENABLED;
       if (typeof window.fetch !== 'function') return;
 
       event.preventDefault();
+      if (!isTurnstileReady()) return;
 
       if (status instanceof HTMLElement) {
         status.classList.add('hidden');
         status.textContent = '';
       }
+      isSubmitting = true;
+      syncSubmitButton();
       if (submitButton instanceof HTMLButtonElement) {
-        submitButton.disabled = true;
         submitButton.setAttribute('aria-busy', 'true');
       }
 
       try {
+        const formData = new FormData(form);
+        const token = getTurnstileToken();
+        formData.set('turnstileToken', token);
+
         const response = await fetch(form.action, {
           method: 'POST',
-          body: new FormData(form),
+          body: formData,
           headers: { Accept: 'application/json' },
         });
 
@@ -247,8 +346,18 @@ const isEnabled = FEATURE_CONTROLS.SAMPLE_REVIEW_ENABLED;
       } catch {
         showStatus(messageForCode(null));
       } finally {
+        isSubmitting = false;
+        turnstileToken = '';
+        if (widgetId !== null && window.turnstile && typeof window.turnstile.reset === 'function') {
+          try {
+            turnstileVerifying = !isLocalHost;
+            window.turnstile.reset(widgetId);
+          } catch {
+            turnstileVerifying = false;
+          }
+        }
+        syncSubmitButton();
         if (submitButton instanceof HTMLButtonElement) {
-          submitButton.disabled = false;
           submitButton.removeAttribute('aria-busy');
         }
       }

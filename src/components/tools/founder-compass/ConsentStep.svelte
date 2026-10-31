@@ -4,10 +4,11 @@
   import type { QuizAnswer } from '@/lib/founder-compass/types';
   import { QUESTIONS } from './questions';
   import AIDisclosureNote from '@/components/tools/ui/AIDisclosureNote.svelte';
+  import { mountTurnstile, type TurnstileController } from '@/lib/turnstile-client';
 
   let {
     answers = [] as QuizAnswer[],
-    onSubmit = () => {},
+    onSubmit = (_turnstileToken?: string) => {},
     onBack = () => {},
     submitting = false,
     weeklyLocked = false,
@@ -20,13 +21,35 @@
 
   let aiConsent = $state(false);
   let disclosureRef: AIDisclosureNote | undefined = $state();
+  let turnstileEl: HTMLDivElement | undefined = $state();
+  let turnstile: TurnstileController | null = null;
+  let turnstileReady = $state(true);
+
+  $effect(() => {
+    if (!turnstileEl || weeklyLocked) return;
+    const ctrl = mountTurnstile(turnstileEl, {
+      onStateChange: ({ ready }) => {
+        turnstileReady = ready;
+      },
+    });
+    turnstile = ctrl;
+    return () => {
+      ctrl.destroy();
+      turnstile = null;
+    };
+  });
 
   // Consent is enforced in handleSubmitClick, not via `disabled` — a disabled control can never
   // receive the focus/error feedback the missing-consent case requires.
-  let canSubmit = $derived(!submitting && !weeklyLocked);
+  let canSubmit = $derived(!submitting && !weeklyLocked && turnstileReady);
 
   function handleSubmitClick() {
-    if (disclosureRef?.requireConsent()) onSubmit();
+    if (!disclosureRef?.requireConsent()) return;
+    if (turnstile && !turnstile.isReady()) return;
+    const token = turnstile?.getToken() || '';
+    Promise.resolve(onSubmit(token)).finally(() => {
+      turnstile?.reset();
+    });
   }
 
   function getAnswerSummary(answer: QuizAnswer): string {
@@ -136,6 +159,15 @@
 
     <!-- AI processing disclosure (same pattern as chat, cashflow and investment tools) -->
     <AIDisclosureNote bind:checked={aiConsent} bind:this={disclosureRef} />
+
+    {#if !weeklyLocked}
+      <div
+        bind:this={turnstileEl}
+        data-turnstile="compass"
+        data-sitekey="0x4AAAAAAFuRxbj5vTrO1z1m"
+        class="mb-4 max-w-full overflow-x-auto"
+      ></div>
+    {/if}
 
     <!-- Navigation -->
     <div class="flex items-center justify-between">

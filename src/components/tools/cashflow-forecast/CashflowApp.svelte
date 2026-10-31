@@ -167,7 +167,7 @@
   }
 
   // ── AI Stress Test ────────────────────────────────────────────────────────
-  async function handleGenerateScenario() {
+  async function handleGenerateScenario(turnstileToken: string = '') {
     if (isGenerating || weeklyLocked || !hasBlocks) return;
     isGenerating  = true;
     errorMessage  = null;
@@ -203,25 +203,32 @@
           scenarios: calculatedScenarios,
           privacyConsent: true,
           privacyNoticeVersion: AI_PRIVACY_NOTICE_VERSION,
+          turnstileToken,
         }),
       });
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({})) as any;
-        if (res.status === 429) {
-          errorMessage = err.message ?? 'Wochenlimit erreicht.';
+        const errCode = err?.error?.code;
+        const errMsg = err?.error?.message ?? err?.message;
+        if (res.status === 429 || errCode === 'RATE_LIMITED') {
+          errorMessage = errMsg ?? 'Wochenlimit erreicht.';
           lastScenarioAt = Date.now();
+        } else if (errCode === 'CHALLENGE_FAILED' || errCode === 'FORBIDDEN') {
+          errorMessage = 'Sicherheitsüberprüfung fehlgeschlagen. Bitte versuchen Sie es erneut.';
         } else {
-          errorMessage = err.message ?? 'Fehler bei der Analyse. Bitte versuchen Sie es später erneut.';
+          errorMessage = errMsg ?? 'Fehler bei der Analyse. Bitte versuchen Sie es später erneut.';
         }
         return;
       }
 
       // ── 3. Merge AI narratives with locally calculated monthlyData ──────
-      const data = await res.json() as { scenarios: { type: string; narrative: string }[] };
+      const raw = await res.json() as any;
+      const data = (raw?.data ?? raw) as { scenarios?: { type: string; narrative: string }[] };
+      const scenarioList = Array.isArray(data?.scenarios) ? data.scenarios : [];
 
       const merged = calculatedScenarios.map(sc => {
-        const aiEntry = data.scenarios.find(a => a.type === sc.type);
+        const aiEntry = scenarioList.find(a => a.type === sc.type);
         return {
           ...sc,
           parameters: {

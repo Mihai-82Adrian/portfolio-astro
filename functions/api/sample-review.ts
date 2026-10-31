@@ -10,6 +10,7 @@ import {
     type FetchLike,
 } from '../_lib/http.ts';
 import { readFeatureControl } from '../_lib/feature-controls.ts';
+import { verifyTurnstile } from '../_lib/turnstile.ts';
 import {
     createOperationalHandler,
     getOperationalState,
@@ -27,6 +28,11 @@ interface Env {
     SAMPLE_REVIEW_EMAIL_FROM: string;
     SAMPLE_REVIEW_EMAIL_TO: string;
     SAMPLE_REVIEW_ENABLED?: string;
+    TURNSTILE_SECRET_KEY?: string;
+    TURNSTILE_ENFORCE?: string;
+    TURNSTILE_BYPASS?: string;
+    ENVIRONMENT?: string;
+    CF_PAGES?: string;
 }
 
 interface SampleReviewEmail {
@@ -486,6 +492,22 @@ export function createHandler(
             ALLOWED_FORM_PATHS,
             '/sample-struktur-pruefen',
         );
+
+        const turnstileError = await verifyTurnstile(request, env, requestId, {
+            payload: formData,
+            fetchImpl,
+        });
+        if (turnstileError) {
+            return respondError(
+                request,
+                operational,
+                requestId,
+                403,
+                'CHALLENGE_FAILED',
+                'Sicherheitsüberprüfung fehlgeschlagen. Bitte versuchen Sie es erneut.',
+                { retryable: false, formPath },
+            );
+        }
 
         if (submission.website) {
             return respondError(request, operational, requestId, 422, 'VALIDATION_FAILED', 'Anfrage abgelehnt.', { formPath });
