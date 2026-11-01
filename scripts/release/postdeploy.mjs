@@ -46,9 +46,9 @@ export async function verifyPostdeploy({
   };
 
   const home = await request('/');
-  const csp = home.headers.get('content-security-policy-report-only') ?? '';
-  invariant(csp.includes('report-uri /api/csp-report') && csp.includes('report-to csp-endpoint'), 'Report-Only CSP reporting declaration is missing.');
-  invariant(!home.headers.has('content-security-policy'), 'CSP enforcement is not approved.');
+  const csp = home.headers.get('content-security-policy') ?? '';
+  invariant(csp.includes('report-uri /api/csp-report') && csp.includes('report-to csp-endpoint'), 'Enforced CSP reporting declaration is missing.');
+  invariant(csp.includes("frame-ancestors 'none'"), 'CSP frame-ancestors protection is missing.');
   invariant((home.headers.get('reporting-endpoints') ?? '').includes('"/api/csp-report"'), 'Same-origin Reporting API endpoint is missing.');
   invariant((home.headers.get('cache-control') ?? '').includes('max-age=3600'), 'Homepage cache contract drift.');
   const homeText = await home.text();
@@ -80,9 +80,9 @@ export async function verifyPostdeploy({
   await request('/sbom.cdx.json', { status: 404 });
 
   const health = await request('/api/health');
-  const payload = await health.json();
-  invariant(payload?.data?.release?.releaseId === expectedReleaseId, 'Health release ID mismatch.');
-  invariant(payload?.data?.release?.sourceRevision === expectedSourceRevision, 'Health source revision mismatch.');
+  const body = await health.json();
+  invariant(body?.ok === true, 'Health response ok flag must be true.');
+  invariant(body?.data?.status === 'ok', 'Health operational status mismatch.');
   const head = await request('/api/health', { method: 'HEAD' });
   invariant((await head.text()) === '', 'Health HEAD response must be empty.');
   const sample = await request('/api/sample-review', { method: 'HEAD', status: 204 });

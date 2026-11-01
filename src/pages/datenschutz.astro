@@ -16,6 +16,7 @@ const description = 'Privacy policy and data protection information according to
   title={title}
   description={description}
   lang="de"
+  noindex={true}
 >
   <main class="container-custom py-24">
     <article class="prose-custom max-w-3xl mx-auto">
@@ -251,10 +252,12 @@ const description = 'Privacy policy and data protection information according to
             synthetische Angaben. Die Nutzung der KI-Funktionen ist stets optional; die
             deterministischen Berechnungen und Kernfunktionen der Finanz-Tools sind unabhängig davon
             nutzbar.</li>
-          <li>Zur Missbrauchsvermeidung wird serverseitig ein Nutzungslimit pro gehashter IP-Adresse
-            (SHA-256, Cloudflare) durchgesetzt — für den Chat-Assistenten mit einem 24-Stunden-Fenster,
-            für die Stresstest-/Analyse-Funktionen (Founder Compass, Cashflow, Investment) mit einem
-            7-Tage-Fenster; die Klartext-IP wird nicht an OpenAI übermittelt.</li>
+          <li>Zur Missbrauchsvermeidung und zum Schutz vor automatisierten Abfragen werden Anfragen an
+            die KI-Schnittstellen serverseitig durch Cloudflare Turnstile (Anti-Bot-Prüfung) sowie ein
+            Nutzungslimit pro gehashter IP-Adresse (SHA-256, Cloudflare) abgesichert — für den
+            Chat-Assistenten mit einem 24-Stunden-Fenster, für die Stresstest-/Analyse-Funktionen
+            (Founder Compass, Cashflow, Investment) mit einem 7-Tage-Fenster; die Klartext-IP wird
+            nicht an OpenAI übermittelt.</li>
         </ul>
         <p class="text-text-secondary-light dark:text-text-secondary-dark mb-4">
           <strong>Internationale Übermittlung:</strong> Die Verarbeitung findet in den USA statt. Die im

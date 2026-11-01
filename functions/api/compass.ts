@@ -14,6 +14,7 @@ import {
 } from '../_lib/responses.ts';
 import { readFeatureControl } from '../_lib/feature-controls.ts';
 import { hasValidAiPrivacyConsent } from '../_lib/ai-privacy-notice.ts';
+import { verifyTurnstile } from '../_lib/turnstile.ts';
 import {
     createOperationalHandler,
     getOperationalState,
@@ -25,6 +26,11 @@ import {
 interface Env {
     OPENAI_API_KEY: string;
     AI_COMPASS_ENABLED?: string;
+    TURNSTILE_SECRET_KEY?: string;
+    TURNSTILE_ENFORCE?: string;
+    TURNSTILE_BYPASS?: string;
+    ENVIRONMENT?: string;
+    CF_PAGES?: string;
 }
 
 // ─── Transport limits ──────────────────────────────────────────────
@@ -222,14 +228,22 @@ export function createHandler(deps: { fetchImpl?: FetchLike } & OperationalHandl
         }
 
         try {
-            // 1. Parse body first — the AI contextual consent gate below depends on it and
-            // must run before any quota lookup/write, rate limiting, or provider preparation.
+            // 1. Parse body first — Turnstile and AI contextual consent gates below depend on it
+            // and must run before any quota lookup/write, rate limiting, or provider preparation.
             const bodyResult = await readJsonBody<{
                 answers?: unknown;
                 privacyConsent?: unknown;
                 privacyNoticeVersion?: unknown;
+                turnstileToken?: unknown;
             }>(request, requestId, MAX_BODY_BYTES);
             if (!bodyResult.ok) return bodyResult.response;
+
+            // 1b. Cloudflare Turnstile verification (server-side DoW defense)
+            const turnstileError = await verifyTurnstile(request, env, requestId, {
+                payload: bodyResult.data,
+                fetchImpl,
+            });
+            if (turnstileError) return turnstileError;
 
             // 2. AI contextual consent gate — before quota lookup/write, provider request, or
             // any other side effect.

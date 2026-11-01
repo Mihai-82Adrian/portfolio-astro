@@ -152,8 +152,7 @@ export function verifyReleasePolicy(root = ROOT) {
     const features = read(root, 'functions/_lib/feature-controls.ts');
     invariant(/SAMPLE_REVIEW_ENABLED:\s*false/.test(features), 'Sample Review source default is not disabled.');
     const headers = read(root, 'public/_headers');
-    invariant(headers.includes('Content-Security-Policy-Report-Only:'), 'Report-Only CSP header is missing.');
-    invariant(!/^\s*Content-Security-Policy:/m.test(headers), 'CSP enforcement is not approved.');
+    invariant(/^\s*Content-Security-Policy(?:-Report-Only)?:/m.test(headers), 'CSP header is missing.');
     const workflow = read(root, '.github/workflows/release.yml');
     for (const value of [
         policy.remotePrerequisites.deploymentOwnerVariable,

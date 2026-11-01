@@ -1,6 +1,7 @@
 <script lang="ts">
   import Icon from '@/components/ui/Icon.svelte';
   import AIDisclosureNote from '@/components/tools/ui/AIDisclosureNote.svelte';
+  import { mountTurnstile, type TurnstileController } from '@/lib/turnstile-client';
   import type { StressScenarioResult, MonthlyDataPoint } from '@/lib/cashflow/types';
   import { findInsolvencyMonth, additionalCapitalNeeded } from '@/lib/cashflow/types';
 
@@ -19,21 +20,48 @@
     isGenerating: boolean;
     errorMessage: string | null;
     hasBlocks: boolean;
-    onGenerate: () => void;
+    onGenerate: (turnstileToken?: string) => void | Promise<void>;
   } = $props();
 
   let expanded = $state<Record<string, boolean>>({});
   let aiConsent = $state(false);
   let disclosureRefFirst: AIDisclosureNote | undefined = $state();
   let disclosureRefRegenerate: AIDisclosureNote | undefined = $state();
+  let turnstileEl: HTMLDivElement | undefined = $state();
+  let turnstile: TurnstileController | null = null;
+  let turnstileReady = $state(true);
+
+  $effect(() => {
+    if (!turnstileEl || weeklyLocked) return;
+    const ctrl = mountTurnstile(turnstileEl, {
+      onStateChange: ({ ready }) => {
+        turnstileReady = ready;
+      },
+    });
+    turnstile = ctrl;
+    return () => {
+      ctrl.destroy();
+      turnstile = null;
+    };
+  });
 
   // Consent is enforced here, not via `disabled` — a disabled control can never receive the
   // focus/error feedback the missing-consent case requires.
   function handleGenerateClick() {
-    if (disclosureRefFirst?.requireConsent()) onGenerate();
+    if (!disclosureRefFirst?.requireConsent()) return;
+    if (turnstile && !turnstile.isReady()) return;
+    const token = turnstile?.getToken() || '';
+    Promise.resolve(onGenerate(token)).finally(() => {
+      turnstile?.reset();
+    });
   }
   function handleRegenerateClick() {
-    if (disclosureRefRegenerate?.requireConsent()) onGenerate();
+    if (!disclosureRefRegenerate?.requireConsent()) return;
+    if (turnstile && !turnstile.isReady()) return;
+    const token = turnstile?.getToken() || '';
+    Promise.resolve(onGenerate(token)).finally(() => {
+      turnstile?.reset();
+    });
   }
 
   function toggle(type: string) {
@@ -80,12 +108,18 @@
       </div>
     {:else}
       <AIDisclosureNote bind:checked={aiConsent} bind:this={disclosureRefFirst} showFinancialWarning />
+      <div
+        bind:this={turnstileEl}
+        data-turnstile="cashflow"
+        data-sitekey="0x4AAAAAAFuRxbj5vTrO1z1m"
+        class="mb-3 max-w-full overflow-x-auto"
+      ></div>
       <button
         type="button"
         onclick={handleGenerateClick}
         data-testid="cashflow-generate"
-        disabled={isGenerating || !hasBlocks}
-        class="w-full rounded-xl px-4 py-3 text-sm font-semibold transition-all {isGenerating || !hasBlocks
+        disabled={isGenerating || !hasBlocks || !turnstileReady}
+        class="w-full rounded-xl px-4 py-3 text-sm font-semibold transition-all {isGenerating || !hasBlocks || !turnstileReady
           ? 'cursor-not-allowed bg-black/10 text-text-muted-light dark:bg-white/10 dark:text-text-muted-dark'
           : 'bg-eucalyptus-600 text-white hover:bg-eucalyptus-700 dark:bg-eucalyptus-500 dark:hover:bg-eucalyptus-400'}"
       >
@@ -194,12 +228,18 @@
            bound component instance never unmounts between a check and the next click. -->
       {#if !weeklyLocked}
         <AIDisclosureNote bind:checked={aiConsent} bind:this={disclosureRefRegenerate} showFinancialWarning />
+        <div
+          bind:this={turnstileEl}
+          data-turnstile="cashflow-regenerate"
+          data-sitekey="0x4AAAAAAFuRxbj5vTrO1z1m"
+          class="mt-2 max-w-full overflow-x-auto"
+        ></div>
       {/if}
       <button
         type="button"
         onclick={handleRegenerateClick}
         data-testid="cashflow-regenerate"
-        disabled={isGenerating || weeklyLocked}
+        disabled={isGenerating || weeklyLocked || !turnstileReady}
         class="mt-1 text-xs text-text-secondary-light underline underline-offset-2 hover:text-text-primary-light disabled:cursor-not-allowed disabled:opacity-40 dark:text-text-secondary-dark dark:hover:text-text-primary-dark"
       >
         {weeklyLocked ? `Gesperrt noch ${cooldownLabel}` : 'Neuen Stresstest generieren'}

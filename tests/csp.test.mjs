@@ -10,7 +10,7 @@ import { effectiveCacheControl, effectiveHeaders, parseHeadersFile } from './hel
 const ROOT = path.resolve(new URL('..', import.meta.url).pathname);
 const DIST = path.join(ROOT, 'dist');
 const HEADERS = path.join(DIST, '_headers');
-const POLICY_HEADER = 'Content-Security-Policy-Report-Only';
+const POLICY_HEADER = 'Content-Security-Policy';
 installFakeCaches();
 
 function headerValue(source, name) {
@@ -25,41 +25,58 @@ function directives(policy) {
   }));
 }
 
-test('built Pages headers expose one deterministic report-only policy and same-origin reporting endpoint', () => {
+test('built Pages headers expose one deterministic enforced policy, security perimeter headers, and same-origin reporting endpoint', () => {
   assert.ok(existsSync(HEADERS), 'run npm run build before verify:csp');
   const source = readFileSync(HEADERS, 'utf8');
   const policy = headerValue(source, POLICY_HEADER);
   const parsed = directives(policy);
 
   assert.ok(policy);
-  assert.equal(headerValue(source, 'Content-Security-Policy'), '');
+  assert.equal(headerValue(source, 'Content-Security-Policy-Report-Only'), '');
+  assert.equal(headerValue(source, 'Strict-Transport-Security'), 'max-age=63072000; includeSubDomains; preload');
+  assert.equal(headerValue(source, 'X-Content-Type-Options'), 'nosniff');
+  assert.equal(headerValue(source, 'X-Frame-Options'), 'DENY');
+  assert.equal(headerValue(source, 'Referrer-Policy'), 'strict-origin-when-cross-origin');
+  assert.equal(headerValue(source, 'Cross-Origin-Opener-Policy'), 'same-origin');
+  assert.equal(
+    headerValue(source, 'Permissions-Policy'),
+    'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()',
+  );
   assert.equal(headerValue(source, 'Reporting-Endpoints'), 'csp-endpoint="/api/csp-report"');
   assert.deepEqual([...parsed.keys()], [
     'default-src',
     'base-uri',
-    'object-src',
+    'frame-ancestors',
     'form-action',
-    'script-src',
-    'style-src',
+    'object-src',
     'img-src',
     'font-src',
     'connect-src',
+    'script-src',
+    'style-src',
     'frame-src',
     'media-src',
     'manifest-src',
     'worker-src',
+    'upgrade-insecure-requests',
     'report-uri',
     'report-to',
   ]);
   assert.deepEqual(parsed.get('default-src'), ["'self'"]);
+  assert.deepEqual(parsed.get('frame-ancestors'), ["'none'"]);
   assert.deepEqual(parsed.get('object-src'), ["'none'"]);
   assert.deepEqual(parsed.get('base-uri'), ["'self'"]);
   assert.deepEqual(parsed.get('form-action'), ["'self'"]);
+  assert.deepEqual(parsed.get('img-src'), ["'self'", 'data:', 'https:']);
+  assert.deepEqual(parsed.get('font-src'), ["'self'", 'data:']);
+  assert.deepEqual(parsed.get('upgrade-insecure-requests'), []);
   assert.ok(parsed.get('script-src').includes("'unsafe-inline'"));
+  assert.ok(parsed.get('script-src').includes("'wasm-unsafe-eval'"));
   assert.ok(parsed.get('style-src').includes("'unsafe-inline'"));
   assert.equal(policy.includes("'unsafe-eval'"), false);
   assert.equal(policy.includes('*'), false);
-  assert.equal(/(?:^|\s)https:(?:\s|;|$)/.test(policy), false);
+  assert.equal(parsed.get('script-src').includes('https:'), false);
+  assert.equal(parsed.get('connect-src').includes('https:'), false);
   assert.equal(textMentionsHost(policy, 'api.openai.com'), false);
   assert.equal(textMentionsHost(policy, 'api.resend.com'), false);
   assert.deepEqual(parsed.get('report-uri'), ['/api/csp-report']);
@@ -188,6 +205,7 @@ test('policy grants only inventoried browser resource origins, not ordinary exte
   const permitted = [...policy.matchAll(/https:\/\/[A-Za-z0-9.-]+/g)].map(([value]) => value);
   assert.deepEqual([...new Set(permitted)].sort(), [
     'https://analytics.ahrefs.com',
+    'https://challenges.cloudflare.com',
     'https://cloudflareinsights.com',
     'https://giscus.app',
     'https://open.spotify.com',

@@ -97,17 +97,9 @@ const description = "Ask anything about my skills, experience, and career — or
                 "What are your certifications?"
               ].map(q => (
                 <button 
+                  type="button"
+                  data-example-query={q}
                   class="example-query px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-text-secondary-light dark:text-text-secondary-dark hover:border-eucalyptus-500 hover:text-eucalyptus-600 dark:hover:text-eucalyptus-400 transition-colors text-left"
-                  onclick={`
-                    const input = document.querySelector('.page-embedded-chat input');
-                    const form = document.querySelector('.page-embedded-chat form');
-                    if(input && form) {
-                      input.value = "${q}";
-                      input.focus();
-                      // Optional: auto-submit
-                      // form.requestSubmit(); 
-                    }
-                  `}
                 >
                   "{q}"
                 </button>
@@ -130,4 +122,26 @@ const description = "Ask anything about my skills, experience, and career — or
       </div>
     </div>
   </Container>
+
+  <script>
+    function initExampleQueries() {
+      const buttons = document.querySelectorAll<HTMLButtonElement>('.example-query[data-example-query]');
+      buttons.forEach((btn) => {
+        if (btn.dataset.bound === 'true') return;
+        btn.dataset.bound = 'true';
+        btn.addEventListener('click', () => {
+          const query = btn.dataset.exampleQuery || '';
+          const input = document.querySelector<HTMLTextAreaElement>('.page-embedded-chat textarea.chat-input');
+          if (input) {
+            input.value = query;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.focus();
+          }
+        });
+      });
+    }
+
+    initExampleQueries();
+    document.addEventListener('astro:page-load', initExampleQueries);
+  </script>
 </BaseLayout>

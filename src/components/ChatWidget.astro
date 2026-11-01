@@ -208,6 +208,9 @@ const title = props.title || copy.title;
       </div>
     </div>
 
+    <!-- Cloudflare Turnstile Managed Widget (chat tab) -->
+    <div class="chat-turnstile px-3 pt-1 bg-white dark:bg-dark-surface max-w-full overflow-x-auto shrink-0" data-turnstile="chat" data-sitekey="0x4AAAAAAFuRxbj5vTrO1z1m"></div>
+
     <!-- Chat Input -->
     <form class="chat-form p-3 bg-white dark:bg-dark-surface border-t border-gray-200 dark:border-dark-border flex gap-2 items-end shrink-0">
       <textarea
@@ -294,6 +297,9 @@ const title = props.title || copy.title;
         </div>
       </div>
 
+      <!-- Cloudflare Turnstile Managed Widget (JD tab) -->
+      <div class="jd-turnstile mt-2 max-w-full overflow-x-auto" data-turnstile="jd" data-sitekey="0x4AAAAAAFuRxbj5vTrO1z1m"></div>
+
       <!-- Character Counter -->
       <div class="flex justify-between items-center mt-2">
         <span class="jd-char-count text-xs text-gray-400">0 / 6,000</span>
@@ -312,8 +318,11 @@ const title = props.title || copy.title;
   </div>
 </div>
 
+<script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer data-turnstile-script="true"></script>
+
 <script>
   import { AI_PRIVACY_NOTICE_VERSION } from '../../functions/_lib/ai-privacy-notice.ts';
+  import { mountTurnstile, type TurnstileController } from '../lib/turnstile-client.ts';
 
   class ChatWidget {
     container: HTMLElement;
@@ -329,6 +338,10 @@ const title = props.title || copy.title;
     chatConsentWithdrawBtn: HTMLButtonElement | null;
     chatConsentCheckbox: HTMLInputElement | null;
     chatConsentError: HTMLElement | null;
+    chatTurnstileContainer: HTMLElement | null;
+    chatTurnstile: TurnstileController | null = null;
+    isChatSubmitting: boolean = false;
+    chatQuotaExhausted: boolean = false;
     // JD tab elements
     jdInput: HTMLTextAreaElement | null;
     jdAnalyzeBtn: HTMLButtonElement | null;
@@ -340,6 +353,10 @@ const title = props.title || copy.title;
     jdConsentWithdrawBtn: HTMLButtonElement | null;
     jdConsentCheckbox: HTMLInputElement | null;
     jdConsentError: HTMLElement | null;
+    jdTurnstileContainer: HTMLElement | null;
+    jdTurnstile: TurnstileController | null = null;
+    isJdSubmitting: boolean = false;
+    jdQuotaExhausted: boolean = false;
     // Tab & language
     tabs: NodeListOf<HTMLButtonElement>;
     panels: NodeListOf<HTMLElement>;
@@ -363,6 +380,7 @@ const title = props.title || copy.title;
       this.chatConsentWithdrawBtn = el.querySelector('.chat-consent-withdraw');
       this.chatConsentCheckbox = el.querySelector('.chat-consent-checkbox');
       this.chatConsentError = el.querySelector('.chat-consent-error');
+      this.chatTurnstileContainer = el.querySelector('.chat-turnstile');
 
       this.jdInput = el.querySelector('.jd-input');
       this.jdAnalyzeBtn = el.querySelector('.jd-analyze-btn');
@@ -374,6 +392,7 @@ const title = props.title || copy.title;
       this.jdConsentWithdrawBtn = el.querySelector('.jd-consent-withdraw');
       this.jdConsentCheckbox = el.querySelector('.jd-consent-checkbox');
       this.jdConsentError = el.querySelector('.jd-consent-error');
+      this.jdTurnstileContainer = el.querySelector('.jd-turnstile');
 
       this.tabs = el.querySelectorAll('.chat-tab');
       this.panels = el.querySelectorAll('.chat-panel');
@@ -432,9 +451,31 @@ const title = props.title || copy.title;
       this.jdConsentCheckbox?.addEventListener('change', () => this.handleConsentChecked('jd'));
       this.chatConsentWithdrawBtn?.addEventListener('click', () => this.handleConsentWithdraw('chat'));
       this.jdConsentWithdrawBtn?.addEventListener('click', () => this.handleConsentWithdraw('jd'));
+
+      // Managed Cloudflare Turnstile widgets for Chat and JD surfaces
+      this.chatTurnstile = mountTurnstile(this.chatTurnstileContainer, {
+        onStateChange: () => this.syncSubmitButtons(),
+      });
+      this.jdTurnstile = mountTurnstile(this.jdTurnstileContainer, {
+        onStateChange: () => this.syncSubmitButtons(),
+      });
     }
 
     // ─── Helpers ─────────────────────────────────────────────────
+
+    syncSubmitButtons() {
+      if (this.submitBtn) {
+        const chatReady = this.chatTurnstile ? this.chatTurnstile.isReady() : true;
+        const chatWaitingForToken = Boolean(this.chatConsentCheckbox?.checked) && !chatReady;
+        this.submitBtn.disabled = this.isChatSubmitting || this.chatQuotaExhausted || chatWaitingForToken;
+      }
+      if (this.jdAnalyzeBtn) {
+        const jdLen = this.jdInput?.value.length ?? 0;
+        const jdReady = this.jdTurnstile ? this.jdTurnstile.isReady() : true;
+        const jdWaitingForToken = Boolean(this.jdConsentCheckbox?.checked) && !jdReady;
+        this.jdAnalyzeBtn.disabled = this.isJdSubmitting || this.jdQuotaExhausted || jdLen < 50 || jdWaitingForToken;
+      }
+    }
 
     clearElement(el: HTMLElement) {
       while (el.firstChild) {
@@ -475,6 +516,7 @@ const title = props.title || copy.title;
       const granted = state === 'granted';
       expanded?.classList.toggle('hidden', granted);
       status?.classList.toggle('hidden', !granted);
+      this.syncSubmitButtons();
     }
 
     // Checking the box immediately grants and collapses the disclosure — no submit required, no
@@ -517,14 +559,13 @@ const title = props.title || copy.title;
       this.quotaJdText.className = `quota-jd-text ${jdColor}`;
 
       // Disable inputs if exhausted
+      this.chatQuotaExhausted = chatRemaining === 0;
+      this.jdQuotaExhausted = jdRemaining === 0;
       if (chatRemaining === 0 && this.activeTab === 'chat') {
         this.input.disabled = true;
         this.input.placeholder = 'Session limit reached. Come back tomorrow!';
-        if (this.submitBtn) this.submitBtn.disabled = true;
       }
-      if (jdRemaining === 0 && this.jdAnalyzeBtn) {
-        this.jdAnalyzeBtn.disabled = true;
-      }
+      this.syncSubmitButtons();
     }
 
     // ─── Tab Management ─────────────────────────────────────────
@@ -595,11 +636,15 @@ const title = props.title || copy.title;
       const text = this.input.value.trim();
       if (!text) return;
       if (!this.requireConsent(this.chatConsentCheckbox, this.chatConsentError)) return;
+      if (this.chatTurnstile && !this.chatTurnstile.isReady()) return;
+
+      const turnstileToken = this.chatTurnstile?.getToken() || '';
 
       this.appendMessage(text, true);
       this.input.value = '';
       this.input.style.height = 'auto';
-      if (this.submitBtn) this.submitBtn.disabled = true;
+      this.isChatSubmitting = true;
+      this.syncSubmitButtons();
 
       // Hide chips
       if (this.chipsContainer) {
@@ -619,6 +664,7 @@ const title = props.title || copy.title;
             tab: 'chat',
             privacyConsent: true,
             privacyNoticeVersion: AI_PRIVACY_NOTICE_VERSION,
+            turnstileToken,
           })
         });
 
@@ -642,7 +688,9 @@ const title = props.title || copy.title;
         this.removeLoading();
         this.appendMessage(err.message || 'Something went wrong.', false);
       } finally {
-        if (this.submitBtn) this.submitBtn.disabled = false;
+        this.isChatSubmitting = false;
+        this.chatTurnstile?.reset();
+        this.syncSubmitButtons();
         this.input.focus();
       }
     }
@@ -655,8 +703,7 @@ const title = props.title || copy.title;
       const formatted = len.toLocaleString();
       this.jdCharCount.textContent = `${formatted} / 6,000`;
 
-      // Enable analyze button if there's enough text
-      this.jdAnalyzeBtn.disabled = len < 50;
+      this.syncSubmitButtons();
 
       // Color the counter
       if (len > 5500) {
@@ -674,8 +721,12 @@ const title = props.title || copy.title;
       const text = this.jdInput.value.trim();
       if (text.length < 50) return;
       if (!this.requireConsent(this.jdConsentCheckbox, this.jdConsentError)) return;
+      if (this.jdTurnstile && !this.jdTurnstile.isReady()) return;
 
-      this.jdAnalyzeBtn.disabled = true;
+      const turnstileToken = this.jdTurnstile?.getToken() || '';
+
+      this.isJdSubmitting = true;
+      this.syncSubmitButtons();
       this.jdAnalyzeBtn.textContent = '⏳ Analyzing...';
       this.clearElement(this.jdResults);
       this.jdResults.classList.remove('hidden');
@@ -704,6 +755,7 @@ const title = props.title || copy.title;
             tab: 'jd',
             privacyConsent: true,
             privacyNoticeVersion: AI_PRIVACY_NOTICE_VERSION,
+            turnstileToken,
           })
         });
 
@@ -720,7 +772,9 @@ const title = props.title || copy.title;
         this.clearElement(this.jdResults);
         this.renderJdError(err.message || 'Analysis failed. Please try again.');
       } finally {
-        this.jdAnalyzeBtn.disabled = false;
+        this.isJdSubmitting = false;
+        this.jdTurnstile?.reset();
+        this.syncSubmitButtons();
         this.clearElement(this.jdAnalyzeBtn);
         const icon = document.createElement('span');
         icon.setAttribute('aria-hidden', 'true');
@@ -1131,6 +1185,8 @@ const title = props.title || copy.title;
       'UNSUPPORTED_MEDIA_TYPE': 'Request could not be processed. Please reload and try again.',
       'MALFORMED_JSON': 'Request could not be processed. Please reload and try again.',
       'ORIGIN_REJECTED': 'Request could not be processed. Please reload and try again.',
+      'CHALLENGE_FAILED': 'Security verification failed. Please complete the challenge and try again.',
+      'FORBIDDEN': 'Access denied. Please reload and try again.',
       'PRIVACY_CONSENT_REQUIRED': 'Please confirm the consent to external processing before sending.',
       'PAYLOAD_TOO_LARGE': 'Message is too long.',
       'VALIDATION_FAILED': 'Please check your input and try again.',

@@ -93,7 +93,7 @@
   }
 
   // ── Submit & Stream ──────────────────────────────────────────────
-  async function handleSubmit() {
+  async function handleSubmit(turnstileToken: string = '') {
     // Double-check frontend guard
     if (weeklyLocked) {
       errorMessage = `Wochenlimit erreicht. Nächste Auswertung ${cooldownLabel}.`;
@@ -128,14 +128,26 @@
           answers: payload,
           privacyConsent: true,
           privacyNoticeVersion: AI_PRIVACY_NOTICE_VERSION,
+          turnstileToken,
         }),
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: 'Serverfehler' }));
-        throw new Error(
-          (err as { error?: string }).error || `HTTP ${res.status}`
-        );
+        const err = (await res.json().catch(() => ({}))) as {
+          error?: string | { code?: string; message?: string };
+          message?: string;
+        };
+        const errCode = typeof err.error === 'object' ? err.error?.code : undefined;
+        const errMsg =
+          typeof err.error === 'object'
+            ? err.error?.message
+            : typeof err.error === 'string'
+              ? err.error
+              : err.message;
+        if (errCode === 'CHALLENGE_FAILED' || errCode === 'FORBIDDEN') {
+          throw new Error('Sicherheitsüberprüfung fehlgeschlagen. Bitte versuchen Sie es erneut.');
+        }
+        throw new Error(errMsg || `HTTP ${res.status}`);
       }
 
       const contentType = res.headers.get('Content-Type') || '';
@@ -189,8 +201,9 @@
         lastGeneratedAt = Date.now();
         status = 'complete';
       } else {
-        const data = await res.json();
-        report = (data as { report?: string }).report || 'Kein Ergebnis generiert.';
+        const raw = (await res.json()) as { data?: { report?: string }; report?: string };
+        const payloadData = raw?.data ?? raw;
+        report = payloadData?.report || 'Kein Ergebnis generiert.';
         lastGeneratedAt = Date.now();
         status = 'complete';
       }

@@ -7,7 +7,7 @@
  */
 
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { generatePersonSchema, toJsonLd } from '@utils/structuredData';
+import { generatePersonSchema } from '@utils/structuredData';
 
 const title = 'Impressum | Mihai Adrian Mateescu';
 const description = 'Legal notice and contact information according to DDG (German Digital Services Act)';
@@ -19,10 +19,9 @@ const personSchema = generatePersonSchema('de');
   title={title}
   description={description}
   lang="de"
+  noindex={true}
+  structuredData={personSchema}
 >
-  <Fragment slot="head">
-    <script type="application/ld+json" set:html={toJsonLd(personSchema as unknown as Record<string, unknown>)} />
-  </Fragment>
 
   <main class="container-custom py-24">
     <article class="prose-custom max-w-3xl mx-auto">

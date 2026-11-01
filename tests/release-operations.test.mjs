@@ -35,7 +35,7 @@ function postdeployFetch(homeText, calls = []) {
     if (target.pathname === '/') {
       return response(target.href, 200, {
         headers: {
-          'Content-Security-Policy-Report-Only': 'default-src self; report-uri /api/csp-report; report-to csp-endpoint',
+          'Content-Security-Policy': "default-src 'self'; frame-ancestors 'none'; report-uri /api/csp-report; report-to csp-endpoint",
           'Reporting-Endpoints': 'csp-endpoint="/api/csp-report"',
           'Cache-Control': 'public, max-age=3600, must-revalidate',
         },
@@ -44,7 +44,7 @@ function postdeployFetch(homeText, calls = []) {
     }
     if (target.pathname === '/api/health') {
       return response(target.href, 200, {
-        json: { data: { release: { releaseId: RELEASE_ID, sourceRevision: REVISION } } },
+        json: { ok: true, data: { status: 'ok' } },
       });
     }
     if (target.pathname === '/_astro/entry.ABC123.js') {

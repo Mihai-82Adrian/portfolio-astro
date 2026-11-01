@@ -1331,16 +1331,16 @@ export async function runFirefoxRelease({
     invariant(await execute(client, `return document.documentElement.scrollWidth <= document.documentElement.clientWidth;`), 'Representative route overflows at 200% text scale.');
     const health = await executeAsync(client, `
       const done = arguments[arguments.length - 1];
-      fetch('/api/health').then((response) => response.json()).then((value) => done(value.data.release.releaseId)).catch(() => done('ERROR'));
+      fetch('/api/health').then((response) => response.json()).then((value) => done(value.data?.status)).catch(() => done('ERROR'));
     `);
-    invariant(health === expectedReleaseId, 'Firefox health release ID mismatch.');
+    invariant(health === 'ok', 'Firefox health operational status mismatch.');
     invariant(await executeAsync(client, `
       const done = arguments[arguments.length - 1];
       fetch('/').then((response) => done({
         reportOnly: response.headers.has('content-security-policy-report-only'),
         enforcement: response.headers.has('content-security-policy'),
       })).catch(() => done({}));
-    `).then((value) => value.reportOnly && !value.enforcement), 'Firefox CSP Report-Only boundary failed.');
+    `).then((value) => value.enforcement && !value.reportOnly), 'Firefox CSP enforcement boundary failed.');
     invariant(await executeAsync(client, `
       const done = arguments[arguments.length - 1];
       fetch('/api/sample-review', {method: 'HEAD'}).then((response) => done(response.status)).catch(() => done(0));

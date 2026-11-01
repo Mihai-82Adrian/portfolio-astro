@@ -14,32 +14,9 @@ interface PersonSchema {
   '@context': string;
   '@type': string;
   name: string;
-  givenName: string;
-  familyName: string;
   jobTitle: string | string[];
-  description?: string;
   url: string;
-  image?: string;
-  email: string;
-  telephone: string;
-  address: {
-    '@type': string;
-    addressLocality: string;
-    postalCode: string;
-    streetAddress: string;
-    addressCountry: string;
-  };
   sameAs: string[];
-  knowsLanguage: string[];
-  alumniOf?: {
-    '@type': string;
-    name: string;
-  }[];
-  hasCredential?: {
-    '@type': string;
-    name: string;
-    credentialCategory: string;
-  }[];
 }
 
 interface WebSiteSchema {
@@ -113,42 +90,11 @@ export function generatePersonSchema(lang: 'de' | 'en' | 'ro' = 'de'): PersonSch
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: 'Mihai Adrian Mateescu',
-    givenName: 'Mihai Adrian',
-    familyName: 'Mateescu',
     jobTitle: jobTitles[lang],
     url: SITE_URL,
-    image: `${SITE_URL}/images/me.webp`,
-    email: 'kontakt@me-mateescu.de',
-    telephone: '+491704740121',
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: 'Seevetal',
-      postalCode: '21218',
-      streetAddress: 'Bahnhofstraße 65b',
-      addressCountry: 'DE'
-    },
     sameAs: [
       'https://www.linkedin.com/in/mihai-adrian-mateescu/',
       'https://github.com/Mihai-82Adrian'
-    ],
-    knowsLanguage: ['de', 'en', 'ro'],
-    alumniOf: [
-      {
-        '@type': 'EducationalOrganization',
-        name: 'IHK Nord-Westfalen'
-      }
-    ],
-    hasCredential: [
-      {
-        '@type': 'EducationalOccupationalCredential',
-        name: 'Fachkraft für Buchführung (IHK)',
-        credentialCategory: 'certificate'
-      },
-      {
-        '@type': 'EducationalOccupationalCredential',
-        name: 'telc Deutsch B2',
-        credentialCategory: 'certificate'
-      }
     ]
   };
 }
