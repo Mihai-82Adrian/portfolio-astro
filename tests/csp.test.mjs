@@ -71,6 +71,7 @@ test('built Pages headers expose one deterministic enforced policy, security per
   assert.deepEqual(parsed.get('font-src'), ["'self'", 'data:']);
   assert.deepEqual(parsed.get('upgrade-insecure-requests'), []);
   assert.ok(parsed.get('script-src').includes("'unsafe-inline'"));
+  assert.ok(parsed.get('script-src').includes("'wasm-unsafe-eval'"));
   assert.ok(parsed.get('style-src').includes("'unsafe-inline'"));
   assert.equal(policy.includes("'unsafe-eval'"), false);
   assert.equal(policy.includes('*'), false);
