@@ -263,6 +263,15 @@ export default defineConfig({
       // directly in the built CSS — a value `font-src 'self'` never allows.
       // Fonts must always ship as separate hashed files instead.
       assetsInlineLimit: (filePath) => (/\.woff2?$/.test(filePath) ? false : undefined),
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('ai-privacy-notice')) {
+              return 'ai-privacy-notice';
+            }
+          },
+        },
+      },
     },
   },
 });
